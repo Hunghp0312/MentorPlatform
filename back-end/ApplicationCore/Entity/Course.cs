@@ -11,6 +11,6 @@ namespace ApplicationCore.Entity
         public string Duration { get; set; }
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }
-        public ICollection<string> Tags { get; set; } = new List<string>();
+        public ICollection<string> Tags { get; set; }
     }
 }
