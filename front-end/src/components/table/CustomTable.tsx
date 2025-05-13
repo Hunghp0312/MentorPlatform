@@ -13,7 +13,7 @@ export type DataAction<T> = {
 
 export type BulkAction<T> = {
   label: string;
-  icon?: React.ReactNode 
+  icon?: React.ReactNode;
   onClick: (selectedRows: T[]) => void;
   className?: string;
 };

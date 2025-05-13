@@ -4,7 +4,6 @@ import DataTable from "../../components/table/CustomTable"
 import { useState } from "react"
 import { CategoryType, getCategoryActions, getCategoryColumns, mockCategories } from "../../data/_mockcategory"
 import CategoryAddDialog from "../../components/dialog/CategoryAddDialog"
-import { se } from "date-fns/locale"
 
 const ListCategory = () => {
     const [categories, setCategories] = useState<CategoryType[]>(mockCategories);
