@@ -1,0 +1,22 @@
+﻿using ApplicationCore.DTOs.Category;
+using FluentValidation;
+
+namespace ApplicationCore.Validators.Category
+{
+    public class UpdateCategoryRequestDtoValidator : AbstractValidator<UpdateCategoryRequestDto>
+    {
+        public UpdateCategoryRequestDtoValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Category name is required and cannot be empty.")
+                .MaximumLength(100).WithMessage("Category name must not exceed 100 characters.");
+
+            RuleFor(x => x.Description)
+                .NotEmpty().WithMessage("Description is required and cannot be empty.")
+                .MaximumLength(500).WithMessage("Description must not exceed 500 characters.");
+
+            RuleFor(x => x.Status)
+                   .NotNull().WithMessage("Status is required.");
+        }
+    }
+}

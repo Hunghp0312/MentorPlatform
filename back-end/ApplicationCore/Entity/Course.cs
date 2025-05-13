@@ -1,0 +1,16 @@
+namespace ApplicationCore.Entity
+{
+    public class Course
+    {
+        public Guid Id { get; set; }
+        public Guid CategoryId { get; set; }
+        public Category Category { get; set; }
+        public string Title { get; set; }
+        public int Status { get; set; }
+        public int Difficulty { get; set; }
+        public string Duration { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime LastUpdated { get; set; }
+        public ICollection<string> Tags { get; set; }
+    }
+}
