@@ -1,5 +1,6 @@
 import { useRoutes } from "react-router-dom";
-import Layout from "./layout/Layout";
+import Layout from "../layout/Layout";
+import ListCategory from "../pages/admin/ListCategory";
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -8,7 +9,7 @@ const AppRouter = () => {
       element: <Layout />,
       children: [
         { path: "", element: <div>Home</div> },
-        { path: "category", element: <div>Home</div> },
+        { path: "category", element: <ListCategory/> },
         { path: "course", element: <div>Book Borrowing</div> },
       ],
     },
