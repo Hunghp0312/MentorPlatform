@@ -1,7 +1,8 @@
+using ApplicationCore.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Library_API_2._0.Domain.Entities
+namespace Infrastructure.Data.Configuration
 {
     public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
@@ -19,9 +20,9 @@ namespace Library_API_2._0.Domain.Entities
                 .IsRequired();
 
             builder.HasMany(c => c.Courses)
-                .WithOne(c => c.< Category >)// c.Category
-                .HasForeignKey(c => c.< CategoryId >)// c.CategoryId
-                .OnDelete(DeleteBehavior.NoAction);
+                .WithOne(c => c.Category)// c.Category
+                .HasForeignKey(c => c.CategoryId)// c.CategoryId
+                .OnDelete(DeleteBehavior.NoAction);//chưa có delete nên để tạm
         }
     }
 }
