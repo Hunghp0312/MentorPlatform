@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.DTOs.Category;
+using ApplicationCore.DTOs.Common;
 using ApplicationCore.Entity;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
@@ -107,6 +108,61 @@ namespace ApplicationCore.Services
                 Status = category.Status,
                 CourseCount = category.CourseCount // Sử dụng trực tiếp nếu đã có trong entity
             };
+        }
+
+        public async Task<ICollection<CategoryResponseDto>> GetAllCategoriesAsync()
+        {
+            var categories = await _categoryRepo.GetAllAsync();
+            var categoryDtos = categories.Select(c => new CategoryResponseDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                Status = c.Status,
+                CourseCount = c.CourseCount
+            }).ToList();
+
+            return categoryDtos;
+        }
+
+        public async Task<PagedResult<CategoryResponseDto>> GetPagedCategoriesAsync(CategoryPagedRequestDto request)
+        {
+            if (request.PageIndex < 1)
+            {
+                request.PageIndex = 1;
+            }
+
+            if (request.PageSize < 1 || request.PageSize > 20)
+            {
+                request.PageSize = 10;
+            }
+            Func<IQueryable<Category>, IQueryable<Category>> filter = null;
+            if (!string.IsNullOrEmpty(request.Query) || !string.IsNullOrEmpty(request.Status))
+            {
+                filter = q =>
+                {
+                    if (!string.IsNullOrEmpty(request.Query))
+                    {
+                        q = q.Where(c => c.Name.ToLower().Contains(request.Query));
+                    }
+                    if (!string.IsNullOrEmpty(request.Status))
+                    {
+                        bool isActive = request.Status.ToLower() == "active";
+                        q = q.Where(c => c.Status == isActive);
+                    }
+                    return q;
+                };
+            }
+            var (categories, totalCount) = await _categoryRepo.GetPagedAsync(filter, request.PageIndex, request.PageSize);
+            return new PagedResult<CategoryResponseDto>(categories.Select(c => new CategoryResponseDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                Status = c.Status,
+                CourseCount = c.CourseCount
+            }).ToList(), request.PageIndex, request.PageSize, totalCount);
+
         }
     }
 }

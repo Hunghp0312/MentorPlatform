@@ -15,7 +15,8 @@ namespace ApplicationCore.Interfaces.RepositoryInterfaces
 
         Task AddRangeAsync(ICollection<TEntity> entities);
 
-        Task<(ICollection<TEntity>, int)> GetPagedAsync(int pageIndex, int pageSize);
+        Task<(ICollection<TEntity>, int)> GetPagedAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter,
+            int pageIndex, int pageSize);
 
         void Update(TEntity entity);
 
