@@ -1,21 +1,28 @@
-public class OperationResult
+using ApplicationCore.Entity;
+
+namespace ApplicationCore.Common
 {
-    public bool Success { get; private set; }
-    public string? Message { get; private set; }
-    public object? Data { get; private set; }
-
-    private OperationResult(bool success, object? data = null, string? message = null)
+    public class OperationResult<T>
+        where T : class
     {
-        Success = success;
-        Data = data;
-        Message = message;
+        public bool Success { get; private set; }
+        public string? Message { get; private set; }
+        public T? Data { get; private set; }
+
+        private OperationResult(bool success, T? data, string? message)
+        {
+            Success = success;
+            Data = data;
+            Message = message;
+        }
+
+        public static OperationResult<T> Ok(string? message = null) =>
+            new OperationResult<T>(true, default, message);
+
+        public static OperationResult<T> Ok(T data, string? message = null) =>
+            new OperationResult<T>(true, data, message);
+
+        public static OperationResult<T> Fail(string message) =>
+            new OperationResult<T>(false, default, message);
     }
-
-    public static OperationResult Ok(string? message = null) =>
-        new OperationResult(true, null, message);
-
-    public static OperationResult Ok(object data, string? message = null) =>
-        new OperationResult(true, data, message);
-
-    public static OperationResult Fail(string message) => new OperationResult(false, null, message);
 }
