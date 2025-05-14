@@ -9,6 +9,8 @@ namespace ApplicationCore.Entity
         public int Status { get; set; }
         public int Difficulty { get; set; }
         public string Duration { get; set; }
+        public Guid MentorId { get; set; }
+        public Guid ResourceId { get; set; }
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }
         public ICollection<string> Tags { get; set; } = new List<string>();

@@ -21,8 +21,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(TEntity obj)
         {
             var result = await _dbSet.AddAsync(obj);
-            //Checking what is result return ?
-            Console.WriteLine(result);
         }
 
         public void Delete(TEntity entity)

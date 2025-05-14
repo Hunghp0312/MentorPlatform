@@ -6,8 +6,7 @@ namespace Infrastructure.Repositories
 {
     public class CategoryRepo : BaseRepo<Category>, ICategoryRepo
     {
-        public CategoryRepo(AppDbContext context) : base(context)
-        {
-        }
+        public CategoryRepo(AppDbContext context)
+            : base(context) { }
     }
 }
