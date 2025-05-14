@@ -22,11 +22,6 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<CategoryResponseDto>> CreateCategoryAsync(CreateCategoryRequestDto createDto)
         {
-            if (createDto == null)
-            {
-                return OperationResult<CategoryResponseDto>.BadRequest("Input DTO cannot be null.");
-            }
-
             var trimmedName = createDto.Name?.Trim();
             var trimmedDescription = createDto.Description?.Trim();
 
@@ -60,10 +55,6 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto)
         {
-            if (updateDto == null)
-            {
-                return OperationResult<object>.BadRequest("Input DTO cannot be null.");
-            }
             if (id == Guid.Empty)
             {
                 return OperationResult<object>.BadRequest("Category ID is not valid.");
