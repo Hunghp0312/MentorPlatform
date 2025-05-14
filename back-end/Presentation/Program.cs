@@ -12,30 +12,37 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddCors();
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionLocal");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
-    {
-        sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName); // Quan trọng: chỉ định Assembly chứa migrations
-    }));
+    options.UseSqlServer(
+        connectionString,
+        sqlServerOptionsAction: sqlOptions =>
+        {
+            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName); // Quan trọng: chỉ định Assembly chứa migrations
+        }
+    )
+);
 builder.Services.AddScoped(typeof(IBaseRepo<>), typeof(BaseRepo<>));
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+builder.Services.AddScoped<ICourseRepo, CourseRepo>();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICourseRepo, CourseRepo>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionLocal"))
+);
 
 var app = builder.Build();
-app.UseCors(option => option.AllowAnyHeader().
-            AllowAnyMethod().AllowAnyOrigin());
+app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

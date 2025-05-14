@@ -22,6 +22,6 @@ namespace ApplicationCore.Entity
         public Guid ResourceId { get; set; }
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }
-        public ICollection<string> Tags { get; set; }
+        // public ICollection<string> Tags { get; set; }
     }
 }

@@ -10,16 +10,25 @@ namespace Infrastructure.Repositories
         public CourseRepo(AppDbContext context) : base(context)
         {
         }
-
         public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _dbSet.AnyAsync(c => c.Title.ToLower() == name.ToLower());
+            return await _dbSet.AnyAsync(c => c.Title == name);
         }
 
         public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
         {
-            return await _dbSet.AnyAsync(c => c.Id != excludeId && c.Title.ToLower() == name.ToLower());
+            return await _dbSet.AnyAsync(c => c.Title == name && c.Id != excludeId);
         }
+
+        // public async Task<bool> ExistsByNameAsync(string name)
+        // {
+        //     return await _dbSet.AnyAsync(c => c.Title.ToLower() == name.ToLower());
+        // }
+
+        // public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
+        // {
+        //     return await _dbSet.AnyAsync(c => c.Id != excludeId && c.Title.ToLower() == name.ToLower());
+        // }
     }
 }
 
