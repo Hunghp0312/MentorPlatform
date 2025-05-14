@@ -1,15 +1,6 @@
-import { Edit, Trash2, CheckCircle, AlertCircle } from "lucide-react";
-import React from "react";
-
-// Define the category type to match your data structure
-export interface CategoryType {
-  id: number;
-  name: string;
-  description: string;
-  courses: number;
-  status: "Active" | "Inactive";
-}
-
+import { Edit, CheckCircle } from "lucide-react";
+import { DataColumn } from "../components/table/CustomTable";
+import { CategoryType } from "../types/category";
 // Create mock data array
 export const mockCategories: CategoryType[] = [
   {
@@ -85,18 +76,17 @@ export const mockCategories: CategoryType[] = [
 ];
 
 // Example usage with DataTable component
-export const getCategoryColumns = (
-  handleEdit: (category: CategoryType) => void,
-  handleDelete: (category: CategoryType) => void
-) => [
+export const getCategoryColumns: DataColumn<CategoryType>[] = [
   {
     header: "NAME",
     accessor: "name",
+    align: "left",
     width: "20%"
   },
   {
     header: "DESCRIPTION",
     accessor: "description",
+    align: "left",
     width: "40%"
   },
   {
@@ -123,7 +113,7 @@ export const getCategoryColumns = (
 
 export const getCategoryActions = (
   handleEdit: (category: CategoryType) => void,
-  handleDelete: (category: CategoryType) => void
+  handleChangeStatus: (category: CategoryType) => void
 ) => [
   {
     icon: <Edit className="h-4 w-4" />,
@@ -132,7 +122,7 @@ export const getCategoryActions = (
   },
   {
     icon: <CheckCircle className="h-4 w-4" />,
-    onClick: category => console.log(`Toggle status for ${category.name}`),
+    onClick: handleChangeStatus,
     className: "bg-amber-600 hover:bg-amber-700 text-white"
   },
 
