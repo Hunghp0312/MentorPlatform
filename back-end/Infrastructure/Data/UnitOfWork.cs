@@ -10,16 +10,19 @@ namespace Infrastructure.Data
     {
         private readonly AppDbContext _context;
         private IDbContextTransaction? _transaction;
+        private ICategoryRepo? _categoryRepo;
+        private ICourseRepo? _courseRepo;
 
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
         }
+
         public ICategoryRepo Categories
         {
             get
             {
-                return _categoryRepo ??= new CategoryRepo(_dbContext);
+                return _categoryRepo ??= new CategoryRepo(_context);
             }
         }
 
@@ -27,7 +30,7 @@ namespace Infrastructure.Data
         {
             get
             {
-                return _courseRepo ??= new CourseRepo(_dbContext);
+                return _courseRepo ??= new CourseRepo(_context);
             }
         }
 
@@ -36,10 +39,11 @@ namespace Infrastructure.Data
             _transaction = await _context.Database.BeginTransactionAsync();
         }
 
-        public async Task CommitAsync()
+        public async Task<int> CommitAsync()
         {
             if (_transaction != null)
                 await _transaction.CommitAsync();
+            return await _context.SaveChangesAsync();
         }
 
         public async Task RollbackAsync()
@@ -51,6 +55,11 @@ namespace Infrastructure.Data
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            _context.Dispose();
         }
     }
 }
