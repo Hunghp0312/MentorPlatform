@@ -2,8 +2,9 @@ import { Search } from "lucide-react"
 import Button from "../../components/ui/Button"
 import DataTable from "../../components/table/CustomTable"
 import { useState } from "react"
-import { CategoryType, getCategoryActions, getCategoryColumns, mockCategories } from "../../data/_mockcategory"
+import { getCategoryActions, getCategoryColumns, mockCategories } from "../../data/_mockcategory"
 import CategoryAddDialog from "../../components/dialog/CategoryAddDialog"
+import { CategoryType } from "../../types/category"
 
 const ListCategory = () => {
     const [categories, setCategories] = useState<CategoryType[]>(mockCategories);
@@ -18,15 +19,20 @@ const ListCategory = () => {
 
     // Handlers
     const handleEdit = (category: CategoryType) => {
+        console.log('Edit category', category);
+        
         setInitialData(category);
         setOpenDialog(true);
     };
 
-    const handleDelete = (category: CategoryType) => {
-        if (confirm(`Are you sure you want to delete ${category.name}?`)) {
-            setCategories(categories.filter(c => c.id !== category.id));
-        }
-    };
+    const handSubmit = (category: CategoryType) => {
+        setCategories((prev) => prev.map((cat) => (cat.id === category.id ? category : cat)));
+        setOpenDialog(false);
+    }
+    
+    const handleChangeStatus = (category: CategoryType) => {
+        setCategories((prev) => prev.map((cat) => (cat.id === category.id ? { ...cat, status: cat.status === 'Active' ? 'Inactive' : 'Active' } : cat)));
+    }
 
     // Filter categories based on search and status
     const filteredCategories = categories.filter(category => {
@@ -72,9 +78,9 @@ const ListCategory = () => {
                 </div>
                 <DataTable
                     data={filteredCategories}
-                    columns={getCategoryColumns(handleEdit, handleDelete)}
+                    columns={getCategoryColumns}
                     keyField="id"
-                    actions={getCategoryActions(handleEdit, handleDelete)}
+                    actions={getCategoryActions(handleEdit,handleChangeStatus)}
                     pagination
                     pageSize={pageSize}
                     setPageSize={setPageSize}
@@ -86,11 +92,8 @@ const ListCategory = () => {
             <CategoryAddDialog
                 open={openDialog}
                 onClose={() => setOpenDialog(false)}
-                onSubmit={(category) => {
-                    setCategories([...categories, { ...category, id: categories.length + 1 }]);
-                    setOpenDialog(false);
-                }}
-                initialData={initialData} // Pass initial data if editing
+                onSubmit={() => handSubmit}
+                initialData={initialData} 
             />
         </main>
     )
