@@ -19,7 +19,7 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(c => c.Status).IsRequired();
 
-            builder.Property(c => c.Difficulty).IsRequired();
+            builder.Property(c => c.Level).IsRequired();
 
             builder.Property(c => c.Duration).IsRequired().HasMaxLength(50);
 

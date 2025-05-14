@@ -7,13 +7,13 @@ namespace ApplicationCore.DTOs.Common
 {
     public class PagedResult<T>
     {
-        public List<T> Items { get; set; } = new List<T>();
+        public ICollection<T> Items { get; set; } = new List<T>();
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
         public int TotalItems { get; set; }
         public int TotalPages { get; set; }
 
-        public PagedResult(List<T> items, int page, int pageSize, int totalItems)
+        public PagedResult(ICollection<T> items, int page, int pageSize, int totalItems)
         {
             Items = items;
             PageIndex = page;
