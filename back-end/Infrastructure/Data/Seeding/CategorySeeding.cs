@@ -38,7 +38,7 @@ namespace Infrastructure.Data.Seeding
                     Id = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
                     Name = "DevOps",
                     Description = "Courses on CI/CD, containers, and infrastructure automation.",
-                    Status = CategoryStatus.Active,
+                    Status = CategoryStatus.Inactive,
                     CourseCount = 0,
                 },
                 new Category
@@ -62,7 +62,7 @@ namespace Infrastructure.Data.Seeding
                     Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                     Name = "Backend",
                     Description = "Learn backend technologies and server-side programming.",
-                    Status = CategoryStatus.Active,
+                    Status = CategoryStatus.Inactive,
                     CourseCount = 0,
                 },
                 new Category
@@ -78,7 +78,7 @@ namespace Infrastructure.Data.Seeding
                     Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
                     Name = "Cloud Computing",
                     Description = "Explore AWS, Azure, GCP and cloud infrastructure.",
-                    Status = CategoryStatus.Active,
+                    Status = CategoryStatus.Inactive,
                     CourseCount = 0,
                 },
                 new Category

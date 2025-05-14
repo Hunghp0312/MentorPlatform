@@ -24,8 +24,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 builder.Services.AddScoped(typeof(IBaseRepo<>), typeof(BaseRepo<>));
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
+builder.Services.AddScoped<ICourseRepo, CourseRepo>();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddControllers();
 

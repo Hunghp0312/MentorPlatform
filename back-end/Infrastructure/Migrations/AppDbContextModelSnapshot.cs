@@ -79,7 +79,7 @@ namespace Infrastructure.Migrations
                             CourseCount = 0,
                             Description = "Courses on CI/CD, containers, and infrastructure automation.",
                             Name = "DevOps",
-                            Status = 0
+                            Status = 1
                         },
                         new
                         {
@@ -103,7 +103,7 @@ namespace Infrastructure.Migrations
                             CourseCount = 0,
                             Description = "Learn backend technologies and server-side programming.",
                             Name = "Backend",
-                            Status = 0
+                            Status = 1
                         },
                         new
                         {
@@ -119,7 +119,7 @@ namespace Infrastructure.Migrations
                             CourseCount = 0,
                             Description = "Explore AWS, Azure, GCP and cloud infrastructure.",
                             Name = "Cloud Computing",
-                            Status = 0
+                            Status = 1
                         },
                         new
                         {
@@ -182,13 +182,13 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("270936ae-c79c-43fe-acb7-d418efd402bb"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72848"),
                             CategoryId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8304),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Learn the fundamentals of C#.",
                             Difficulty = 0,
                             Duration = "3 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8503),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -196,13 +196,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("197dd9d2-6232-43f2-9954-50f2964a90bc"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72847"),
                             CategoryId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8726),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Master object-oriented programming concepts in C#.",
                             Difficulty = 1,
                             Duration = "4 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8727),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -210,13 +210,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("202ae676-3b00-4bac-87ab-07b6b21f059a"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72846"),
                             CategoryId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8734),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Build and deploy RESTful APIs using ASP.NET Core.",
                             Difficulty = 2,
                             Duration = "5 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8734),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -224,13 +224,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("4f7e1a91-75bb-4705-83ce-63f4fd9129f8"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72845"),
                             CategoryId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8741),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Understand SQL basics and database querying.",
                             Difficulty = 0,
                             Duration = "2 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8741),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -238,13 +238,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("708d6339-6961-4b92-80fa-c73fc7479e43"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72844"),
                             CategoryId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8748),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Master Entity Framework Core for modern data access.",
                             Difficulty = 1,
                             Duration = "4 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8748),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -252,13 +252,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0aee98cb-b52a-456b-be3f-6951f9df1832"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72843"),
                             CategoryId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8763),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Create beautiful static websites using HTML and CSS.",
                             Difficulty = 0,
                             Duration = "2 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8763),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -266,13 +266,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ce739c1f-bb6b-4d4d-9029-1766f49ee594"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72842"),
                             CategoryId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8769),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Learn how to build reactive UIs using React.",
                             Difficulty = 1,
                             Duration = "4 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8769),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -280,13 +280,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ffd65ae2-caba-449f-bd16-4e2b4a97bf6d"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72841"),
                             CategoryId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8776),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Write unit tests and follow TDD in .NET.",
                             Difficulty = 1,
                             Duration = "3 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8776),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -294,13 +294,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("595ccb25-4459-494d-8bce-1cdd688260a7"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72840"),
                             CategoryId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8782),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Master version control with Git and GitHub.",
                             Difficulty = 0,
                             Duration = "1 week",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8782),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
@@ -308,13 +308,13 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("07096c17-a6e7-4aa8-a58e-81f35f2d9490"),
+                            Id = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72849"),
                             CategoryId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            Created = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8790),
+                            Created = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Containerize and deploy apps with Docker.",
                             Difficulty = 2,
                             Duration = "3 weeks",
-                            LastUpdated = new DateTime(2025, 5, 14, 7, 21, 13, 196, DateTimeKind.Utc).AddTicks(8790),
+                            LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
