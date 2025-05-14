@@ -25,7 +25,7 @@ namespace Infrastructure.Data.Seeding
                 },
                 new Course
                 {
-                   Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72847"),
+                    Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72847"),
                     Title = "OOP in C#",
                     Description = "Master object-oriented programming concepts in C#.",
                     CategoryId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -39,7 +39,7 @@ namespace Infrastructure.Data.Seeding
                 },
                 new Course
                 {
-                   Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72846"),
+                    Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72846"),
                     Title = "Advanced .NET APIs",
                     Description = "Build and deploy RESTful APIs using ASP.NET Core.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
@@ -53,7 +53,7 @@ namespace Infrastructure.Data.Seeding
                 },
                 new Course
                 {
-                   Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72845"),
+                    Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72845"),
                     Title = "SQL for Beginners",
                     Description = "Understand SQL basics and database querying.",
                     CategoryId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
@@ -67,7 +67,7 @@ namespace Infrastructure.Data.Seeding
                 },
                 new Course
                 {
-                   Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72844"),
+                    Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72844"),
                     Title = "EF Core Masterclass",
                     Description = "Master Entity Framework Core for modern data access.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
@@ -81,7 +81,7 @@ namespace Infrastructure.Data.Seeding
                 },
                 new Course
                 {
-                   Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72843"),
+                    Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72843"),
                     Title = "HTML & CSS Basics",
                     Description = "Create beautiful static websites using HTML and CSS.",
                     CategoryId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
@@ -109,7 +109,7 @@ namespace Infrastructure.Data.Seeding
                 },
                 new Course
                 {
-                   Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72841"),
+                    Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72841"),
                     Title = "Unit Testing in .NET",
                     Description = "Write unit tests and follow TDD in .NET.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),

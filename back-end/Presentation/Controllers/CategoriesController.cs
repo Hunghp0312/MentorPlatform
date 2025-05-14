@@ -7,7 +7,7 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class CategoriesController : BaseController
     {
         private readonly ICategoryService _categoryService;
 

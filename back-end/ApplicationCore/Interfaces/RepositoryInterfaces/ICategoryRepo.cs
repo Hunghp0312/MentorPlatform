@@ -1,5 +1,4 @@
-﻿
-using ApplicationCore.Entity;
+﻿using ApplicationCore.Entity;
 
 namespace ApplicationCore.Interfaces.RepositoryInterfaces
 {
