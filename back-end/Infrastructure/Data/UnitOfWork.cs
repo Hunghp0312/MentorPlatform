@@ -10,8 +10,8 @@ namespace Infrastructure.Data
         private readonly AppDbContext _dbContext;
         private bool _disposed = false;
 
-        // Tùy chọn: Khai báo các backing fields cho repositories nếu expose qua UoW
         private ICategoryRepo _categoryRepo;
+        private ICourseRepo _courseRepo;
 
         public UnitOfWork(AppDbContext dbContext)
         {
@@ -23,6 +23,14 @@ namespace Infrastructure.Data
             get
             {
                 return _categoryRepo ??= new CategoryRepo(_dbContext);
+            }
+        }
+
+        public ICourseRepo Courses
+        {
+            get
+            {
+                return _courseRepo ??= new CourseRepo(_dbContext);
             }
         }
 

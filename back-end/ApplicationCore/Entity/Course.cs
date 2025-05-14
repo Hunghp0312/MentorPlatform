@@ -6,6 +6,8 @@ namespace ApplicationCore.Entity
         public Guid CategoryId { get; set; }
         public Category Category { get; set; }
         public string Title { get; set; }
+
+        public string Description { get; set; }
         public int Status { get; set; }
         public int Difficulty { get; set; }
         public string Duration { get; set; }

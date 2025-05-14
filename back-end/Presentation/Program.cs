@@ -22,6 +22,8 @@ builder.Services.AddScoped(typeof(IBaseRepo<>), typeof(BaseRepo<>));
 builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ICourseRepo, CourseRepo>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
