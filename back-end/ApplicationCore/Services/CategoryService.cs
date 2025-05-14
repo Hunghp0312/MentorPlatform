@@ -18,18 +18,26 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<CategoryResponseDto?> CreateCategoryAsync(CreateCategoryRequestDto createDto)
+        public async Task<CategoryResponseDto?> CreateCategoryAsync(
+            CreateCategoryRequestDto createDto
+        )
         {
             var trimmedName = createDto.Name?.Trim();
             var trimmedDescription = createDto.Description?.Trim();
 
             if (string.IsNullOrEmpty(trimmedName))
             {
-                throw new ArgumentException("Category name cannot be empty.", nameof(createDto.Name));
+                throw new ArgumentException(
+                    "Category name cannot be empty.",
+                    nameof(createDto.Name)
+                );
             }
             if (string.IsNullOrEmpty(trimmedDescription))
             {
-                throw new ArgumentException("Category description cannot be empty.", nameof(createDto.Description));
+                throw new ArgumentException(
+                    "Category description cannot be empty.",
+                    nameof(createDto.Description)
+                );
             }
 
             if (await _categoryRepo.ExistsByNameAsync(trimmedName))
@@ -43,7 +51,7 @@ namespace ApplicationCore.Services
                 Name = trimmedName,
                 Description = trimmedDescription,
                 Status = createDto.Status,
-                CourseCount = 0
+                CourseCount = 0,
             };
 
             await _categoryRepo.AddAsync(category);
@@ -55,33 +63,40 @@ namespace ApplicationCore.Services
                 Name = category.Name,
                 Description = category.Description,
                 Status = category.Status,
-                CourseCount = category.CourseCount
+                CourseCount = category.CourseCount,
             };
         }
 
-        public async Task<bool> UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto)
+        public async Task UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto)
         {
             var existingCategory = await _categoryRepo.GetByIdAsync(id);
             if (existingCategory == null)
             {
-                return false;
+                return;
             }
             var trimmedName = updateDto.Name?.Trim();
             var trimmedDescription = updateDto.Description?.Trim();
 
             if (string.IsNullOrEmpty(trimmedName))
             {
-                throw new ArgumentException("Category name cannot be empty.", nameof(updateDto.Name));
+                throw new ArgumentException(
+                    "Category name cannot be empty.",
+                    nameof(updateDto.Name)
+                );
             }
             if (string.IsNullOrEmpty(trimmedDescription))
             {
-                throw new ArgumentException("Category description cannot be empty.", nameof(updateDto.Description));
+                throw new ArgumentException(
+                    "Category description cannot be empty.",
+                    nameof(updateDto.Description)
+                );
             }
-
 
             if (await _categoryRepo.ExistsByNameAsync(trimmedName, id))
             {
-                throw new ArgumentException($"Category name '{trimmedName}' is already used by another category.");
+                throw new ArgumentException(
+                    $"Category name '{trimmedName}' is already used by another category."
+                );
             }
 
             existingCategory.Name = trimmedName;
@@ -89,9 +104,9 @@ namespace ApplicationCore.Services
             existingCategory.Status = updateDto.Status;
 
             _categoryRepo.Update(existingCategory);
-            var result = await _unitOfWork.CommitAsync();
-            return result > 0;
+            await _unitOfWork.SaveChangesAsync();
         }
+
         public async Task<CategoryResponseDto?> GetCategoryByIdAsync(Guid id)
         {
             var category = await _categoryRepo.GetByIdAsync(id);
@@ -106,26 +121,30 @@ namespace ApplicationCore.Services
                 Name = category.Name,
                 Description = category.Description,
                 Status = category.Status,
-                CourseCount = category.CourseCount // Sử dụng trực tiếp nếu đã có trong entity
+                CourseCount = category.CourseCount, // Sử dụng trực tiếp nếu đã có trong entity
             };
         }
 
         public async Task<ICollection<CategoryResponseDto>> GetAllCategoriesAsync()
         {
             var categories = await _categoryRepo.GetAllAsync();
-            var categoryDtos = categories.Select(c => new CategoryResponseDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                Status = c.Status,
-                CourseCount = c.CourseCount
-            }).ToList();
+            var categoryDtos = categories
+                .Select(c => new CategoryResponseDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Description = c.Description,
+                    Status = c.Status,
+                    CourseCount = c.CourseCount,
+                })
+                .ToList();
 
             return categoryDtos;
         }
 
-        public async Task<PagedResult<CategoryResponseDto>> GetPagedCategoriesAsync(CategoryPagedRequestDto request)
+        public async Task<PagedResult<CategoryResponseDto>> GetPagedCategoriesAsync(
+            CategoryPagedRequestDto request
+        )
         {
             if (request.PageIndex < 1)
             {
@@ -147,22 +166,32 @@ namespace ApplicationCore.Services
                     }
                     if (!string.IsNullOrEmpty(request.Status))
                     {
-                        bool isActive = request.Status.ToLower() == "active";
-                        q = q.Where(c => c.Status == isActive);
+                        if (Enum.TryParse(request.Status, true, out CategoryStatus isActive))
+                            q = q.Where(c => c.Status == isActive);
                     }
                     return q;
                 };
             }
-            var (categories, totalCount) = await _categoryRepo.GetPagedAsync(filter, request.PageIndex, request.PageSize);
-            return new PagedResult<CategoryResponseDto>(categories.Select(c => new CategoryResponseDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                Status = c.Status,
-                CourseCount = c.CourseCount
-            }).ToList(), request.PageIndex, request.PageSize, totalCount);
-
+            var (categories, totalCount) = await _categoryRepo.GetPagedAsync(
+                filter,
+                request.PageIndex,
+                request.PageSize
+            );
+            return new PagedResult<CategoryResponseDto>(
+                categories
+                    .Select(c => new CategoryResponseDto
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        Description = c.Description,
+                        Status = c.Status,
+                        CourseCount = c.CourseCount,
+                    })
+                    .ToList(),
+                request.PageIndex,
+                request.PageSize,
+                totalCount
+            );
         }
     }
 }

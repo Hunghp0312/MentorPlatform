@@ -7,9 +7,9 @@ namespace Infrastructure.Repositories
 {
     public class CategoryRepo : BaseRepo<Category>, ICategoryRepo
     {
-        public CategoryRepo(AppDbContext context) : base(context)
-        {
-        }
+        public CategoryRepo(AppDbContext context)
+            : base(context) { }
+
         public async Task<bool> ExistsByNameAsync(string name)
         {
             return await _dbSet.AnyAsync(c => c.Name.ToLower() == name.ToLower());
@@ -17,7 +17,9 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
         {
-            return await _dbSet.AnyAsync(c => c.Id != excludeId && c.Name.ToLower() == name.ToLower());
+            return await _dbSet.AnyAsync(c =>
+                c.Id != excludeId && c.Name.ToLower() == name.ToLower()
+            );
         }
     }
 }

@@ -21,8 +21,6 @@ namespace Infrastructure.Repositories
         public async Task AddAsync(TEntity obj)
         {
             var result = await _dbSet.AddAsync(obj);
-            //Checking what is result return ?
-            Console.WriteLine(result);
         }
 
         public void Delete(TEntity entity)
@@ -67,8 +65,11 @@ namespace Infrastructure.Repositories
         //     var obj = await _dbSet.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
         //     return (obj, totalRecords);
         // }
-        public async Task<(ICollection<TEntity>, int)> GetPagedAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter,
-            int pageIndex, int pageSize)
+        public async Task<(ICollection<TEntity>, int)> GetPagedAsync(
+            Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter,
+            int pageIndex,
+            int pageSize
+        )
         {
             var queryable = _dbSet.AsQueryable();
             if (filter != null)
@@ -76,12 +77,10 @@ namespace Infrastructure.Repositories
                 queryable = filter(queryable);
             }
             var totalRecords = await queryable.CountAsync();
-            var obj = await queryable
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var obj = await queryable.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
             return (obj, totalRecords);
         }
+
         public async Task AddRangeAsync(ICollection<TEntity> entities)
         {
             await _dbSet.AddRangeAsync(entities);

@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace ApplicationCore.Interfaces.RepositoryInterfaces
 {
-    public interface IBaseRepo<TEntity> where TEntity : class
+    public interface IBaseRepo<TEntity>
+        where TEntity : class
     {
         Task AddAsync(TEntity entity);
 

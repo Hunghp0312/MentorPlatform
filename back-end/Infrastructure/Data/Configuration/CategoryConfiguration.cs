@@ -1,4 +1,5 @@
 using ApplicationCore.Entity;
+using Infrastructure.Data.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,19 +11,13 @@ namespace Infrastructure.Data.Configuration
         {
             builder.ToTable("Category");
 
-            builder.Property(c => c.Name)
-                .IsRequired()
-                .HasMaxLength(100);
-            builder.Property(c => c.Description)
-                .IsRequired()
-                .HasMaxLength(1000);
-            builder.Property(c => c.Status)
-                .IsRequired();
+            builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
 
-            builder.HasMany(c => c.Courses)
-                .WithOne(c => c.Category)// c.Category
-                .HasForeignKey(c => c.CategoryId)// c.CategoryId
-                .OnDelete(DeleteBehavior.NoAction);//chưa có delete nên để tạm
+            builder.Property(c => c.Description).IsRequired().HasMaxLength(1000);
+
+            builder.Property(c => c.Status).IsRequired();
+
+            builder.HasData(CategorySeeding.SeedCategories());
         }
     }
 }

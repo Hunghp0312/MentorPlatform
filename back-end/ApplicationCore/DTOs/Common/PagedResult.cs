@@ -7,11 +7,11 @@ namespace ApplicationCore.DTOs.Common
 {
     public class PagedResult<T>
     {
-        public List<T> Items { get; set; } = new List<T>(); // Danh sách item trên trang hiện tại
-        public int Page { get; set; } // Số trang hiện tại
-        public int PageSize { get; set; } // Kích thước trang
-        public int TotalItems { get; set; } // Tổng số item khớp với điều kiện lọc
-        public int TotalPages { get; set; } // Tổng số trang
+        public List<T> Items { get; set; } = new List<T>();
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public int TotalItems { get; set; }
+        public int TotalPages { get; set; }
 
         public PagedResult(List<T> items, int page, int pageSize, int totalItems)
         {
