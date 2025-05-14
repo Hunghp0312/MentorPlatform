@@ -6,16 +6,20 @@ import { getCategoryActions, getCategoryColumns, mockCategories } from "../../da
 import CategoryAddDialog from "../../components/dialog/CategoryAddDialog"
 import { CategoryType } from "../../types/category"
 
-const ListCategory = () => {
-    const [categories, setCategories] = useState<CategoryType[]>(mockCategories);
-    const [initialData, setInitialData] = useState<CategoryType | undefined>(undefined);
-    const [openDialog, setOpenDialog] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
 
-    // Pagination state
-    const [pageIndex, setPageIndex] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+const ListCategory = () => {
+  const [categories, setCategories] = useState<CategoryType[]>(mockCategories);
+  const [initialData, setInitialData] = useState<CategoryType | undefined>(
+    undefined
+  );
+  const [openDialog, setOpenDialog] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  // Pagination state
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
 
     // Handlers
     const handleEdit = (category: CategoryType) => {
@@ -34,17 +38,20 @@ const ListCategory = () => {
         setCategories((prev) => prev.map((cat) => (cat.id === category.id ? { ...cat, status: cat.status === 'Active' ? 'Inactive' : 'Active' } : cat)));
     }
 
-    // Filter categories based on search and status
-    const filteredCategories = categories.filter(category => {
-        const matchesSearch = searchTerm === '' ||
-            category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            category.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesStatus = statusFilter === 'all' ||
-            category.status.toLowerCase() === statusFilter.toLowerCase();
+  // Filter categories based on search and status
+  const filteredCategories = categories.filter((category) => {
+    const matchesSearch =
+      searchTerm === "" ||
+      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      category.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-        return matchesSearch && matchesStatus;
-    });
+    const matchesStatus =
+      statusFilter === "all" ||
+      category.status.toLowerCase() === statusFilter.toLowerCase();
+
+    return matchesSearch && matchesStatus;
+  });
 
     return (
         <main className="p-4 container mx-auto ">
@@ -94,9 +101,11 @@ const ListCategory = () => {
                 onClose={() => setOpenDialog(false)}
                 onSubmit={() => handSubmit}
                 initialData={initialData} 
-            />
-        </main>
-    )
-}
 
-export default ListCategory
+            />
+           
+    </main>
+  );
+};
+
+export default ListCategory;
