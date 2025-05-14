@@ -1,5 +1,4 @@
 using System.Net;
-using ApplicationCore.Entity;
 
 namespace ApplicationCore.Common
 {

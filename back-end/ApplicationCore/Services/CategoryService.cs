@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Entity;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
@@ -140,15 +141,25 @@ namespace ApplicationCore.Services
                     CourseCount = c.CourseCount,
                 })
                 .ToList();
+            string message = categoryDtos.Any()
+                ? "Get list successfully"
+                : "Operation successful but no categories found";
 
-            return OperationResult<ICollection<CategoryResponseDto>>.Ok(categoryDtos, "Get list successfully");
+            return OperationResult<ICollection<CategoryResponseDto>>.Ok(categoryDtos, message);
         }
 
 
         public async Task<OperationResult<PagedResult<CategoryResponseDto>>> GetPagedCategoriesAsync(
-       CategoryPagedRequestDto request
-   )
+    CategoryQueryParameters parameters
+)
         {
+            var request = new CategoryPagedRequestDto
+            {
+                Query = parameters.Query,
+                Status = parameters.Status,
+                PageIndex = parameters.Page,
+                PageSize = parameters.PageSize
+            };
             if (request.PageIndex < 1)
             {
                 request.PageIndex = 1;
@@ -166,8 +177,8 @@ namespace ApplicationCore.Services
                 {
                     if (!string.IsNullOrEmpty(request.Query))
                     {
-                        q = q.Where(c => c.Name.ToLower().Contains(request.Query) ||
-                                        c.Description.ToLower().Contains(request.Query));
+                        q = q.Where(c => c.Name.Contains(request.Query) ||
+                                        c.Description.Contains(request.Query));
                     }
                     if (!string.IsNullOrEmpty(request.Status))
                     {
@@ -199,8 +210,11 @@ namespace ApplicationCore.Services
                 request.PageSize,
                 totalCount
             );
+            string message = totalCount > 0
+                ? "Browsing categories successfully"
+                : "Search completed successfully but no categories match your criteria";
 
-            return OperationResult<PagedResult<CategoryResponseDto>>.Ok(pagedResult, "Browsing categories successfully");
+            return OperationResult<PagedResult<CategoryResponseDto>>.Ok(pagedResult, message);
         }
     }
 }

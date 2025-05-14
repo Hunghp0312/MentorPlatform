@@ -1,8 +1,6 @@
 using ApplicationCore.DTOs;
-using ApplicationCore.DTOs.Category;
 using ApplicationCore.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
-using Presentation.Models.Dtos.QueryParameter;
 
 namespace Presentation.Controllers
 {

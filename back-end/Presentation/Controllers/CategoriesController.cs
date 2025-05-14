@@ -1,7 +1,8 @@
 ﻿using ApplicationCore.DTOs.Category;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
-using Presentation.Models.Dtos.QueryParameter;
+
 
 namespace Presentation.Controllers // Hoặc namespace phù hợp với project Presentation của bạn
 {
@@ -137,7 +138,6 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
 
         [HttpGet]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPagedCategories([FromQuery] CategoryQueryParameters parameters)
         {
@@ -146,16 +146,14 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
                 return BadRequest(ModelState);
             }
 
-            var requestDto = new CategoryPagedRequestDto
-            {
-                Query = parameters.Query,
-                Status = parameters.Status,
-                PageIndex = parameters.Page,
-                PageSize = parameters.PageSize,
-            };
+            var result = await _categoryService.GetPagedCategoriesAsync(parameters);
 
-            var pagedResult = await _categoryService.GetPagedCategoriesAsync(requestDto);
-            return Ok(pagedResult);
+            if (!result.Success)
+            {
+                return BadRequest(new { message = result.Message });
+            }
+
+            return Ok(result);
         }
     }
 }

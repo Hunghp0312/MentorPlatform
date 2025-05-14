@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class Initialize_1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -59,14 +59,14 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "CourseCount", "Description", "Name", "Status" },
                 values: new object[,]
                 {
-                    { new Guid("11111111-1111-1111-1111-111111111111"), 0, "Learn backend technologies and server-side programming.", "Backend", 0 },
+                    { new Guid("11111111-1111-1111-1111-111111111111"), 0, "Learn backend technologies and server-side programming.", "Backend", 1 },
                     { new Guid("22222222-2222-2222-2222-222222222222"), 0, "Build apps for iOS and Android platforms.", "Mobile Development", 0 },
-                    { new Guid("33333333-3333-3333-3333-333333333333"), 0, "Explore AWS, Azure, GCP and cloud infrastructure.", "Cloud Computing", 0 },
+                    { new Guid("33333333-3333-3333-3333-333333333333"), 0, "Explore AWS, Azure, GCP and cloud infrastructure.", "Cloud Computing", 1 },
                     { new Guid("44444444-4444-4444-4444-444444444444"), 0, "Understand security principles and ethical hacking.", "Cybersecurity", 0 },
                     { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), 0, "Courses related to software development and programming languages.", "Programming", 0 },
                     { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), 0, "Frontend and backend development tutorials and courses.", "Web Development", 0 },
                     { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), 0, "Learn data analysis, visualization, and machine learning.", "Data Science", 0 },
-                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), 0, "Courses on CI/CD, containers, and infrastructure automation.", "DevOps", 0 },
+                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), 0, "Courses on CI/CD, containers, and infrastructure automation.", "DevOps", 1 },
                     { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), 0, "Introduction to relational and non-relational databases.", "Databases", 0 },
                     { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), 0, "Courses on HTML, CSS, JavaScript and modern frameworks.", "Frontend", 0 }
                 });
