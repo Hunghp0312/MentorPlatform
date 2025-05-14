@@ -13,7 +13,8 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
 
         public CategoriesController(ICategoryService categoryService)
         {
-            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+            _categoryService =
+                categoryService ?? throw new ArgumentNullException(nameof(categoryService));
         }
 
         // POST: api/Categories
@@ -22,7 +23,9 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)] // Cho lỗi duplicate
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequestDto createDto)
+        public async Task<IActionResult> CreateCategory(
+            [FromBody] CreateCategoryRequestDto createDto
+        )
         {
             if (!ModelState.IsValid) // FluentValidation (nếu có rule khác) vẫn chạy
             {
@@ -32,7 +35,11 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
             try
             {
                 var createdCategory = await _categoryService.CreateCategoryAsync(createDto);
-                return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.Id }, createdCategory);
+                return CreatedAtAction(
+                    nameof(GetCategoryById),
+                    new { id = createdCategory.Id },
+                    createdCategory
+                );
             }
             catch (ArgumentException ex)
             {
@@ -44,7 +51,10 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while creating the category.");
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "An unexpected error occurred while creating the category."
+                );
             }
         }
 
@@ -64,7 +74,10 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while retrieving the category.");
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "An unexpected error occurred while retrieving the category."
+                );
             }
         }
 
@@ -75,7 +88,10 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)] // Cho lỗi duplicate khi update
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryRequestDto updateDto)
+        public async Task<IActionResult> UpdateCategory(
+            Guid id,
+            [FromBody] UpdateCategoryRequestDto updateDto
+        )
         {
             if (!ModelState.IsValid)
             {
@@ -89,11 +105,8 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
 
             try
             {
-                var success = await _categoryService.UpdateCategoryAsync(id, updateDto);
-                if (!success)
-                {
-                    return NotFound(new { message = $"Category with ID: {id} not found." });
-                }
+                await _categoryService.UpdateCategoryAsync(id, updateDto);
+
                 return NoContent();
             }
             catch (ArgumentException ex)
@@ -106,9 +119,13 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while updating the category.");
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "An unexpected error occurred while updating the category."
+                );
             }
         }
+
         [HttpGet("all")]
         [ProducesResponseType(typeof(ICollection<CategoryResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -121,7 +138,10 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while retrieving all categories.");
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "An unexpected error occurred while retrieving all categories."
+                );
             }
         }
 
@@ -130,7 +150,9 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetPagedCategories([FromQuery] CategoryQueryParameters parameters)
+        public async Task<IActionResult> GetPagedCategories(
+            [FromQuery] CategoryQueryParameters parameters
+        )
         {
             if (!ModelState.IsValid)
             {
@@ -144,7 +166,7 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
                     Query = parameters.Query,
                     Status = parameters.Status,
                     PageIndex = parameters.Page,
-                    PageSize = parameters.PageSize
+                    PageSize = parameters.PageSize,
                 };
 
                 var pagedResult = await _categoryService.GetPagedCategoriesAsync(requestDto);
@@ -152,7 +174,10 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
             }
             catch (Exception)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving paged categories.");
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    "Error retrieving paged categories."
+                );
             }
         }
     }

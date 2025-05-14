@@ -2,59 +2,40 @@
 using ApplicationCore.Interfaces.RepositoryInterfaces;
 using Infrastructure.Data.Context;
 using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructure.Data
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly AppDbContext _dbContext;
-        private bool _disposed = false;
+        private readonly AppDbContext _context;
+        private IDbContextTransaction? _transaction;
 
-        // Tùy chọn: Khai báo các backing fields cho repositories nếu expose qua UoW
-        private ICategoryRepo _categoryRepo;
-
-        public UnitOfWork(AppDbContext dbContext)
+        public UnitOfWork(AppDbContext context)
         {
-            _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            _context = context;
         }
 
-        public ICategoryRepo Categories
+        public async Task BeginTransactionAsync()
         {
-            get
-            {
-                return _categoryRepo ??= new CategoryRepo(_dbContext);
-            }
+            _transaction = await _context.Database.BeginTransactionAsync();
         }
 
-        public async Task<int> CommitAsync()
+        public async Task CommitAsync()
         {
-            return await _dbContext.SaveChangesAsync();
+            if (_transaction != null)
+                await _transaction.CommitAsync();
         }
 
-        public void Dispose()
+        public async Task RollbackAsync()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (_transaction != null)
+                await _transaction.RollbackAsync();
         }
 
-        protected virtual void Dispose(bool disposing)
+        public async Task SaveChangesAsync()
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    // Giải phóng các managed resources (DbContext)
-                    _dbContext.Dispose();
-                }
-                // Giải phóng các unmanaged resources (nếu có)
-                _disposed = true;
-            }
+            await _context.SaveChangesAsync();
         }
-
-        // Destructor (nếu cần giải phóng unmanaged resources)
-        // ~UnitOfWork()
-        // {
-        //     Dispose(false);
-        // }
     }
 }
