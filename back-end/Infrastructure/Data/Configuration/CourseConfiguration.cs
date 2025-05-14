@@ -1,4 +1,5 @@
 using ApplicationCore.Entity;
+using Infrastructure.Data.Seeding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -29,6 +30,8 @@ namespace Infrastructure.Data.Configuration
                 .WithMany(c => c.Courses)
                 .HasForeignKey(c => c.CategoryId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasData(CourseSeeding.SeedCourses());
         }
     }
 }
