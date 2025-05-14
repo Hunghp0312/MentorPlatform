@@ -16,7 +16,7 @@ namespace ApplicationCore.Validators.Category
                 .MaximumLength(500).WithMessage("Description must not exceed 500 characters.");
 
             RuleFor(x => x.Status)
-                   .NotNull().WithMessage("Status is required.");
+                .IsInEnum().WithMessage("Invalid category status value.");
         }
     }
 }

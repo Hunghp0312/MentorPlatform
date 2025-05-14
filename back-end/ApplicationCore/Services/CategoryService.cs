@@ -1,9 +1,11 @@
-﻿using ApplicationCore.DTOs.Category;
+﻿using ApplicationCore.Common;
+using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.Entity;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
 using ApplicationCore.Interfaces.ServiceInterfaces;
+using System.Net;
 
 namespace ApplicationCore.Services
 {
@@ -18,31 +20,19 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<CategoryResponseDto?> CreateCategoryAsync(
-            CreateCategoryRequestDto createDto
-        )
+        public async Task<OperationResult<CategoryResponseDto>> CreateCategoryAsync(CreateCategoryRequestDto createDto)
         {
+            if (createDto == null)
+            {
+                return OperationResult<CategoryResponseDto>.BadRequest("Input DTO cannot be null.");
+            }
+
             var trimmedName = createDto.Name?.Trim();
             var trimmedDescription = createDto.Description?.Trim();
 
-            if (string.IsNullOrEmpty(trimmedName))
-            {
-                throw new ArgumentException(
-                    "Category name cannot be empty.",
-                    nameof(createDto.Name)
-                );
-            }
-            if (string.IsNullOrEmpty(trimmedDescription))
-            {
-                throw new ArgumentException(
-                    "Category description cannot be empty.",
-                    nameof(createDto.Description)
-                );
-            }
-
             if (await _categoryRepo.ExistsByNameAsync(trimmedName))
             {
-                throw new ArgumentException($"Category with name '{trimmedName}' already exists.");
+                return OperationResult<CategoryResponseDto>.Conflict($"Category with name '{trimmedName}' already exists.");
             }
 
             var category = new Category
@@ -51,52 +41,46 @@ namespace ApplicationCore.Services
                 Name = trimmedName,
                 Description = trimmedDescription,
                 Status = createDto.Status,
-                CourseCount = 0,
+                CourseCount = 0
             };
 
             await _categoryRepo.AddAsync(category);
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.SaveChangesAsync();
 
-            return new CategoryResponseDto
+            var responseDto = new CategoryResponseDto
             {
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 Status = category.Status,
-                CourseCount = category.CourseCount,
+                CourseCount = category.CourseCount
             };
+            return OperationResult<CategoryResponseDto>.Created(responseDto, "Category created successfully.");
         }
 
-        public async Task UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto)
+        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto)
         {
-            var existingCategory = await _categoryRepo.GetByIdAsync(id);
-            if (existingCategory == null)
+            if (updateDto == null)
             {
-                return;
+                return OperationResult<object>.BadRequest("Input DTO cannot be null.");
             }
+            if (id == Guid.Empty)
+            {
+                return OperationResult<object>.BadRequest("Category ID is not valid.");
+            }
+
             var trimmedName = updateDto.Name?.Trim();
             var trimmedDescription = updateDto.Description?.Trim();
 
-            if (string.IsNullOrEmpty(trimmedName))
+            var existingCategory = await _categoryRepo.GetByIdAsync(id);
+            if (existingCategory == null)
             {
-                throw new ArgumentException(
-                    "Category name cannot be empty.",
-                    nameof(updateDto.Name)
-                );
-            }
-            if (string.IsNullOrEmpty(trimmedDescription))
-            {
-                throw new ArgumentException(
-                    "Category description cannot be empty.",
-                    nameof(updateDto.Description)
-                );
+                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
             }
 
             if (await _categoryRepo.ExistsByNameAsync(trimmedName, id))
             {
-                throw new ArgumentException(
-                    $"Category name '{trimmedName}' is already used by another category."
-                );
+                return OperationResult<object>.Conflict($"Category name '{trimmedName}' is already used by another category.");
             }
 
             existingCategory.Name = trimmedName;
@@ -104,25 +88,34 @@ namespace ApplicationCore.Services
             existingCategory.Status = updateDto.Status;
 
             _categoryRepo.Update(existingCategory);
-            await _unitOfWork.SaveChangesAsync();
+            var commitResult = await _unitOfWork.SaveChangesAsync();
+
+            return commitResult > 0
+                ? OperationResult<object>.Ok("Update category successfully.")
+                : OperationResult<object>.Fail("Failed to update category.", HttpStatusCode.InternalServerError);
         }
 
-        public async Task<CategoryResponseDto?> GetCategoryByIdAsync(Guid id)
+        public async Task<OperationResult<CategoryResponseDto>> GetCategoryByIdAsync(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return OperationResult<CategoryResponseDto>.BadRequest("Category ID is not valid.");
+            }
             var category = await _categoryRepo.GetByIdAsync(id);
             if (category == null)
             {
-                return null;
+                return OperationResult<CategoryResponseDto>.NotFound($"Category with ID '{id}' was not found.");
             }
 
-            return new CategoryResponseDto
+            var responseDto = new CategoryResponseDto
             {
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 Status = category.Status,
-                CourseCount = category.CourseCount, // Sử dụng trực tiếp nếu đã có trong entity
+                CourseCount = category.CourseCount
             };
+            return OperationResult<CategoryResponseDto>.Ok(responseDto);
         }
 
         public async Task<ICollection<CategoryResponseDto>> GetAllCategoriesAsync()
