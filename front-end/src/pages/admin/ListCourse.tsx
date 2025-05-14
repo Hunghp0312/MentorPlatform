@@ -9,8 +9,8 @@ import {
 } from "../../data/_mockcourse";
 import { CourseType } from "../../types/course";
 import InputCustom from "../../components/input/InputCustom";
-import CustomModal from "../../components/Modal";
 import CourseDialog from "../../components/dialog/CourseDialog";
+import CustomModal from "../../components/ui/Modal";
 const ListCourse = () => {
   const [courses, setCourses] = useState<CourseType[]>(mockCourses);
   const [initialData, setInitialData] = useState<CourseType | undefined>(
@@ -119,19 +119,6 @@ const ListCourse = () => {
           totalItems={courses.length}
         />
       </div>
-      {/* <CategoryAddDialog
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-        onSubmit={(category) => {
-          setCategories([
-            ...categories,
-            { ...category, id: categories.length + 1 },
-          ]);
-          setOpenDialog(false);
-        }}
-        initialData={initialData} // Pass initial data if editing
-        
-      /> */}
       <CustomModal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
