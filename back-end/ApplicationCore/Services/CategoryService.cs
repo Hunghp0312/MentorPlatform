@@ -1,4 +1,5 @@
-﻿using ApplicationCore.DTOs.Category;
+﻿using ApplicationCore.Common;
+using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.Entity;
 using ApplicationCore.Interfaces;
@@ -125,7 +126,8 @@ namespace ApplicationCore.Services
             };
         }
 
-        public async Task<ICollection<CategoryResponseDto>> GetAllCategoriesAsync()
+
+        public async Task<OperationResult<ICollection<CategoryResponseDto>>> GetAllCategoriesAsync()
         {
             var categories = await _categoryRepo.GetAllAsync();
             var categoryDtos = categories
@@ -139,12 +141,13 @@ namespace ApplicationCore.Services
                 })
                 .ToList();
 
-            return categoryDtos;
+            return OperationResult<ICollection<CategoryResponseDto>>.Ok(categoryDtos, "Get list successfully");
         }
 
-        public async Task<PagedResult<CategoryResponseDto>> GetPagedCategoriesAsync(
-            CategoryPagedRequestDto request
-        )
+
+        public async Task<OperationResult<PagedResult<CategoryResponseDto>>> GetPagedCategoriesAsync(
+       CategoryPagedRequestDto request
+   )
         {
             if (request.PageIndex < 1)
             {
@@ -155,6 +158,7 @@ namespace ApplicationCore.Services
             {
                 request.PageSize = 10;
             }
+
             Func<IQueryable<Category>, IQueryable<Category>> filter = null;
             if (!string.IsNullOrEmpty(request.Query) || !string.IsNullOrEmpty(request.Status))
             {
@@ -162,7 +166,8 @@ namespace ApplicationCore.Services
                 {
                     if (!string.IsNullOrEmpty(request.Query))
                     {
-                        q = q.Where(c => c.Name.ToLower().Contains(request.Query));
+                        q = q.Where(c => c.Name.ToLower().Contains(request.Query) ||
+                                        c.Description.ToLower().Contains(request.Query));
                     }
                     if (!string.IsNullOrEmpty(request.Status))
                     {
@@ -172,12 +177,14 @@ namespace ApplicationCore.Services
                     return q;
                 };
             }
+
             var (categories, totalCount) = await _categoryRepo.GetPagedAsync(
                 filter,
                 request.PageIndex,
                 request.PageSize
             );
-            return new PagedResult<CategoryResponseDto>(
+
+            var pagedResult = new PagedResult<CategoryResponseDto>(
                 categories
                     .Select(c => new CategoryResponseDto
                     {
@@ -192,6 +199,8 @@ namespace ApplicationCore.Services
                 request.PageSize,
                 totalCount
             );
+
+            return OperationResult<PagedResult<CategoryResponseDto>>.Ok(pagedResult, "Browsing categories successfully");
         }
     }
 }

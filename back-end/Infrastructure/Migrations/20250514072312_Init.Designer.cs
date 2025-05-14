@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250514072312_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,7 +82,7 @@ namespace Infrastructure.Migrations
                             CourseCount = 0,
                             Description = "Courses on CI/CD, containers, and infrastructure automation.",
                             Name = "DevOps",
-                            Status = 1
+                            Status = 0
                         },
                         new
                         {
@@ -103,7 +106,7 @@ namespace Infrastructure.Migrations
                             CourseCount = 0,
                             Description = "Learn backend technologies and server-side programming.",
                             Name = "Backend",
-                            Status = 1
+                            Status = 0
                         },
                         new
                         {
@@ -119,7 +122,7 @@ namespace Infrastructure.Migrations
                             CourseCount = 0,
                             Description = "Explore AWS, Azure, GCP and cloud infrastructure.",
                             Name = "Cloud Computing",
-                            Status = 1
+                            Status = 0
                         },
                         new
                         {

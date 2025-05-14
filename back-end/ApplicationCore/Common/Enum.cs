@@ -13,7 +13,7 @@ public enum CourseStatus
 
 public enum CourseDifficulty
 {
-    Begginer,
+    Begginner,
     Intermediate,
     Advanced,
 }

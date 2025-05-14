@@ -1,4 +1,5 @@
-﻿using ApplicationCore.DTOs.Category;
+﻿using ApplicationCore.Common;
+using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 
 namespace ApplicationCore.Interfaces.ServiceInterfaces
@@ -8,8 +9,8 @@ namespace ApplicationCore.Interfaces.ServiceInterfaces
         Task<CategoryResponseDto?> CreateCategoryAsync(CreateCategoryRequestDto createDto);
         Task UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto);
         Task<CategoryResponseDto?> GetCategoryByIdAsync(Guid id);
-        Task<ICollection<CategoryResponseDto>> GetAllCategoriesAsync();
-        Task<PagedResult<CategoryResponseDto>> GetPagedCategoriesAsync(
+        Task<OperationResult<ICollection<CategoryResponseDto>>> GetAllCategoriesAsync();
+        Task<OperationResult<PagedResult<CategoryResponseDto>>> GetPagedCategoriesAsync(
             CategoryPagedRequestDto request
         );
     }
