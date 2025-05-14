@@ -13,7 +13,7 @@ namespace ApplicationCore.Validators.Category
 
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("Description is required and cannot be empty.")
-                .MaximumLength(500).WithMessage("Description must not exceed 500 characters.");
+                .MaximumLength(1000).WithMessage("Description must not exceed 1000 characters.");
 
             RuleFor(x => x.Status)
                 .IsInEnum().WithMessage("Invalid category status value.");

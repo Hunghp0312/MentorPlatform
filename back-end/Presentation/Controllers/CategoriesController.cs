@@ -3,7 +3,7 @@ using ApplicationCore.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.Models.Dtos.QueryParameter;
 
-namespace Presentation.Controllers // Hoặc namespace phù hợp với project Presentation của bạn
+namespace Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
