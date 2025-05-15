@@ -1,57 +1,96 @@
 import { Search } from "lucide-react"
 import Button from "../../components/ui/Button"
 import DataTable from "../../components/table/CustomTable"
-import { useState } from "react"
-import { getCategoryActions, getCategoryColumns, mockCategories } from "../../data/_mockcategory"
+import { useEffect, useState } from "react"
+import { getCategoryActions, getCategoryColumns } from "../../data/_mockcategory"
 import CategoryAddDialog from "../../components/dialog/CategoryAddDialog"
 import { CategoryType } from "../../types/category"
+import CustomModal from "../../components/ui/Modal"
+import { categoryService } from "../../services/category.service"
+import useDebounce from "../../hooks/usedebounce"
+import { toast } from "react-toastify"
 
 
 const ListCategory = () => {
-  const [categories, setCategories] = useState<CategoryType[]>(mockCategories);
-  const [initialData, setInitialData] = useState<CategoryType | undefined>(
-    undefined
-  );
-  const [openDialog, setOpenDialog] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+    const [categories, setCategories] = useState<CategoryType[]>([]);
+    const [initialData, setInitialData] = useState<CategoryType | undefined>(
+        undefined
+    );
+    const [openDialog, setOpenDialog] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [totalItems, setTotalItems] = useState(0);
+    const searchDebounced = useDebounce(searchTerm, 500);
+    // Pagination state
+    const [pageIndex, setPageIndex] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
 
-  // Pagination state
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+    useEffect(() => {
+        fetchCategories();
+    }, [searchDebounced, statusFilter, pageIndex, pageSize]);
+    const fetchCategories = async () => {
+        try {
+            const res = await categoryService.getPaginationCategories(searchDebounced, statusFilter, pageIndex, pageSize);
+            setTotalItems(res.data.totalItems);
+            setCategories(res.data.items);
+        }
+        catch (error) {
+            console.error("Error fetching categories:", error);
 
-
+        }
+    }
     // Handlers
     const handleEdit = (category: CategoryType) => {
-        console.log('Edit category', category);
-        
         setInitialData(category);
         setOpenDialog(true);
     };
 
-    const handSubmit = (category: CategoryType) => {
-        setCategories((prev) => prev.map((cat) => (cat.id === category.id ? category : cat)));
-        setOpenDialog(false);
+    const handSubmit = async (category: CategoryType) => {
+        const data = {
+            name: category.name,
+            description: category.description,
+            status: category.status,
+        }
+        if (initialData === undefined) {
+            try {
+                await categoryService.createCategory(data)
+                toast.success("Category created successfully");
+                fetchCategories();
+            } catch (error) {
+                console.error("Error creating category:", error);
+                toast.error("Error creating category");
+            } finally {
+                setOpenDialog(false);
+            }
+        }
+        else {
+            try {
+                await categoryService.editCategory(category.id.toString(), data);
+                toast.success("Category updated successfully");
+                fetchCategories();
+            } catch (error) {
+                console.error("Error updating category:", error);
+                toast.error("Error updating category");
+            } finally {
+                setOpenDialog(false);
+            }
+        }
     }
-    
+
     const handleChangeStatus = (category: CategoryType) => {
-        setCategories((prev) => prev.map((cat) => (cat.id === category.id ? { ...cat, status: cat.status === 'Active' ? 'Inactive' : 'Active' } : cat)));
+        setCategories((prev) => prev.map((cat) => (cat.id === category.id ? { ...cat, status: cat.status === 1 ? 0 : 1 } : cat)));
     }
 
+    const handleOnclose = () => {
+        setOpenDialog(false);
+        setInitialData(undefined);
+    }
 
-  // Filter categories based on search and status
-  const filteredCategories = categories.filter((category) => {
-    const matchesSearch =
-      searchTerm === "" ||
-      category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      category.description.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "all" ||
-      category.status.toLowerCase() === statusFilter.toLowerCase();
-
-    return matchesSearch && matchesStatus;
-  });
+    const handleDelete = (category: CategoryType) => {
+        if (window.confirm(`Are you sure you want to delete the category "${category.name}"?`)) {
+            setCategories((prev) => prev.filter((cat) => cat.id !== category.id));
+        }
+    }
 
     return (
         <main className="p-4 container mx-auto ">
@@ -76,37 +115,42 @@ const ListCategory = () => {
                     <select
                         className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
                         value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
+                        onChange={(e) => {setStatusFilter(e.target.value);setPageIndex(1)}}
                     >
-                        <option value="all">All Statuses</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="active">Active</option>
+                        <option value="">All Statuses</option>
+                        <option value="0">Inactive</option>
+                        <option value="1">Active</option>
                     </select>
                 </div>
                 <DataTable
-                    data={filteredCategories}
+                    data={categories}
                     columns={getCategoryColumns}
                     keyField="id"
-                    actions={getCategoryActions(handleEdit,handleChangeStatus)}
+                    actions={getCategoryActions(handleEdit, handleChangeStatus, handleDelete)}
                     pagination
                     pageSize={pageSize}
                     setPageSize={setPageSize}
                     pageIndex={pageIndex}
                     setPageIndex={setPageIndex}
-                    totalItems={filteredCategories.length}
+                    totalItems={totalItems}
                 />
             </div>
-            <CategoryAddDialog
-                open={openDialog}
-                onClose={() => setOpenDialog(false)}
-                onSubmit={() => handSubmit}
-                initialData={initialData} 
+            <CustomModal
+                isOpen={openDialog}
+                onClose={handleOnclose}
+                title={initialData ? "Edit Category" : "Add Category"}
+                size="md"
+            >
+                <CategoryAddDialog
+                    isSubmitting={false}
+                    actionButtonText={initialData ? "Update" : "Add"}
+                    onClose={handleOnclose}
+                    onSubmit={handSubmit}
+                    initialData={initialData}
+                />
+            </CustomModal>
 
-            />
-            
-           
-    </main>
-  );
+        </main>
+    );
 };
-
 export default ListCategory;
