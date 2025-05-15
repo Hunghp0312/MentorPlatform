@@ -23,13 +23,17 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: mentorreactapp    # set this to your application's name
+  AZURE_WEBAPP_NAME: mentorrookiesreact    # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: './front-end'      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '20.x'                # set this to the node version to use
 
 permissions:
   contents: read
-
+  
+defaults:
+  run:
+    working-directory: './front-end'
+  
 jobs:
   build:
     runs-on: ubuntu-latest
