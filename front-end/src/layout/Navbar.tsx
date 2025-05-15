@@ -27,7 +27,7 @@ export default function Navbar({
   return (
     <aside
       className={`
-        fixed left-0 top-0 h-full bg-gray-900 text-white transition-all duration-300 z-10
+        fixed left-0 top-0 h-full bg-gray-800 text-white transition-all duration-300 z-10
         ${collapsed ? "w-16" : "w-64"}
       `}
     >

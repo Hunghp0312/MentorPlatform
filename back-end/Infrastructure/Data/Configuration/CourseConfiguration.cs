@@ -25,6 +25,8 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(c => c.Created).IsRequired();
 
+            builder.Property(c => c.Tags).IsRequired().HasMaxLength(100);
+
             builder
                 .HasOne(c => c.Category)
                 .WithMany(c => c.Courses)

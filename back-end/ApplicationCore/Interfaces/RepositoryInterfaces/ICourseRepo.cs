@@ -11,5 +11,7 @@ namespace ApplicationCore.Interfaces.RepositoryInterfaces
             int pageIndex,
             int pageSize
         );
+        Task<bool> ExistsByNameAsync(string name);
+        Task<bool> ExistsByNameAsync(string name, Guid excludeId);
     }
 }

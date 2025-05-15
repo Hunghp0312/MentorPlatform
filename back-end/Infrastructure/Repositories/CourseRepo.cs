@@ -45,5 +45,15 @@ namespace Infrastructure.Repositories
 
             return (pagedCourses, totalRecords);
         }
+
+        public async Task<bool> ExistsByNameAsync(string name)
+        {
+            return await _dbSet.AnyAsync(c => c.Title == name);
+        }
+
+        public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
+        {
+            return await _dbSet.AnyAsync(c => c.Title == name && c.Id != excludeId);
+        }
     }
 }

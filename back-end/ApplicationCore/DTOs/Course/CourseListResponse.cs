@@ -8,6 +8,7 @@ namespace ApplicationCore.DTOs
         public CourseStatus Status { get; set; }
         public CourseLevel Difficulty { get; set; }
         public string Duration { get; set; }
+        public List<string> Tags { get; set; }
         // public int Students { get; set; }
         // public int Completion { get; set; }
     }

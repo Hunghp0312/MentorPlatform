@@ -104,7 +104,7 @@ namespace ApplicationCore.Services
             existingCategory.Status = updateDto.Status;
 
             _categoryRepo.Update(existingCategory);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitAsync();
         }
 
         public async Task<CategoryResponseDto?> GetCategoryByIdAsync(Guid id)
@@ -155,7 +155,7 @@ namespace ApplicationCore.Services
             {
                 request.PageSize = 10;
             }
-            Func<IQueryable<Category>, IQueryable<Category>> filter = null;
+            Func<IQueryable<Category>, IQueryable<Category>>? filter = null;
             if (!string.IsNullOrEmpty(request.Query) || !string.IsNullOrEmpty(request.Status))
             {
                 filter = q =>

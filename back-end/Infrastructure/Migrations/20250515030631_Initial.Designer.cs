@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250514135554_Initial")]
+    [Migration("20250515030631_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -165,6 +165,11 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -187,6 +192,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 0,
                             Status = 1,
+                            Tags = "C#,programming,fundamentals",
                             Title = "Intro to C#"
                         },
                         new
@@ -199,6 +205,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 1,
                             Status = 1,
+                            Tags = "C#,OOP,classes,inheritance",
                             Title = "OOP in C#"
                         },
                         new
@@ -211,6 +218,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 2,
                             Status = 1,
+                            Tags = ".NET,ASP.NET Core,API,REST",
                             Title = "Advanced .NET APIs"
                         },
                         new
@@ -223,6 +231,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 0,
                             Status = 1,
+                            Tags = "SQL,database,queries,beginner",
                             Title = "SQL for Beginners"
                         },
                         new
@@ -235,6 +244,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 1,
                             Status = 1,
+                            Tags = "EF Core,Entity Framework,data access,.NET",
                             Title = "EF Core Masterclass"
                         },
                         new
@@ -247,6 +257,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 0,
                             Status = 1,
+                            Tags = "HTML,CSS,web design,frontend",
                             Title = "HTML & CSS Basics"
                         },
                         new
@@ -259,6 +270,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 1,
                             Status = 1,
+                            Tags = "React,JavaScript,frontend,UI",
                             Title = "React Essentials"
                         },
                         new
@@ -271,6 +283,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 1,
                             Status = 1,
+                            Tags = ".NET,testing,TDD,unit tests",
                             Title = "Unit Testing in .NET"
                         },
                         new
@@ -283,6 +296,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 0,
                             Status = 1,
+                            Tags = "Git,GitHub,version control,beginner",
                             Title = "Git & GitHub Basics"
                         },
                         new
@@ -295,6 +309,7 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 2,
                             Status = 1,
+                            Tags = "Docker,containers,devops,deployment",
                             Title = "Docker for Developers"
                         });
                 });

@@ -37,7 +37,7 @@ namespace Presentation.Controllers // Hoặc namespace phù hợp với project 
                 var createdCategory = await _categoryService.CreateCategoryAsync(createDto);
                 return CreatedAtAction(
                     nameof(GetCategoryById),
-                    new { id = createdCategory.Id },
+                    new { id = createdCategory?.Id },
                     createdCategory
                 );
             }
