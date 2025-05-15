@@ -7,6 +7,7 @@ type ButtonProps = {
     size?: 'sm' | 'md' | 'lg';
     onClick?: () => void;
     disabled?: boolean;
+    type?: 'button' | 'submit' | 'reset';
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -16,6 +17,7 @@ const Button: React.FC<ButtonProps> = ({
     size = 'md',
     onClick,
     disabled = false,
+    type = 'button',
 }) => {
     const baseStyles = 'rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2';
     const variantStyles = {
@@ -39,7 +41,7 @@ const Button: React.FC<ButtonProps> = ({
         .join(' ');
 
     return (
-        <button className={`${classes} ${className} ` } onClick={onClick} disabled={disabled}>
+        <button className={`${classes} ${className} ` } onClick={onClick} disabled={disabled} type={type}>
             {children}
         </button>
     );
