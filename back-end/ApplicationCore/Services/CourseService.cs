@@ -72,7 +72,7 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<CourseDetailsResponse>> GetCourseByIdAsync(Guid id)
         {
-            var course = await _courseRepo.GetByIdAsync(id);
+            var course = await _courseRepo.GetCourseWithCategoryAsync(id);
             if (course == null)
             {
                 return OperationResult<CourseDetailsResponse>.NotFound(
