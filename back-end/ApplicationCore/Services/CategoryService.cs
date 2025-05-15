@@ -37,7 +37,6 @@ namespace ApplicationCore.Services
                 Name = trimmedName,
                 Description = trimmedDescription,
                 Status = createDto.Status,
-                CourseCount = 0
             };
 
             await _categoryRepo.AddAsync(category);
@@ -107,12 +106,13 @@ namespace ApplicationCore.Services
                 Status = category.Status,
                 CourseCount = category.CourseCount
             };
-            return OperationResult<CategoryResponseDto>.Ok(responseDto);
+            return OperationResult<CategoryResponseDto>.Ok(responseDto, "Get category successfully.");
         }
 
 
         public async Task<OperationResult<ICollection<CategoryResponseDto>>> GetAllCategoriesAsync()
         {
+
             var categories = await _categoryRepo.GetAllAsync();
             var categoryDtos = categories
                 .Select(c => new CategoryResponseDto
