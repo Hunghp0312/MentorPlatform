@@ -12,6 +12,7 @@ namespace ApplicationCore.Interfaces.RepositoryInterfaces
             int pageSize
         );
         Task<bool> ExistsByNameAsync(string name);
+        Task<ICollection<Course>?> GetCoursesByMentorId(Guid mentorId);
         Task<bool> ExistsByNameAsync(string name, Guid excludeId);
     }
 }

@@ -11,7 +11,8 @@ namespace ApplicationCore.Entity
         public CourseLevel Level { get; set; }
         public string Duration { get; set; }
 
-        // public Guid MentorId { get; set; }
+        public Guid MentorId { get; set; }
+
         // public Guid ResourceId { get; set; }
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }

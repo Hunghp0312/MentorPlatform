@@ -5,6 +5,7 @@ using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Course;
 using ApplicationCore.Entity;
+using ApplicationCore.Extensions;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
 using ApplicationCore.Interfaces.ServiceInterfaces;
@@ -36,6 +37,13 @@ namespace ApplicationCore.Services
             CreateCourseRequestDto request
         )
         {
+            var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
+
+            if (category == null)
+            {
+                return OperationResult<CourseDetailsResponse>.NotFound("Category not found");
+            }
+
             var course = new Course
             {
                 Id = Guid.NewGuid(),
@@ -54,26 +62,7 @@ namespace ApplicationCore.Services
             await _courseRepo.AddAsync(course);
             await _unitOfWork.SaveChangesAsync();
 
-            var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
-
-            if (category == null)
-            {
-                return OperationResult<CourseDetailsResponse>.NotFound("Category not found");
-            }
-
-            var response = new CourseDetailsResponse
-            {
-                Id = course.Id,
-                Title = course.Title,
-                Description = course.Description,
-                CategoryName = category.Name,
-                Status = course.Status,
-                Level = course.Level,
-                Duration = course.Duration,
-                Created = course.Created,
-                LastUpdated = course.LastUpdated,
-                Tags = TagHelper.ConvertStringToList(course.Tags),
-            };
+            var response = CourseMappingExtension.CourseDetailResponseMap(course);
 
             return OperationResult<CourseDetailsResponse>.Ok(
                 response,
@@ -91,23 +80,33 @@ namespace ApplicationCore.Services
                 );
             }
 
-            var response = new CourseDetailsResponse
-            {
-                Id = course.Id,
-                Title = course.Title,
-                Description = course.Description,
-                CategoryName = course.Category.Name,
-                Status = course.Status,
-                Level = course.Level,
-                Duration = course.Duration,
-                Created = course.Created,
-                LastUpdated = course.LastUpdated,
-                Tags = TagHelper.ConvertStringToList(course.Tags),
-            };
+            var response = CourseMappingExtension.CourseDetailResponseMap(course);
 
             return OperationResult<CourseDetailsResponse>.Ok(
                 response,
                 "Course retrieved successfully"
+            );
+        }
+
+        public async Task<OperationResult<ICollection<CourseListResponse>>> GetCourseByMentorId(
+            Guid mentorId
+        )
+        {
+            var courses = await _courseRepo.GetCoursesByMentorId(mentorId);
+
+            if (courses == null)
+            {
+                return OperationResult<ICollection<CourseListResponse>>.NotFound(
+                    "Courses not found"
+                );
+            }
+
+            var response = courses
+                .Select(course => CourseMappingExtension.CourseListResponseMap(course))
+                .ToList();
+            return OperationResult<ICollection<CourseListResponse>>.Ok(
+                response,
+                "Get course successfully"
             );
         }
 
@@ -116,6 +115,13 @@ namespace ApplicationCore.Services
             CreateCourseRequestDto request
         )
         {
+            var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
+
+            if (category == null)
+            {
+                return OperationResult<CourseDetailsResponse>.NotFound("Category not found");
+            }
+
             var course = await _courseRepo.GetCourseWithCategoryAsync(id);
             if (course == null)
             {
@@ -219,6 +225,11 @@ namespace ApplicationCore.Services
                     query = query.Where(c =>
                         c.Title.Contains(req.Query) || c.Description.Contains(req.Query)
                     );
+                }
+
+                if (req.MentorIds != null && req.MentorIds.Count != 0)
+                {
+                    query = query.Where(c => req.MentorIds.Contains(c.MentorId));
                 }
 
                 if (req.Level.HasValue)

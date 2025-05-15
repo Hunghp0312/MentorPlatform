@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250515030631_Initial")]
+    [Migration("20250515084123_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -162,6 +162,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("MentorId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -191,6 +194,7 @@ namespace Infrastructure.Migrations
                             Duration = "3 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 0,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000001"),
                             Status = 1,
                             Tags = "C#,programming,fundamentals",
                             Title = "Intro to C#"
@@ -204,6 +208,7 @@ namespace Infrastructure.Migrations
                             Duration = "4 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 1,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000002"),
                             Status = 1,
                             Tags = "C#,OOP,classes,inheritance",
                             Title = "OOP in C#"
@@ -217,6 +222,7 @@ namespace Infrastructure.Migrations
                             Duration = "5 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 2,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000003"),
                             Status = 1,
                             Tags = ".NET,ASP.NET Core,API,REST",
                             Title = "Advanced .NET APIs"
@@ -230,6 +236,7 @@ namespace Infrastructure.Migrations
                             Duration = "2 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 0,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000004"),
                             Status = 1,
                             Tags = "SQL,database,queries,beginner",
                             Title = "SQL for Beginners"
@@ -243,6 +250,7 @@ namespace Infrastructure.Migrations
                             Duration = "4 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 1,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000005"),
                             Status = 1,
                             Tags = "EF Core,Entity Framework,data access,.NET",
                             Title = "EF Core Masterclass"
@@ -256,6 +264,7 @@ namespace Infrastructure.Migrations
                             Duration = "2 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 0,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000006"),
                             Status = 1,
                             Tags = "HTML,CSS,web design,frontend",
                             Title = "HTML & CSS Basics"
@@ -269,6 +278,7 @@ namespace Infrastructure.Migrations
                             Duration = "4 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 1,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000007"),
                             Status = 1,
                             Tags = "React,JavaScript,frontend,UI",
                             Title = "React Essentials"
@@ -282,6 +292,7 @@ namespace Infrastructure.Migrations
                             Duration = "3 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 1,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000008"),
                             Status = 1,
                             Tags = ".NET,testing,TDD,unit tests",
                             Title = "Unit Testing in .NET"
@@ -295,6 +306,7 @@ namespace Infrastructure.Migrations
                             Duration = "1 week",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 0,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000009"),
                             Status = 1,
                             Tags = "Git,GitHub,version control,beginner",
                             Title = "Git & GitHub Basics"
@@ -308,6 +320,7 @@ namespace Infrastructure.Migrations
                             Duration = "3 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             Level = 2,
+                            MentorId = new Guid("10000000-0000-0000-0000-000000000010"),
                             Status = 1,
                             Tags = "Docker,containers,devops,deployment",
                             Title = "Docker for Developers"
