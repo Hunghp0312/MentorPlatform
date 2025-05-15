@@ -20,7 +20,7 @@ namespace Presentation.Controllers
         }
 
         // POST: api/Courses
-        [HttpPost]
+        [HttpPost("{id:guid}")]
         [ProducesResponseType(typeof(CourseResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]

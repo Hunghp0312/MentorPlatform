@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250514084257_Initial")]
-    partial class Initial
+    [Migration("20250515045717_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -171,6 +171,11 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.PrimitiveCollection<string>("Tags")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -195,6 +200,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "Intro to C#"
                         },
                         new
@@ -209,6 +215,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "OOP in C#"
                         },
                         new
@@ -223,6 +230,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "Advanced .NET APIs"
                         },
                         new
@@ -237,6 +245,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "SQL for Beginners"
                         },
                         new
@@ -251,6 +260,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "EF Core Masterclass"
                         },
                         new
@@ -265,6 +275,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "HTML & CSS Basics"
                         },
                         new
@@ -279,6 +290,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "React Essentials"
                         },
                         new
@@ -293,6 +305,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "Unit Testing in .NET"
                         },
                         new
@@ -307,6 +320,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "Git & GitHub Basics"
                         },
                         new
@@ -321,6 +335,7 @@ namespace Infrastructure.Migrations
                             MentorId = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             ResourceId = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Status = 1,
+                            Tags = "[]",
                             Title = "Docker for Developers"
                         });
                 });
