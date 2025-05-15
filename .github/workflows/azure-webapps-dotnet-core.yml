@@ -57,8 +57,7 @@ jobs:
 
       - name: Build and Publish
         run: 
-             cd Presentation
-             dotnet build --configuration Release
+             dotnet build Presentation/Presentation.csproj--configuration Release
              dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
