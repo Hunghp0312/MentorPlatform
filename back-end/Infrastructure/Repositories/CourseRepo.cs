@@ -46,6 +46,14 @@ namespace Infrastructure.Repositories
             return (pagedCourses, totalRecords);
         }
 
+        public async Task<ICollection<Course>?> GetCoursesByMentorId(Guid mentorId)
+        {
+            return await _dbSet
+                .Include(c => c.Category)
+                .Where(c => c.MentorId == mentorId)
+                .ToListAsync();
+        }
+
         public async Task<bool> ExistsByNameAsync(string name)
         {
             return await _dbSet.AnyAsync(c => c.Title == name);

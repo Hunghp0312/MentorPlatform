@@ -19,7 +19,7 @@ namespace ApplicationCore.Interfaces
         Task<OperationResult<CourseDetailsResponse>> DeleteCourseAsync(Guid Id);
         Task<OperationResult<CourseDetailsResponse>> GetCourseByIdAsync(Guid Id);
         Task<OperationResult<CourseDetailsResponse>> GetCourseDetailsAsync(Guid Id);
-
+        Task<OperationResult<ICollection<CourseListResponse>>> GetCourseByMentorId(Guid mentorId);
         Task<OperationResult<PagedResult<CourseListResponse>>> GetPagedCourseAsync(
             CoursePagedRequest req
         );

@@ -20,6 +20,10 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(CourseResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCoursePagination([FromQuery] CoursePagedRequest request)
         {
             var res = await _courseService.GetPagedCourseAsync(request);
@@ -47,6 +51,17 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetCourseById(Guid id)
         {
             var result = await _courseService.GetCourseByIdAsync(id);
+            return ToActionResult(result);
+        }
+
+        [HttpGet("by-mentor/{mentorId:guid}")]
+        [ProducesResponseType(typeof(CourseResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCoursesByMentorId(Guid mentorId)
+        {
+            var result = await _courseService.GetCourseByMentorId(mentorId);
             return ToActionResult(result);
         }
 
