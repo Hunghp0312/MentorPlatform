@@ -31,6 +31,10 @@ on:
 
 permissions:
   contents: read
+  
+defaults:
+  run:
+    working-directory: './back-end'
 
 jobs:
   build:
