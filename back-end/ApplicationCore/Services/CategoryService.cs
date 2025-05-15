@@ -196,5 +196,37 @@ namespace ApplicationCore.Services
 
             return OperationResult<PagedResult<CategoryResponseDto>>.Ok(pagedResult, message);
         }
+
+        public async Task<OperationResult<object>> DeleteCategoryAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return OperationResult<object>.BadRequest("Category ID is not valid.");
+            }
+
+            var categoryToDelete = await _categoryRepo.GetByIdAsync(id);
+
+            if (categoryToDelete == null)
+            {
+                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
+            }
+
+            if (categoryToDelete.Courses != null && categoryToDelete.Courses.Any())
+            {
+                return OperationResult<object>.Conflict($"Cannot delete category '{categoryToDelete.Name}' as it has associated courses. Please remove or reassign courses first.");
+            }
+
+            var deletedByRepo = await _categoryRepo.DeleteById(id);
+            if (!deletedByRepo)
+            {
+                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found by repository for deletion.");
+            }
+
+            var commitResult = await _unitOfWork.SaveChangesAsync();
+
+            return commitResult > 0
+                ? OperationResult<object>.NoContent()
+                : OperationResult<object>.Fail("Failed to delete category from database.", HttpStatusCode.InternalServerError);
+        }
     }
 }

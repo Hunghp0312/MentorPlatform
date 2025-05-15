@@ -77,5 +77,17 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
+
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteCategory(Guid id)
+        {
+            var result = await _categoryService.DeleteCategoryAsync(id);
+            return ToActionResult(result);
+        }
     }
 }
