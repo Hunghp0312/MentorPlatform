@@ -18,17 +18,17 @@ namespace Infrastructure.Repositories
             _dbSet = _context.Set<TEntity>();
         }
 
-        public async Task AddAsync(TEntity obj)
+        public virtual async Task AddAsync(TEntity obj)
         {
             var result = await _dbSet.AddAsync(obj);
         }
 
-        public void Delete(TEntity entity)
+        public virtual void Delete(TEntity entity)
         {
             _dbSet.Remove(entity);
         }
 
-        public async Task<bool> DeleteById(Guid id)
+        public virtual async Task<bool> DeleteById(Guid id)
         {
             var obj = await _dbSet.FindAsync(id);
 
@@ -42,30 +42,24 @@ namespace Infrastructure.Repositories
             return true;
         }
 
-        public async Task<ICollection<TEntity>> GetAllAsync()
+        public virtual async Task<ICollection<TEntity>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<TEntity?> GetByIdAsync(Guid id)
+        public virtual async Task<TEntity?> GetByIdAsync(Guid id)
         {
             var obj = await _dbSet.FindAsync(id);
 
             return obj;
         }
 
-        public void Update(TEntity entity)
+        public virtual void Update(TEntity entity)
         {
             _dbSet.Update(entity);
         }
 
-        // public async Task<(ICollection<TEntity>, int)> GetPagedAsync(int pageIndex, int pageSize)
-        // {
-        //     var totalRecords = await _dbSet.CountAsync();
-        //     var obj = await _dbSet.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
-        //     return (obj, totalRecords);
-        // }
-        public async Task<(ICollection<TEntity>, int)> GetPagedAsync(
+        public virtual async Task<(ICollection<TEntity>, int)> GetPagedAsync(
             Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter,
             int pageIndex,
             int pageSize
@@ -81,7 +75,7 @@ namespace Infrastructure.Repositories
             return (obj, totalRecords);
         }
 
-        public async Task AddRangeAsync(ICollection<TEntity> entities)
+        public virtual async Task AddRangeAsync(ICollection<TEntity> entities)
         {
             await _dbSet.AddRangeAsync(entities);
         }

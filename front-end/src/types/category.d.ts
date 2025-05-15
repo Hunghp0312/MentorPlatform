@@ -3,5 +3,12 @@ export interface CategoryType {
     name: string;
     description: string;
     courses: number;
-    status: "Active" | "Inactive";
+    status: number;
 }
+
+export interface CategoryCreateType {
+    name: string;
+    description: string;
+    status: number;
+}
+

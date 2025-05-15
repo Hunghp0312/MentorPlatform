@@ -1,9 +1,12 @@
-﻿using ApplicationCore.DTOs.Category;
+﻿using ApplicationCore.Common;
+using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Entity;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
 using ApplicationCore.Interfaces.ServiceInterfaces;
+using System.Net;
 
 namespace ApplicationCore.Services
 {
@@ -18,115 +21,94 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<CategoryResponseDto?> CreateCategoryAsync(
-            CreateCategoryRequestDto createDto
-        )
+        public async Task<OperationResult<CategoryResponseDto>> CreateCategoryAsync(CreateCategoryRequestDto createDto)
         {
-            var trimmedName = createDto.Name?.Trim();
-            var trimmedDescription = createDto.Description?.Trim();
-
-            if (string.IsNullOrEmpty(trimmedName))
+            if (await _categoryRepo.ExistsByNameAsync(createDto.Name))
             {
-                throw new ArgumentException(
-                    "Category name cannot be empty.",
-                    nameof(createDto.Name)
-                );
-            }
-            if (string.IsNullOrEmpty(trimmedDescription))
-            {
-                throw new ArgumentException(
-                    "Category description cannot be empty.",
-                    nameof(createDto.Description)
-                );
-            }
-
-            if (await _categoryRepo.ExistsByNameAsync(trimmedName))
-            {
-                throw new ArgumentException($"Category with name '{trimmedName}' already exists.");
+                return OperationResult<CategoryResponseDto>.Conflict($"Category with name '{createDto.Name}' already exists.");
             }
 
             var category = new Category
             {
                 Id = Guid.NewGuid(),
-                Name = trimmedName,
-                Description = trimmedDescription,
+                Name = createDto.Name,
+                Description = createDto.Description,
                 Status = createDto.Status,
-                CourseCount = 0,
             };
 
             await _categoryRepo.AddAsync(category);
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.SaveChangesAsync();
 
-            return new CategoryResponseDto
+            var responseDto = new CategoryResponseDto
             {
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 Status = category.Status,
-                CourseCount = category.CourseCount,
+                CourseCount = category.CourseCount
             };
+
+            return OperationResult<CategoryResponseDto>.Created(responseDto, "Category created successfully.");
         }
 
-        public async Task UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto)
+        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto)
         {
+            if (id == Guid.Empty)
+            {
+                return OperationResult<object>.BadRequest("Category ID is not valid.");
+            }
+
             var existingCategory = await _categoryRepo.GetByIdAsync(id);
             if (existingCategory == null)
             {
-                return;
-            }
-            var trimmedName = updateDto.Name?.Trim();
-            var trimmedDescription = updateDto.Description?.Trim();
-
-            if (string.IsNullOrEmpty(trimmedName))
-            {
-                throw new ArgumentException(
-                    "Category name cannot be empty.",
-                    nameof(updateDto.Name)
-                );
-            }
-            if (string.IsNullOrEmpty(trimmedDescription))
-            {
-                throw new ArgumentException(
-                    "Category description cannot be empty.",
-                    nameof(updateDto.Description)
-                );
+                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
             }
 
-            if (await _categoryRepo.ExistsByNameAsync(trimmedName, id))
+            if (await _categoryRepo.ExistsByNameAsync(updateDto.Name, id))
             {
-                throw new ArgumentException(
-                    $"Category name '{trimmedName}' is already used by another category."
-                );
+                return OperationResult<object>.Conflict($"Category name '{updateDto.Name}' is already used by another category.");
             }
 
-            existingCategory.Name = trimmedName;
-            existingCategory.Description = trimmedDescription;
+            existingCategory.Name = updateDto.Name;
+            existingCategory.Description = updateDto.Description;
             existingCategory.Status = updateDto.Status;
 
             _categoryRepo.Update(existingCategory);
-            await _unitOfWork.CommitAsync();
+            var commitResult = await _unitOfWork.SaveChangesAsync();
+
+            return commitResult > 0
+                ? OperationResult<object>.Ok("Update category successfully.")
+                : OperationResult<object>.Fail("Failed to update category.", HttpStatusCode.InternalServerError);
         }
 
-        public async Task<CategoryResponseDto?> GetCategoryByIdAsync(Guid id)
+        public async Task<OperationResult<CategoryResponseDto>> GetCategoryByIdAsync(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return OperationResult<CategoryResponseDto>.BadRequest("Category ID is not valid.");
+            }
             var category = await _categoryRepo.GetByIdAsync(id);
             if (category == null)
             {
-                return null;
+                return OperationResult<CategoryResponseDto>.NotFound($"Category with ID '{id}' was not found.");
             }
 
-            return new CategoryResponseDto
+            var responseDto = new CategoryResponseDto
             {
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 Status = category.Status,
-                CourseCount = category.CourseCount, // Sử dụng trực tiếp nếu đã có trong entity
+                CourseCount = category.CourseCount
             };
+
+            return OperationResult<CategoryResponseDto>.Ok(responseDto, "Get category successfully.");
         }
 
-        public async Task<ICollection<CategoryResponseDto>> GetAllCategoriesAsync()
+
+        public async Task<OperationResult<ICollection<CategoryResponseDto>>> GetAllCategoriesAsync()
         {
+
             var categories = await _categoryRepo.GetAllAsync();
             var categoryDtos = categories
                 .Select(c => new CategoryResponseDto
@@ -138,14 +120,25 @@ namespace ApplicationCore.Services
                     CourseCount = c.CourseCount,
                 })
                 .ToList();
+            string message = categoryDtos.Any()
+                ? "Get list successfully"
+                : "Operation successful but no categories found";
 
-            return categoryDtos;
+            return OperationResult<ICollection<CategoryResponseDto>>.Ok(categoryDtos, message);
         }
 
-        public async Task<PagedResult<CategoryResponseDto>> GetPagedCategoriesAsync(
-            CategoryPagedRequestDto request
-        )
+
+        public async Task<OperationResult<PagedResult<CategoryResponseDto>>> GetPagedCategoriesAsync(
+    CategoryQueryParameters parameters
+)
         {
+            var request = new CategoryPagedRequestDto
+            {
+                Query = parameters.Query,
+                Status = parameters.Status,
+                PageIndex = parameters.Page,
+                PageSize = parameters.PageSize
+            };
             if (request.PageIndex < 1)
             {
                 request.PageIndex = 1;
@@ -155,29 +148,34 @@ namespace ApplicationCore.Services
             {
                 request.PageSize = 10;
             }
-            Func<IQueryable<Category>, IQueryable<Category>>? filter = null;
+
+            Func<IQueryable<Category>, IQueryable<Category>> filter = null;
             if (!string.IsNullOrEmpty(request.Query) || !string.IsNullOrEmpty(request.Status))
             {
                 filter = q =>
                 {
                     if (!string.IsNullOrEmpty(request.Query))
                     {
-                        q = q.Where(c => c.Name.ToLower().Contains(request.Query));
+                        q = q.Where(c => c.Name.Contains(request.Query) ||
+                                        c.Description.Contains(request.Query));
                     }
                     if (!string.IsNullOrEmpty(request.Status))
                     {
                         if (Enum.TryParse(request.Status, true, out CategoryStatus isActive))
                             q = q.Where(c => c.Status == isActive);
                     }
+
                     return q;
                 };
             }
+
             var (categories, totalCount) = await _categoryRepo.GetPagedAsync(
                 filter,
                 request.PageIndex,
                 request.PageSize
             );
-            return new PagedResult<CategoryResponseDto>(
+
+            var pagedResult = new PagedResult<CategoryResponseDto>(
                 categories
                     .Select(c => new CategoryResponseDto
                     {
@@ -192,6 +190,43 @@ namespace ApplicationCore.Services
                 request.PageSize,
                 totalCount
             );
+            string message = totalCount > 0
+                ? "Browsing categories successfully"
+                : "Search completed successfully but no categories match your criteria";
+
+            return OperationResult<PagedResult<CategoryResponseDto>>.Ok(pagedResult, message);
+        }
+
+        public async Task<OperationResult<object>> DeleteCategoryAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return OperationResult<object>.BadRequest("Category ID is not valid.");
+            }
+
+            var categoryToDelete = await _categoryRepo.GetByIdAsync(id);
+
+            if (categoryToDelete == null)
+            {
+                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
+            }
+
+            if (categoryToDelete.Courses != null && categoryToDelete.Courses.Any())
+            {
+                return OperationResult<object>.Conflict($"Cannot delete category '{categoryToDelete.Name}' as it has associated courses. Please remove or reassign courses first.");
+            }
+
+            var deletedByRepo = await _categoryRepo.DeleteById(id);
+            if (!deletedByRepo)
+            {
+                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found by repository for deletion.");
+            }
+
+            var commitResult = await _unitOfWork.SaveChangesAsync();
+
+            return commitResult > 0
+                ? OperationResult<object>.NoContent()
+                : OperationResult<object>.Fail("Failed to delete category from database.", HttpStatusCode.InternalServerError);
         }
     }
 }
