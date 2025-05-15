@@ -55,12 +55,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Build the APP
-        run: 
-             dotnet build Presentation/Presentation.csproj--configuration Release
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+        
       - name: Publish the APP
         run: 
-             dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+             dotnet publish Presentation/Presentation.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
