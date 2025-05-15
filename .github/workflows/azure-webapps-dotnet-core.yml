@@ -31,7 +31,7 @@ on:
 
 permissions:
   contents: read
-  
+
 defaults:
   run:
     working-directory: './back-end'
@@ -57,13 +57,21 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Build with dotnet
-        run: 
-              dotnet build --configuration Release
-              dotnet publish -c Release -o ../dotnet-webapp -r linux-x64 --self-contained true /p:UseAppHost=true
+        run: dotnet build --configuration Release
 
-      - name: Deploy
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: .net-app
+          path: ./publish
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/dotnet-webapp'
+          publish-profile: ${{ secrets.AZURE_NET_WEBAPP_PUBLISH_PROFILE }}
+          package: ./publish
