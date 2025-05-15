@@ -175,7 +175,7 @@ namespace ApplicationCore.Services
             _courseRepo.Delete(course);
             await _unitOfWork.SaveChangesAsync();
 
-            return OperationResult<CourseDetailsResponse>.Ok("Course deleted successfully");
+            return OperationResult<CourseDetailsResponse>.NoContent();
         }
 
         public async Task<OperationResult<CourseDetailsResponse>> GetCourseDetailsAsync(
