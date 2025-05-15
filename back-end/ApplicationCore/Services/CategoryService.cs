@@ -50,6 +50,7 @@ namespace ApplicationCore.Services
                 Status = category.Status,
                 CourseCount = category.CourseCount
             };
+
             return OperationResult<CategoryResponseDto>.Created(responseDto, "Category created successfully.");
         }
 
@@ -106,6 +107,7 @@ namespace ApplicationCore.Services
                 Status = category.Status,
                 CourseCount = category.CourseCount
             };
+
             return OperationResult<CategoryResponseDto>.Ok(responseDto, "Get category successfully.");
         }
 
@@ -168,6 +170,7 @@ namespace ApplicationCore.Services
                         if (Enum.TryParse(request.Status, true, out CategoryStatus isActive))
                             q = q.Where(c => c.Status == isActive);
                     }
+
                     return q;
                 };
             }

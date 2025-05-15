@@ -64,6 +64,7 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
+
             return ToActionResult(categories);
         }
 
@@ -72,17 +73,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPagedCategories([FromQuery] CategoryQueryParameters parameters)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var result = await _categoryService.GetPagedCategoriesAsync(parameters);
-
-            if (!result.Success)
-            {
-                return BadRequest(new { message = result.Message });
-            }
 
             return ToActionResult(result);
         }
