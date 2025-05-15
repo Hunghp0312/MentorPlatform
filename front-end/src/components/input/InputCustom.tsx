@@ -1,6 +1,7 @@
 import { Eye, EyeOff } from "lucide-react";
 
 interface InputProps {
+  className?: string;
   label?: string;
   icon?: React.ReactNode;
   name: string;
@@ -19,6 +20,7 @@ interface InputProps {
   optionList?: Array<{ id: string; name: string }>;
 }
 const InputCustom: React.FC<InputProps> = ({
+  className,
   label,
   name,
   type = "text",
@@ -41,9 +43,9 @@ const InputCustom: React.FC<InputProps> = ({
           value={value}
           onChange={onChange}
           rows={4}
-          className={`w-full px-3 py-2 bg-gray-800 border ${
+          className={`w-full px-3 py-2 bg-gray-700 border ${
             errorMessage ? "border-red-500" : "border-gray-700"
-          } rounded-md text-white focus:outline-none sm:text-sm focus:ring-1 focus:ring-gray-600`}
+          } rounded-md text-white focus:outline-none sm:text-sm focus:ring-1 focus:ring-orange-500 ${className}`}
           placeholder={placeholder}
         />
       );
@@ -55,7 +57,7 @@ const InputCustom: React.FC<InputProps> = ({
           name={name}
           value={value}
           onChange={onChange}
-          className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-gray-600"
+          className={`w-full max-h-48 overflow-y-auto px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-orange-500 ${className}`}
         >
           {optionList.map((item) => (
             <option key={item.id} value={item.id}>
@@ -76,11 +78,11 @@ const InputCustom: React.FC<InputProps> = ({
           }
           value={value}
           onChange={onChange}
-          className={`bg-gray-800 text-gray-100 sm:text-sm rounded-lg block w-full ${
+          className={`bg-gray-700 focus:outline-none text-gray-100 sm:text-sm rounded-lg block w-full ${
             errorMessage
               ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-              : "border-gray-700 focus:ring-gray-700 focus:border-gray-700"
-          } ${inputPadding} p-2.5 border`}
+              : "border-gray-700 focus:ring-red-500 focus:border-orange-500"
+          } ${inputPadding} p-2.5 border ${className} `}
           placeholder={placeholder}
         />
         {type === "password" && (
@@ -88,7 +90,7 @@ const InputCustom: React.FC<InputProps> = ({
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="text-gray-500 hover:text-gray-300 focus:outline-none"
+              className={`text-gray-500 hover:text-gray-300 focus:outline-none ${className}`}
             >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />
@@ -107,7 +109,7 @@ const InputCustom: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={name}
-          className="text-sm font-medium text-gray-300 block mb-2"
+          className="text-base font-medium text-gray-300 block mb-2"
         >
           {label} {isRequired && <span className="text-red-500">*</span>}
         </label>

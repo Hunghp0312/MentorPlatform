@@ -6,7 +6,7 @@ import SkeletonRow from "../loading/SkeletonRow";
 
 export type DataAction<T> = {
   label?: string;
-  icon?: React.ReactNode 
+  icon?: React.ReactNode;
   onClick: (row: T) => void;
   className?: string;
 };
