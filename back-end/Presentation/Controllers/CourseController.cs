@@ -30,8 +30,6 @@ namespace Presentation.Controllers
             return ToActionResult<PagedResult<CourseListResponse>>(res);
         }
 
-        [HttpPost("{id:guid}")]
-        // POST: api/Courses
         [HttpPost]
         [ProducesResponseType(typeof(CourseResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
@@ -62,7 +60,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCoursesByMentorId(Guid mentorId)
         {
-            var result = await _courseService.GetCourseByMentorId(mentorId);
+            var result = await _courseService.GetCourseByMentorIdAsync(mentorId);
             return ToActionResult(result);
         }
 
