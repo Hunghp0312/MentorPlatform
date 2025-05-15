@@ -1,144 +1,177 @@
+using System.Runtime.InteropServices.Marshalling;
 using ApplicationCore.Common;
 using ApplicationCore.DTOs;
+using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.Course;
 using ApplicationCore.Entity;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
 using ApplicationCore.Interfaces.ServiceInterfaces;
-using ApplicationCore.DTOs.Course;
-using ApplicationCore.DTOs.Category;
+using ApplicationCore.Validators;
 
 namespace ApplicationCore.Services
 {
     public class CourseService : ICourseService
     {
         private readonly ICourseRepo _courseRepo;
+        private readonly ICategoryRepo _categoryRepo;
+        private readonly CoursePageListValidator _coursePageListValidator;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CourseService(ICourseRepo courseRepo, IUnitOfWork unitOfWork)
+        public CourseService(
+            IUnitOfWork unitOfWork,
+            ICourseRepo courseRepo,
+            ICategoryRepo categoryRepo,
+            CoursePageListValidator coursePageListValidator
+        )
         {
             _courseRepo = courseRepo;
+            _categoryRepo = categoryRepo;
             _unitOfWork = unitOfWork;
+            _coursePageListValidator = coursePageListValidator;
         }
-        public async Task<OperationResult<CourseResponseDto>> CreateCourseAsync(CreateCourseRequestDto request)
-        {
 
+        public async Task<OperationResult<CourseDetailsResponse>> CreateCourseAsync(
+            CreateCourseRequestDto request
+        )
+        {
             var course = new Course
             {
+                Id = Guid.NewGuid(),
                 Title = request.Title,
                 Description = request.Description,
                 CategoryId = request.CategoryId,
-                MentorId = Guid.Empty,
-                Status = (CourseStatus)request.Status,
-                Difficulty = (CourseDifficulty)request.Difficulty,
+                //MentorId = Guid.Empty,
+                Status = request.Status,
+                Level = request.Level,
                 Duration = request.Duration,
                 Created = DateTime.UtcNow,
-                LastUpdated = DateTime.UtcNow
+                LastUpdated = DateTime.UtcNow,
+                Tags = TagHelper.ConvertListToString(request.Tags),
             };
 
             await _courseRepo.AddAsync(course);
             await _unitOfWork.SaveChangesAsync();
 
-            var response = new CourseResponseDto
-            {
-                Id = course.Id,
-                Title = course.Title,
-                Description = course.Description,
-                Category = new CategoryResponseDto
-                {
-                    Id = course.Category.Id,
-                    Name = course.Category.Name,
-                },
-                Status = course.Status,
-                Difficulty = course.Difficulty,
-                Duration = course.Duration,
-                Created = course.Created,
-                LastUpdated = course.LastUpdated
-            };
+            var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
 
-            return OperationResult<CourseResponseDto>.Ok(response, "Course created successfully");
-        }
-
-        public async Task<OperationResult<CourseResponseDto>> GetCourseByIdAsync(Guid id)
-        {
-            var course = await _courseRepo.GetByIdAsync(id);
-            if (course == null)
+            if (category == null)
             {
-                return OperationResult<CourseResponseDto>.NotFound($"Course with ID {id} not found");
+                return OperationResult<CourseDetailsResponse>.NotFound("Category not found");
             }
 
-            var response = new CourseResponseDto
+            var response = new CourseDetailsResponse
             {
                 Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
-                Category = new CategoryResponseDto
-                {
-                    Id = course.Category.Id,
-                    Name = course.Category.Name,
-                },
+                CategoryName = category.Name,
                 Status = course.Status,
-                Difficulty = course.Difficulty,
+                Level = course.Level,
                 Duration = course.Duration,
                 Created = course.Created,
-                LastUpdated = course.LastUpdated
+                LastUpdated = course.LastUpdated,
+                Tags = TagHelper.ConvertStringToList(course.Tags),
             };
 
-            return OperationResult<CourseResponseDto>.Ok(response, "Course retrieved successfully");
+            return OperationResult<CourseDetailsResponse>.Ok(
+                response,
+                "Course created successfully"
+            );
         }
 
-        public async Task<OperationResult<CourseResponseDto>> UpdateCourseAsync(Guid id, CreateCourseRequestDto request)
+        public async Task<OperationResult<CourseDetailsResponse>> GetCourseByIdAsync(Guid id)
         {
             var course = await _courseRepo.GetByIdAsync(id);
             if (course == null)
             {
-                return OperationResult<CourseResponseDto>.NotFound($"Course with ID {id} not found");
+                return OperationResult<CourseDetailsResponse>.NotFound(
+                    $"Course with ID {id} not found"
+                );
+            }
+
+            var response = new CourseDetailsResponse
+            {
+                Id = course.Id,
+                Title = course.Title,
+                Description = course.Description,
+                CategoryName = course.Category.Name,
+                Status = course.Status,
+                Level = course.Level,
+                Duration = course.Duration,
+                Created = course.Created,
+                LastUpdated = course.LastUpdated,
+                Tags = TagHelper.ConvertStringToList(course.Tags),
+            };
+
+            return OperationResult<CourseDetailsResponse>.Ok(
+                response,
+                "Course retrieved successfully"
+            );
+        }
+
+        public async Task<OperationResult<CourseDetailsResponse>> UpdateCourseAsync(
+            Guid id,
+            UpdateCourseRequestDto request
+        )
+        {
+            var course = await _courseRepo.GetCourseWithCategoryAsync(id);
+            if (course == null)
+            {
+                return OperationResult<CourseDetailsResponse>.NotFound(
+                    $"Course with ID {id} not found"
+                );
             }
 
             course.Title = request.Title;
             course.Description = request.Description;
             course.CategoryId = request.CategoryId;
             course.Status = (CourseStatus)request.Status;
-            course.Difficulty = (CourseDifficulty)request.Difficulty;
+            course.Level = request.Level;
             course.Duration = request.Duration;
             course.LastUpdated = DateTime.UtcNow;
+            course.Tags = TagHelper.ConvertListToString(request.Tags);
 
             _courseRepo.Update(course);
             await _unitOfWork.SaveChangesAsync();
 
-            var response = new CourseResponseDto
+            var response = new CourseDetailsResponse
             {
                 Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
-                Category = new CategoryResponseDto
-                {
-                    Id = course.Category.Id,
-                    Name = course.Category.Name,
-                },
+                CategoryName = course.Category.Name,
                 Status = course.Status,
-                Difficulty = course.Difficulty,
+                Level = course.Level,
                 Duration = course.Duration,
                 Created = course.Created,
-                LastUpdated = course.LastUpdated
+                LastUpdated = course.LastUpdated,
+                Tags = TagHelper.ConvertStringToList(course.Tags),
             };
 
-            return OperationResult<CourseResponseDto>.Ok(response, "Course updated successfully");
+            return OperationResult<CourseDetailsResponse>.Ok(
+                response,
+                "Course updated successfully"
+            );
         }
 
-        public async Task<OperationResult<CourseResponseDto>> DeleteCourseAsync(Guid id)
+        public async Task<OperationResult<CourseDetailsResponse>> DeleteCourseAsync(Guid id)
         {
             var course = await _courseRepo.GetByIdAsync(id);
             if (course == null)
             {
-                return OperationResult<CourseResponseDto>.NotFound($"Course with ID {id} not found");
+                return OperationResult<CourseDetailsResponse>.NotFound(
+                    $"Course with ID {id} not found"
+                );
             }
 
             _courseRepo.Delete(course);
             await _unitOfWork.SaveChangesAsync();
 
-            return OperationResult<CourseResponseDto>.Ok("Course deleted successfully");
+            return OperationResult<CourseDetailsResponse>.Ok("Course deleted successfully");
         }
+
         public async Task<OperationResult<CourseDetailsResponse>> GetCourseDetailsAsync(
             Guid courseId
         )
@@ -154,15 +187,12 @@ namespace ApplicationCore.Services
                 Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
-                CategoryName = "I am gay",
                 Status = course.Status,
-                Difficulty = course.Difficulty,
+                Level = course.Level,
                 Duration = course.Duration,
-                CreatedAt = course.Created,
+                Created = course.Created,
                 LastUpdated = course.LastUpdated,
-                MentorName = "Hiii",
-                MentorInfo = "Demo",
-                Resource = "Resouce",
+                Tags = TagHelper.ConvertStringToList(course.Tags),
             };
 
             return OperationResult<CourseDetailsResponse>.Ok(
@@ -171,6 +201,69 @@ namespace ApplicationCore.Services
             );
         }
 
+        public async Task<OperationResult<PagedResult<CourseListResponse>>> GetPagedCourseAsync(
+            CoursePagedRequest req
+        )
+        {
+            var validator = await _coursePageListValidator.ValidateAsync(req);
 
+            if (!validator.Success)
+            {
+                return validator;
+            }
+
+            Func<IQueryable<Course>, IQueryable<Course>> filter = query =>
+            {
+                if (!string.IsNullOrWhiteSpace(req.Query))
+                {
+                    query = query.Where(c =>
+                        c.Title.Contains(req.Query) || c.Description.Contains(req.Query)
+                    );
+                }
+
+                if (req.Level.HasValue)
+                {
+                    query = query.Where(c => c.Level == req.Level.Value);
+                }
+
+                if (req.CategoryId.HasValue && req.CategoryId.Value != Guid.Empty)
+                {
+                    query = query.Where(c => c.CategoryId == req.CategoryId.Value);
+                }
+
+                return query;
+            };
+
+            var (courses, totalCourses) = await _courseRepo.GetPagedCoursesAsync(
+                filter,
+                req.PageIndex,
+                req.PageSize
+            );
+
+            var CourseDetailsResponse = courses
+                .Select(course => new CourseListResponse
+                {
+                    Id = course.Id,
+                    Title = course.Title,
+                    CategoryName = course.Category.Name,
+                    Status = course.Status,
+                    Difficulty = course.Level,
+                    Duration = course.Duration,
+                    Tags = TagHelper.ConvertStringToList(course.Tags),
+                })
+                .ToList();
+
+            var coursesPageResponse = new PagedResult<CourseListResponse>(
+                CourseDetailsResponse,
+                req.PageIndex,
+                req.PageSize,
+                totalCourses
+            );
+
+            return OperationResult<PagedResult<CourseListResponse>>.Ok(
+                coursesPageResponse,
+                "Get list successfully"
+            );
+        }
     }
 }

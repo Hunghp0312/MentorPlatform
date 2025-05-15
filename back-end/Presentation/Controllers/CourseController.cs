@@ -1,10 +1,9 @@
-using ApplicationCore.DTOs.Course;
-using ApplicationCore.Interfaces.ServiceInterfaces;
-using Microsoft.AspNetCore.Mvc;
-using ApplicationCore.DTOs.Common;
-using Presentation.Models.Dtos.QueryParameter;
 using ApplicationCore.DTOs;
+using ApplicationCore.DTOs.Category;
+using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.Course;
 using ApplicationCore.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
@@ -16,11 +15,19 @@ namespace Presentation.Controllers
 
         public CoursesController(ICourseService courseService)
         {
-            _courseService = courseService ?? throw new ArgumentNullException(nameof(courseService));
+            _courseService =
+                courseService ?? throw new ArgumentNullException(nameof(courseService));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCoursePagination([FromQuery] CoursePagedRequest request)
+        {
+            var res = await _courseService.GetPagedCourseAsync(request);
+            return ToActionResult<PagedResult<CourseListResponse>>(res);
         }
 
         // POST: api/Courses
-        [HttpPost("{id:guid}")]
+        [HttpPost]
         [ProducesResponseType(typeof(CourseResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
@@ -63,7 +70,10 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateCourse(Guid id, [FromBody] CreateCourseRequestDto updateDto)
+        public async Task<IActionResult> UpdateCourse(
+            Guid id,
+            [FromBody] UpdateCourseRequestDto updateDto
+        )
         {
             var result = await _courseService.UpdateCourseAsync(id, updateDto);
             return ToActionResult(result);

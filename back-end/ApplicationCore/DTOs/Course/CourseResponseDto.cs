@@ -1,6 +1,6 @@
-using ApplicationCore.Entity;
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.Category;
+using ApplicationCore.Entity;
 
 namespace ApplicationCore.DTOs.Course
 {
@@ -11,7 +11,7 @@ namespace ApplicationCore.DTOs.Course
         public string Description { get; set; } = string.Empty;
         public CategoryResponseDto Category { get; set; } = new CategoryResponseDto();
         public CourseStatus Status { get; set; }
-        public CourseDifficulty Difficulty { get; set; }
+        public CourseLevel Level { get; set; }
         public string Duration { get; set; } = string.Empty;
         public List<string> Tags { get; set; } = new List<string>();
         public DateTime Created { get; set; }

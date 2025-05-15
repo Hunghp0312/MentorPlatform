@@ -11,9 +11,9 @@ public enum CourseStatus
     Archived,
 }
 
-public enum CourseDifficulty
+public enum CourseLevel
 {
-    Begginner,
+    Beginner,
     Intermediate,
     Advanced,
 }
