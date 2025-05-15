@@ -9,6 +9,7 @@ using Infrastructure.Data;
 using Infrastructure.Data.Context;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Presentation.JsonConverters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,8 +36,11 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(CreateCategoryRequestDtoValidator).Assembly);
-builder.Services.AddControllers();
-
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new TrimmingJsonStringConverter());
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
