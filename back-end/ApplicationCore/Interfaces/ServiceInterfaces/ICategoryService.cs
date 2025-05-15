@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 
 namespace ApplicationCore.Interfaces.ServiceInterfaces
 {
@@ -9,9 +10,7 @@ namespace ApplicationCore.Interfaces.ServiceInterfaces
         Task<OperationResult<CategoryResponseDto>> CreateCategoryAsync(CreateCategoryRequestDto createDto);
         Task<OperationResult<object>> UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto);
         Task<OperationResult<CategoryResponseDto>> GetCategoryByIdAsync(Guid id);
-        Task<ICollection<CategoryResponseDto>> GetAllCategoriesAsync();
-        Task<PagedResult<CategoryResponseDto>> GetPagedCategoriesAsync(
-            CategoryPagedRequestDto request
-        );
+        Task<OperationResult<ICollection<CategoryResponseDto>>> GetAllCategoriesAsync();
+        Task<OperationResult<PagedResult<CategoryResponseDto>>> GetPagedCategoriesAsync(CategoryQueryParameters parameters);
     }
 }

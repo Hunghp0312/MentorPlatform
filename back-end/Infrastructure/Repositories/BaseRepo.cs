@@ -59,12 +59,6 @@ namespace Infrastructure.Repositories
             _dbSet.Update(entity);
         }
 
-        // public async Task<(ICollection<TEntity>, int)> GetPagedAsync(int pageIndex, int pageSize)
-        // {
-        //     var totalRecords = await _dbSet.CountAsync();
-        //     var obj = await _dbSet.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
-        //     return (obj, totalRecords);
-        // }
         public async Task<(ICollection<TEntity>, int)> GetPagedAsync(
             Func<IQueryable<TEntity>, IQueryable<TEntity>>? filter,
             int pageIndex,

@@ -1,7 +1,8 @@
 ﻿using ApplicationCore.DTOs.Category;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
-using Presentation.Models.Dtos.QueryParameter;
+
 
 namespace Presentation.Controllers
 {
@@ -62,55 +63,28 @@ namespace Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCategories()
         {
-            try
-            {
-                var categories = await _categoryService.GetAllCategoriesAsync();
-
-                return Ok(categories);
-            }
-            catch (Exception)
-            {
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    "An unexpected error occurred while retrieving all categories."
-                );
-            }
+            var categories = await _categoryService.GetAllCategoriesAsync();
+            return Ok(categories);
         }
 
-        // GET: api/Categories
         [HttpGet]
         [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetPagedCategories(
-            [FromQuery] CategoryQueryParameters parameters
-        )
+        public async Task<IActionResult> GetPagedCategories([FromQuery] CategoryQueryParameters parameters)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            try
-            {
-                var requestDto = new CategoryPagedRequestDto
-                {
-                    Query = parameters.Query,
-                    Status = parameters.Status,
-                    PageIndex = parameters.Page,
-                    PageSize = parameters.PageSize,
-                };
+            var result = await _categoryService.GetPagedCategoriesAsync(parameters);
 
-                var pagedResult = await _categoryService.GetPagedCategoriesAsync(requestDto);
-                return Ok(pagedResult);
-            }
-            catch (Exception)
+            if (!result.Success)
             {
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    "Error retrieving paged categories."
-                );
+                return BadRequest(new { message = result.Message });
             }
+
+            return Ok(result);
         }
     }
 }

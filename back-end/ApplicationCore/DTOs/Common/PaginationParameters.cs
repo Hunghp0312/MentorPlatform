@@ -1,4 +1,4 @@
-namespace Presentation.Models.Dtos.Common
+namespace ApplicationCore.DTOs.Common
 {
     public class PaginationParameters
     {

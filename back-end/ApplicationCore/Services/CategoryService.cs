@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Entity;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
@@ -109,7 +110,8 @@ namespace ApplicationCore.Services
             return OperationResult<CategoryResponseDto>.Ok(responseDto);
         }
 
-        public async Task<ICollection<CategoryResponseDto>> GetAllCategoriesAsync()
+
+        public async Task<OperationResult<ICollection<CategoryResponseDto>>> GetAllCategoriesAsync()
         {
             var categories = await _categoryRepo.GetAllAsync();
             var categoryDtos = categories
@@ -122,14 +124,25 @@ namespace ApplicationCore.Services
                     CourseCount = c.CourseCount,
                 })
                 .ToList();
+            string message = categoryDtos.Any()
+                ? "Get list successfully"
+                : "Operation successful but no categories found";
 
-            return categoryDtos;
+            return OperationResult<ICollection<CategoryResponseDto>>.Ok(categoryDtos, message);
         }
 
-        public async Task<PagedResult<CategoryResponseDto>> GetPagedCategoriesAsync(
-            CategoryPagedRequestDto request
-        )
+
+        public async Task<OperationResult<PagedResult<CategoryResponseDto>>> GetPagedCategoriesAsync(
+    CategoryQueryParameters parameters
+)
         {
+            var request = new CategoryPagedRequestDto
+            {
+                Query = parameters.Query,
+                Status = parameters.Status,
+                PageIndex = parameters.Page,
+                PageSize = parameters.PageSize
+            };
             if (request.PageIndex < 1)
             {
                 request.PageIndex = 1;
@@ -139,6 +152,7 @@ namespace ApplicationCore.Services
             {
                 request.PageSize = 10;
             }
+
             Func<IQueryable<Category>, IQueryable<Category>> filter = null;
             if (!string.IsNullOrEmpty(request.Query) || !string.IsNullOrEmpty(request.Status))
             {
@@ -146,7 +160,8 @@ namespace ApplicationCore.Services
                 {
                     if (!string.IsNullOrEmpty(request.Query))
                     {
-                        q = q.Where(c => c.Name.ToLower().Contains(request.Query));
+                        q = q.Where(c => c.Name.Contains(request.Query) ||
+                                        c.Description.Contains(request.Query));
                     }
                     if (!string.IsNullOrEmpty(request.Status))
                     {
@@ -156,12 +171,14 @@ namespace ApplicationCore.Services
                     return q;
                 };
             }
+
             var (categories, totalCount) = await _categoryRepo.GetPagedAsync(
                 filter,
                 request.PageIndex,
                 request.PageSize
             );
-            return new PagedResult<CategoryResponseDto>(
+
+            var pagedResult = new PagedResult<CategoryResponseDto>(
                 categories
                     .Select(c => new CategoryResponseDto
                     {
@@ -176,6 +193,11 @@ namespace ApplicationCore.Services
                 request.PageSize,
                 totalCount
             );
+            string message = totalCount > 0
+                ? "Browsing categories successfully"
+                : "Search completed successfully but no categories match your criteria";
+
+            return OperationResult<PagedResult<CategoryResponseDto>>.Ok(pagedResult, message);
         }
     }
 }
