@@ -32,10 +32,6 @@ on:
 permissions:
   contents: read
 
-defaults:
-  run:
-    working-directory: './back-end'
-
 jobs:
   build:
     runs-on: ubuntu-latest
