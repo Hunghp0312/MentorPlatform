@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import LoadingOverlay from "../loading/LoadingOverlay";
 import { CourseType } from "../../types/course";
 import InputCustom from "../input/InputCustom";
 import InputTag from "../input/InputTag";
+import { ComboBox } from "../input/ComboBox";
 
 interface CourseDialogProps {
   onClose: () => void;
-  onSubmit: (category: { name: string; description: string }) => void;
+  // onSubmit: (category: { name: string; description: string }) => void;
   initialData?: CourseType;
   actionButtonText?: string;
   isSubmitting: boolean;
@@ -14,7 +14,7 @@ interface CourseDialogProps {
 
 const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   onClose,
-  onSubmit,
+  // onSubmit,
   initialData,
   actionButtonText = "Save",
   isSubmitting = false,
@@ -28,7 +28,16 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
     tags: initialData?.tags || [],
     description: initialData?.description || "",
   });
-  const [errors, setErrors] = useState({
+  // const [errors, setErrors] = useState({
+  //   title: "",
+  //   categoryId: "",
+  //   status: 0,
+  //   difficulty: 0,
+  //   duration: 0,
+  //   tags: [],
+  //   description: "",
+  // });
+  const errors = {
     title: "",
     categoryId: "",
     status: 0,
@@ -36,7 +45,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
     duration: 0,
     tags: [],
     description: "",
-  });
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -56,12 +65,25 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
     { id: "1", name: "Leadership Coaching" },
     { id: "2", name: "Technical Skills" },
     { id: "3", name: "Communication Skills" },
+    { id: "4", name: "Time Management" },
+    { id: "5", name: "Emotional Intelligence" },
+    { id: "6", name: "Conflict Resolution" },
+    { id: "7", name: "Project Management" },
+    { id: "8", name: "Critical Thinking" },
+    { id: "9", name: "Team Building" },
+    { id: "10", name: "Adaptability" },
+    { id: "11", name: "Strategic Planning" },
+    { id: "12", name: "Customer Service" },
   ];
 
   if (!open) return null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <ComboBox
+        options={categories}
+        onChange={(s) => console.log(s)}
+      ></ComboBox>
       {/* <div className="text-white">{JSON.stringify(formState)}</div> */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Title Field */}
@@ -119,6 +141,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         ></InputCustom>
         {/* Category Field */}
         <InputTag
+          label="Tags"
           tags={formState.tags}
           setTags={(tags) => {
             setFormState((prevState) => ({
@@ -138,6 +161,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         placeholder="Enter book description"
         errorMessage={errors.description}
       ></InputCustom>
+
       {/* Form Actions */}
       <div className="flex justify-end space-x-4 pt-4">
         <button

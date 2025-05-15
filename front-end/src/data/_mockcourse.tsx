@@ -252,7 +252,7 @@ export const getCourseActions = (
   },
   {
     icon: <CheckCircle className="h-4 w-4" />,
-    onClick: (course) => console.log(`Toggle status for ${course.title}`),
+    onClick: handleEdit,
     className: "bg-amber-600 hover:bg-amber-700 text-white",
   },
   {

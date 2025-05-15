@@ -12,14 +12,11 @@ import InputCustom from "../../components/input/InputCustom";
 import CourseDialog from "../../components/dialog/CourseDialog";
 import CustomModal from "../../components/ui/Modal";
 const ListCourse = () => {
-  const [courses, setCourses] = useState<CourseType[]>(mockCourses);
+  // const [courses, setCourses] = useState<CourseType[]>(mockCourses);
+  const courses = mockCourses;
   const [initialData, setInitialData] = useState<CourseType | undefined>(
     undefined
   );
-
-  const [openDialog, setOpenDialog] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [query, setQuery] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(true);
   // Pagination state
@@ -29,17 +26,26 @@ const ListCourse = () => {
     { id: "1", name: "Leadership Coaching" },
     { id: "2", name: "Technical Skills" },
     { id: "3", name: "Communication Skills" },
+    { id: "4", name: "Time Management" },
+    { id: "5", name: "Emotional Intelligence" },
+    { id: "6", name: "Conflict Resolution" },
+    { id: "7", name: "Project Management" },
+    { id: "8", name: "Critical Thinking" },
+    { id: "9", name: "Team Building" },
+    { id: "10", name: "Adaptability" },
+    { id: "11", name: "Strategic Planning" },
+    { id: "12", name: "Customer Service" },
   ];
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmitting = false;
   // Handlers
   const handleEdit = (course: CourseType) => {
-    // setInitialData(category);
-    // setOpenDialog(true);
-    console.log(1);
+    setInitialData(course);
+    setIsFormOpen(true);
   };
 
-  const handleDelete = (category: CourseType) => {
-    console.log(2);
+  const handleDelete = (course: CourseType) => {
+    console.log(course);
   };
 
   function handleSearch(
@@ -47,15 +53,17 @@ const ListCourse = () => {
       HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement
     >
   ): void {
-    throw new Error("Function not implemented.");
+    setQuery(event.target.value);
   }
 
-  function handleSubmitAddEditBook(category: {
-    name: string;
-    description: string;
-  }): void {
-    throw new Error("Function not implemented.");
-  }
+  // function handleSubmitAddEditBook(course: CourseType): void {
+  //   console.log(course);
+  //   setInitialData(undefined);
+  // }
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setInitialData(undefined);
+  };
 
   return (
     <main className="p-4 container mx-auto ">
@@ -66,7 +74,7 @@ const ListCourse = () => {
             variant="primary"
             size="md"
             className="font-bold text-white"
-            onClick={() => setOpenDialog(true)}
+            onClick={() => setIsFormOpen(true)}
           >
             Add New Course
           </Button>
@@ -121,13 +129,13 @@ const ListCourse = () => {
       </div>
       <CustomModal
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
+        onClose={handleCloseForm}
         title="Hungpro"
       >
         <CourseDialog
           initialData={initialData}
-          onSubmit={handleSubmitAddEditBook}
-          onClose={() => setIsFormOpen(false)}
+          // onSubmit={handleSubmitAddEditBook}
+          onClose={handleCloseForm}
           isSubmitting={isSubmitting}
         ></CourseDialog>
       </CustomModal>

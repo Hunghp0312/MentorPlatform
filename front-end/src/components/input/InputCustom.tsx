@@ -57,7 +57,7 @@ const InputCustom: React.FC<InputProps> = ({
           name={name}
           value={value}
           onChange={onChange}
-          className={`w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-orange-500 ${className}`}
+          className={`w-full max-h-48 overflow-y-auto px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-orange-500 ${className}`}
         >
           {optionList.map((item) => (
             <option key={item.id} value={item.id}>

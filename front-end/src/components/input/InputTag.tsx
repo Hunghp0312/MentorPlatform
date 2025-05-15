@@ -5,12 +5,16 @@ interface TagInputProps {
   tags: string[];
   setTags: (tags: string[]) => void;
   placeholder?: string;
+  label?: string;
+  isRequired?: boolean;
 }
 
 const InputTag: React.FC<TagInputProps> = ({
   tags,
   setTags,
   placeholder = "Type and press Enter",
+  label,
+  isRequired = false,
 }) => {
   const [input, setInput] = useState<string>("");
 
@@ -37,8 +41,15 @@ const InputTag: React.FC<TagInputProps> = ({
 
   return (
     <div className="w-full">
+      {label && (
+        <label className="text-base font-medium text-gray-300 block mb-2">
+          {label} {isRequired && <span className="text-red-500">*</span>}
+        </label>
+      )}
       <input
-        className="w-full p-2 border rounded focus:outline-none"
+        className="w-full px-3 py-2 bg-gray-700 border 
+            border-gray-700
+           rounded-md text-white focus:outline-none sm:text-sm focus:ring-1 focus:ring-orange-500"
         value={input}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
