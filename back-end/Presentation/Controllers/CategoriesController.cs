@@ -64,7 +64,7 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
-            return Ok(categories);
+            return ToActionResult(categories);
         }
 
         [HttpGet]
@@ -84,7 +84,7 @@ namespace Presentation.Controllers
                 return BadRequest(new { message = result.Message });
             }
 
-            return Ok(result);
+            return ToActionResult(result);
         }
     }
 }

@@ -12,13 +12,13 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _dbSet.AnyAsync(c => c.Name.ToLower() == name.ToLower());
+            return await _dbSet.AnyAsync(c => c.Name == name);
         }
 
         public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
         {
             return await _dbSet.AnyAsync(c =>
-                c.Id != excludeId && c.Name.ToLower() == name.ToLower()
+                c.Id != excludeId && c.Name == name
             );
         }
     }
