@@ -19,11 +19,15 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(c => c.Status).IsRequired();
 
-            builder.Property(c => c.Difficulty).IsRequired();
+            builder.Property(c => c.Level).IsRequired();
 
             builder.Property(c => c.Duration).IsRequired().HasMaxLength(50);
 
             builder.Property(c => c.Created).IsRequired();
+
+            builder.Property(c => c.MentorId).IsRequired();
+
+            builder.Property(c => c.Tags).IsRequired().HasMaxLength(100);
 
             builder
                 .HasOne(c => c.Category)

@@ -29,6 +29,7 @@ namespace Presentation.Controllers
             var result = await _categoryService.CreateCategoryAsync(createDto);
 
             return ToActionResult(result);
+
         }
 
         [HttpGet("{id:guid}")]

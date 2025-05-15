@@ -84,14 +84,12 @@ export const getCategoryColumns: DataColumn<CategoryType>[] = [
     accessor: "name",
     align: "left",
     width: "20%"
-
   },
   {
     header: "DESCRIPTION",
     accessor: "description",
     align: "left",
     width: "40%"
-
   },
   {
     header: "COURSES",
