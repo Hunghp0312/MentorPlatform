@@ -93,16 +93,7 @@ namespace ApplicationCore.Services
         {
 
             var categories = await _categoryRepo.GetAllAsync();
-            var categoryDtos = categories
-                .Select(c => new CategoryResponse
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    Status = c.Status,
-                    CourseCount = c.CourseCount,
-                })
-                .ToList();
+            var categoryDtos = categories.ToCategoryResponseDtoList();
             string message = categoryDtos.Any()
                 ? "Get list successfully"
                 : "Operation successful but no categories found";
