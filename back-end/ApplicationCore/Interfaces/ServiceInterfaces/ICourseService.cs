@@ -5,7 +5,7 @@ using ApplicationCore.DTOs;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Course;
 
-namespace ApplicationCore.Interfaces
+namespace ApplicationCore.Interfaces.ServiceInterfaces
 {
     public interface ICourseService
     {
