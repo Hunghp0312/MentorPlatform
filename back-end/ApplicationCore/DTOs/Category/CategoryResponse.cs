@@ -1,6 +1,8 @@
-﻿namespace ApplicationCore.DTOs.Category
+﻿using ApplicationCore.Common;
+
+namespace ApplicationCore.DTOs.Category
 {
-    public class CategoryResponseDto
+    public class CategoryResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;

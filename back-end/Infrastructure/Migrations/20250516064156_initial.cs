@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,8 +20,7 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CourseCount = table.Column<int>(type: "int", nullable: false)
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -51,24 +50,25 @@ namespace Infrastructure.Migrations
                         name: "FK_Course_Category_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Category",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
                 table: "Category",
-                columns: new[] { "Id", "CourseCount", "Description", "Name", "Status" },
+                columns: new[] { "Id", "Description", "Name", "Status" },
                 values: new object[,]
                 {
-                    { new Guid("11111111-1111-1111-1111-111111111111"), 0, "Learn backend technologies and server-side programming.", "Backend", 1 },
-                    { new Guid("22222222-2222-2222-2222-222222222222"), 0, "Build apps for iOS and Android platforms.", "Mobile Development", 0 },
-                    { new Guid("33333333-3333-3333-3333-333333333333"), 0, "Explore AWS, Azure, GCP and cloud infrastructure.", "Cloud Computing", 1 },
-                    { new Guid("44444444-4444-4444-4444-444444444444"), 0, "Understand security principles and ethical hacking.", "Cybersecurity", 0 },
-                    { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), 0, "Courses related to software development and programming languages.", "Programming", 0 },
-                    { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), 0, "Frontend and backend development tutorials and courses.", "Web Development", 0 },
-                    { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), 0, "Learn data analysis, visualization, and machine learning.", "Data Science", 0 },
-                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), 0, "Courses on CI/CD, containers, and infrastructure automation.", "DevOps", 1 },
-                    { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), 0, "Introduction to relational and non-relational databases.", "Databases", 0 },
-                    { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), 0, "Courses on HTML, CSS, JavaScript and modern frameworks.", "Frontend", 0 }
+                    { new Guid("11111111-1111-1111-1111-111111111111"), "Learn backend technologies and server-side programming.", "Backend", 1 },
+                    { new Guid("22222222-2222-2222-2222-222222222222"), "Build apps for iOS and Android platforms.", "Mobile Development", 0 },
+                    { new Guid("33333333-3333-3333-3333-333333333333"), "Explore AWS, Azure, GCP and cloud infrastructure.", "Cloud Computing", 1 },
+                    { new Guid("44444444-4444-4444-4444-444444444444"), "Understand security principles and ethical hacking.", "Cybersecurity", 0 },
+                    { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Courses related to software development and programming languages.", "Programming", 0 },
+                    { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), "Frontend and backend development tutorials and courses.", "Web Development", 0 },
+                    { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), "Learn data analysis, visualization, and machine learning.", "Data Science", 0 },
+                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), "Courses on CI/CD, containers, and infrastructure automation.", "DevOps", 1 },
+                    { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), "Introduction to relational and non-relational databases.", "Databases", 0 },
+                    { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), "Courses on HTML, CSS, JavaScript and modern frameworks.", "Frontend", 0 }
                 });
 
             migrationBuilder.InsertData(
