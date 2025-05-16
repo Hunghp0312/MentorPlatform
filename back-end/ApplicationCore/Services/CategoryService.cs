@@ -83,15 +83,7 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<CategoryResponse>.NotFound($"Category with ID '{id}' was not found.");
             }
-
-            var responseDto = new CategoryResponse
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Status = category.Status,
-                CourseCount = category.CourseCount
-            };
+            var responseDto = category.ToCategoryResponseDto();
 
             return OperationResult<CategoryResponse>.Ok(responseDto, "Get category successfully.");
         }
