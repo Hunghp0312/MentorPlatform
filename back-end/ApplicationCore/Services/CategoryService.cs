@@ -115,62 +115,34 @@ namespace ApplicationCore.Services
     CategoryQueryParameters parameters
 )
         {
-            var request = new CategoryPagedRequest
-            {
-                Query = parameters.Query,
-                Status = parameters.Status,
-                PageIndex = parameters.Page,
-                PageSize = parameters.PageSize
-            };
-            if (request.PageIndex < 1)
-            {
-                request.PageIndex = 1;
-            }
-
-            if (request.PageSize < 1 || request.PageSize > 20)
-            {
-                request.PageSize = 10;
-            }
-
-            Func<IQueryable<Category>, IQueryable<Category>> filter = null;
-            if (!string.IsNullOrEmpty(request.Query) || !string.IsNullOrEmpty(request.Status))
+            Func<IQueryable<Category>, IQueryable<Category>>? filter = null;
+            if (!string.IsNullOrEmpty(parameters.Query) || !string.IsNullOrEmpty(parameters.Status))
             {
                 filter = q =>
                 {
-                    if (!string.IsNullOrEmpty(request.Query))
+                    if (!string.IsNullOrEmpty(parameters.Query))
                     {
-                        q = q.Where(c => c.Name.Contains(request.Query) ||
-                                        c.Description.Contains(request.Query));
+                        q = q.Where(c => c.Name.Contains(parameters.Query) ||
+                                        c.Description.Contains(parameters.Query));
                     }
-                    if (!string.IsNullOrEmpty(request.Status))
+                    if (!string.IsNullOrEmpty(parameters.Status))
                     {
-                        if (Enum.TryParse(request.Status, true, out CategoryStatus isActive))
+                        if (Enum.TryParse(parameters.Status, true, out CategoryStatus isActive))
                             q = q.Where(c => c.Status == isActive);
                     }
-
                     return q;
                 };
             }
-
             var (categories, totalCount) = await _categoryRepo.GetPagedAsync(
-                filter,
-                request.PageIndex,
-                request.PageSize
-            );
+        filter,
+        parameters.PageIndex,
+        parameters.PageSize
+    );
 
             var pagedResult = new PagedResult<CategoryResponse>(
-                categories
-                    .Select(c => new CategoryResponse
-                    {
-                        Id = c.Id,
-                        Name = c.Name,
-                        Description = c.Description,
-                        Status = c.Status,
-                        CourseCount = c.CourseCount,
-                    })
-                    .ToList(),
-                request.PageIndex,
-                request.PageSize,
+                categories.ToCategoryResponseDtoList(),
+                parameters.PageIndex,
+                parameters.PageSize,
                 totalCount
             );
             string message = totalCount > 0
