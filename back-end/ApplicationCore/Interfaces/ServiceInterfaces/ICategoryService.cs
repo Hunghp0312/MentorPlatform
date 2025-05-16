@@ -12,5 +12,6 @@ namespace ApplicationCore.Interfaces.ServiceInterfaces
         Task<OperationResult<CategoryResponseDto>> GetCategoryByIdAsync(Guid id);
         Task<OperationResult<ICollection<CategoryResponseDto>>> GetAllCategoriesAsync();
         Task<OperationResult<PagedResult<CategoryResponseDto>>> GetPagedCategoriesAsync(CategoryQueryParameters parameters);
+        Task<OperationResult<object>> DeleteCategoryAsync(Guid id);
     }
 }

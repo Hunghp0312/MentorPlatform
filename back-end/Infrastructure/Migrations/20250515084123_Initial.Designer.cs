@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250515084123_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,6 +30,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CourseCount")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -49,6 +55,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                            CourseCount = 0,
                             Description = "Courses related to software development and programming languages.",
                             Name = "Programming",
                             Status = 0
@@ -56,6 +63,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                            CourseCount = 0,
                             Description = "Frontend and backend development tutorials and courses.",
                             Name = "Web Development",
                             Status = 0
@@ -63,6 +71,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
+                            CourseCount = 0,
                             Description = "Learn data analysis, visualization, and machine learning.",
                             Name = "Data Science",
                             Status = 0
@@ -70,6 +79,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+                            CourseCount = 0,
                             Description = "Courses on CI/CD, containers, and infrastructure automation.",
                             Name = "DevOps",
                             Status = 1
@@ -77,6 +87,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+                            CourseCount = 0,
                             Description = "Introduction to relational and non-relational databases.",
                             Name = "Databases",
                             Status = 0
@@ -84,6 +95,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+                            CourseCount = 0,
                             Description = "Courses on HTML, CSS, JavaScript and modern frameworks.",
                             Name = "Frontend",
                             Status = 0
@@ -91,6 +103,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CourseCount = 0,
                             Description = "Learn backend technologies and server-side programming.",
                             Name = "Backend",
                             Status = 1
@@ -98,6 +111,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            CourseCount = 0,
                             Description = "Build apps for iOS and Android platforms.",
                             Name = "Mobile Development",
                             Status = 0
@@ -105,6 +119,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            CourseCount = 0,
                             Description = "Explore AWS, Azure, GCP and cloud infrastructure.",
                             Name = "Cloud Computing",
                             Status = 1
@@ -112,6 +127,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-444444444444"),
+                            CourseCount = 0,
                             Description = "Understand security principles and ethical hacking.",
                             Name = "Cybersecurity",
                             Status = 0
@@ -316,7 +332,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("ApplicationCore.Entity.Category", "Category")
                         .WithMany("Courses")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Category");

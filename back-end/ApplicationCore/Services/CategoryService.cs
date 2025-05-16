@@ -23,19 +23,16 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<CategoryResponseDto>> CreateCategoryAsync(CreateCategoryRequestDto createDto)
         {
-            var trimmedName = createDto.Name?.Trim();
-            var trimmedDescription = createDto.Description?.Trim();
-
-            if (await _categoryRepo.ExistsByNameAsync(trimmedName))
+            if (await _categoryRepo.ExistsByNameAsync(createDto.Name))
             {
-                return OperationResult<CategoryResponseDto>.Conflict($"Category with name '{trimmedName}' already exists.");
+                return OperationResult<CategoryResponseDto>.Conflict($"Category with name '{createDto.Name}' already exists.");
             }
 
             var category = new Category
             {
                 Id = Guid.NewGuid(),
-                Name = trimmedName,
-                Description = trimmedDescription,
+                Name = createDto.Name,
+                Description = createDto.Description,
                 Status = createDto.Status,
             };
 
@@ -61,22 +58,19 @@ namespace ApplicationCore.Services
                 return OperationResult<object>.BadRequest("Category ID is not valid.");
             }
 
-            var trimmedName = updateDto.Name?.Trim();
-            var trimmedDescription = updateDto.Description?.Trim();
-
             var existingCategory = await _categoryRepo.GetByIdAsync(id);
             if (existingCategory == null)
             {
                 return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
             }
 
-            if (await _categoryRepo.ExistsByNameAsync(trimmedName, id))
+            if (await _categoryRepo.ExistsByNameAsync(updateDto.Name, id))
             {
-                return OperationResult<object>.Conflict($"Category name '{trimmedName}' is already used by another category.");
+                return OperationResult<object>.Conflict($"Category name '{updateDto.Name}' is already used by another category.");
             }
 
-            existingCategory.Name = trimmedName;
-            existingCategory.Description = trimmedDescription;
+            existingCategory.Name = updateDto.Name;
+            existingCategory.Description = updateDto.Description;
             existingCategory.Status = updateDto.Status;
 
             _categoryRepo.Update(existingCategory);
@@ -201,6 +195,38 @@ namespace ApplicationCore.Services
                 : "Search completed successfully but no categories match your criteria";
 
             return OperationResult<PagedResult<CategoryResponseDto>>.Ok(pagedResult, message);
+        }
+
+        public async Task<OperationResult<object>> DeleteCategoryAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return OperationResult<object>.BadRequest("Category ID is not valid.");
+            }
+
+            var categoryToDelete = await _categoryRepo.GetByIdAsync(id);
+
+            if (categoryToDelete == null)
+            {
+                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
+            }
+
+            if (categoryToDelete.Courses != null && categoryToDelete.Courses.Any())
+            {
+                return OperationResult<object>.Conflict($"Cannot delete category '{categoryToDelete.Name}' as it has associated courses. Please remove or reassign courses first.");
+            }
+
+            var deletedByRepo = await _categoryRepo.DeleteById(id);
+            if (!deletedByRepo)
+            {
+                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found by repository for deletion.");
+            }
+
+            var commitResult = await _unitOfWork.SaveChangesAsync();
+
+            return commitResult > 0
+                ? OperationResult<object>.NoContent()
+                : OperationResult<object>.Fail("Failed to delete category from database.", HttpStatusCode.InternalServerError);
         }
     }
 }

@@ -1,67 +1,159 @@
-import React, { useState } from 'react';
-
+import React, { useState } from "react";
+import InputCustom from "../input/InputCustom";
+import { CategoryType } from "../../types/category";
+import InputCheckbox from "../input/InputCheckbox";
+import Button from "../ui/Button";
+import loading  from "../../assets/loadingIcon.svg"
 interface CategoryAddDialogProps {
-    open: boolean;
     onClose: () => void;
-    onSubmit: (category: { name: string; description: string }) => void;
-    initialData?: { name: string; description: string };
+    onSubmit: (category: CategoryType) => void;
+    initialData?: CategoryType;
+    actionButtonText?: string;
+    isSubmitting: boolean;
 }
 
-const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({ open, onClose, onSubmit, initialData }) => {
-    const [name, setName] = useState(initialData?.name || '');
-    const [description, setDescription] = useState(initialData?.description || '');
+const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({
+    onClose,
+    onSubmit,
+    initialData,
+    actionButtonText = "Save",
+    isSubmitting = false,
+}) => {
+    const [formState, setFormState] = useState<CategoryType>({
+        id: initialData?.id || 0,
+        name: initialData?.name || "",
+        description: initialData?.description || "",
+        status: initialData?.status === 1 ? 1 : 0,
+        courses: initialData?.courses || 0,
+    });
 
-    const handleSubmit = () => {
-        onSubmit({ name, description });
-        onClose();
+    const [errors, setErrors] = useState({
+        name: "",
+        description: "",
+    });
+
+    const handleChange = (
+        e: React.ChangeEvent<
+            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        >
+    ) => {
+        const { name, value } = e.target;
+        setFormState((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
     };
-    console.log('CategoryAddDialog', { name, description });
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        console.log(checked);
 
-    if (!open) return null;
+        setFormState((prevState) => ({
+            ...prevState,
+            [name]: checked ? 1 : 0,
+        }));
+    }
+
+    const validateForm = () => {
+        let isValid = true;
+        const newErrors = { name: "", description: "" };
+
+        if (!formState.name.trim()) {
+            newErrors.name = "Name is required.";
+            isValid = false;
+        } else if (formState.name.length > 100) {
+            newErrors.name = "Name must not exceed 100 characters.";
+            isValid = false;
+        }
+
+        if (!formState.description.trim()) {
+            newErrors.description = "Description is required.";
+            isValid = false;
+        } else if (formState.description.length > 1000) {
+            newErrors.description = "Description must not exceed 1000 characters.";
+            isValid = false;
+        }
+
+        setErrors(newErrors);
+        return isValid;
+    }
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validateForm()) {
+            return;
+        } else {
+            onSubmit(formState);
+            onClose();
+        }
+    };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
-                <div className="px-6 py-4 border-b">
-                    <h2 className="text-lg font-semibold">
-                        {initialData ? 'Edit Category' : 'Create Category'}
-                    </h2>
-                </div>
-                <div className="px-6 py-4">
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">Category Name</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        />
-                    </div>
-                </div>
-                <div className="px-6 py-4 border-t flex justify-end space-x-2">
-                    <button
-                        onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleSubmit}
-                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                    >
-                        {initialData ? 'Save Changes' : 'Create'}
-                    </button>
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 gap-6">
+                {/* Name Field */}
+                <InputCustom
+                    label="Name"
+                    name="name"
+                    type="text"
+                    value={formState.name}
+                    onChange={handleChange}
+                    isRequired
+                    placeholder="Enter category name"
+                    errorMessage={errors.name}
+                />
             </div>
-        </div>
+            <div className="grid grid-cols-1 gap-6">
+                {/* Description Field */}
+                <InputCustom
+                    label="Description"
+                    name="description"
+                    type="textarea"
+                    value={formState.description}
+                    onChange={handleChange}
+                    placeholder="Enter category description"
+                    errorMessage={errors.description}
+                />
+            </div>
+            <div className="flex flex-col md:flex-row gap-6">
+                {/* Status Field */}
+                <InputCheckbox
+                    label="Active"
+                    name="status"
+                    onChange={handleCheckboxChange}
+                    checked={formState.status === 1}
+                />
+            </div>
+
+            {/* Form Actions */}
+            <div className="flex justify-end space-x-4 pt-4">
+                <Button
+                    variant="secondary"
+                    size="md"
+                    className="font-bold text-white"
+                    onClick={onClose}
+                    disabled={isSubmitting}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    variant="primary"
+                    size="md"
+                    type="submit"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? (
+                        <>
+                            <span className="flex items-center space-x-2">
+                                <img src={loading} alt="loadingicon" />
+                                <span>Saving...</span>
+                            </span>
+                        </>
+                    ) : (
+                        actionButtonText
+                    )}
+                </Button>
+            </div>
+        </form>
     );
 };
 

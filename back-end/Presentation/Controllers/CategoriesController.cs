@@ -29,6 +29,7 @@ namespace Presentation.Controllers
             var result = await _categoryService.CreateCategoryAsync(createDto);
 
             return ToActionResult(result);
+
         }
 
         [HttpGet("{id:guid}")]
@@ -75,6 +76,18 @@ namespace Presentation.Controllers
         {
             var result = await _categoryService.GetPagedCategoriesAsync(parameters);
 
+            return ToActionResult(result);
+        }
+
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteCategory(Guid id)
+        {
+            var result = await _categoryService.DeleteCategoryAsync(id);
             return ToActionResult(result);
         }
     }
