@@ -1,8 +1,8 @@
 ﻿using ApplicationCore.DTOs.Category;
+using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
-
 
 namespace Presentation.Controllers
 {
@@ -20,23 +20,30 @@ namespace Presentation.Controllers
 
         // POST: api/Categories
         [HttpPost]
-        [ProducesResponseType(typeof(object), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequestDto createDto)
+        [ProducesResponseType(
+            typeof(SuccessResponse<CategoryResponseDto>),
+            StatusCodes.Status201Created
+        )]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateCategory(
+            [FromBody] CreateCategoryRequestDto createDto
+        )
         {
             var result = await _categoryService.CreateCategoryAsync(createDto);
 
             return ToActionResult(result);
-
         }
 
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(
+            typeof(SuccessResponse<CategoryResponseDto>),
+            StatusCodes.Status200OK
+        )]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCategoryById(Guid id)
         {
             var result = await _categoryService.GetCategoryByIdAsync(id);
@@ -46,13 +53,15 @@ namespace Presentation.Controllers
 
         // PUT: api/Categories/{id}
         [HttpPut("{id:guid}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryRequestDto updateDto)
+        [ProducesResponseType(typeof(SuccessResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateCategory(
+            Guid id,
+            [FromBody] UpdateCategoryRequestDto updateDto
+        )
         {
             var result = await _categoryService.UpdateCategoryAsync(id, updateDto);
 
@@ -60,8 +69,11 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("all")]
-        [ProducesResponseType(typeof(ICollection<CategoryResponseDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(
+            typeof(SuccessResponse<ICollection<CategoryResponseDto>>),
+            StatusCodes.Status200OK
+        )]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
@@ -70,9 +82,14 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetPagedCategories([FromQuery] CategoryQueryParameters parameters)
+        [ProducesResponseType(
+            typeof(SuccessResponse<PagedResult<CategoryResponseDto>>),
+            StatusCodes.Status200OK
+        )]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPagedCategories(
+            [FromQuery] CategoryQueryParameters parameters
+        )
         {
             var result = await _categoryService.GetPagedCategoriesAsync(parameters);
 
@@ -81,10 +98,10 @@ namespace Presentation.Controllers
 
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);
