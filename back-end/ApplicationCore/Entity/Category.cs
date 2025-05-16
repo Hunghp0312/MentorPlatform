@@ -1,3 +1,5 @@
+using ApplicationCore.Common;
+
 namespace ApplicationCore.Entity
 {
     public class Category
