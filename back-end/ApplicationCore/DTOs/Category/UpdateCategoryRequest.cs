@@ -1,4 +1,6 @@
-﻿namespace ApplicationCore.DTOs.Category
+﻿using ApplicationCore.Common;
+
+namespace ApplicationCore.DTOs.Category
 {
     public class UpdateCategoryRequest
     {
