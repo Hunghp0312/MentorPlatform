@@ -39,16 +39,6 @@ namespace ApplicationCore.Services
 
             await _categoryRepo.AddAsync(category);
             await _unitOfWork.SaveChangesAsync();
-
-            //var responseDto = new CategoryResponseDto
-            //{
-            //    Id = category.Id,
-            //    Name = category.Name,
-            //    Description = category.Description,
-            //    Status = category.Status,
-            //    CourseCount = category.CourseCount
-            //};
-
             var responseDto = category.ToCategoryResponseDto();
 
             return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
@@ -71,10 +61,6 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<object>.Conflict($"Category name '{updateDto.Name}' is already used by another category.");
             }
-            //existingCategory.Name = updateDto.Name;
-            //existingCategory.Description = updateDto.Description;
-            //existingCategory.Status = updateDto.Status;
-
             updateDto.MapToCategoryEntity(existingCategory);
 
             _categoryRepo.Update(existingCategory);
