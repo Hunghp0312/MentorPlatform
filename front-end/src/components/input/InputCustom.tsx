@@ -81,7 +81,7 @@ const InputCustom: React.FC<InputProps> = ({
           className={`bg-gray-700 focus:outline-none text-gray-100 sm:text-sm rounded-lg block w-full ${
             errorMessage
               ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-              : "border-gray-700 focus:ring-red-500 focus:border-orange-500"
+              : "border-gray-700 focus:ring-orange-500 focus:border-orange-500"
           } ${inputPadding} p-2.5 border ${className} `}
           placeholder={placeholder}
         />

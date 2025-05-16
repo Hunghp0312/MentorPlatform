@@ -9,6 +9,7 @@ import CustomModal from "../../components/ui/Modal"
 import { categoryService } from "../../services/category.service"
 import useDebounce from "../../hooks/usedebounce"
 import { toast } from "react-toastify"
+import InputCustom from "../../components/input/InputCustom"
 
 
 const ListCategory = () => {
@@ -16,6 +17,7 @@ const ListCategory = () => {
     const [initialData, setInitialData] = useState<CategoryType | undefined>(
         undefined
     );
+    const [errors, setErrors] = useState<string>()
     const [openDialog, setOpenDialog] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("");
@@ -76,6 +78,18 @@ const ListCategory = () => {
             }
         }
     }
+    const handleChangeSearch = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    ) => {
+        // Only handle input elements
+        if ("value" in e.target && e.target instanceof HTMLInputElement) {
+            if (e.target.value.length > 1000) {
+                setErrors("Search term must not exceed 1000 characters.");
+                return;
+            }
+            setSearchTerm(e.target.value);
+        }
+    }
 
     const handleChangeStatus = (category: CategoryType) => {
         setCategories((prev) => prev.map((cat) => (cat.id === category.id ? { ...cat, status: cat.status === 1 ? 0 : 1 } : cat)));
@@ -110,17 +124,29 @@ const ListCategory = () => {
                     <Button variant="primary" size="md" className="font-bold text-white" onClick={() => setOpenDialog(true)} >Add Category</Button>
                 </div>
                 <div className="flex flex-col md:flex-row gap-4 mb-6">
-                    <div className="flex-grow relative">
+                    {/* <div className="flex-grow relative">
                         <input
                             placeholder="Search categories..."
                             type="text"
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={handleChangeSearch}
                             className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
                         />
                         <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <Search size={20} className="text-gray-500" />
                         </div>
+                        
+                    </div> */}
+                    <div className="flex-grow relative">
+                        <InputCustom
+                        name="search"
+                        type="text"
+                        value={searchTerm}
+                        icon={<Search size={20} className="text-gray-500" />}
+                        onChange={handleChangeSearch}
+                        placeholder="Search categories..."
+                        errorMessage={errors}
+                    />
                     </div>
                     <select
                         className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
