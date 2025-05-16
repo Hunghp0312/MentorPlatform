@@ -44,7 +44,7 @@ namespace Presentation.Controllers
             StatusCodes.Status201Created
         )]
         [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponseDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status409Conflict)]
         [ProducesResponseType(
             typeof(OperationResult<object>),

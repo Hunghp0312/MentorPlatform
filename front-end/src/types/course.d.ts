@@ -3,7 +3,7 @@ export interface CourseType {
   categoryId: string;
   categoryName: string; // Added category name field
   status: number; // 1: Active, 0: Inactive
-  difficulty: number; // 1: Beginner, 2: Intermediate, 3: Advanced
+  level: number; // 1: Beginner, 2: Intermediate, 3: Advanced
   title: string;
   duration: string;
   created: string;
@@ -12,4 +12,9 @@ export interface CourseType {
   tags: string[];
   students: number; // Number of enrolled students
   completion: number; // Completion rate percentage
+}
+export interface CourseFilterType {
+  categoryId: string;
+  mentorId: string;
+  level: string;
 }

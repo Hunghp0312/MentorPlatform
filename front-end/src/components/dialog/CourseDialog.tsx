@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CourseType } from "../../types/course";
 import InputCustom from "../input/InputCustom";
 import InputTag from "../input/InputTag";
-import { ComboBox } from "../input/ComboBox";
+import { categoryService } from "../../services/category.service";
 
 interface CourseDialogProps {
   onClose: () => void;
@@ -23,11 +23,12 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
     title: initialData?.title || "",
     categoryId: initialData?.categoryId || "",
     status: initialData?.status || 0,
-    difficulty: initialData?.difficulty || 0,
-    duration: initialData?.duration || 0,
+    level: initialData?.level || 0,
+    duration: initialData?.duration || "",
     tags: initialData?.tags || [],
     description: initialData?.description || "",
   });
+  const [categories, setCategories] = useState([]);
   // const [errors, setErrors] = useState({
   //   title: "",
   //   categoryId: "",
@@ -37,16 +38,33 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   //   tags: [],
   //   description: "",
   // });
-  const errors = {
+
+  const [errors, setErrors] = useState<Record<string, string>>({
     title: "",
     categoryId: "",
-    status: 0,
-    difficulty: 0,
-    duration: 0,
-    tags: [],
+    status: "",
+    level: "",
+    duration: "",
+    tags: "",
     description: "",
-  };
-
+  });
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await categoryService.getAllCategories();
+        setCategories(res.data);
+        if (!initialData) {
+          setFormState((prevState) => ({
+            ...prevState,
+            categoryId: res.data[0]?.id || "",
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, [initialData]);
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -57,33 +75,107 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
       ...prevState,
       [name]: value,
     }));
+    // Clear error when field is edited
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
-  const handleSubmit = () => {
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formState.title.trim()) {
+      newErrors.title = "Title is required";
+    }
+    if (
+      formState.title.trim().length < 1 ||
+      formState.title.trim().length > 100
+    ) {
+      newErrors.title = "Title must be between 1 and 100 characters";
+    }
+    if (!formState.description.trim()) {
+      newErrors.description = "Description is required";
+    }
+    if (
+      formState.description.trim().length < 1 ||
+      formState.description.trim().length > 1000
+    ) {
+      newErrors.description =
+        "Description must be between 1 and 1000 characters";
+    }
+    if (
+      formState.duration.trim().length < 6 ||
+      formState.duration.trim().length > 100
+    ) {
+      newErrors.duration = "Duration must be between 6 and 100 characters";
+    }
+    if (formState.tags.length === 0) {
+      newErrors.tags = "At least one tag is required";
+    }
+    if (![0, 1, 2].includes(Number(formState.level))) {
+      newErrors.level = "Please select a valid difficulty level";
+    }
+    if (![0, 1].includes(Number(formState.status))) {
+      newErrors.status = "Please select a valid status";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+  //   const validateForm = () => {
+  //   const newErrors: Record<string, string> = {};
+
+  //   if (!formState.title.trim()) {
+  //     newErrors.title = "Title is required";
+  //   }
+
+  //   if (!formState.categoryId) {
+  //     newErrors.categoryId = "Category is required";
+  //   }
+
+  //   if (!formState.description.trim()) {
+  //     newErrors.description = "Description is required";
+  //   }
+
+  //   // if (formState.duration.length <= 0) {
+  //   //   newErrors.duration = "Duration must be greater than 0";
+  //   // }
+
+  //   if (formState.tags.length === 0) {
+  //     newErrors.tags = "At least one tag is required";
+  //   }
+
+  //   if (![0, 1, 2].includes(Number(formState.level))) {
+  //     newErrors.level = "Please select a valid difficulty level";
+  //   }
+
+  //   if (![0, 1].includes(Number(formState.status))) {
+  //     newErrors.status = "Please select a valid status";
+  //   }
+
+  //   return Object.keys(newErrors).length === 0;
+  // };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     onClose();
   };
-  const categories = [
-    { id: "1", name: "Leadership Coaching" },
-    { id: "2", name: "Technical Skills" },
-    { id: "3", name: "Communication Skills" },
-    { id: "4", name: "Time Management" },
-    { id: "5", name: "Emotional Intelligence" },
-    { id: "6", name: "Conflict Resolution" },
-    { id: "7", name: "Project Management" },
-    { id: "8", name: "Critical Thinking" },
-    { id: "9", name: "Team Building" },
-    { id: "10", name: "Adaptability" },
-    { id: "11", name: "Strategic Planning" },
-    { id: "12", name: "Customer Service" },
-  ];
-
   if (!open) return null;
-
+  const levelOptions = [
+    { id: 0, name: "Beginner" },
+    { id: 1, name: "Intermediate" },
+    { id: 2, name: "Advanced" },
+  ];
+  const statusOptions = [
+    { id: 0, name: "Draft" },
+    { id: 1, name: "Publish" },
+    { id: 2, name: "" },
+  ];
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <ComboBox
+      {/* <ComboBox
         options={categories}
         onChange={(s) => console.log(s)}
-      ></ComboBox>
+      ></ComboBox> */}
       {/* <div className="text-white">{JSON.stringify(formState)}</div> */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Title Field */}
@@ -100,7 +192,8 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         {/* Author Field */}
         <InputCustom
           label="Category"
-          name="author"
+          name="categoryId"
+          optionList={categories}
           type="select"
           value={formState.categoryId}
           onChange={handleChange}
@@ -114,19 +207,19 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         <InputCustom
           label="Status"
           type="select"
-          value={formState.categoryId}
+          value={formState.status}
           onChange={handleChange}
-          name="categoryId"
-          optionList={categories}
+          name="status"
+          optionList={statusOptions}
         ></InputCustom>
         {/* Category Field */}
         <InputCustom
           type="select"
-          value={formState.categoryId}
+          value={formState.level}
           onChange={handleChange}
-          name="categoryId"
-          label="Difficulty"
-          optionList={categories}
+          name="level"
+          label="Level"
+          optionList={levelOptions}
         ></InputCustom>
       </div>
       {/* Description Field */}
@@ -135,9 +228,9 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         <InputCustom
           label="Duration"
           type="text"
-          value={formState.categoryId}
+          value={formState.duration}
           onChange={handleChange}
-          name="categoryId"
+          name="duration"
         ></InputCustom>
         {/* Category Field */}
         <InputTag

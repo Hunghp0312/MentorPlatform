@@ -17,7 +17,7 @@ interface InputProps {
   showPassword?: boolean;
   setShowPassword?: React.Dispatch<React.SetStateAction<boolean>>;
   isRequired?: boolean;
-  optionList?: Array<{ id: string; name: string }>;
+  optionList?: Array<{ id: string | number; name: string }>;
 }
 const InputCustom: React.FC<InputProps> = ({
   className,

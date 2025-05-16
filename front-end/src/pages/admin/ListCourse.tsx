@@ -1,25 +1,31 @@
 import { Search } from "lucide-react";
 import Button from "../../components/ui/Button";
 import DataTable from "../../components/table/CustomTable";
-import { useState } from "react";
-import {
-  getCourseActions,
-  getCourseColumns,
-  mockCourses,
-} from "../../data/_mockcourse";
-import { CourseType } from "../../types/course";
+import { useEffect, useState } from "react";
+import { getCourseActions, getCourseColumns } from "../../data/_mockcourse";
+import { CourseFilterType, CourseType } from "../../types/course";
 import InputCustom from "../../components/input/InputCustom";
 import CourseDialog from "../../components/dialog/CourseDialog";
 import CustomModal from "../../components/ui/Modal";
+import { courseService } from "../../services/course.service";
+import useDebounce from "../../hooks/usedebounce";
 const ListCourse = () => {
   // const [courses, setCourses] = useState<CourseType[]>(mockCourses);
-  const courses = mockCourses;
+  const [courses, setCourses] = useState<CourseType[]>([]);
   const [initialData, setInitialData] = useState<CourseType | undefined>(
     undefined
   );
   const [query, setQuery] = useState("");
-  const [isFormOpen, setIsFormOpen] = useState(true);
+
+  const [isFormOpen, setIsFormOpen] = useState(false);
   // Pagination state
+  const [totalItems, setTotalItems] = useState(0);
+  const searchDebounced = useDebounce(query, 500);
+  const [filter, setFilter] = useState<CourseFilterType>({
+    categoryId: "",
+    mentorId: "",
+    level: "",
+  });
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const optionTest = [
@@ -36,6 +42,11 @@ const ListCourse = () => {
     { id: "11", name: "Strategic Planning" },
     { id: "12", name: "Customer Service" },
   ];
+  const levelOptions = [
+    { id: "0", name: "Beginner" },
+    { id: "1", name: "Intermediate" },
+    { id: "2", name: "Advanced" },
+  ];
   // const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmitting = false;
   // Handlers
@@ -47,24 +58,41 @@ const ListCourse = () => {
   const handleDelete = (course: CourseType) => {
     console.log(course);
   };
-
+  useEffect(() => {
+    const fetchCourses = async () => {
+      const res = await courseService.getPaginationCourses(
+        searchDebounced,
+        filter,
+        pageIndex,
+        pageSize
+      );
+      setCourses(res.data.items);
+      setTotalItems(res.data.totalItems);
+    };
+    fetchCourses();
+  }, [pageIndex, pageSize, searchDebounced, filter]);
   function handleSearch(
     event: React.ChangeEvent<
       HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement
     >
   ): void {
     setQuery(event.target.value);
+    setPageIndex(1);
   }
 
-  // function handleSubmitAddEditBook(course: CourseType): void {
-  //   console.log(course);
-  //   setInitialData(undefined);
-  // }
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setInitialData(undefined);
   };
-
+  const handleFilter = (
+    event: React.ChangeEvent<
+      HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement
+    >
+  ): void => {
+    const { name, value } = event.target;
+    setFilter((prev) => ({ ...prev, [name]: value }));
+    setPageIndex(1);
+  };
   return (
     <main className="p-4 container mx-auto ">
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -91,27 +119,27 @@ const ListCourse = () => {
           />
           <InputCustom
             label="Mentor"
-            name="query"
+            name="mentorId"
             type="select"
             optionList={optionTest}
             value={query}
-            onChange={handleSearch}
+            onChange={handleFilter}
           />
           <InputCustom
             label="Level"
-            name="query"
+            name="level"
             type="select"
-            value={query}
-            optionList={optionTest}
-            onChange={handleSearch}
+            value={filter.level}
+            optionList={levelOptions}
+            onChange={handleFilter}
           />
           <InputCustom
             label="Category"
-            name="query"
+            name="categoryId"
             type="select"
             value={query}
             optionList={optionTest}
-            onChange={handleSearch}
+            onChange={handleFilter}
           />
         </div>
         <DataTable
@@ -124,7 +152,7 @@ const ListCourse = () => {
           setPageSize={setPageSize}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
-          totalItems={courses.length}
+          totalItems={totalItems}
         />
       </div>
       <CustomModal
