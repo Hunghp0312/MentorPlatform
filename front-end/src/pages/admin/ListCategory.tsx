@@ -86,9 +86,19 @@ const ListCategory = () => {
         setInitialData(undefined);
     }
 
-    const handleDelete = (category: CategoryType) => {
+    const handleDelete = async (category: CategoryType) => {
         if (window.confirm(`Are you sure you want to delete the category "${category.name}"?`)) {
-            setCategories((prev) => prev.filter((cat) => cat.id !== category.id));
+            try {
+                await categoryService.deleteCategory(category.id.toString());
+                toast.success("Category deleted successfully");
+                fetchCategories();
+            }
+            catch (error) {
+                console.error("Error deleting category:", error);
+                toast.error("Error deleting category");
+            } finally {
+                setOpenDialog(false);
+            }
         }
     }
 
@@ -115,7 +125,7 @@ const ListCategory = () => {
                     <select
                         className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
                         value={statusFilter}
-                        onChange={(e) => {setStatusFilter(e.target.value);setPageIndex(1)}}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(1) }}
                     >
                         <option value="">All Statuses</option>
                         <option value="0">Inactive</option>
