@@ -69,7 +69,7 @@ const DataTable = <T extends Record<string, any>>({
   setPageSize = () => {},
   pageIndex = 1,
   setPageIndex = () => {},
-  pageSizeOptions = [5, 10, 25, 50, 100],
+  pageSizeOptions = [5, 10, 20],
   totalItems = 10,
   maxSelectable,
   selectedRows = [],
