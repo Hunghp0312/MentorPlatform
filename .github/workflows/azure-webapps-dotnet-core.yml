@@ -28,6 +28,9 @@ on:
   push:
     branches: [ "main" ]
   workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
+    types: [closed]
 
 permissions:
   contents: read
