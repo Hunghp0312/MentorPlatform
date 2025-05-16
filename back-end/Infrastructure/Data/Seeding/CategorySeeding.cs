@@ -15,7 +15,6 @@ namespace Infrastructure.Data.Seeding
                     Description =
                         "Courses related to software development and programming languages.",
                     Status = CategoryStatus.Active,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -23,7 +22,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "Web Development",
                     Description = "Frontend and backend development tutorials and courses.",
                     Status = CategoryStatus.Active,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -31,7 +29,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "Data Science",
                     Description = "Learn data analysis, visualization, and machine learning.",
                     Status = CategoryStatus.Active,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -39,7 +36,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "DevOps",
                     Description = "Courses on CI/CD, containers, and infrastructure automation.",
                     Status = CategoryStatus.Inactive,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -47,7 +43,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "Databases",
                     Description = "Introduction to relational and non-relational databases.",
                     Status = CategoryStatus.Active,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -55,7 +50,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "Frontend",
                     Description = "Courses on HTML, CSS, JavaScript and modern frameworks.",
                     Status = CategoryStatus.Active,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -63,7 +57,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "Backend",
                     Description = "Learn backend technologies and server-side programming.",
                     Status = CategoryStatus.Inactive,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -71,7 +64,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "Mobile Development",
                     Description = "Build apps for iOS and Android platforms.",
                     Status = CategoryStatus.Active,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -79,7 +71,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "Cloud Computing",
                     Description = "Explore AWS, Azure, GCP and cloud infrastructure.",
                     Status = CategoryStatus.Inactive,
-                    CourseCount = 0,
                 },
                 new Category
                 {
@@ -87,7 +78,6 @@ namespace Infrastructure.Data.Seeding
                     Name = "Cybersecurity",
                     Description = "Understand security principles and ethical hacking.",
                     Status = CategoryStatus.Active,
-                    CourseCount = 0,
                 },
             };
         }

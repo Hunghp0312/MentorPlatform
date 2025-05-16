@@ -12,14 +12,48 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _dbSet.AnyAsync(c => c.Name.ToLower() == name.ToLower());
+            return await _dbSet.AnyAsync(c => c.Name == name);
         }
 
         public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
         {
             return await _dbSet.AnyAsync(c =>
-                c.Id != excludeId && c.Name.ToLower() == name.ToLower()
+                c.Id != excludeId && c.Name == name
             );
+        }
+        public override async Task<ICollection<Category>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(c => c.Courses)
+                .ToListAsync();
+        }
+        public override async Task<Category?> GetByIdAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(c => c.Courses)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+        public override async Task<(ICollection<Category>, int)> GetPagedAsync(
+            Func<IQueryable<Category>, IQueryable<Category>>? filter,
+            int pageIndex,
+            int pageSize)
+        {
+            var queryable = _dbSet
+                .Include(c => c.Courses)
+                .AsQueryable();
+
+            if (filter != null)
+            {
+                queryable = filter(queryable);
+            }
+
+            var totalRecords = await queryable.CountAsync();
+            var items = await queryable
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalRecords);
         }
     }
 }

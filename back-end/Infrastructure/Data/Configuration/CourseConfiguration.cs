@@ -33,7 +33,7 @@ namespace Infrastructure.Data.Configuration
                 .HasOne(c => c.Category)
                 .WithMany(c => c.Courses)
                 .HasForeignKey(c => c.CategoryId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasData(CourseSeeding.SeedCourses());
         }

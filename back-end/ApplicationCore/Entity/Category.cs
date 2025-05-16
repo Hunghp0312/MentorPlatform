@@ -7,6 +7,6 @@ namespace ApplicationCore.Entity
         public string Description { get; set; }
         public CategoryStatus Status { get; set; }
         public ICollection<Course> Courses { get; set; }
-        public int CourseCount { get; set; }
+        public int CourseCount => Courses?.Count ?? 0;
     }
 }

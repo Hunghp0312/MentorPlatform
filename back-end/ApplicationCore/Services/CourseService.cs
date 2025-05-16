@@ -88,9 +88,9 @@ namespace ApplicationCore.Services
             );
         }
 
-        public async Task<OperationResult<ICollection<CourseListResponse>>> GetCourseByMentorId(
-            Guid mentorId
-        )
+        public async Task<
+            OperationResult<ICollection<CourseListResponse>>
+        > GetCourseByMentorIdAsync(Guid mentorId)
         {
             var courses = await _courseRepo.GetCoursesByMentorId(mentorId);
 
@@ -175,14 +175,14 @@ namespace ApplicationCore.Services
             _courseRepo.Delete(course);
             await _unitOfWork.SaveChangesAsync();
 
-            return OperationResult<CourseDetailsResponse>.Ok("Course deleted successfully");
+            return OperationResult<CourseDetailsResponse>.NoContent();
         }
 
         public async Task<OperationResult<CourseDetailsResponse>> GetCourseDetailsAsync(
             Guid courseId
         )
         {
-            var course = await _courseRepo.GetByIdAsync(courseId);
+            var course = await _courseRepo.GetCourseWithCategoryAsync(courseId);
             if (course == null)
             {
                 return OperationResult<CourseDetailsResponse>.NotFound("There is no course");
@@ -193,6 +193,7 @@ namespace ApplicationCore.Services
                 Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
+                CategoryName = course.Category.Name,
                 Status = course.Status,
                 Level = course.Level,
                 Duration = course.Duration,
@@ -227,9 +228,9 @@ namespace ApplicationCore.Services
                     );
                 }
 
-                if (req.MentorIds != null && req.MentorIds.Count != 0)
+                if (req.MentorId.HasValue)
                 {
-                    query = query.Where(c => req.MentorIds.Contains(c.MentorId));
+                    query = query.Where(c => c.MentorId == req.MentorId);
                 }
 
                 if (req.Level.HasValue)

@@ -1,5 +1,4 @@
 using System.Net;
-using ApplicationCore.Entity;
 
 namespace ApplicationCore.Common
 {
@@ -34,8 +33,17 @@ namespace ApplicationCore.Common
         public static OperationResult<T> NoContent() =>
             new OperationResult<T>(true, null, null, HttpStatusCode.NoContent);
 
+        // --- Failure Results ---
+        public static OperationResult<T> Fail(string message, HttpStatusCode statusCode = HttpStatusCode.InternalServerError) =>
+          new OperationResult<T>(false, default, message, statusCode);
+        public static OperationResult<T> Conflict(string message) =>
+            new OperationResult<T>(false, default, message, HttpStatusCode.Conflict);
+
+        public static OperationResult<T> Unauthorized(string message) =>
+            new OperationResult<T>(false, default, message, HttpStatusCode.Unauthorized);
+
         public static OperationResult<T> BadRequest(string message) =>
-            new OperationResult<T>(false, null, message, HttpStatusCode.BadRequest);
+    new OperationResult<T>(false, null, message, HttpStatusCode.BadRequest);
 
         public static OperationResult<T> NotFound(string message) =>
             new OperationResult<T>(false, null, message, HttpStatusCode.NotFound);

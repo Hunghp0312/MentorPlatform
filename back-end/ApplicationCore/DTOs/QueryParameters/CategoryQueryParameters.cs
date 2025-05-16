@@ -1,6 +1,6 @@
-using Presentation.Models.Dtos.Common;
+using ApplicationCore.DTOs.Common;
 
-namespace Presentation.Models.Dtos.QueryParameter
+namespace ApplicationCore.DTOs.QueryParameters
 {
     public class CategoryQueryParameters : PaginationParameters
     {
