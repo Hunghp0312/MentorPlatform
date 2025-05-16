@@ -1,6 +1,6 @@
 namespace ApplicationCore.DTOs.Category
 {
-    public class CategoryPagedRequestDto
+    public class CategoryPagedRequest
     {
         public string? Query { get; set; } // Search by category name
         public string? Status { get; set; } // Active or Inactive

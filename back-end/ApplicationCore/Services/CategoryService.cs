@@ -3,6 +3,7 @@ using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Entity;
+using ApplicationCore.Extensions;
 using ApplicationCore.Interfaces;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
 using ApplicationCore.Interfaces.ServiceInterfaces;
@@ -21,11 +22,11 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<CategoryResponseDto>> CreateCategoryAsync(CreateCategoryRequestDto createDto)
+        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CreateCategoryRequest createDto)
         {
             if (await _categoryRepo.ExistsByNameAsync(createDto.Name))
             {
-                return OperationResult<CategoryResponseDto>.Conflict($"Category with name '{createDto.Name}' already exists.");
+                return OperationResult<CategoryResponse>.Conflict($"Category with name '{createDto.Name}' already exists.");
             }
 
             var category = new Category
@@ -39,19 +40,21 @@ namespace ApplicationCore.Services
             await _categoryRepo.AddAsync(category);
             await _unitOfWork.SaveChangesAsync();
 
-            var responseDto = new CategoryResponseDto
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Status = category.Status,
-                CourseCount = category.CourseCount
-            };
+            //var responseDto = new CategoryResponseDto
+            //{
+            //    Id = category.Id,
+            //    Name = category.Name,
+            //    Description = category.Description,
+            //    Status = category.Status,
+            //    CourseCount = category.CourseCount
+            //};
 
-            return OperationResult<CategoryResponseDto>.Created(responseDto, "Category created successfully.");
+            var responseDto = category.ToCategoryResponseDto();
+
+            return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
         }
 
-        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, UpdateCategoryRequestDto updateDto)
+        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, UpdateCategoryRequest updateDto)
         {
             if (id == Guid.Empty)
             {
@@ -68,10 +71,11 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<object>.Conflict($"Category name '{updateDto.Name}' is already used by another category.");
             }
+            //existingCategory.Name = updateDto.Name;
+            //existingCategory.Description = updateDto.Description;
+            //existingCategory.Status = updateDto.Status;
 
-            existingCategory.Name = updateDto.Name;
-            existingCategory.Description = updateDto.Description;
-            existingCategory.Status = updateDto.Status;
+            updateDto.MapToCategoryEntity(existingCategory);
 
             _categoryRepo.Update(existingCategory);
             var commitResult = await _unitOfWork.SaveChangesAsync();
@@ -81,19 +85,19 @@ namespace ApplicationCore.Services
                 : OperationResult<object>.Fail("Failed to update category.", HttpStatusCode.InternalServerError);
         }
 
-        public async Task<OperationResult<CategoryResponseDto>> GetCategoryByIdAsync(Guid id)
+        public async Task<OperationResult<CategoryResponse>> GetCategoryByIdAsync(Guid id)
         {
             if (id == Guid.Empty)
             {
-                return OperationResult<CategoryResponseDto>.BadRequest("Category ID is not valid.");
+                return OperationResult<CategoryResponse>.BadRequest("Category ID is not valid.");
             }
             var category = await _categoryRepo.GetByIdAsync(id);
             if (category == null)
             {
-                return OperationResult<CategoryResponseDto>.NotFound($"Category with ID '{id}' was not found.");
+                return OperationResult<CategoryResponse>.NotFound($"Category with ID '{id}' was not found.");
             }
 
-            var responseDto = new CategoryResponseDto
+            var responseDto = new CategoryResponse
             {
                 Id = category.Id,
                 Name = category.Name,
@@ -102,16 +106,16 @@ namespace ApplicationCore.Services
                 CourseCount = category.CourseCount
             };
 
-            return OperationResult<CategoryResponseDto>.Ok(responseDto, "Get category successfully.");
+            return OperationResult<CategoryResponse>.Ok(responseDto, "Get category successfully.");
         }
 
 
-        public async Task<OperationResult<ICollection<CategoryResponseDto>>> GetAllCategoriesAsync()
+        public async Task<OperationResult<ICollection<CategoryResponse>>> GetAllCategoriesAsync()
         {
 
             var categories = await _categoryRepo.GetAllAsync();
             var categoryDtos = categories
-                .Select(c => new CategoryResponseDto
+                .Select(c => new CategoryResponse
                 {
                     Id = c.Id,
                     Name = c.Name,
@@ -124,15 +128,15 @@ namespace ApplicationCore.Services
                 ? "Get list successfully"
                 : "Operation successful but no categories found";
 
-            return OperationResult<ICollection<CategoryResponseDto>>.Ok(categoryDtos, message);
+            return OperationResult<ICollection<CategoryResponse>>.Ok(categoryDtos, message);
         }
 
 
-        public async Task<OperationResult<PagedResult<CategoryResponseDto>>> GetPagedCategoriesAsync(
+        public async Task<OperationResult<PagedResult<CategoryResponse>>> GetPagedCategoriesAsync(
     CategoryQueryParameters parameters
 )
         {
-            var request = new CategoryPagedRequestDto
+            var request = new CategoryPagedRequest
             {
                 Query = parameters.Query,
                 Status = parameters.Status,
@@ -175,9 +179,9 @@ namespace ApplicationCore.Services
                 request.PageSize
             );
 
-            var pagedResult = new PagedResult<CategoryResponseDto>(
+            var pagedResult = new PagedResult<CategoryResponse>(
                 categories
-                    .Select(c => new CategoryResponseDto
+                    .Select(c => new CategoryResponse
                     {
                         Id = c.Id,
                         Name = c.Name,
@@ -194,7 +198,7 @@ namespace ApplicationCore.Services
                 ? "Browsing categories successfully"
                 : "Search completed successfully but no categories match your criteria";
 
-            return OperationResult<PagedResult<CategoryResponseDto>>.Ok(pagedResult, message);
+            return OperationResult<PagedResult<CategoryResponse>>.Ok(pagedResult, message);
         }
 
         public async Task<OperationResult<object>> DeleteCategoryAsync(Guid id)

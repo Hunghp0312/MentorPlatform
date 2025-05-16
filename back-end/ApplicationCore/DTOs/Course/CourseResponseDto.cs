@@ -1,6 +1,4 @@
-using ApplicationCore.Common;
 using ApplicationCore.DTOs.Category;
-using ApplicationCore.Entity;
 
 namespace ApplicationCore.DTOs.Course
 {
@@ -9,7 +7,7 @@ namespace ApplicationCore.DTOs.Course
         public Guid Id { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public CategoryResponseDto Category { get; set; } = new CategoryResponseDto();
+        public CategoryResponse Category { get; set; } = new CategoryResponse();
         public CourseStatus Status { get; set; }
         public CourseLevel Level { get; set; }
         public string Duration { get; set; } = string.Empty;

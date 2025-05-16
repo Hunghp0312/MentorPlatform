@@ -24,7 +24,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequestDto createDto)
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest createDto)
         {
             var result = await _categoryService.CreateCategoryAsync(createDto);
 
@@ -52,7 +52,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(object), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(object), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryRequestDto updateDto)
+        public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryRequest updateDto)
         {
             var result = await _categoryService.UpdateCategoryAsync(id, updateDto);
 
@@ -60,7 +60,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("all")]
-        [ProducesResponseType(typeof(ICollection<CategoryResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ICollection<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCategories()
         {
