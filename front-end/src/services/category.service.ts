@@ -41,6 +41,15 @@ export const categoryService = {
       throw error;
     }
   },
+  async deleteCategory(id: string) {
+    try {
+      const res = await axiosInstance.delete(`/Categories/${id}`);
+      return res.data;
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      throw error;
+    }
+  },
   async getAllCategories() {
     try {
       const response = await axiosInstance.get("/Categories/all");
