@@ -79,9 +79,10 @@ namespace ApplicationCore.Services
 
             _categoryRepo.Update(existingCategory);
             var commitResult = await _unitOfWork.SaveChangesAsync();
+            var responseDto = existingCategory.ToCategoryResponseDto();
 
             return commitResult > 0
-                ? OperationResult<object>.Ok("Update category successfully.")
+                ? OperationResult<object>.Ok(responseDto, "Update category successfully.")
                 : OperationResult<object>.Fail("Failed to update category.", HttpStatusCode.InternalServerError);
         }
 
