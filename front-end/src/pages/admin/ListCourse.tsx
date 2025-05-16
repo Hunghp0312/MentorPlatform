@@ -9,6 +9,13 @@ import CourseDialog from "../../components/dialog/CourseDialog";
 import CustomModal from "../../components/ui/Modal";
 import { courseService } from "../../services/course.service";
 import useDebounce from "../../hooks/usedebounce";
+import { CategoryType } from "../../types/category";
+import { categoryService } from "../../services/category.service";
+enum Level {
+  Beginner,
+  Intermediate,
+  Advanced,
+}
 const ListCourse = () => {
   // const [courses, setCourses] = useState<CourseType[]>(mockCourses);
   const [courses, setCourses] = useState<CourseType[]>([]);
@@ -26,26 +33,20 @@ const ListCourse = () => {
     mentorId: "",
     level: "",
   });
+  const [categories, setCategories] = useState<CategoryType[]>();
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const optionTest = [
-    { id: "1", name: "Leadership Coaching" },
-    { id: "2", name: "Technical Skills" },
-    { id: "3", name: "Communication Skills" },
-    { id: "4", name: "Time Management" },
-    { id: "5", name: "Emotional Intelligence" },
-    { id: "6", name: "Conflict Resolution" },
-    { id: "7", name: "Project Management" },
-    { id: "8", name: "Critical Thinking" },
-    { id: "9", name: "Team Building" },
-    { id: "10", name: "Adaptability" },
-    { id: "11", name: "Strategic Planning" },
-    { id: "12", name: "Customer Service" },
+    { id: "0", name: "All" },
+    { id: "1", name: "Hungpro 123" },
+    { id: "2", name: "Hung dep zai" },
+    { id: "3", name: "Hung no1" },
   ];
   const levelOptions = [
-    { id: "0", name: "Beginner" },
-    { id: "1", name: "Intermediate" },
-    { id: "2", name: "Advanced" },
+    { id: "", name: "All" },
+    { id: Level.Beginner, name: "Beginner" },
+    { id: Level.Intermediate, name: "Intermediate" },
+    { id: Level.Advanced, name: "Advanced" },
   ];
   // const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmitting = false;
@@ -58,6 +59,17 @@ const ListCourse = () => {
   const handleDelete = (course: CourseType) => {
     console.log(course);
   };
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await categoryService.getAllCategories();
+        setCategories([{ id: "", name: "All" }, ...res.data]);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
   useEffect(() => {
     const fetchCourses = async () => {
       const res = await courseService.getPaginationCourses(
@@ -108,21 +120,24 @@ const ListCourse = () => {
           </Button>
         </div>
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <InputCustom
-            placeholder="Search by title, description"
-            icon={<Search className="h-4 w-4" />}
-            label="Search"
-            name="query"
-            type="text"
-            value={query}
-            onChange={handleSearch}
-          />
+          <div className="flex-grow">
+            <InputCustom
+              placeholder="Search by title, description"
+              icon={<Search className="h-4 w-4" />}
+              label="Search"
+              name="query"
+              type="text"
+              value={query}
+              onChange={handleSearch}
+            />
+          </div>
+
           <InputCustom
             label="Mentor"
             name="mentorId"
             type="select"
             optionList={optionTest}
-            value={query}
+            value={filter.mentorId}
             onChange={handleFilter}
           />
           <InputCustom
@@ -137,8 +152,8 @@ const ListCourse = () => {
             label="Category"
             name="categoryId"
             type="select"
-            value={query}
-            optionList={optionTest}
+            value={filter.categoryId}
+            optionList={categories}
             onChange={handleFilter}
           />
         </div>
