@@ -18,12 +18,13 @@ namespace ApplicationCore.Extensions
                 Name = category.Name,
                 Description = category.Description,
                 Status = category.Status,
-                CourseCount = category.CourseCount
+                CourseCount = category.CourseCount,
             };
         }
 
-
-        public static List<CategoryResponse> ToCategoryResponseDtoList(this IEnumerable<Category> categories)
+        public static List<CategoryResponse> ToCategoryResponseDtoList(
+            this IEnumerable<Category> categories
+        )
         {
             if (categories == null)
             {
@@ -49,7 +50,10 @@ namespace ApplicationCore.Extensions
             };
         }
 
-        public static void MapToCategoryEntity(this UpdateCategoryRequest dto, Category existingCategory)
+        public static void MapToCategoryEntity(
+            this UpdateCategoryRequest dto,
+            Category existingCategory
+        )
         {
             if (dto == null)
             {
