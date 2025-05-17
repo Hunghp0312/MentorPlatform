@@ -100,7 +100,12 @@ const ListCourse = () => {
   const fetchCategories = async () => {
     try {
       const res = await categoryService.getAllCategories();
-      setCategories([{ id: "", name: "All" }, ...res.data]);
+      setCategories([
+        { id: "", name: "All" },
+        ...res.data.sort((a: CategoryType, b: CategoryType) =>
+          a.name.localeCompare(b.name)
+        ),
+      ]);
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);

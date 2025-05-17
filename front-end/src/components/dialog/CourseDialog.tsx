@@ -50,7 +50,12 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
       try {
         setIsLoading(true);
         const res = await categoryService.getAllCategories();
-        setCategories([{ id: "", name: "" }, ...res.data]);
+        setCategories([
+          { id: "", name: "" },
+          ...res.data.sort((a: CategoryType, b: CategoryType) =>
+            a.name.localeCompare(b.name)
+          ),
+        ]);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
