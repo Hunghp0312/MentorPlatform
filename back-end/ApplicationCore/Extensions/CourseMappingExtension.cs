@@ -35,6 +35,7 @@ namespace ApplicationCore.Extensions
                 Status = course.Status,
                 Level = course.Level,
                 Duration = course.Duration,
+                Description = course.Description,
                 Tags = TagHelper.ConvertStringToList(course.Tags),
             };
         }
