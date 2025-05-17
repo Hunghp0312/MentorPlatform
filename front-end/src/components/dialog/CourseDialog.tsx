@@ -129,7 +129,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   const statusOptions = [
     { value: 0, label: "Draft" },
     { value: 1, label: "Publish" },
-    { value: 2, label: "Achived" },
+    { value: 2, label: "Archived" },
   ];
   const handleBlur = (
     e: React.FocusEvent<

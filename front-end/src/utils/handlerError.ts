@@ -12,10 +12,8 @@ export const handleAxiosError = (error: AxiosError<ErrorResponse>) => {
   }
   if (error?.response?.data?.errors) {
     for (const key in error.response.data.errors) {
-      if (error.response.data.errors) {
-        const errorMessage = error.response.data.errors[key];
-        toast.error(`${errorMessage}`);
-      }
+      const errorMessage = error.response.data.errors[key];
+      toast.error(`${errorMessage}`);
     }
   }
 };
