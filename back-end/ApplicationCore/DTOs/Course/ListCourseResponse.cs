@@ -6,6 +6,7 @@ namespace ApplicationCore.DTOs.Course
     {
         public Guid Id { get; set; }
         public required string Title { get; set; }
+        public required Guid CategoryId { get; set; }
         public required string CategoryName { get; set; }
         public CourseStatus Status { get; set; }
         public required CourseLevel Level { get; set; }

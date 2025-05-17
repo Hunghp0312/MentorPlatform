@@ -13,7 +13,8 @@ namespace ApplicationCore.Extensions
                 Id = course.Id,
                 Title = course.Title,
                 Description = course.Description,
-                CategoryName = course.Category.Name,
+                CategoryId = course.CategoryId,
+                CategoryName = course.Category!.Name,
                 Status = course.Status,
                 Level = course.Level,
                 Duration = course.Duration,
@@ -29,6 +30,7 @@ namespace ApplicationCore.Extensions
             {
                 Id = course.Id,
                 Title = course.Title,
+                CategoryId = course.CategoryId,
                 CategoryName = course.Category!.Name,
                 Status = course.Status,
                 Level = course.Level,

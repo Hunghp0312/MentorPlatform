@@ -1,4 +1,3 @@
-using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Course;
 using ApplicationCore.DTOs.QueryParameters;

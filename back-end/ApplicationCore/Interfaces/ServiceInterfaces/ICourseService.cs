@@ -1,7 +1,4 @@
-using System;
-using System.Threading.Tasks;
 using ApplicationCore.Common;
-using ApplicationCore.DTOs;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Course;
 using ApplicationCore.DTOs.QueryParameters;
