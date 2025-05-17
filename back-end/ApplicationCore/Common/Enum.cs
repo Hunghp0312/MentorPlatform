@@ -1,19 +1,22 @@
-public enum CategoryStatus
+namespace ApplicationCore.Common
 {
-    Active,
-    Inactive,
-}
+    public enum CategoryStatus
+    {
+        Active,
+        Inactive,
+    }
 
-public enum CourseStatus
-{
-    Draft,
-    Published,
-    Archived,
-}
+    public enum CourseStatus
+    {
+        Draft,
+        Published,
+        Archived,
+    }
 
-public enum CourseLevel
-{
-    Begginner,
-    Intermediate,
-    Advanced,
+    public enum CourseLevel
+    {
+        Begginner,
+        Intermediate,
+        Advanced,
+    }
 }

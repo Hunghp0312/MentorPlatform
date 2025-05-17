@@ -1,6 +1,6 @@
+using System.Net;
 using ApplicationCore.Common;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 
 namespace Presentation.Controllers
 {

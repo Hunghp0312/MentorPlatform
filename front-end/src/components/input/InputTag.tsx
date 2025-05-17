@@ -7,6 +7,10 @@ interface TagInputProps {
   placeholder?: string;
   label?: string;
   isRequired?: boolean;
+  errorMessage?: string;
+  inputPadding?: string;
+  className?: string;
+  setErrorMessage?: (message: string) => void;
 }
 
 const InputTag: React.FC<TagInputProps> = ({
@@ -15,6 +19,10 @@ const InputTag: React.FC<TagInputProps> = ({
   placeholder = "Type and press Enter",
   label,
   isRequired = false,
+  errorMessage = null,
+  inputPadding = "p-2.5",
+  className = "",
+  setErrorMessage = () => {},
 }) => {
   const [input, setInput] = useState<string>("");
 
@@ -22,9 +30,15 @@ const InputTag: React.FC<TagInputProps> = ({
     if ((e.key === "Enter" || e.key === ",") && input.trim() !== "") {
       e.preventDefault();
       const newTag = input.trim();
-      if (!tags.includes(newTag)) {
-        setTags([...tags, newTag]);
+      if (tags.includes(newTag)) {
+        setErrorMessage("Tag is existed");
+        return;
       }
+      if (newTag.length > 50 || newTag.length < 1) {
+        setErrorMessage("Tags should be 1-50 characters");
+        return;
+      }
+      setTags([...tags, newTag]);
       setInput("");
     } else if (e.key === "Backspace" && input === "") {
       setTags(tags.slice(0, -1));
@@ -47,20 +61,22 @@ const InputTag: React.FC<TagInputProps> = ({
         </label>
       )}
       <input
-        className="w-full px-3 py-2 bg-gray-700 border 
-            border-gray-700
-           rounded-md text-white focus:outline-none sm:text-sm focus:ring-1 focus:ring-orange-500"
+        className={`bg-gray-700 text-left focus:outline-none text-gray-100 sm:text-sm rounded-lg block w-full ${
+          errorMessage
+            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+            : "border-gray-700 focus:ring-orange-500 focus:border-orange-500"
+        } ${inputPadding} border cursor-pointer ${className}`}
         value={input}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
       />
       {tags.length > 0 && (
-        <div className="flex flex-wrap items-center mt-2">
+        <div className="flex flex-wrap items-center mt-2 gap-x-2">
           {tags.map((tag, index) => (
             <div
               key={index}
-              className="flex items-center bg-blue-100 text-blue-700 px-2 py-1 m-1 rounded"
+              className="bg-gray-600 text-gray-200 px-2 py-1 rounded-md text-xs flex items-center"
             >
               {tag}
               <button
@@ -73,6 +89,9 @@ const InputTag: React.FC<TagInputProps> = ({
             </div>
           ))}
         </div>
+      )}
+      {errorMessage && (
+        <p className="text-red-500 text-sm mt-1">{errorMessage}</p>
       )}
     </div>
   );

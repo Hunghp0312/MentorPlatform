@@ -1,0 +1,11 @@
+﻿using ApplicationCore.Common;
+
+namespace ApplicationCore.DTOs.Category
+{
+    public class CreateCategoryRequest
+    {
+        public required string Name { get; set; }
+        public required string Description { get; set; }
+        public CategoryStatus Status { get; set; }
+    }
+}

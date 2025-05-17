@@ -1,9 +1,6 @@
-using ApplicationCore.Common;
-using ApplicationCore.DTOs;
-using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Course;
-using ApplicationCore.Interfaces;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Interfaces.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,34 +20,30 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [ProducesResponseType(
-            typeof(OperationResult<ICollection<CourseListResponse>>),
+            typeof(SuccessResponse<PagedResult<ListCourseResponse>>),
             StatusCodes.Status200OK
         )]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(
-            typeof(OperationResult<object>),
-            StatusCodes.Status500InternalServerError
-        )]
-        public async Task<IActionResult> GetCoursePagination([FromQuery] CoursePagedRequest request)
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCoursePagination(
+            [FromQuery] CourseQueryParameters request
+        )
         {
             var res = await _courseService.GetPagedCourseAsync(request);
-            return ToActionResult<PagedResult<CourseListResponse>>(res);
+            return ToActionResult(res);
         }
 
         [HttpPost]
         [ProducesResponseType(
-            typeof(OperationResult<CourseDetailsResponse>),
+            typeof(SuccessResponse<GetCourseDetailsResponse>),
             StatusCodes.Status201Created
         )]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(
-            typeof(OperationResult<object>),
-            StatusCodes.Status500InternalServerError
-        )]
-        public async Task<IActionResult> CreateCourse([FromBody] CreateCourseRequestDto createDto)
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> CreateCourse([FromBody] CreateCourseRequest createDto)
         {
             var result = await _courseService.CreateCourseAsync(createDto);
             return ToActionResult(result);
@@ -59,72 +52,31 @@ namespace Presentation.Controllers
         // GET: api/Courses/{id}
         [HttpGet("{id:guid}")]
         [ProducesResponseType(
-            typeof(OperationResult<CourseDetailsResponse>),
+            typeof(SuccessResponse<GetCourseDetailsResponse>),
             StatusCodes.Status200OK
         )]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(
-            typeof(OperationResult<object>),
-            StatusCodes.Status500InternalServerError
-        )]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCourseById(Guid id)
         {
-            var result = await _courseService.GetCourseByIdAsync(id);
-            return ToActionResult(result);
-        }
-
-        [HttpGet("by-mentor/{mentorId:guid}")]
-        [ProducesResponseType(
-            typeof(OperationResult<ICollection<CourseListResponse>>),
-            StatusCodes.Status200OK
-        )]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(
-            typeof(OperationResult<object>),
-            StatusCodes.Status500InternalServerError
-        )]
-        public async Task<IActionResult> GetCoursesByMentorId(Guid mentorId)
-        {
-            var result = await _courseService.GetCourseByMentorIdAsync(mentorId);
-            return ToActionResult(result);
-        }
-
-        // GET: api/Courses/{id}/details
-        [HttpGet("{id:guid}/details")]
-        [ProducesResponseType(
-            typeof(OperationResult<CourseDetailsResponse>),
-            StatusCodes.Status200OK
-        )]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(
-            typeof(OperationResult<object>),
-            StatusCodes.Status500InternalServerError
-        )]
-        public async Task<IActionResult> GetCourseDetails(Guid id)
-        {
-            var result = await _courseService.GetCourseDetailsAsync(id);
+            var result = await _courseService.GetCourseDetailsByIdAsync(id);
             return ToActionResult(result);
         }
 
         // PUT: api/Courses/{id}
         [HttpPut("{id:guid}")]
         [ProducesResponseType(
-            typeof(OperationResult<CourseDetailsResponse>),
+            typeof(SuccessResponse<GetCourseDetailsResponse>),
             StatusCodes.Status200OK
         )]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(
-            typeof(OperationResult<object>),
-            StatusCodes.Status500InternalServerError
-        )]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateCourse(
             Guid id,
-            [FromBody] CreateCourseRequestDto updateDto
+            [FromBody] CreateCourseRequest updateDto
         )
         {
             var result = await _courseService.UpdateCourseAsync(id, updateDto);
@@ -134,11 +86,8 @@ namespace Presentation.Controllers
         // DELETE: api/Courses/{id}
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(OperationResult<object>), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(
-            typeof(OperationResult<object>),
-            StatusCodes.Status500InternalServerError
-        )]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCourse(Guid id)
         {
             var result = await _courseService.DeleteCourseAsync(id);
