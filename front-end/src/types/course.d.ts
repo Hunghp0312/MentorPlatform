@@ -3,7 +3,7 @@ export interface CourseType {
   categoryId: string;
   categoryName: string; // Added category name field
   status: number; // 1: Active, 0: Inactive
-  level: number; // 1: Beginner, 2: Intermediate, 3: Advanced
+  level: number; // 0: Beginner, 1: Intermediate, 2: Advanced
   title: string;
   duration: string;
   created: string;

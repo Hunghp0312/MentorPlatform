@@ -24,13 +24,13 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   isSubmitting = false,
 }) => {
   const [formState, setFormState] = useState<CourseCreateUpdateType>({
-    title: initialData?.title || "",
-    categoryId: initialData?.categoryId || "",
-    status: initialData?.status || 0,
-    level: initialData?.level || "",
-    duration: initialData?.duration || "",
-    tags: initialData?.tags || [],
-    description: initialData?.description || "",
+    title: initialData?.title ?? "",
+    categoryId: initialData?.categoryId ?? "",
+    status: initialData?.status ?? 0,
+    level: initialData?.level !== undefined ? initialData.level : "",
+    duration: initialData?.duration ?? "",
+    tags: initialData?.tags ?? [],
+    description: initialData?.description ?? "",
   });
   const [categories, setCategories] = useState<CategoryType[]>([]);
 
@@ -121,6 +121,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   };
   if (!open) return null;
   const levelOptions = [
+    { value: "", label: "Select a level" },
     { value: 0, label: "Beginner" },
     { value: 1, label: "Intermediate" },
     { value: 2, label: "Advanced" },
@@ -233,6 +234,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           name="duration"
           errorMessage={errors.duration}
           isRequired
+          placeholder="Enter duration of course"
           onBlur={handleBlur}
         ></InputCustom>
         {/* Tags Field */}
@@ -307,7 +309,6 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           )}
         </button>
       </div>
-      {JSON.stringify(formState)}
     </form>
   );
 };

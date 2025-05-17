@@ -17,6 +17,7 @@ type DropdownProps = {
   className?: string;
   label?: string;
   isRequired?: boolean;
+  haveOptionAll?: boolean;
 };
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -30,6 +31,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   className = "",
   label,
   isRequired = false,
+  haveOptionAll = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -37,7 +39,9 @@ const Dropdown: React.FC<DropdownProps> = ({
   const dropdownListRef = useRef<HTMLUListElement>(null);
   const [typedChars, setTypedChars] = useState("");
   const typeaheadTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const visibleOptions = options.filter((opt) => opt.value !== "");
+  const visibleOptions = haveOptionAll
+    ? options
+    : options.filter((opt) => opt.value !== "");
   const selectedOption = visibleOptions.find((opt) => opt.value === value);
 
   useEffect(() => {

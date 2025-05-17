@@ -17,6 +17,7 @@ type ComboBoxProps = {
   className?: string;
   label?: string;
   isRequired?: boolean;
+  haveOptionAll?: boolean;
 };
 
 const ComboBox: React.FC<ComboBoxProps> = ({
@@ -30,6 +31,7 @@ const ComboBox: React.FC<ComboBoxProps> = ({
   className = "",
   label,
   isRequired = false,
+  haveOptionAll = false,
 }) => {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -39,7 +41,9 @@ const ComboBox: React.FC<ComboBoxProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLUListElement>(null);
   // Filter out empty value options
-  const visibleOptions = options.filter((opt) => opt.value !== "");
+  const visibleOptions = haveOptionAll
+    ? options
+    : options.filter((opt) => opt.value !== "");
 
   // Show all options or filtered options based on state
   const displayedOptions = showAllOptions

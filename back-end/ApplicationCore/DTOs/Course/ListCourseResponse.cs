@@ -10,6 +10,7 @@ namespace ApplicationCore.DTOs.Course
         public required string CategoryName { get; set; }
         public CourseStatus Status { get; set; }
         public required CourseLevel Level { get; set; }
+        public required string Description { get; set; }
         public required string Duration { get; set; }
         public required List<string> Tags { get; set; }
     }
