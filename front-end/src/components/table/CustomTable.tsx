@@ -6,7 +6,7 @@ import SkeletonRow from "../loading/SkeletonRow";
 
 export type DataAction<T> = {
   label?: string;
-  icon?: React.ReactNode 
+  icon?: React.ReactNode;
   onClick: (row: T) => void;
   className?: string;
 };
@@ -304,7 +304,7 @@ const DataTable = <T extends Record<string, any>>({
       </div>
 
       {/* Pagination */}
-      {pagination && (
+      {pagination && totalPages > 1 && (
         <TableFooter
           pageIndex={pageIndex}
           pageSize={pageSize}

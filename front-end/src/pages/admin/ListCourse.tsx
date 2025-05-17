@@ -57,7 +57,7 @@ const ListCourse = () => {
     mentorId: "",
     level: "",
   });
-  const searchDebounced = useDebounce(query, 500);
+  const searchDebounced = useDebounce(query.trim(), 500);
 
   // Constants
   const optionTest = [
@@ -273,7 +273,19 @@ const ListCourse = () => {
   const courseColumns: DataColumn<CourseType>[] = [
     {
       header: "TITLE",
-      accessor: "title",
+      accessor: (course: CourseType) => (
+        <div>
+          <div className="font-medium">{course.title}</div>
+          <div className="text-xs text-gray-400">
+            {course.duration} •{" "}
+            {course.level === 0
+              ? "Beginner"
+              : course.level === 1
+              ? "Intermediate"
+              : "Advanced"}
+          </div>
+        </div>
+      ),
       align: "left",
       width: "20%",
     },
@@ -421,6 +433,7 @@ const ListCourse = () => {
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           totalItems={totalItems}
+          emptyMessage="No results found"
         />
       </div>
 
@@ -428,13 +441,14 @@ const ListCourse = () => {
       <CustomModal
         isOpen={isFormOpen}
         onClose={handleCloseForm}
-        title="Course Form"
+        title={initialData ? "Edit Course" : "Add Course"}
       >
         <CourseDialog
           initialData={initialData}
           onSubmit={handleSubmitAddEditBook}
           onClose={handleCloseForm}
           isSubmitting={isSubmitting}
+          actionButtonText={initialData ? "Update Course" : "Add Course"}
         />
       </CustomModal>
 

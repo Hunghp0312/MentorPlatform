@@ -172,7 +172,9 @@ const Dropdown: React.FC<DropdownProps> = ({
           role="button"
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={handleKeyDown}
-          className={`bg-gray-700 text-left focus:outline-none text-gray-100 sm:text-sm rounded-lg block w-full pr-10 ${
+          className={`bg-gray-700 text-left focus:outline-none ${
+            selectedOption?.label ? "text-gray-100" : "text-gray-400"
+          } sm:text-sm rounded-lg block w-full pr-10 ${
             errorMessage
               ? "border-red-500 focus:ring-red-500 focus:border-red-500"
               : "border-gray-700 focus:ring-orange-500 focus:border-orange-500"

@@ -32,4 +32,8 @@ export const courseService = {
     const res = await axiosInstance.delete(`/Courses/${id}`);
     return res.data;
   },
+  async getCourseById(id: string) {
+    const res = await axiosInstance.get(`/Courses/${id}`);
+    return res.data;
+  },
 };

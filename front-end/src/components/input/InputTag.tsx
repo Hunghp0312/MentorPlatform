@@ -7,9 +7,10 @@ interface TagInputProps {
   placeholder?: string;
   label?: string;
   isRequired?: boolean;
-  errorMessage?: string | null;
+  errorMessage?: string;
   inputPadding?: string;
   className?: string;
+  setErrorMessage?: (message: string) => void;
 }
 
 const InputTag: React.FC<TagInputProps> = ({
@@ -21,6 +22,7 @@ const InputTag: React.FC<TagInputProps> = ({
   errorMessage = null,
   inputPadding = "p-2.5",
   className = "",
+  setErrorMessage = () => {},
 }) => {
   const [input, setInput] = useState<string>("");
 
@@ -28,9 +30,15 @@ const InputTag: React.FC<TagInputProps> = ({
     if ((e.key === "Enter" || e.key === ",") && input.trim() !== "") {
       e.preventDefault();
       const newTag = input.trim();
-      if (!tags.includes(newTag)) {
-        setTags([...tags, newTag]);
+      if (tags.includes(newTag)) {
+        setErrorMessage("Tag is existed");
+        return;
       }
+      if (newTag.length > 50 || newTag.length < 1) {
+        setErrorMessage("Tags should be 1-50 characters");
+        return;
+      }
+      setTags([...tags, newTag]);
       setInput("");
     } else if (e.key === "Backspace" && input === "") {
       setTags(tags.slice(0, -1));

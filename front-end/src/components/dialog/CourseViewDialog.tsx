@@ -1,20 +1,23 @@
-import React from "react";
-import { CourseType } from "../../types/course";
+import React, { useEffect, useState } from "react";
+import { CourseDetailType, CourseType } from "../../types/course";
 import Button from "../ui/Button";
+import { courseService } from "../../services/course.service";
+import LoadingOverlay from "../loading/LoadingOverlay";
 
 interface CourseViewDialogProps {
   onClose: () => void;
   courseData: CourseType;
-  categoryName?: string;
   onEdit?: () => void;
 }
 
 const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
   onClose,
   courseData,
-  categoryName,
   onEdit,
 }) => {
+  const [courseDetails, setCourseDetails] =
+    useState<CourseDetailType>(courseData);
+  const [isLoading, setIsLoading] = useState(true);
   // Map level value to label
   const getLevelLabel = (level: number): string => {
     switch (level) {
@@ -28,7 +31,21 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
         return "Unknown";
     }
   };
-
+  useEffect(() => {
+    const fetchCourseDetails = async () => {
+      try {
+        setIsLoading(true);
+        // Simulate an API call to fetch course details
+        const res = await courseService.getCourseById(courseData.id);
+        setCourseDetails(res.data);
+      } catch (error) {
+        console.error("Error fetching course details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCourseDetails();
+  }, [courseData]);
   // Map status value to label
   const getStatusLabel = (status: number): string => {
     switch (status) {
@@ -42,7 +59,7 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
         return "Unknown";
     }
   };
-  const viewBlock = (label: string, title: string) => {
+  const viewBlock = (label: string, title: string | number) => {
     return (
       <div>
         <label className="block text-sm font-medium mb-1">{label}</label>
@@ -50,37 +67,38 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
       </div>
     );
   };
+  if (isLoading) {
+    return <LoadingOverlay />;
+  }
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold border-b pb-2">Course Details</h2>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Title Field */}
-        {viewBlock("Title", courseData.title)}
+        {viewBlock("Title", courseDetails.title)}
 
         {/* Category Field */}
-        {viewBlock("Category", categoryName || courseData.categoryName)}
+        {viewBlock("Category", courseDetails.categoryName)}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Status Field */}
-        {viewBlock("Status", getStatusLabel(courseData.status))}
+        {viewBlock("Status", getStatusLabel(courseDetails.status))}
 
         {/* Level Field */}
-        {viewBlock("Level", getLevelLabel(courseData.level))}
+        {viewBlock("Level", getLevelLabel(courseDetails.level))}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Duration Field */}
-        {viewBlock("Duration", courseData.duration)}
+        {viewBlock("Duration", courseDetails.duration)}
 
         {/* Tags Field */}
         <div>
           <label className="block text-sm font-medium mb-2">Tags</label>
           <div className="rounded-md">
             <div className="flex flex-wrap gap-2">
-              {courseData.tags &&
-                courseData.tags.map((tag, index) => (
+              {courseDetails.tags &&
+                courseDetails.tags.map((tag, index) => (
                   <span
                     key={index}
                     className="bg-gray-600 text-gray-200 px-2 py-1 rounded-md text-xs flex items-center"
@@ -88,17 +106,29 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
                     {tag}
                   </span>
                 ))}
-              {(!courseData.tags || courseData.tags.length === 0) && (
+              {(!courseDetails.tags || courseDetails.tags.length === 0) && (
                 <span className="text-gray-500">No tags</span>
               )}
             </div>
           </div>
         </div>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Status Field */}
+        {viewBlock("Created", courseDetails.created)}
 
+        {/* Level Field */}
+        {viewBlock("Last Updated", courseDetails.lastUpdated)}
+      </div>
       {/* Description Field */}
-      {viewBlock("Description", courseData.description)}
+      {viewBlock("Description", courseDetails.description)}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Status Field */}
+        {viewBlock("Enrolled Students", courseDetails.students)}
 
+        {/* Level Field */}
+        {viewBlock("Completion Rate", courseDetails.completion)}
+      </div>
       {/* Action Button */}
       <div className="flex justify-end pt-4 gap-4">
         <Button variant="secondary" size="md" onClick={onClose}>

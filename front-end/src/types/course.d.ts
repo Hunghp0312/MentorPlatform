@@ -27,3 +27,18 @@ export interface CourseCreateUpdateType {
   description: string;
   tags: string[];
 }
+export interface CourseDetailType {
+  id: string;
+  title: string;
+  categoryId: string;
+  categoryName: string; // Added category name field
+  status: number;
+  level: number;
+  duration: string;
+  created: string;
+  lastUpdated: string;
+  description: string;
+  tags: string[];
+  students: number; // Number of enrolled students
+  completion: number; // Completion rate percentage
+}

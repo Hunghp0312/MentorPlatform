@@ -7,6 +7,7 @@ import ComboBox from "../input/ComboBox";
 import LoadingOverlay from "../loading/LoadingOverlay";
 import { CategoryType } from "../../types/category";
 import Dropdown from "../input/Dropdown";
+import Button from "../ui/Button";
 
 interface CourseDialogProps {
   onClose: () => void;
@@ -111,9 +112,6 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
     if (!formState.duration) {
       newErrors.duration = "Please fill out this field";
     }
-    if (formState.tags.length === 0) {
-      newErrors.tags = "At least one tag is required";
-    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -181,7 +179,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           value={formState.title}
           onChange={handleChange}
           isRequired
-          placeholder="Enter title of the book"
+          placeholder="Enter title of the course"
           errorMessage={errors.title}
           onBlur={handleBlur}
         ></InputCustom>
@@ -195,7 +193,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
             value: item.id as string,
             label: item.name,
           }))}
-          placeholder="Select a Category"
+          placeholder="Select a category"
           errorMessage={errors.categoryId}
           isRequired
         />
@@ -252,6 +250,9 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
               tags: tags,
             }));
           }}
+          setErrorMessage={(message) =>
+            setErrors((prev) => ({ ...prev, ["tags"]: message }))
+          }
           errorMessage={errors.tags}
         ></InputTag>
       </div>
@@ -278,13 +279,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         >
           Cancel
         </button>
-        <button
-          type="submit"
-          className={`px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500 flex items-center ${
-            isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-          }`}
-          disabled={isSubmitting}
-        >
+        <Button variant="primary" size="md" type="submit">
           {isSubmitting ? (
             <>
               <svg
@@ -312,7 +307,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           ) : (
             actionButtonText
           )}
-        </button>
+        </Button>
       </div>
     </form>
   );
