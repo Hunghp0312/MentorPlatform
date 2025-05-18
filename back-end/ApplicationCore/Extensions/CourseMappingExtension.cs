@@ -6,7 +6,7 @@ namespace ApplicationCore.Extensions
 {
     public static class CourseMappingExtension
     {
-        public static CourseDetailsResponse CourseDetailResponseMap(Course course)
+        public static CourseDetailsResponse CourseDetailResponseMap(this Course course)
         {
             var courseDetailsResponse = new CourseDetailsResponse
             {
