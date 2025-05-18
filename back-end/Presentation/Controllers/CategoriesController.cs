@@ -21,14 +21,14 @@ namespace Presentation.Controllers
         // POST: api/Categories
         [HttpPost]
         [ProducesResponseType(
-            typeof(SuccessResponse<CategoryResponseDto>),
+            typeof(SuccessResponse<CategoryResponse>),
             StatusCodes.Status201Created
         )]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateCategory(
-            [FromBody] CreateCategoryRequestDto createDto
+            [FromBody] CreateCategoryRequest createDto
         )
         {
             var result = await _categoryService.CreateCategoryAsync(createDto);
@@ -38,7 +38,7 @@ namespace Presentation.Controllers
 
         [HttpGet("{id:guid}")]
         [ProducesResponseType(
-            typeof(SuccessResponse<CategoryResponseDto>),
+            typeof(SuccessResponse<CategoryResponse>),
             StatusCodes.Status200OK
         )]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -60,7 +60,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateCategory(
             Guid id,
-            [FromBody] UpdateCategoryRequestDto updateDto
+            [FromBody] UpdateCategoryRequest updateDto
         )
         {
             var result = await _categoryService.UpdateCategoryAsync(id, updateDto);
@@ -70,7 +70,7 @@ namespace Presentation.Controllers
 
         [HttpGet("all")]
         [ProducesResponseType(
-            typeof(SuccessResponse<ICollection<CategoryResponseDto>>),
+            typeof(SuccessResponse<ICollection<CategoryResponse>>),
             StatusCodes.Status200OK
         )]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -83,7 +83,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [ProducesResponseType(
-            typeof(SuccessResponse<PagedResult<CategoryResponseDto>>),
+            typeof(SuccessResponse<PagedResult<CategoryResponse>>),
             StatusCodes.Status200OK
         )]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]

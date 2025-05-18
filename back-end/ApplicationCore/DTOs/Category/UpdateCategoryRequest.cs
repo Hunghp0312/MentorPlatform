@@ -1,6 +1,8 @@
-﻿namespace ApplicationCore.DTOs.Category
+﻿using ApplicationCore.Common;
+
+namespace ApplicationCore.DTOs.Category
 {
-    public class CreateCategoryRequestDto
+    public class UpdateCategoryRequest
     {
         public required string Name { get; set; }
         public required string Description { get; set; }

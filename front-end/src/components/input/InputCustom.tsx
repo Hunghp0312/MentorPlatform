@@ -13,11 +13,12 @@ interface InputProps {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => void;
+  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   errorMessage?: string;
   showPassword?: boolean;
   setShowPassword?: React.Dispatch<React.SetStateAction<boolean>>;
   isRequired?: boolean;
-  optionList?: Array<{ id: string; name: string }>;
+  optionList?: Array<{ id: string | number; name: string }>;
 }
 const InputCustom: React.FC<InputProps> = ({
   className,
@@ -33,6 +34,7 @@ const InputCustom: React.FC<InputProps> = ({
   setShowPassword = () => {},
   isRequired = false,
   optionList = [],
+  onBlur,
 }) => {
   const inputComponent = () => {
     if (type === "textarea") {
@@ -78,10 +80,11 @@ const InputCustom: React.FC<InputProps> = ({
           }
           value={value}
           onChange={onChange}
+          onBlur={onBlur}
           className={`bg-gray-700 focus:outline-none text-gray-100 sm:text-sm rounded-lg block w-full ${
             errorMessage
               ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-              : "border-gray-700 focus:ring-red-500 focus:border-orange-500"
+              : "border-gray-700 focus:ring-orange-500 focus:border-orange-500"
           } ${inputPadding} p-2.5 border ${className} `}
           placeholder={placeholder}
         />
