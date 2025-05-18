@@ -13,7 +13,7 @@ export const categoryService = {
         params: {
           Query: query,
           Status: status,
-          Page: Page,
+          PageIndex: Page,
           PageSize: PageSize,
         },
       });
