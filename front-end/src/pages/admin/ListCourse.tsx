@@ -26,6 +26,7 @@ import {
 } from "../../types/course";
 import { CategoryType } from "../../types/category";
 import { handleAxiosError } from "../../utils/handlerError";
+import LoadingOverlay from "../../components/loading/LoadingOverlay";
 
 enum Level {
   Beginner = "0",
@@ -43,6 +44,7 @@ const ListCourse = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryType[]>();
   const isSubmitting = false;
 
@@ -99,6 +101,7 @@ const ListCourse = () => {
 
   const fetchCategories = async () => {
     try {
+      setIsPageLoading(true);
       const res = await categoryService.getAllCategories();
       setCategories([
         { id: "", name: "All" },
@@ -112,6 +115,8 @@ const ListCourse = () => {
       } else {
         console.error("Error fetching categories:", error);
       }
+    } finally {
+      setIsPageLoading(false);
     }
   };
 
@@ -182,8 +187,13 @@ const ListCourse = () => {
     >
   ) => {
     setQuery(event.target.value);
-    setPageIndex(1);
   };
+  useEffect(() => {
+    if (searchDebounced) {
+      setQuery(searchDebounced);
+      setPageIndex(1);
+    }
+  }, [searchDebounced]);
 
   const handleSelect = (value: string, name: string) => {
     setFilter((prev) => ({ ...prev, [name]: value }));
@@ -340,7 +350,9 @@ const ListCourse = () => {
       width: "20%",
     },
   ];
-
+  if (isPageLoading) {
+    return <LoadingOverlay />;
+  }
   // Render
   return (
     <main className="p-4 container mx-auto">
