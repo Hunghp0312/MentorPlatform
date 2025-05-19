@@ -3,7 +3,7 @@ import InputCustom from "../input/InputCustom";
 import { CategoryType } from "../../types/category";
 import InputCheckbox from "../input/InputCheckbox";
 import Button from "../ui/Button";
-import loading  from "../../assets/loadingIcon.svg"
+import loading from "../../assets/loadingIcon.svg"
 interface CategoryAddDialogProps {
     onClose: () => void;
     onSubmit: (category: CategoryType) => void;
@@ -24,7 +24,7 @@ const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({
         name: initialData?.name || "",
         description: initialData?.description || "",
         status: initialData?.status === 1 ? 1 : 0,
-        courses: initialData?.courses || 0,
+        courseCount: initialData?.courseCount || 0,
     });
 
     const [errors, setErrors] = useState({
@@ -65,10 +65,7 @@ const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({
             isValid = false;
         }
 
-        if (!formState.description.trim()) {
-            newErrors.description = "Description is required.";
-            isValid = false;
-        } else if (formState.description.length > 1000) {
+        if (formState.description.length > 1000) {
             newErrors.description = "Description must not exceed 1000 characters.";
             isValid = false;
         }

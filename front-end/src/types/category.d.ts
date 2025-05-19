@@ -2,7 +2,7 @@ export interface CategoryType {
   id: string | number;
   name: string;
   description: string;
-  courses: number;
+  courseCount: number;
   status: number;
 }
 
