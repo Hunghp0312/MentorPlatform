@@ -15,7 +15,7 @@ namespace ApplicationCore.Common
 
     public enum CourseLevel
     {
-        Begginner,
+        Beginner,
         Intermediate,
         Advanced,
     }
