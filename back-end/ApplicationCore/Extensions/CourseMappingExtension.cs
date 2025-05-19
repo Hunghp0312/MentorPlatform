@@ -11,7 +11,7 @@ namespace ApplicationCore.Extensions
             return new GetCourseDetailsResponse
             {
                 Id = course.Id,
-                Title = course.Title,
+                Name = course.Title,
                 Description = course.Description,
                 CategoryId = course.CategoryId,
                 CategoryName = course.Category!.Name,
@@ -29,7 +29,7 @@ namespace ApplicationCore.Extensions
             return new ListCourseResponse
             {
                 Id = course.Id,
-                Title = course.Title,
+                Name = course.Title,
                 CategoryId = course.CategoryId,
                 CategoryName = course.Category!.Name,
                 Status = course.Status,

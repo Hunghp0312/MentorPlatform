@@ -1,12 +1,10 @@
 using ApplicationCore.Common;
+using ApplicationCore.DTOs.Common;
 
 namespace ApplicationCore.DTOs.Course
 {
-    public class GetCourseDetailsResponse
+    public class GetCourseDetailsResponse : BaseResponse
     {
-        public Guid Id { get; set; }
-        public required string Title { get; set; }
-        public required string Description { get; set; }
         public required Guid CategoryId { get; set; }
         public required string CategoryName { get; set; }
         public CourseStatus Status { get; set; }

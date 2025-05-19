@@ -2,19 +2,11 @@ namespace ApplicationCore.DTOs.Common
 {
     public class PagedResult<T>
     {
-        public ICollection<T> Items { get; set; } = new List<T>();
+        public required ICollection<T> Items { get; set; }
         public int PageIndex { get; set; }
         public int PageSize { get; set; }
         public int TotalItems { get; set; }
-        public int TotalPages { get; set; }
 
-        public PagedResult(ICollection<T> items, int page, int pageSize, int totalItems)
-        {
-            Items = items;
-            PageIndex = page;
-            PageSize = pageSize;
-            TotalItems = totalItems;
-            TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-        }
+        public int TotalPages => (int)Math.Ceiling(TotalItems / (double)PageSize);
     }
 }
