@@ -1,3 +1,4 @@
+using ApplicationCore.Common;
 using ApplicationCore.Entity;
 
 namespace Infrastructure.Data.Seeding

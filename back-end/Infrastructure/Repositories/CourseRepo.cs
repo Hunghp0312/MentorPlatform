@@ -1,4 +1,3 @@
-using ApplicationCore.DTOs;
 using ApplicationCore.Entity;
 using ApplicationCore.Interfaces.RepositoryInterfaces;
 using Infrastructure.Data.Context;
@@ -39,6 +38,7 @@ namespace Infrastructure.Repositories
 
             // Apply pagination
             var pagedCourses = await query
+                .OrderByDescending(c => c.Created) // Ensure you have an order by clause for consistent pagination
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync(); // Make sure you return a list of courses

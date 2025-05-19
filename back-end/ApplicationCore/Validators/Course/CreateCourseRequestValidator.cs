@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace ApplicationCore.Validators.Course
 {
-    public class UpdateCourseRequestDtoValidator : AbstractValidator<UpdateCourseRequestDto>
+    public class CourseCreateRequestValidator : AbstractValidator<CreateCourseRequest>
     {
-        public UpdateCourseRequestDtoValidator()
+        public CourseCreateRequestValidator()
         {
             // Title validation
             RuleFor(x => x.Title)
@@ -23,10 +23,10 @@ namespace ApplicationCore.Validators.Course
                 .NotEqual(Guid.Empty)
                 .WithMessage("Please select an item in the list");
 
-            // Status validation - optional with old value
+            // Status validation - optional with default value "Draft"
             RuleFor(x => x.Status).IsInEnum().WithMessage("Invalid status value");
 
-            // Difficulty validation - optional with old value
+            // Difficulty validation - optional with default value "Beginner"
             RuleFor(x => x.Level).IsInEnum().WithMessage("Invalid difficulty value");
 
             // Duration validation
