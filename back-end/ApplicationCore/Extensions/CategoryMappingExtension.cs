@@ -1,5 +1,5 @@
-﻿using ApplicationCore.DTOs.Category;
-using ApplicationCore.DTOs.Requests.Categories;
+﻿using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
 using Infrastructure.Entities;
 
 namespace ApplicationCore.Extensions

@@ -2,7 +2,7 @@
 using ApplicationCore.DTOs.Common;
 using Infrastructure.Entities.Enum;
 
-namespace ApplicationCore.DTOs.Category
+namespace ApplicationCore.DTOs.Responses.Categories
 {
     public class CategoryResponse : BaseResponse
     {

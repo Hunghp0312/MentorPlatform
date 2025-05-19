@@ -1,5 +1,4 @@
 ﻿using ApplicationCore.Common;
-using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.Extensions;
@@ -9,6 +8,7 @@ using Infrastructure.Entities;
 using System.Net;
 using Infrastructure.Data;
 using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
 
 namespace ApplicationCore.Services
 {
