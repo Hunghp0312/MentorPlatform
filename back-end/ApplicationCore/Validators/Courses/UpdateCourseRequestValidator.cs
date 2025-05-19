@@ -1,13 +1,12 @@
-using ApplicationCore.DTOs.Course;
+using ApplicationCore.DTOs.Requests.Courses;
 using FluentValidation;
 
-namespace ApplicationCore.Validators.Course
+namespace ApplicationCore.Validators.Courses
 {
-    public class CourseCreateRequestValidator : AbstractValidator<CreateCourseRequest>
+    public class UpdateCourseRequestValidator : AbstractValidator<UpdateCourseRequest>
     {
-        public CourseCreateRequestValidator()
+        public UpdateCourseRequestValidator()
         {
-            // Title validation
             RuleFor(x => x.Title)
                 .NotEmpty()
                 .WithMessage("Please fill out this field")
@@ -16,20 +15,16 @@ namespace ApplicationCore.Validators.Course
                 .Must(title => !string.IsNullOrWhiteSpace(title))
                 .WithMessage("Please fill out this field");
 
-            // Category validation
             RuleFor(x => x.CategoryId)
                 .NotEmpty()
                 .WithMessage("Please select an item in the list")
                 .NotEqual(Guid.Empty)
                 .WithMessage("Please select an item in the list");
 
-            // Status validation - optional with default value "Draft"
-            RuleFor(x => x.Status).IsInEnum().WithMessage("Invalid status value");
+            RuleFor(x => x.StatusId).InclusiveBetween(1, 3).WithMessage("Invalid status value");
 
-            // Difficulty validation - optional with default value "Beginner"
-            RuleFor(x => x.Level).IsInEnum().WithMessage("Invalid difficulty value");
+            RuleFor(x => x.LevelId).InclusiveBetween(1, 3).WithMessage("Invalid difficulty value");
 
-            // Duration validation
             RuleFor(x => x.Duration)
                 .NotEmpty()
                 .WithMessage("Please fill out this field")
@@ -40,19 +35,16 @@ namespace ApplicationCore.Validators.Course
                 .Must(duration => !string.IsNullOrWhiteSpace(duration))
                 .WithMessage("Please fill out this field");
 
-            // Tags validation
             RuleForEach(x => x.Tags)
                 .MaximumLength(50)
                 .WithMessage("Tag should be 1-50 characters")
                 .Must(tag => !string.IsNullOrWhiteSpace(tag))
                 .WithMessage("Tag cannot be empty");
 
-            // Check for duplicate tags
             RuleFor(x => x.Tags)
                 .Must(tags => tags.Distinct(StringComparer.OrdinalIgnoreCase).Count() == tags.Count)
                 .WithMessage("Tag already exists");
 
-            // Description validation
             RuleFor(x => x.Description)
                 .NotEmpty()
                 .WithMessage("Please fill out this field")

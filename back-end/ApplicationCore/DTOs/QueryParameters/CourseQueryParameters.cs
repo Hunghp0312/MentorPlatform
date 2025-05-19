@@ -5,7 +5,7 @@ namespace ApplicationCore.DTOs.QueryParameters
 {
     public class CourseQueryParameters : PaginationParameters
     {
-        public CourseLevel? Level { get; set; }//làm type thì để ý sửa
+        public int? Level { get; set; }
         public Guid? CategoryId { get; set; }
         public Guid? MentorId { get; set; }
     }

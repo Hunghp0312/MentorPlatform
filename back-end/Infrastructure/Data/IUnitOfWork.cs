@@ -1,4 +1,4 @@
-﻿namespace ApplicationCore.Interfaces
+﻿namespace Infrastructure.Data
 {
     public interface IUnitOfWork : IDisposable
     {

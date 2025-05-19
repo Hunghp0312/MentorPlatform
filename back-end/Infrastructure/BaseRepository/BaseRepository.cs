@@ -1,17 +1,16 @@
-using ApplicationCore.Interfaces.RepositoryInterfaces;
 using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.BaseRepository
 {
-    public class BaseRepo<TEntity> : IBaseRepo<TEntity>
+    public class BaseRepository<TEntity> : IBaseRepository<TEntity>
         where TEntity : class
     {
         protected readonly AppDbContext _context;
 
         protected readonly DbSet<TEntity> _dbSet;
 
-        public BaseRepo(AppDbContext context)
+        public BaseRepository(AppDbContext context)
         {
             _context = context;
 

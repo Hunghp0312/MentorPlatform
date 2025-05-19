@@ -40,8 +40,6 @@ const InputTag: React.FC<TagInputProps> = ({
       }
       setTags([...tags, newTag]);
       setInput("");
-    } else if (e.key === "Backspace" && input === "") {
-      setTags(tags.slice(0, -1));
     }
   };
 

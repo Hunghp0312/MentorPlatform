@@ -1,13 +1,11 @@
-using ApplicationCore.Common;
-
-namespace ApplicationCore.DTOs.Course
+namespace ApplicationCore.DTOs.Requests.Courses
 {
     public class UpdateCourseRequest
     {
         public required string Title { get; set; }
         public Guid CategoryId { get; set; }
-        public CourseStatus Status { get; set; }
-        public CourseLevel Level { get; set; }
+        public int StatusId { get; set; }
+        public int LevelId { get; set; }
         public required string Description { get; set; }
         public required string Duration { get; set; }
         public required List<string> Tags { get; set; }

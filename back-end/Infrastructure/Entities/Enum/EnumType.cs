@@ -1,4 +1,4 @@
-namespace ApplicationCore.Entities.Enum
+namespace Infrastructure.Entities.Enum
 {
     public class EnumType
     {

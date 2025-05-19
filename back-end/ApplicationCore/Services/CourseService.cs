@@ -1,25 +1,26 @@
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
-using ApplicationCore.DTOs.Course;
 using ApplicationCore.DTOs.QueryParameters;
-using ApplicationCore.Entity;
 using ApplicationCore.Extensions;
-using ApplicationCore.Interfaces;
-using ApplicationCore.Interfaces.RepositoryInterfaces;
-using ApplicationCore.Interfaces.ServiceInterfaces;
+using ApplicationCore.Repositories.RepositoryInterfaces;
+using ApplicationCore.Services.ServiceInterfaces;
+using Infrastructure.Entities;
+using ApplicationCore.DTOs.Requests.Courses;
+using ApplicationCore.DTOs.Responses.Courses;
+using Infrastructure.Data;
 
 namespace ApplicationCore.Services
 {
     public class CourseService : ICourseService
     {
-        private readonly ICourseRepo _courseRepo;
-        private readonly ICategoryRepo _categoryRepo;
+        private readonly ICourseRepository _courseRepo;
+        private readonly ICategoryRepository _categoryRepo;
         private readonly IUnitOfWork _unitOfWork;
 
         public CourseService(
             IUnitOfWork unitOfWork,
-            ICourseRepo courseRepo,
-            ICategoryRepo categoryRepo
+            ICourseRepository courseRepo,
+            ICategoryRepository categoryRepo
         )
         {
             _courseRepo = courseRepo;
@@ -114,8 +115,8 @@ namespace ApplicationCore.Services
             course.Title = request.Title;
             course.Description = request.Description;
             course.CategoryId = request.CategoryId;
-            course.Status = request.Status;
-            course.Level = request.Level;
+            course.StatusId = request.StatusId;
+            course.LevelId = request.LevelId;
             course.Duration = request.Duration;
             course.LastUpdated = DateTime.UtcNow;
             course.Tags = TagHelper.ConvertListToString(request.Tags);
@@ -175,7 +176,7 @@ namespace ApplicationCore.Services
 
                 if (req.Level.HasValue)
                 {
-                    query = query.Where(c => c.Level == req.Level.Value);
+                    query = query.Where(c => c.LevelId == req.Level);
                 }
 
                 if (req.CategoryId.HasValue && req.CategoryId.Value != Guid.Empty)

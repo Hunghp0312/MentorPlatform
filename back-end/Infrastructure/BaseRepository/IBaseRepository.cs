@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ApplicationCore.Interfaces.RepositoryInterfaces
+namespace Infrastructure.BaseRepository
 {
-    public interface IBaseRepo<TEntity>
+    public interface IBaseRepository<TEntity>
         where TEntity : class
     {
         Task AddAsync(TEntity entity);

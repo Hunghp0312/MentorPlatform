@@ -1,9 +1,10 @@
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
-using ApplicationCore.DTOs.Course;
 using ApplicationCore.DTOs.QueryParameters;
+using ApplicationCore.DTOs.Requests.Courses;
+using ApplicationCore.DTOs.Responses.Courses;
 
-namespace ApplicationCore.Interfaces.ServiceInterfaces
+namespace ApplicationCore.Services.ServiceInterfaces
 {
     public interface ICourseService
     {
