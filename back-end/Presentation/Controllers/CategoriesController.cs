@@ -28,7 +28,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateCategory(
-            [FromBody] CreateCategoryRequest createDto
+            [FromBody] CategoryRequest createDto
         )
         {
             var result = await _categoryService.CreateCategoryAsync(createDto);
@@ -60,7 +60,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateCategory(
             Guid id,
-            [FromBody] UpdateCategoryRequest updateDto
+            [FromBody] CategoryRequest updateDto
         )
         {
             var result = await _categoryService.UpdateCategoryAsync(id, updateDto);

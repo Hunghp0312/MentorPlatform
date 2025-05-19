@@ -18,9 +18,9 @@ namespace Infrastructure.Repositories
             _dbSet = _context.Set<TEntity>();
         }
 
-        public virtual async Task AddAsync(TEntity obj)
+        public virtual async Task AddAsync(TEntity entity)
         {
-            var result = await _dbSet.AddAsync(obj);
+            await _dbSet.AddAsync(entity);
         }
 
         public virtual void Delete(TEntity entity)

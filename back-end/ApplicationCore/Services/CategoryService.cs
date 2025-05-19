@@ -14,7 +14,7 @@ namespace ApplicationCore.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepo _categoryRepo;
-        private readonly IUnitOfWork _unitOfWork; // Inject IUnitOfWork
+        private readonly IUnitOfWork _unitOfWork;
 
         public CategoryService(ICategoryRepo categoryRepo, IUnitOfWork unitOfWork)
         {
@@ -22,7 +22,7 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CreateCategoryRequest createDto)
+        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CategoryRequest createDto)
         {
             if (await _categoryRepo.ExistsByNameAsync(createDto.Name))
             {
@@ -44,7 +44,7 @@ namespace ApplicationCore.Services
             return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
         }
 
-        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, UpdateCategoryRequest updateDto)
+        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, CategoryRequest updateDto)
         {
             if (id == Guid.Empty)
             {
@@ -116,10 +116,9 @@ namespace ApplicationCore.Services
                         q = q.Where(c => c.Name.Contains(parameters.Query) ||
                                         c.Description.Contains(parameters.Query));
                     }
-                    if (!string.IsNullOrEmpty(parameters.Status))
+                    if (!string.IsNullOrEmpty(parameters.Status) && Enum.TryParse(parameters.Status, true, out CategoryStatus isActive))
                     {
-                        if (Enum.TryParse(parameters.Status, true, out CategoryStatus isActive))
-                            q = q.Where(c => c.Status == isActive);
+                        q = q.Where(c => c.Status == isActive);
                     }
                     return q;
                 };
@@ -129,13 +128,13 @@ namespace ApplicationCore.Services
         parameters.PageIndex,
         parameters.PageSize
     );
-
-            var pagedResult = new PagedResult<CategoryResponse>(
-                categories.ToCategoryResponseDtoList(),
-                parameters.PageIndex,
-                parameters.PageSize,
-                totalCount
-            );
+            var pagedResult = new PagedResult<CategoryResponse>
+            {
+                Items = categories.ToCategoryResponseDtoList(),
+                PageIndex = parameters.PageIndex,
+                PageSize = parameters.PageSize,
+                TotalItems = totalCount
+            };
             string message = totalCount > 0
                 ? "Browsing categories successfully"
                 : "Search completed successfully but no categories match your criteria";

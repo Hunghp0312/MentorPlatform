@@ -196,12 +196,13 @@ namespace ApplicationCore.Services
                 .Select(CourseMappingExtension.CourseListResponseMap)
                 .ToList();
 
-            var coursesPageResponse = new PagedResult<ListCourseResponse>(
-                CourseDetailsResponse,
-                req.PageIndex,
-                req.PageSize,
-                totalCourses
-            );
+            var coursesPageResponse = new PagedResult<ListCourseResponse>
+            {
+                Items = CourseDetailsResponse,
+                PageIndex = req.PageIndex,
+                PageSize = req.PageSize,
+                TotalItems = totalCourses,
+            };
 
             return OperationResult<PagedResult<ListCourseResponse>>.Ok(
                 coursesPageResponse,

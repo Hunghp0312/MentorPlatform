@@ -2,9 +2,9 @@ namespace ApplicationCore.DTOs.Common
 {
     public class PaginationParameters
     {
+        public string? Query { get; set; }
         private const int MaxPageSize = 20;
-        private int _pageSize = 10; // Kích thước trang mặc định cho reviews
-
+        private int _pageSize = 10;
         private int _pageIndex = 1;
 
         public int PageIndex
@@ -16,7 +16,21 @@ namespace ApplicationCore.DTOs.Common
         public int PageSize
         {
             get => _pageSize;
-            set => _pageSize = (value > MaxPageSize) ? MaxPageSize : (value < 1) ? _pageSize : value; // Giới hạn hợp lệ
+            set
+            {
+                if (value > MaxPageSize)
+                {
+                    _pageSize = MaxPageSize;
+                }
+                else if (value < 1)
+                {
+                    _pageSize = 10;
+                }
+                else
+                {
+                    _pageSize = value;
+                }
+            }
         }
     }
 }

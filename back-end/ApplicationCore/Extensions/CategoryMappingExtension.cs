@@ -34,7 +34,7 @@ namespace ApplicationCore.Extensions
             return categories.Select(c => c.ToCategoryResponseDto()).ToList();
         }
 
-        public static Category ToCategoryEntity(this CreateCategoryRequest dto)
+        public static Category ToCategoryEntity(this CategoryRequest dto)
         {
             if (dto == null)
             {
@@ -51,7 +51,7 @@ namespace ApplicationCore.Extensions
         }
 
         public static void MapToCategoryEntity(
-            this UpdateCategoryRequest dto,
+            this CategoryRequest dto,
             Category existingCategory
         )
         {
