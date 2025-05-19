@@ -7,8 +7,8 @@ namespace ApplicationCore.Interfaces.ServiceInterfaces
 {
     public interface ICategoryService
     {
-        Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CUCategoryRequest createDto);
-        Task<OperationResult<object>> UpdateCategoryAsync(Guid id, CUCategoryRequest updateDto);
+        Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CategoryRequest createDto);
+        Task<OperationResult<object>> UpdateCategoryAsync(Guid id, CategoryRequest updateDto);
         Task<OperationResult<CategoryResponse>> GetCategoryByIdAsync(Guid id);
         Task<OperationResult<ICollection<CategoryResponse>>> GetAllCategoriesAsync();
         Task<OperationResult<PagedResult<CategoryResponse>>> GetPagedCategoriesAsync(CategoryQueryParameters parameters);

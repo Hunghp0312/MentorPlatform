@@ -2,7 +2,7 @@
 
 namespace ApplicationCore.DTOs.Category
 {
-    public class CUCategoryRequest
+    public class CategoryRequest
     {
         public required string Name { get; set; }
         public required string Description { get; set; }

@@ -22,7 +22,7 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CUCategoryRequest createDto)
+        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CategoryRequest createDto)
         {
             if (await _categoryRepo.ExistsByNameAsync(createDto.Name))
             {
@@ -44,7 +44,7 @@ namespace ApplicationCore.Services
             return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
         }
 
-        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, CUCategoryRequest updateDto)
+        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, CategoryRequest updateDto)
         {
             if (id == Guid.Empty)
             {

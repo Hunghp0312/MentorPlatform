@@ -36,7 +36,7 @@ builder.Services.AddScoped<ICourseRepo, CourseRepo>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssembly(typeof(CreateCategoryRequestDtoValidator).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);
 builder
     .Services.AddControllers()
     .AddJsonOptions(options =>
@@ -53,11 +53,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
 app.UseSwagger();
 app.UseSwaggerUI();
 
