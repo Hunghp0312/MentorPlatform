@@ -1,7 +1,8 @@
-﻿using ApplicationCore.DTOs.Category;
-using ApplicationCore.DTOs.Common;
+﻿using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
-using ApplicationCore.Interfaces.ServiceInterfaces;
+using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
+using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -28,7 +29,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateCategory(
-            [FromBody] CreateCategoryRequest createDto
+            [FromBody] CategoryRequest createDto
         )
         {
             var result = await _categoryService.CreateCategoryAsync(createDto);
@@ -60,7 +61,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateCategory(
             Guid id,
-            [FromBody] UpdateCategoryRequest updateDto
+            [FromBody] CategoryRequest updateDto
         )
         {
             var result = await _categoryService.UpdateCategoryAsync(id, updateDto);

@@ -1,5 +1,4 @@
-using ApplicationCore.Common;
-using ApplicationCore.Entity;
+using Infrastructure.Entities;
 
 namespace Infrastructure.Data.Seeding
 {
@@ -7,7 +6,7 @@ namespace Infrastructure.Data.Seeding
     {
         public static List<Course> SeedCourses()
         {
-            var fixedDate = new DateTime(2025, 5, 14, 0, 0, 0, DateTimeKind.Utc); // Static UTC date
+            var fixedDate = new DateTime(2025, 5, 14, 0, 0, 0, DateTimeKind.Utc);
             return new List<Course>
             {
                 new Course
@@ -16,8 +15,8 @@ namespace Infrastructure.Data.Seeding
                     Title = "Intro to C#",
                     Description = "Learn the fundamentals of C#.",
                     CategoryId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                    Status = CourseStatus.Published,
-                    Level = CourseLevel.Beginner,
+                    StatusId = 2,
+                    LevelId = 1,
                     Duration = "3 weeks",
                     Tags = "C#,programming,fundamentals",
                     Created = fixedDate,
@@ -30,8 +29,8 @@ namespace Infrastructure.Data.Seeding
                     Title = "OOP in C#",
                     Description = "Master object-oriented programming concepts in C#.",
                     CategoryId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                    Status = CourseStatus.Published,
-                    Level = CourseLevel.Intermediate,
+                    StatusId = 2,
+                    LevelId = 2,
                     Duration = "4 weeks",
                     Tags = "C#,OOP,classes,inheritance",
                     Created = fixedDate,
@@ -44,8 +43,8 @@ namespace Infrastructure.Data.Seeding
                     Title = "Advanced .NET APIs",
                     Description = "Build and deploy RESTful APIs using ASP.NET Core.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                    Status = CourseStatus.Published,
-                    Level = CourseLevel.Advanced,
+                    StatusId = 2,
+                    LevelId = 3,
                     Duration = "5 weeks",
                     Tags = ".NET,ASP.NET Core,API,REST",
                     Created = fixedDate,
@@ -59,7 +58,7 @@ namespace Infrastructure.Data.Seeding
                     Description = "Understand SQL basics and database querying.",
                     CategoryId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                     Status = CourseStatus.Published,
-                    Level = CourseLevel.Beginner,
+                    Level = CourseLevel.Begginner,
                     Duration = "2 weeks",
                     Tags = "SQL,database,queries,beginner",
                     Created = fixedDate,
@@ -72,8 +71,8 @@ namespace Infrastructure.Data.Seeding
                     Title = "EF Core Masterclass",
                     Description = "Master Entity Framework Core for modern data access.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                    Status = CourseStatus.Published,
-                    Level = CourseLevel.Intermediate,
+                    StatusId = 2,
+                    LevelId = 2,
                     Duration = "4 weeks",
                     Tags = "EF Core,Entity Framework,data access,.NET",
                     Created = fixedDate,
@@ -87,7 +86,7 @@ namespace Infrastructure.Data.Seeding
                     Description = "Create beautiful static websites using HTML and CSS.",
                     CategoryId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                     Status = CourseStatus.Published,
-                    Level = CourseLevel.Beginner,
+                    Level = CourseLevel.Begginner,
                     Duration = "2 weeks",
                     Tags = "HTML,CSS,web design,frontend",
                     Created = fixedDate,
@@ -100,8 +99,8 @@ namespace Infrastructure.Data.Seeding
                     Title = "React Essentials",
                     Description = "Learn how to build reactive UIs using React.",
                     CategoryId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                    Status = CourseStatus.Published,
-                    Level = CourseLevel.Intermediate,
+                    StatusId = 2,
+                    LevelId = 2,
                     Duration = "4 weeks",
                     Tags = "React,JavaScript,frontend,UI",
                     Created = fixedDate,
@@ -114,8 +113,8 @@ namespace Infrastructure.Data.Seeding
                     Title = "Unit Testing in .NET",
                     Description = "Write unit tests and follow TDD in .NET.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                    Status = CourseStatus.Published,
-                    Level = CourseLevel.Intermediate,
+                    StatusId = 2,
+                    LevelId = 2,
                     Duration = "3 weeks",
                     Tags = ".NET,testing,TDD,unit tests",
                     Created = fixedDate,
@@ -129,7 +128,7 @@ namespace Infrastructure.Data.Seeding
                     Description = "Master version control with Git and GitHub.",
                     CategoryId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                     Status = CourseStatus.Published,
-                    Level = CourseLevel.Beginner,
+                    Level = CourseLevel.Begginner,
                     Duration = "1 week",
                     Tags = "Git,GitHub,version control,beginner",
                     Created = fixedDate,
@@ -142,8 +141,8 @@ namespace Infrastructure.Data.Seeding
                     Title = "Docker for Developers",
                     Description = "Containerize and deploy apps with Docker.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                    Status = CourseStatus.Published,
-                    Level = CourseLevel.Advanced,
+                    StatusId = 2,
+                    LevelId = 3,
                     Duration = "3 weeks",
                     Tags = "Docker,containers,devops,deployment",
                     Created = fixedDate,

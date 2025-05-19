@@ -1,7 +1,8 @@
 using ApplicationCore.DTOs.Common;
-using ApplicationCore.DTOs.Course;
 using ApplicationCore.DTOs.QueryParameters;
-using ApplicationCore.Interfaces.ServiceInterfaces;
+using ApplicationCore.DTOs.Requests.Courses;
+using ApplicationCore.DTOs.Responses.Courses;
+using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers

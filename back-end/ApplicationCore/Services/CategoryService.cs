@@ -1,28 +1,29 @@
 ﻿using ApplicationCore.Common;
-using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
-using ApplicationCore.Entity;
 using ApplicationCore.Extensions;
-using ApplicationCore.Interfaces;
-using ApplicationCore.Interfaces.RepositoryInterfaces;
-using ApplicationCore.Interfaces.ServiceInterfaces;
+using ApplicationCore.Repositories.RepositoryInterfaces;
+using ApplicationCore.Services.ServiceInterfaces;
+using Infrastructure.Entities;
 using System.Net;
+using Infrastructure.Data;
+using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
 
 namespace ApplicationCore.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly ICategoryRepo _categoryRepo;
-        private readonly IUnitOfWork _unitOfWork; // Inject IUnitOfWork
+        private readonly ICategoryRepository _categoryRepo;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryService(ICategoryRepo categoryRepo, IUnitOfWork unitOfWork)
+        public CategoryService(ICategoryRepository categoryRepo, IUnitOfWork unitOfWork)
         {
             _categoryRepo = categoryRepo;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CreateCategoryRequest createDto)
+        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CategoryRequest createDto)
         {
             if (await _categoryRepo.ExistsByNameAsync(createDto.Name))
             {
@@ -34,7 +35,7 @@ namespace ApplicationCore.Services
                 Id = Guid.NewGuid(),
                 Name = createDto.Name,
                 Description = createDto.Description,
-                Status = createDto.Status,
+                StatusId = createDto.StatusId,
             };
 
             await _categoryRepo.AddAsync(category);
@@ -44,7 +45,7 @@ namespace ApplicationCore.Services
             return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
         }
 
-        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, UpdateCategoryRequest updateDto)
+        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, CategoryRequest updateDto)
         {
             if (id == Guid.Empty)
             {
@@ -107,7 +108,7 @@ namespace ApplicationCore.Services
 )
         {
             Func<IQueryable<Category>, IQueryable<Category>>? filter = null;
-            if (!string.IsNullOrEmpty(parameters.Query) || !string.IsNullOrEmpty(parameters.Status))
+            if (!string.IsNullOrEmpty(parameters.Query) || parameters.Status.HasValue)
             {
                 filter = q =>
                 {
@@ -116,10 +117,9 @@ namespace ApplicationCore.Services
                         q = q.Where(c => c.Name.Contains(parameters.Query) ||
                                         c.Description.Contains(parameters.Query));
                     }
-                    if (!string.IsNullOrEmpty(parameters.Status))
+                    if (parameters.Status.HasValue)
                     {
-                        if (Enum.TryParse(parameters.Status, true, out CategoryStatus isActive))
-                            q = q.Where(c => c.Status == isActive);
+                        q = q.Where(c => c.StatusId == parameters.Status);
                     }
                     return q;
                 };
@@ -129,13 +129,13 @@ namespace ApplicationCore.Services
         parameters.PageIndex,
         parameters.PageSize
     );
-
-            var pagedResult = new PagedResult<CategoryResponse>(
-                categories.ToCategoryResponseDtoList(),
-                parameters.PageIndex,
-                parameters.PageSize,
-                totalCount
-            );
+            var pagedResult = new PagedResult<CategoryResponse>
+            {
+                Items = categories.ToCategoryResponseDtoList(),
+                PageIndex = parameters.PageIndex,
+                PageSize = parameters.PageSize,
+                TotalItems = totalCount
+            };
             string message = totalCount > 0
                 ? "Browsing categories successfully"
                 : "Search completed successfully but no categories match your criteria";

@@ -1,6 +1,7 @@
 using ApplicationCore.Common;
-using ApplicationCore.DTOs.Course;
-using ApplicationCore.Entity;
+using ApplicationCore.DTOs.Requests.Courses;
+using ApplicationCore.DTOs.Responses.Courses;
+using Infrastructure.Entities;
 
 namespace ApplicationCore.Extensions
 {
@@ -11,7 +12,7 @@ namespace ApplicationCore.Extensions
             return new GetCourseDetailsResponse
             {
                 Id = course.Id,
-                Title = course.Title,
+                Name = course.Title,
                 Description = course.Description,
                 CategoryId = course.CategoryId,
                 CategoryName = course.Category!.Name,
@@ -29,7 +30,7 @@ namespace ApplicationCore.Extensions
             return new ListCourseResponse
             {
                 Id = course.Id,
-                Title = course.Title,
+                Name = course.Title,
                 CategoryId = course.CategoryId,
                 CategoryName = course.Category!.Name,
                 Status = course.Status,
@@ -49,8 +50,8 @@ namespace ApplicationCore.Extensions
                 Description = createRequest.Description,
                 CategoryId = createRequest.CategoryId,
                 MentorId = createRequest.MentorId,
-                Status = createRequest.Status,
-                Level = createRequest.Level,
+                StatusId = createRequest.StatusId,
+                LevelId = createRequest.LevelId,
                 Duration = createRequest.Duration,
                 Created = DateTime.UtcNow,
                 LastUpdated = DateTime.UtcNow,
