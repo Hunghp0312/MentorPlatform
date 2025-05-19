@@ -25,15 +25,15 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     (error) => {
-        if (error.response.status === 401) {
+        if (error.response?.status === 401) {
             localStorage.removeItem("accessToken");
             window.location.href = "/login";
         }
-        if( error.response.status === 400) {
+        if( error.response?.status === 400) {
             handleAxiosError(error)
         }
-        if (error.response.status === 404 || error.response.status === 409) {
-            toast.error(error.response.data.message);
+        if (error.response?.status === 404 || error.response?.status === 409) {
+            toast.error(error.response?.data.message);
         }
         return Promise.reject(error);
     }

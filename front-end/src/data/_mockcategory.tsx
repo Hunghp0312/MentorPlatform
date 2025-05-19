@@ -1,4 +1,4 @@
-import { Edit, CheckCircle, Trash2 } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { DataColumn } from "../components/table/CustomTable";
 import { CategoryType } from "../types/category";
 
@@ -40,18 +40,12 @@ export const getCategoryColumns: DataColumn<CategoryType>[] = [
 
 export const getCategoryActions = (
   handleEdit: (category: CategoryType) => void,
-  handleChangeStatus: (category: CategoryType) => void,
   handleDelete: (category : CategoryType) => void
 ) => [
   {
     icon: <Edit className="h-4 w-4" />,
     onClick: handleEdit,
     className: "bg-blue-600 hover:bg-blue-700 text-white",
-  },
-  {
-    icon: <CheckCircle className="h-4 w-4" />,
-    onClick: handleChangeStatus,
-    className: "bg-amber-600 hover:bg-amber-700 text-white"
   },
   {
     icon: <Trash2 className="h-4 w-4" />,

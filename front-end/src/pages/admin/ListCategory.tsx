@@ -108,16 +108,13 @@ const ListCategory = () => {
       setSearchTerm(e.target.value);
     }
   };
+    useEffect(() => {
+    if (searchDebounced) {
+      setSearchTerm(searchDebounced);
+      setPageIndex(1);
+    }
+  }, [searchDebounced]);
 
-  const handleChangeStatus = (category: CategoryType) => {
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === category.id
-          ? { ...cat, status: cat.status === 1 ? 0 : 1 }
-          : cat
-      )
-    );
-  };
 
   const handleOnclose = () => {
     setOpenDialog(false);
@@ -196,7 +193,6 @@ const ListCategory = () => {
           keyField="id"
           actions={getCategoryActions(
             handleEdit,
-            handleChangeStatus,
             handleDelete
           )}
           pagination
