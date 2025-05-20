@@ -1,4 +1,5 @@
-﻿using ApplicationCore.Common;
+﻿using System.Net;
+using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Categories;
@@ -8,7 +9,6 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
-using System.Net;
 
 namespace ApplicationCore.Services
 {
@@ -23,11 +23,15 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(CategoryRequest createDto)
+        public async Task<OperationResult<CategoryResponse>> CreateCategoryAsync(
+            CategoryRequest createDto
+        )
         {
             if (await _categoryRepo.ExistsByNameAsync(createDto.Name))
             {
-                return OperationResult<CategoryResponse>.Conflict($"Category with name '{createDto.Name}' already exists.");
+                return OperationResult<CategoryResponse>.Conflict(
+                    $"Category with name '{createDto.Name}' already exists."
+                );
             }
 
             var category = new Category
@@ -44,10 +48,16 @@ namespace ApplicationCore.Services
             var newCreatedCategory = await _categoryRepo.GetByIdAsync(category.Id);
             var responseDto = newCreatedCategory?.ToCategoryResponseDto();
 
-            return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
+            return OperationResult<CategoryResponse>.Created(
+                responseDto,
+                "Category created successfully."
+            );
         }
 
-        public async Task<OperationResult<object>> UpdateCategoryAsync(Guid id, CategoryRequest updateDto)
+        public async Task<OperationResult<object>> UpdateCategoryAsync(
+            Guid id,
+            CategoryRequest updateDto
+        )
         {
             if (id == Guid.Empty)
             {
@@ -67,7 +77,9 @@ namespace ApplicationCore.Services
 
             if (await _categoryRepo.ExistsByNameAsync(updateDto.Name, id))
             {
-                return OperationResult<object>.Conflict($"Category name '{updateDto.Name}' is already used by another category.");
+                return OperationResult<object>.Conflict(
+                    $"Category name '{updateDto.Name}' is already used by another category."
+                );
             }
             updateDto.MapToCategoryEntity(existingCategory);
 
@@ -76,8 +88,11 @@ namespace ApplicationCore.Services
             var responseDto = existingCategory.ToCategoryResponseDto();
 
             return commitResult > 0
-                ? OperationResult<object>.Ok(responseDto, "Update category successfully.")
-                : OperationResult<object>.Fail("Failed to update category.", HttpStatusCode.InternalServerError);
+                ? OperationResult<object>.Ok(responseDto)
+                : OperationResult<object>.Fail(
+                    "Failed to update category.",
+                    HttpStatusCode.InternalServerError
+                );
         }
 
         public async Task<OperationResult<CategoryResponse>> GetCategoryByIdAsync(Guid id)
@@ -89,30 +104,26 @@ namespace ApplicationCore.Services
             var category = await _categoryRepo.GetByIdAsync(id);
             if (category == null)
             {
-                return OperationResult<CategoryResponse>.NotFound($"Category with ID '{id}' was not found.");
+                return OperationResult<CategoryResponse>.NotFound(
+                    $"Category with ID '{id}' was not found."
+                );
             }
             var responseDto = category.ToCategoryResponseDto();
 
-            return OperationResult<CategoryResponse>.Ok(responseDto, "Get category successfully.");
+            return OperationResult<CategoryResponse>.Ok(responseDto);
         }
-
 
         public async Task<OperationResult<ICollection<CategoryResponse>>> GetAllCategoriesAsync()
         {
-
             var categories = await _categoryRepo.GetAllAsync();
             var categoryDtos = categories.ToCategoryResponseDtoList();
-            string message = categoryDtos.Any()
-                ? "Get list successfully"
-                : "Operation successful but no categories found";
 
-            return OperationResult<ICollection<CategoryResponse>>.Ok(categoryDtos, message);
+            return OperationResult<ICollection<CategoryResponse>>.Ok(categoryDtos);
         }
 
-
         public async Task<OperationResult<PagedResult<CategoryResponse>>> GetPagedCategoriesAsync(
-    CategoryQueryParameters parameters
-)
+            CategoryQueryParameters parameters
+        )
         {
             Func<IQueryable<Category>, IQueryable<Category>>? filter = null;
             if (!string.IsNullOrEmpty(parameters.Query) || parameters.Status.HasValue)
@@ -121,8 +132,10 @@ namespace ApplicationCore.Services
                 {
                     if (!string.IsNullOrEmpty(parameters.Query))
                     {
-                        q = q.Where(c => c.Name.Contains(parameters.Query) ||
-                                        c.Description.Contains(parameters.Query));
+                        q = q.Where(c =>
+                            c.Name.Contains(parameters.Query)
+                            || c.Description.Contains(parameters.Query)
+                        );
                     }
                     if (parameters.Status.HasValue)
                     {
@@ -132,22 +145,19 @@ namespace ApplicationCore.Services
                 };
             }
             var (categories, totalCount) = await _categoryRepo.GetPagedAsync(
-        filter,
-        parameters.PageIndex,
-        parameters.PageSize
-    );
+                filter,
+                parameters.PageIndex,
+                parameters.PageSize
+            );
             var pagedResult = new PagedResult<CategoryResponse>
             {
                 Items = categories.ToCategoryResponseDtoList(),
                 PageIndex = parameters.PageIndex,
                 PageSize = parameters.PageSize,
-                TotalItems = totalCount
+                TotalItems = totalCount,
             };
-            string message = totalCount > 0
-                ? "Browsing categories successfully"
-                : "Search completed successfully but no categories match your criteria";
 
-            return OperationResult<PagedResult<CategoryResponse>>.Ok(pagedResult, message);
+            return OperationResult<PagedResult<CategoryResponse>>.Ok(pagedResult);
         }
 
         public async Task<OperationResult<object>> DeleteCategoryAsync(Guid id)
@@ -166,20 +176,27 @@ namespace ApplicationCore.Services
 
             if (categoryToDelete.Courses != null && categoryToDelete.Courses.Any())
             {
-                return OperationResult<object>.Conflict($"Cannot delete category '{categoryToDelete.Name}' as it has associated courses. Please remove or reassign courses first.");
+                return OperationResult<object>.Conflict(
+                    $"Cannot delete category '{categoryToDelete.Name}' as it has associated courses. Please remove or reassign courses first."
+                );
             }
 
             var deletedByRepo = await _categoryRepo.DeleteById(id);
             if (!deletedByRepo)
             {
-                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found by repository for deletion.");
+                return OperationResult<object>.NotFound(
+                    $"Category with ID '{id}' was not found by repository for deletion."
+                );
             }
 
             var commitResult = await _unitOfWork.SaveChangesAsync();
 
             return commitResult > 0
                 ? OperationResult<object>.NoContent()
-                : OperationResult<object>.Fail("Failed to delete category from database.", HttpStatusCode.InternalServerError);
+                : OperationResult<object>.Fail(
+                    "Failed to delete category from database.",
+                    HttpStatusCode.InternalServerError
+                );
         }
     }
 }

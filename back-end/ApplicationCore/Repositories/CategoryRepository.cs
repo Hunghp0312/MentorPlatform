@@ -18,10 +18,9 @@ namespace ApplicationCore.Repositories
 
         public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
         {
-            return await _dbSet.AnyAsync(c =>
-                c.Id != excludeId && c.Name == name
-            );
+            return await _dbSet.AnyAsync(c => c.Id != excludeId && c.Name == name);
         }
+
         public override async Task<ICollection<Category>> GetAllAsync()
         {
             return await _dbSet
@@ -29,6 +28,7 @@ namespace ApplicationCore.Repositories
                 .Include(c => c.Status)
                 .ToListAsync();
         }
+
         public override async Task<Category?> GetByIdAsync(Guid id)
         {
             return await _dbSet
@@ -36,15 +36,14 @@ namespace ApplicationCore.Repositories
                 .Include(c => c.Status)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
+
         public override async Task<(ICollection<Category>, int)> GetPagedAsync(
             Func<IQueryable<Category>, IQueryable<Category>>? filter,
             int pageIndex,
-            int pageSize)
+            int pageSize
+        )
         {
-            var queryable = _dbSet
-                .Include(c => c.Courses)
-                .Include(c => c.Status)
-                .AsQueryable();
+            var queryable = _dbSet.Include(c => c.Courses).Include(c => c.Status).AsQueryable();
 
             if (filter != null)
             {
