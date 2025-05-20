@@ -280,7 +280,9 @@ const ListCourse = () => {
     },
     {
       header: "CATEGORY",
-      accessor: "categoryName",
+      accessor: (course: CourseType) => (
+        <div className="font-medium">{course.category?.name}</div>
+      ),
       align: "left",
       width: "20%",
     },

@@ -26,7 +26,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
 }) => {
   const [formState, setFormState] = useState<CourseCreateUpdateType>({
     name: initialData?.name ?? "",
-    categoryId: initialData?.categoryId ?? "",
+    categoryId: initialData?.category.id ?? "",
     statusId: initialData?.status.id ?? 1,
     levelId: initialData?.level.id !== undefined ? initialData.level.id : "",
     duration: initialData?.duration ?? "",
@@ -169,7 +169,6 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   }
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* <div className="text-white">{JSON.stringify(formState)}</div> */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Title Field */}
         <InputCustom

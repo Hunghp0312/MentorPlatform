@@ -62,6 +62,7 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<object>.Conflict($"Category name '{updateDto.Name}' is already used by another category.");
             }
+
             updateDto.MapToCategoryEntity(existingCategory);
 
             _categoryRepo.Update(existingCategory);

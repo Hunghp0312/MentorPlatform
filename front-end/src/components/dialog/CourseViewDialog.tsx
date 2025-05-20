@@ -77,7 +77,7 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
         {viewBlock("Title", courseDetails.name)}
 
         {/* Category Field */}
-        {viewBlock("Category", courseDetails.categoryName)}
+        {viewBlock("Category", courseDetails.category.name)}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
