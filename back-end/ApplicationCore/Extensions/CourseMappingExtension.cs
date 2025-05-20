@@ -32,7 +32,6 @@ namespace ApplicationCore.Extensions
                 Name = createRequest.Name,
                 Description = createRequest.Description,
                 CategoryId = createRequest.CategoryId,
-                MentorId = createRequest.MentorId,
                 StatusId = createRequest.StatusId,
                 LevelId = createRequest.LevelId,
                 Duration = createRequest.Duration,
