@@ -8,7 +8,6 @@ namespace Infrastructure.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<UserArenaOfExpertise> builder)
         {
-            // Khóa chính kết hợp
             builder.HasKey(uae => new { uae.UserProfileId, uae.ArenaOfExpertiseId });
 
             builder.HasOne(uae => uae.UserProfile)
