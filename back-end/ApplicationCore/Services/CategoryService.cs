@@ -54,30 +54,34 @@ namespace ApplicationCore.Services
             );
         }
 
-        public async Task<OperationResult<object>> UpdateCategoryAsync(
+        public async Task<OperationResult<CategoryResponse>> UpdateCategoryAsync(
             Guid id,
             CategoryRequest updateDto
         )
         {
             if (id == Guid.Empty)
             {
-                return OperationResult<object>.BadRequest("Category ID is not valid.");
+                return OperationResult<CategoryResponse>.BadRequest("Category ID is not valid.");
             }
 
             var existingCategory = await _categoryRepo.GetByIdAsync(id);
             if (existingCategory == null)
             {
-                return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
+                return OperationResult<CategoryResponse>.NotFound(
+                    $"Category with ID '{id}' was not found."
+                );
             }
 
             if (existingCategory.CourseCount != 0)
             {
-                return OperationResult<object>.BadRequest($"Can not update category as it has associated courses");
+                return OperationResult<CategoryResponse>.BadRequest(
+                    $"Can not update category as it has associated courses"
+                );
             }
 
             if (await _categoryRepo.ExistsByNameAsync(updateDto.Name, id))
             {
-                return OperationResult<object>.Conflict(
+                return OperationResult<CategoryResponse>.Conflict(
                     $"Category name '{updateDto.Name}' is already used by another category."
                 );
             }
@@ -85,11 +89,12 @@ namespace ApplicationCore.Services
 
             _categoryRepo.Update(existingCategory);
             var commitResult = await _unitOfWork.SaveChangesAsync();
-            var responseDto = existingCategory.ToCategoryResponseDto();
+            existingCategory = await _categoryRepo.GetByIdAsync(id);
+            var responseDto = existingCategory!.ToCategoryResponseDto();
 
             return commitResult > 0
-                ? OperationResult<object>.Ok(responseDto)
-                : OperationResult<object>.Fail(
+                ? OperationResult<CategoryResponse>.Ok(responseDto)
+                : OperationResult<CategoryResponse>.Fail(
                     "Failed to update category.",
                     HttpStatusCode.InternalServerError
                 );
