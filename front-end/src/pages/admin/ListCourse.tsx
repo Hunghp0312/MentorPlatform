@@ -29,9 +29,9 @@ import { handleAxiosError } from "../../utils/handlerError";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 
 enum Level {
-  Beginner = "0",
-  Intermediate = "1",
-  Advanced = "2",
+  Beginner = "1",
+  Intermediate = "2",
+  Advanced = "3",
 }
 
 const ListCourse = () => {
@@ -57,20 +57,20 @@ const ListCourse = () => {
   const [filter, setFilter] = useState<CourseFilterType>({
     categoryId: "",
     mentorId: "",
-    level: "",
+    levelId: "",
   });
   const searchDebounced = useDebounce(query.trim(), 500);
 
   // Constants
   const optionTest = [
-    { id: "", name: "All" },
+    { id: "", name: "All mentors" },
     { id: "73fba208-a6bf-481c-8c82-24fd5ba9a531", name: "Uncle Bob" },
     { id: "4e28540d-6b6b-44da-bc92-7989bcc20201", name: "Mark Zuckerberg" },
     { id: "ca4f1d7d-ced8-473a-bfd0-c7900a098153", name: "Bill Gate" },
   ];
 
   const levelOptions = [
-    { value: "", label: "All" },
+    { value: "", label: "All levels" },
     { value: Level.Beginner, label: "Beginner" },
     { value: Level.Intermediate, label: "Intermediate" },
     { value: Level.Advanced, label: "Advanced" },
@@ -86,8 +86,8 @@ const ListCourse = () => {
         pageIndex,
         pageSize
       );
-      setCourses(res.data.items);
-      setTotalItems(res.data.totalItems);
+      setCourses(res.items);
+      setTotalItems(res.totalItems);
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -104,8 +104,8 @@ const ListCourse = () => {
       setIsPageLoading(true);
       const res = await categoryService.getAllCategories();
       setCategories([
-        { id: "", name: "All" },
-        ...res.data.sort((a: CategoryType, b: CategoryType) =>
+        { id: "", name: "All categories" },
+        ...res.sort((a: CategoryType, b: CategoryType) =>
           a.name.localeCompare(b.name)
         ),
       ]);
@@ -129,18 +129,6 @@ const ListCourse = () => {
     fetchCourses();
   }, [pageIndex, pageSize, searchDebounced, filter]);
 
-  // Handlers
-  const addWithLimit = (newElement: CourseType) => {
-    setCourses((prevList) => {
-      const updatedList = [...prevList];
-      if (updatedList.length >= pageSize) {
-        updatedList.pop(); // remove last
-      }
-      updatedList.unshift(newElement); // add to front
-      return updatedList;
-    });
-  };
-
   const handleView = (course: CourseType) => {
     setIsViewOpen(true);
     setInitialData(course);
@@ -154,12 +142,12 @@ const ListCourse = () => {
   const handleDelete = async (course: CourseType) => {
     if (
       window.confirm(
-        `Are you sure you want to delete the course "${course.title}"?`
+        `Are you sure you want to delete the course "${course.name}"?`
       )
     ) {
       try {
         await courseService.deleteCourse(course.id);
-        toast.success(`Course ${course.title} deleted successfully`);
+        toast.success(`Course ${course.name} deleted successfully`);
         fetchCourses();
       } catch (error) {
         if (error instanceof AxiosError) {
@@ -186,7 +174,12 @@ const ListCourse = () => {
       HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement
     >
   ) => {
-    setQuery(event.target.value);
+    const newValue = event.target.value;
+    if (newValue.length > 500) {
+      setQuery(newValue.slice(0, 500));
+      return;
+    }
+    setQuery(newValue);
   };
   useEffect(() => {
     if (searchDebounced) {
@@ -206,18 +199,9 @@ const ListCourse = () => {
     if (initialData) {
       try {
         const response = await courseService.editCourse(initialData.id, course);
-        const newCourse = response.data;
-        setCourses((prevList) => {
-          const updatedList = [...prevList];
-          const index = updatedList.findIndex(
-            (item) => item.id === newCourse.id
-          );
-          if (index !== -1) {
-            updatedList[index] = newCourse;
-          }
-          return updatedList;
-        });
-        toast.success(`Course ${newCourse.title} updated successfully`);
+        const newCourse = response;
+        fetchCourses();
+        toast.success(`Course ${newCourse.name} updated successfully`);
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
           handleAxiosError(error);
@@ -236,9 +220,9 @@ const ListCourse = () => {
   ): Promise<void> => {
     try {
       const response = await courseService.createCourse(course);
-      const newCourse = response.data;
-      addWithLimit(newCourse);
-      toast.success(`Course ${newCourse.title} created successfully`);
+      const newCourse = response;
+      fetchCourses();
+      toast.success(`Course ${newCourse.name} created successfully`);
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -285,12 +269,12 @@ const ListCourse = () => {
       header: "TITLE",
       accessor: (course: CourseType) => (
         <div>
-          <div className="font-medium">{course.title}</div>
+          <div className="font-medium">{course.name}</div>
           <div className="text-xs text-gray-400">
             {course.duration} •{" "}
-            {course.level === 0
+            {course.level.id === 1
               ? "Beginner"
-              : course.level === 1
+              : course.level.id === 2
               ? "Intermediate"
               : "Advanced"}
           </div>
@@ -301,13 +285,17 @@ const ListCourse = () => {
     },
     {
       header: "CATEGORY",
-      accessor: "categoryName",
+      accessor: (course: CourseType) => (
+        <div className="font-medium">{course.category?.name}</div>
+      ),
       align: "left",
       width: "20%",
     },
     {
       header: "STUDENTS",
-      accessor: "students",
+      accessor: (course: CourseType) => (
+        <div className="font-medium">{course.students ?? 0}</div>
+      ),
       align: "center",
       width: "10%",
     },
@@ -327,7 +315,7 @@ const ListCourse = () => {
               style={{ width: `${course.completion}%` }}
             ></div>
           </div>
-          <span>{course.completion}%</span>
+          <span>{course.completion ?? 0}%</span>
         </div>
       ),
       align: "center",
@@ -337,9 +325,9 @@ const ListCourse = () => {
       header: "STATUS",
       accessor: (course: CourseType) => (
         <div className="flex justify-center">
-          {course.status === 0 ? (
+          {course.status.id === 1 ? (
             <span className="text-gray-400 font-medium">Draft</span>
-          ) : course.status === 1 ? (
+          ) : course.status.id === 2 ? (
             <span className="text-green-500 font-medium">Published</span>
           ) : (
             <span className="text-amber-500 font-medium">Archived</span>
@@ -406,8 +394,8 @@ const ListCourse = () => {
           <div className="w-full md:w-1/5">
             <Dropdown
               label="Level"
-              name="level"
-              value={filter.level}
+              name="levelId"
+              value={filter.levelId}
               options={levelOptions}
               onChange={handleSelect}
               haveOptionAll

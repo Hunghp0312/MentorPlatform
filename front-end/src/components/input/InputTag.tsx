@@ -27,10 +27,14 @@ const InputTag: React.FC<TagInputProps> = ({
   const [input, setInput] = useState<string>("");
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+    }
     if ((e.key === "Enter" || e.key === ",") && input.trim() !== "") {
       e.preventDefault();
       const newTag = input.trim();
-      if (tags.includes(newTag)) {
+      const tagsTrimmed = tags.map((tag) => tag.toLowerCase());
+      if (tagsTrimmed.includes(newTag.toLowerCase())) {
         setErrorMessage("Tag is existed");
         return;
       }
@@ -40,13 +44,12 @@ const InputTag: React.FC<TagInputProps> = ({
       }
       setTags([...tags, newTag]);
       setInput("");
-    } else if (e.key === "Backspace" && input === "") {
-      setTags(tags.slice(0, -1));
     }
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
+    setErrorMessage("");
   };
 
   const removeTag = (index: number) => {

@@ -1,7 +1,8 @@
 using ApplicationCore.DTOs.Common;
-using ApplicationCore.DTOs.Course;
 using ApplicationCore.DTOs.QueryParameters;
-using ApplicationCore.Interfaces.ServiceInterfaces;
+using ApplicationCore.DTOs.Requests.Courses;
+using ApplicationCore.DTOs.Responses.Courses;
+using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -20,7 +21,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [ProducesResponseType(
-            typeof(SuccessResponse<PagedResult<ListCourseResponse>>),
+            typeof(PagedResult<GetCourseDetailsResponse>),
             StatusCodes.Status200OK
         )]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -35,15 +36,14 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(
-            typeof(SuccessResponse<GetCourseDetailsResponse>),
-            StatusCodes.Status201Created
-        )]
+        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCourse([FromBody] CreateCourseRequest createDto)
+        public async Task<IActionResult> CreateCourse(
+            [FromBody] CreateUpdateCourseRequest createDto
+        )
         {
             var result = await _courseService.CreateCourseAsync(createDto);
             return ToActionResult(result);
@@ -51,10 +51,7 @@ namespace Presentation.Controllers
 
         // GET: api/Courses/{id}
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(
-            typeof(SuccessResponse<GetCourseDetailsResponse>),
-            StatusCodes.Status200OK
-        )]
+        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -66,17 +63,14 @@ namespace Presentation.Controllers
 
         // PUT: api/Courses/{id}
         [HttpPut("{id:guid}")]
-        [ProducesResponseType(
-            typeof(SuccessResponse<GetCourseDetailsResponse>),
-            StatusCodes.Status200OK
-        )]
+        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateCourse(
             Guid id,
-            [FromBody] CreateCourseRequest updateDto
+            [FromBody] CreateUpdateCourseRequest updateDto
         )
         {
             var result = await _courseService.UpdateCourseAsync(id, updateDto);

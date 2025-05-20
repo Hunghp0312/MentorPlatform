@@ -1,44 +1,47 @@
+import { CategoryType } from "./category";
+import { EnumType } from "./commonType";
+
 export interface CourseType {
   id: string;
-  categoryId: string;
-  categoryName: string; // Added category name field
-  status: number; // 1: Active, 0: Inactive
-  level: number; // 0: Beginner, 1: Intermediate, 2: Advanced
-  title: string;
+  category: CategoryType;
+  status: EnumType; // 1: Draft, 2: Publish, 3: Archived
+  level: EnumType; // 1: Beginner, 2: Intermediate, 3: Advanced
+  name: string;
   duration: string;
   created: string;
   lastUpdated: string;
   description: string;
   tags: string[];
-  students: number; // Number of enrolled students
-  completion: number; // Completion rate percentage
+  students: number;
+  completion: number;
 }
 export interface CourseFilterType {
   categoryId: string;
   mentorId: string;
-  level: string;
+  levelId: string;
 }
+
 export interface CourseCreateUpdateType {
-  title: string;
+  name: string;
   categoryId: string;
-  status: number; // 0: Draft, 1: Publish, 2: Archived
-  level: number | string; // 1: Beginner, 2: Intermediate, 3: Advanced
+  statusId: int; // 1: Draft, 2: Publish, 3: Archived
+  levelId: int; // 1: Beginner, 2: Intermediate, 3: Advanced
   duration: string;
   description: string;
   tags: string[];
 }
+
 export interface CourseDetailType {
   id: string;
-  title: string;
-  categoryId: string;
-  categoryName: string; // Added category name field
-  status: number;
-  level: number;
+  name: string;
+  category: CategoryType;
+  status: EnumType;
+  level: EnumType;
   duration: string;
   created: string;
   lastUpdated: string;
   description: string;
   tags: string[];
-  students: number; // Number of enrolled students
-  completion: number; // Completion rate percentage
+  students: number;
+  completion: number;
 }

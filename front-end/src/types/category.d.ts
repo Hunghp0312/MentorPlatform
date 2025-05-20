@@ -1,13 +1,13 @@
 export interface CategoryType {
-  id: string | number;
+  id: string;
   name: string;
   description: string;
-  courses: number;
-  status: number;
+  courseCount: number;
+  status: EnumType;
 }
 
 export interface CategoryCreateType {
   name: string;
   description: string;
-  status: number;
+  statusId: number;
 }

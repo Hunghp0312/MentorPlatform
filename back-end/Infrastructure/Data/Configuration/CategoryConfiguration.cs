@@ -1,5 +1,5 @@
-using ApplicationCore.Entity;
 using Infrastructure.Data.Seeding;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -15,7 +15,9 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(c => c.Description).IsRequired().HasMaxLength(1000);
 
-            builder.Property(c => c.Status).IsRequired();
+            builder.HasOne(c => c.Status).WithMany()
+                .HasForeignKey(c => c.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasData(CategorySeeding.SeedCategories());
         }

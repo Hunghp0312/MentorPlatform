@@ -1,16 +1,15 @@
-﻿using ApplicationCore.Interfaces;
-using ApplicationCore.Interfaces.RepositoryInterfaces;
-using ApplicationCore.Interfaces.ServiceInterfaces;
+﻿using ApplicationCore.JsonConverters;
+using ApplicationCore.Repositories;
+using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services;
-using ApplicationCore.Validators.Category;
+using ApplicationCore.Services.ServiceInterfaces;
+using ApplicationCore.Validators.Categories;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Infrastructure.BaseRepository;
 using Infrastructure.Data;
 using Infrastructure.Data.Context;
-using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Presentation.JsonConverters;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -25,18 +24,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         }
     )
 );
-builder.Services.AddScoped(typeof(IBaseRepo<>), typeof(BaseRepo<>));
-builder.Services.AddScoped<ICategoryRepo, CategoryRepo>();
-builder.Services.AddScoped<ICourseRepo, CourseRepo>();
+builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<ICourseRepo, CourseRepo>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssembly(typeof(CreateCategoryRequestDtoValidator).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);
 builder
     .Services.AddControllers()
     .AddJsonOptions(options =>
@@ -53,11 +52,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();
 app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
-// if (app.Environment.IsDevelopment())
-// {
-//     app.UseSwagger();
-//     app.UseSwaggerUI();
-// }
 app.UseSwagger();
 app.UseSwaggerUI();
 
@@ -67,4 +61,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

@@ -13,7 +13,7 @@ export const courseService = {
         Query: query,
         MentorId: filter.mentorId,
         CategoryId: filter.categoryId,
-        Level: filter.level,
+        Level: filter.levelId,
         PageIndex: page,
         PageSize: pageSize,
       },

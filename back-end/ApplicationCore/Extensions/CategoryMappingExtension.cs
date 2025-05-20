@@ -1,5 +1,6 @@
-﻿using ApplicationCore.DTOs.Category;
-using ApplicationCore.Entity;
+﻿using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
+using Infrastructure.Entities;
 
 namespace ApplicationCore.Extensions
 {
@@ -17,7 +18,7 @@ namespace ApplicationCore.Extensions
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
-                Status = category.Status,
+                Status = category.Status!,
                 CourseCount = category.CourseCount,
             };
         }
@@ -34,7 +35,7 @@ namespace ApplicationCore.Extensions
             return categories.Select(c => c.ToCategoryResponseDto()).ToList();
         }
 
-        public static Category ToCategoryEntity(this CreateCategoryRequest dto)
+        public static Category ToCategoryEntity(this CategoryRequest dto)
         {
             if (dto == null)
             {
@@ -46,14 +47,21 @@ namespace ApplicationCore.Extensions
                 Id = Guid.NewGuid(),
                 Name = dto.Name,
                 Description = dto.Description,
-                Status = dto.Status,
+                StatusId = dto.StatusId,
             };
         }
 
-        public static void MapToCategoryEntity(
-            this UpdateCategoryRequest dto,
-            Category existingCategory
-        )
+        public static CourseCategoryResponse ToCourseCategory(this Category category)
+        {
+            return new CourseCategoryResponse
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+            };
+        }
+
+        public static void MapToCategoryEntity(this CategoryRequest dto, Category existingCategory)
         {
             if (dto == null)
             {
@@ -66,7 +74,7 @@ namespace ApplicationCore.Extensions
 
             existingCategory.Name = dto.Name;
             existingCategory.Description = dto.Description;
-            existingCategory.Status = dto.Status;
+            existingCategory.StatusId = dto.StatusId;
         }
     }
 }
