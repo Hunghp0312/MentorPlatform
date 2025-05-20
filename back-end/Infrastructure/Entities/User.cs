@@ -14,11 +14,10 @@
 
         // Navigation Properties
         public virtual Role Role { get; set; } = null!;
-        public virtual UserProfile? UserProfile { get; set; } // UserProfile có thể không tồn tại cho mọi User
-        public virtual ICollection<UserArenaOfExpertise> UserArenaOfExpertises { get; set; } = new List<UserArenaOfExpertise>();
+        public virtual UserProfile? UserProfile { get; set; }
         public virtual ICollection<UserTopicOfInterest> UserTopicOfInterests { get; set; } = new List<UserTopicOfInterest>();
-        public virtual ICollection<MentorApplication> SubmittedMentorApplications { get; set; } = new List<MentorApplication>(); // Đơn do user này nộp
-        public virtual ICollection<MentorApplication> ReviewedMentorApplications { get; set; } = new List<MentorApplication>(); // Đơn do user này (admin) duyệt
+        public virtual ICollection<MentorApplication> SubmittedMentorApplications { get; set; } = new List<MentorApplication>();
+        public virtual ICollection<MentorApplication> ReviewedMentorApplications { get; set; } = new List<MentorApplication>();
         public virtual ICollection<Course> MentoredCourses { get; set; } = new List<Course>(); // Khóa học do user này làm mentor
     }
 }
