@@ -13,7 +13,11 @@ namespace ApplicationCore.Repositories
 
         public async Task<Course?> GetCourseWithCategoryAsync(Guid courseId)
         {
-            return await _dbSet.Include(c => c.Category).FirstOrDefaultAsync(c => c.Id == courseId);
+            return await _dbSet
+                .Include(c => c.Category)
+                .Include(c => c.Status)
+                .Include(c => c.Level)
+                .FirstOrDefaultAsync(c => c.Id == courseId);
         }
 
         public async Task<(ICollection<Course>, int)> GetPagedCoursesAsync(
