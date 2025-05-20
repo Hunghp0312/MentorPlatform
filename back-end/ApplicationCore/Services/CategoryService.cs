@@ -60,6 +60,11 @@ namespace ApplicationCore.Services
                 return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
             }
 
+            if (existingCategory.CourseCount != 0)
+            {
+                return OperationResult<object>.BadRequest($"Can not update category as it has associated courses");
+            }
+
             if (await _categoryRepo.ExistsByNameAsync(updateDto.Name, id))
             {
                 return OperationResult<object>.Conflict($"Category name '{updateDto.Name}' is already used by another category.");
