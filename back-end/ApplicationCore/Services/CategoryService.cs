@@ -42,7 +42,6 @@ namespace ApplicationCore.Services
             await _unitOfWork.SaveChangesAsync();
 
             var newCreatedCategory = await _categoryRepo.GetByIdAsync(category.Id);
-            // tạo api get ở đây
             var responseDto = newCreatedCategory?.ToCategoryResponseDto();
 
             return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
