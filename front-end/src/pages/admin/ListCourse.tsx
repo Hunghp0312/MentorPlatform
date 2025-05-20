@@ -86,8 +86,8 @@ const ListCourse = () => {
         pageIndex,
         pageSize
       );
-      setCourses(res.data.items);
-      setTotalItems(res.data.totalItems);
+      setCourses(res.items);
+      setTotalItems(res.totalItems);
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -105,7 +105,7 @@ const ListCourse = () => {
       const res = await categoryService.getAllCategories();
       setCategories([
         { id: "", name: "All" },
-        ...res.data.sort((a: CategoryType, b: CategoryType) =>
+        ...res.sort((a: CategoryType, b: CategoryType) =>
           a.name.localeCompare(b.name)
         ),
       ]);
@@ -194,7 +194,7 @@ const ListCourse = () => {
     if (initialData) {
       try {
         const response = await courseService.editCourse(initialData.id, course);
-        const newCourse = response.data;
+        const newCourse = response;
         fetchCourses();
         toast.success(`Course ${newCourse.name} updated successfully`);
       } catch (error: unknown) {
@@ -215,7 +215,7 @@ const ListCourse = () => {
   ): Promise<void> => {
     try {
       const response = await courseService.createCourse(course);
-      const newCourse = response.data;
+      const newCourse = response;
       fetchCourses();
       toast.success(`Course ${newCourse.name} created successfully`);
     } catch (error: unknown) {
@@ -280,13 +280,17 @@ const ListCourse = () => {
     },
     {
       header: "CATEGORY",
-      accessor: "categoryName",
+      accessor: (course: CourseType) => (
+        <div className="font-medium">{course.category?.name}</div>
+      ),
       align: "left",
       width: "20%",
     },
     {
       header: "STUDENTS",
-      accessor: "students",
+      accessor: (course: CourseType) => (
+        <div className="font-medium">{course.students ?? 0}</div>
+      ),
       align: "center",
       width: "10%",
     },
@@ -306,7 +310,7 @@ const ListCourse = () => {
               style={{ width: `${course.completion}%` }}
             ></div>
           </div>
-          <span>{course.completion}%</span>
+          <span>{course.completion ?? 0}%</span>
         </div>
       ),
       align: "center",

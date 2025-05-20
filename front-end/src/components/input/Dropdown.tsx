@@ -199,7 +199,7 @@ const Dropdown: React.FC<DropdownProps> = ({
       {isOpen && (
         <ul
           ref={dropdownListRef}
-          className="absolute z-10 mt-1 w-full bg-gray-800 max-h-60 overflow-auto rounded-md text-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 sm:text-sm"
+          className="absolute z-10 mt-1 w-full bg-gray-800 max-h-48 overflow-auto rounded-md text-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 sm:text-sm"
         >
           {visibleOptions.map((option, index) => (
             <li

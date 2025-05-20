@@ -14,7 +14,7 @@ const TableFooter: React.FC<TableFooterProps> = ({
   totalItems,
   setPageSize,
   changePage,
-  pageSizeOptions = [5, 10, 25, 50, 100],
+  pageSizeOptions = [5, 10, 20],
   className = "",
 }) => {
   const totalPages = Math.ceil(totalItems / pageSize);
@@ -39,7 +39,7 @@ const TableFooter: React.FC<TableFooterProps> = ({
         </select>
       </div>
       <div className="text-sm text-gray-400">
-        Showing {(pageIndex - 1) * pageSize + 1}-
+        Showing {totalItems > 0 ? (pageIndex - 1) * pageSize + 1 : 0}-
         {pageIndex * pageSize > totalItems ? totalItems : pageIndex * pageSize}{" "}
         of {totalItems} items
       </div>
@@ -80,7 +80,7 @@ const TableFooter: React.FC<TableFooterProps> = ({
         </div>
         <button
           onClick={() => changePage(pageIndex + 1)}
-          disabled={pageIndex === totalPages}
+          disabled={pageIndex >= totalPages}
           className="p-1 rounded-md bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ChevronRight className="h-5 w-5" />
