@@ -77,7 +77,7 @@ namespace Presentation.Controllers
             return ToActionResult(categories);
         }
 
-        [HttpGet]
+        [HttpGet("paged")]
         [ProducesResponseType(
             typeof(SuccessResponse<PagedResult<CategoryResponse>>),
             StatusCodes.Status200OK

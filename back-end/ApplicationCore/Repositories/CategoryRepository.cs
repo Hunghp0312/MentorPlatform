@@ -23,12 +23,18 @@ namespace ApplicationCore.Repositories
 
         public override async Task<ICollection<Category>> GetAllAsync()
         {
-            return await _dbSet.Include(c => c.Courses).ToListAsync();
+            return await _dbSet
+                .Include(c => c.Courses)
+                .Include(c => c.Status)
+                .ToListAsync();
         }
 
         public override async Task<Category?> GetByIdAsync(Guid id)
         {
-            return await _dbSet.Include(c => c.Courses).FirstOrDefaultAsync(c => c.Id == id);
+            return await _dbSet
+                .Include(c => c.Courses)
+                .Include(c => c.Status)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
         public override async Task<(ICollection<Category>, int)> GetPagedAsync(

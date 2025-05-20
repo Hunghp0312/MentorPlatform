@@ -21,7 +21,7 @@ namespace ApplicationCore.Common
         public static OperationResult<T> Ok(T data) =>
             new OperationResult<T>(true, data, null, HttpStatusCode.OK);
 
-        public static OperationResult<T> Created(T data, string? message = null) =>
+        public static OperationResult<T> Created(T? data, string? message = null) =>
             new OperationResult<T>(true, data, message, HttpStatusCode.Created);
 
         public static OperationResult<T> Accepted(T data, string? message = null) =>

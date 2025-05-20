@@ -44,7 +44,9 @@ namespace ApplicationCore.Services
 
             await _categoryRepo.AddAsync(category);
             await _unitOfWork.SaveChangesAsync();
-            var responseDto = category.ToCategoryResponseDto();
+
+            var newCreatedCategory = await _categoryRepo.GetByIdAsync(category.Id);
+            var responseDto = newCreatedCategory?.ToCategoryResponseDto();
 
             return OperationResult<CategoryResponse>.Created(
                 responseDto,
@@ -66,6 +68,11 @@ namespace ApplicationCore.Services
             if (existingCategory == null)
             {
                 return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
+            }
+
+            if (existingCategory.CourseCount != 0)
+            {
+                return OperationResult<object>.BadRequest($"Can not update category as it has associated courses");
             }
 
             if (await _categoryRepo.ExistsByNameAsync(updateDto.Name, id))
