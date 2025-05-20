@@ -21,7 +21,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [ProducesResponseType(
-            typeof(SuccessResponse<PagedResult<GetCourseDetailsResponse>>),
+            typeof(PagedResult<GetCourseDetailsResponse>),
             StatusCodes.Status200OK
         )]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -36,10 +36,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(
-            typeof(SuccessResponse<GetCourseDetailsResponse>),
-            StatusCodes.Status201Created
-        )]
+        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
@@ -52,10 +49,7 @@ namespace Presentation.Controllers
 
         // GET: api/Courses/{id}
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(
-            typeof(SuccessResponse<GetCourseDetailsResponse>),
-            StatusCodes.Status200OK
-        )]
+        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -67,10 +61,7 @@ namespace Presentation.Controllers
 
         // PUT: api/Courses/{id}
         [HttpPut("{id:guid}")]
-        [ProducesResponseType(
-            typeof(SuccessResponse<GetCourseDetailsResponse>),
-            StatusCodes.Status200OK
-        )]
+        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
