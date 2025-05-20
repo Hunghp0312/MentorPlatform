@@ -9,7 +9,7 @@ export const categoryService = {
     PageSize: number
   ) {
     try {
-      const response = await axiosInstance.get("/Categories", {
+      const response = await axiosInstance.get("/Categories/paged", {
         params: {
           Query: query,
           Status: status,

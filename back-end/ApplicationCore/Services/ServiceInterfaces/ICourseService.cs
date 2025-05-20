@@ -9,11 +9,11 @@ namespace ApplicationCore.Services.ServiceInterfaces
     public interface ICourseService
     {
         Task<OperationResult<GetCourseDetailsResponse>> CreateCourseAsync(
-            CreateCourseRequest request
+            CreateUpdateCourseRequest request
         );
         Task<OperationResult<GetCourseDetailsResponse>> UpdateCourseAsync(
             Guid courseId,
-            CreateCourseRequest request
+            CreateUpdateCourseRequest request
         );
         Task<OperationResult<GetCourseDetailsResponse>> DeleteCourseAsync(Guid courseId);
         Task<OperationResult<GetCourseDetailsResponse>> GetCourseDetailsByIdAsync(Guid courseId);

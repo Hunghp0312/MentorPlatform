@@ -29,7 +29,7 @@ namespace ApplicationCore.Services
         }
 
         public async Task<OperationResult<GetCourseDetailsResponse>> CreateCourseAsync(
-            CreateCourseRequest request
+            CreateUpdateCourseRequest request
         )
         {
             var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
@@ -44,7 +44,9 @@ namespace ApplicationCore.Services
             await _courseRepo.AddAsync(course);
             await _unitOfWork.SaveChangesAsync();
 
-            var response = course.CourseDetailResponseMap();
+            course = await _courseRepo.GetCourseWithCategoryAsync(course.Id);
+
+            var response = course!.CourseDetailResponseMap();
 
             return OperationResult<GetCourseDetailsResponse>.Created(
                 response,
@@ -88,7 +90,7 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<GetCourseDetailsResponse>> UpdateCourseAsync(
             Guid courseId,
-            CreateCourseRequest request
+            CreateUpdateCourseRequest request
         )
         {
             var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
@@ -106,7 +108,7 @@ namespace ApplicationCore.Services
                 );
             }
 
-            course.Title = request.Title;
+            course.Name = request.Name;
             course.Description = request.Description;
             course.CategoryId = request.CategoryId;
             course.StatusId = request.StatusId;
@@ -118,7 +120,9 @@ namespace ApplicationCore.Services
             _courseRepo.Update(course);
             await _unitOfWork.SaveChangesAsync();
 
-            var response = course.CourseDetailResponseMap();
+            course = await _courseRepo.GetCourseWithCategoryAsync(courseId);
+
+            var response = course!.CourseDetailResponseMap();
 
             return OperationResult<GetCourseDetailsResponse>.Ok(response);
         }
@@ -156,7 +160,7 @@ namespace ApplicationCore.Services
                 if (!string.IsNullOrWhiteSpace(req.Query))
                 {
                     query = query.Where(c =>
-                        c.Title.Contains(req.Query) || c.Description.Contains(req.Query)
+                        c.Name.Contains(req.Query) || c.Description.Contains(req.Query)
                     );
                 }
 

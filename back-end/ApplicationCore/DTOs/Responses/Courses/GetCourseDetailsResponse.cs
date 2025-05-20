@@ -6,7 +6,6 @@ namespace ApplicationCore.DTOs.Responses.Courses
 {
     public class GetCourseDetailsResponse : BaseResponse
     {
-        public required Guid CategoryId { get; set; }
         public required CourseCategoryResponse Category { get; set; }
         public required CourseStatus Status { get; set; }
         public required CourseLevel Level { get; set; }

@@ -56,12 +56,12 @@ namespace ApplicationCore.Repositories
 
         public async Task<bool> ExistsByNameAsync(string name)
         {
-            return await _dbSet.AnyAsync(c => c.Title == name);
+            return await _dbSet.AnyAsync(c => c.Name == name);
         }
 
         public async Task<bool> ExistsByNameAsync(string name, Guid excludeId)
         {
-            return await _dbSet.AnyAsync(c => c.Title == name && c.Id != excludeId);
+            return await _dbSet.AnyAsync(c => c.Name == name && c.Id != excludeId);
         }
     }
 }

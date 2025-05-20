@@ -151,15 +151,15 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("MentorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Tags")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Title")
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tags")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -185,9 +185,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000001"),
+                            Name = "Intro to C#",
                             StatusId = 2,
-                            Tags = "C#,programming,fundamentals",
-                            Title = "Intro to C#"
+                            Tags = "C#,programming,fundamentals"
                         },
                         new
                         {
@@ -199,9 +199,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            StatusId = 2,
-                            Tags = "C#,OOP,classes,inheritance",
-                            Title = "OOP in C#"
+                            Name = "OOP in C#",
+                            StatusId = 1,
+                            Tags = "C#,OOP,classes,inheritance"
                         },
                         new
                         {
@@ -213,9 +213,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 3,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000003"),
+                            Name = "Advanced .NET APIs",
                             StatusId = 2,
-                            Tags = ".NET,ASP.NET Core,API,REST",
-                            Title = "Advanced .NET APIs"
+                            Tags = ".NET,ASP.NET Core,API,REST"
                         },
                         new
                         {
@@ -227,9 +227,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000004"),
-                            StatusId = 2,
-                            Tags = "SQL,database,queries,beginner",
-                            Title = "SQL for Beginners"
+                            Name = "SQL for Beginners",
+                            StatusId = 3,
+                            Tags = "SQL,database,queries,beginner"
                         },
                         new
                         {
@@ -241,9 +241,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000005"),
+                            Name = "EF Core Masterclass",
                             StatusId = 2,
-                            Tags = "EF Core,Entity Framework,data access,.NET",
-                            Title = "EF Core Masterclass"
+                            Tags = "EF Core,Entity Framework,data access,.NET"
                         },
                         new
                         {
@@ -255,9 +255,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000006"),
-                            StatusId = 2,
-                            Tags = "HTML,CSS,web design,frontend",
-                            Title = "HTML & CSS Basics"
+                            Name = "HTML & CSS Basics",
+                            StatusId = 1,
+                            Tags = "HTML,CSS,web design,frontend"
                         },
                         new
                         {
@@ -269,9 +269,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000007"),
+                            Name = "React Essentials",
                             StatusId = 2,
-                            Tags = "React,JavaScript,frontend,UI",
-                            Title = "React Essentials"
+                            Tags = "React,JavaScript,frontend,UI"
                         },
                         new
                         {
@@ -283,9 +283,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000008"),
+                            Name = "Unit Testing in .NET",
                             StatusId = 2,
-                            Tags = ".NET,testing,TDD,unit tests",
-                            Title = "Unit Testing in .NET"
+                            Tags = ".NET,testing,TDD,unit tests"
                         },
                         new
                         {
@@ -297,9 +297,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000009"),
-                            StatusId = 2,
-                            Tags = "Git,GitHub,version control,beginner",
-                            Title = "Git & GitHub Basics"
+                            Name = "Git & GitHub Basics",
+                            StatusId = 3,
+                            Tags = "Git,GitHub,version control,beginner"
                         },
                         new
                         {
@@ -311,9 +311,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 3,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000010"),
-                            StatusId = 2,
-                            Tags = "Docker,containers,devops,deployment",
-                            Title = "Docker for Developers"
+                            Name = "Docker for Developers",
+                            StatusId = 1,
+                            Tags = "Docker,containers,devops,deployment"
                         });
                 });
 

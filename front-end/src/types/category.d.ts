@@ -1,5 +1,5 @@
 export interface CategoryType {
-  id: string | number;
+  id: string;
   name: string;
   description: string;
   courseCount: number;
