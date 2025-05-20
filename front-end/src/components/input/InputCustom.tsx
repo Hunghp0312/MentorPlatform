@@ -78,6 +78,11 @@ const InputCustom: React.FC<InputProps> = ({
           type={
             type == "password" ? (showPassword ? "text" : "password") : type
           }
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+            }
+          }}
           value={value}
           onChange={onChange}
           onBlur={onBlur}

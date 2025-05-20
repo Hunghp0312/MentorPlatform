@@ -42,8 +42,8 @@ const ListCategory = () => {
         pageIndex,
         pageSize
       );
-      setTotalItems(res.data.totalItems);
-      setCategories(res.data.items);
+      setTotalItems(res.totalItems);
+      setCategories(res.items);
     } catch (error) {
       console.error("Error fetching categories:", error);
     } finally {

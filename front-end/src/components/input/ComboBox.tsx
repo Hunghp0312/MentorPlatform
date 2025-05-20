@@ -221,7 +221,7 @@ const ComboBox: React.FC<ComboBoxProps> = ({
       {isOpen && displayedOptions.length > 0 && (
         <ul
           ref={dropdownRef}
-          className="absolute z-10 mt-1 w-full bg-gray-800 max-h-60 overflow-auto rounded-md text-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 sm:text-sm"
+          className="absolute z-10 mt-1 w-full bg-gray-800 max-h-48 overflow-auto rounded-md text-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 sm:text-sm"
         >
           {displayedOptions.map((option, index) => (
             <li

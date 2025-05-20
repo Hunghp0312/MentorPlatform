@@ -53,7 +53,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         const res = await categoryService.getAllCategories();
         setCategories([
           { id: "", name: "" },
-          ...res.data.sort((a: CategoryType, b: CategoryType) =>
+          ...res.sort((a: CategoryType, b: CategoryType) =>
             a.name.localeCompare(b.name)
           ),
         ]);
@@ -84,17 +84,17 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
     const newErrors: Record<string, string> = {};
     // Title validate
     if (formState.name.length < 1 || formState.name.length > 100) {
-      newErrors.title = "Title must be between 1 and 100 characters";
+      newErrors.name = "Title must be between 1 and 100 characters";
     }
     if (!formState.name) {
-      newErrors.title = "Please fill out this field";
+      newErrors.name = "Please fill out this field";
     }
     // Category validate
     if (formState.categoryId === "") {
       newErrors.categoryId = "Please select an item in the list";
     }
     if (formState.levelId === "") {
-      newErrors.level = "Please select an item in the list";
+      newErrors.levelId = "Please select an item in the list";
     }
     if (
       formState.description.length < 1 ||
@@ -179,7 +179,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           onChange={handleChange}
           isRequired
           placeholder="Enter title of the course"
-          errorMessage={errors.title}
+          errorMessage={errors.name}
           onBlur={handleBlur}
         ></InputCustom>
         {/* Category Field */}
@@ -209,7 +209,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
             value: String(item.value),
             label: item.label,
           }))}
-          errorMessage={errors.status}
+          errorMessage={errors.statusId}
           isRequired
         ></Dropdown>
         {/* Level Field */}
@@ -222,7 +222,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
             value: String(item.value),
             label: item.label,
           }))}
-          errorMessage={errors.level}
+          errorMessage={errors.levelId}
           isRequired
         ></Dropdown>
       </div>
@@ -244,6 +244,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           label="Tags"
           tags={formState.tags}
           setTags={(tags) => {
+            setErrors((prev) => ({ ...prev, ["tags"]: "" }));
             setFormState((prevState) => ({
               ...prevState,
               tags: tags,
