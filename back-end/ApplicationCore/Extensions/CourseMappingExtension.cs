@@ -15,28 +15,12 @@ namespace ApplicationCore.Extensions
                 Name = course.Title,
                 Description = course.Description,
                 CategoryId = course.CategoryId,
-                CategoryName = course.Category!.Name,
-                Status = course.Status,
-                Level = course.Level,
+                Category = course.Category!.ToCourseCategory(),
+                Status = course.Status!,
+                Level = course.Level!,
                 Duration = course.Duration,
                 Created = course.Created,
                 LastUpdated = course.LastUpdated,
-                Tags = TagHelper.ConvertStringToList(course.Tags),
-            };
-        }
-
-        public static ListCourseResponse CourseListResponseMap(this Course course)
-        {
-            return new ListCourseResponse
-            {
-                Id = course.Id,
-                Name = course.Title,
-                CategoryId = course.CategoryId,
-                CategoryName = course.Category!.Name,
-                Status = course.Status,
-                Level = course.Level,
-                Duration = course.Duration,
-                Description = course.Description,
                 Tags = TagHelper.ConvertStringToList(course.Tags),
             };
         }

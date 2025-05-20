@@ -10,13 +10,11 @@ namespace Presentation.Controllers
         protected ActionResult ToActionResult<TResponse>(OperationResult<TResponse> operationResult)
             where TResponse : class
         {
-            var responseBody = new { operationResult.Data, operationResult.Message };
-
             return operationResult.StatusCode switch
             {
-                HttpStatusCode.OK => Ok(responseBody),
-                HttpStatusCode.Created => Created(string.Empty, responseBody),
-                HttpStatusCode.Accepted => Accepted(responseBody),
+                HttpStatusCode.OK => Ok(operationResult.Data),
+                HttpStatusCode.Created => Created(string.Empty, operationResult.Data),
+                HttpStatusCode.Accepted => Accepted(operationResult.Data),
                 HttpStatusCode.NoContent => NoContent(),
 
                 HttpStatusCode.BadRequest => BadRequest(new { operationResult.Message }),

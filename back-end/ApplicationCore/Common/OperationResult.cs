@@ -18,11 +18,8 @@ namespace ApplicationCore.Common
             StatusCode = statusCode;
         }
 
-        public static OperationResult<T> Ok(string? message = null) =>
-            new OperationResult<T>(true, default, message, HttpStatusCode.OK);
-
-        public static OperationResult<T> Ok(T data, string? message = null) =>
-            new OperationResult<T>(true, data, message, HttpStatusCode.OK);
+        public static OperationResult<T> Ok(T data) =>
+            new OperationResult<T>(true, data, null, HttpStatusCode.OK);
 
         public static OperationResult<T> Created(T data, string? message = null) =>
             new OperationResult<T>(true, data, message, HttpStatusCode.Created);
@@ -33,7 +30,6 @@ namespace ApplicationCore.Common
         public static OperationResult<T> NoContent() =>
             new OperationResult<T>(true, null, null, HttpStatusCode.NoContent);
 
-        // --- Failure Results ---
         public static OperationResult<T> Fail(
             string message,
             HttpStatusCode statusCode = HttpStatusCode.InternalServerError

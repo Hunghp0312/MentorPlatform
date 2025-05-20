@@ -21,7 +21,7 @@ namespace Presentation.Controllers
 
         [HttpGet]
         [ProducesResponseType(
-            typeof(SuccessResponse<PagedResult<ListCourseResponse>>),
+            typeof(SuccessResponse<PagedResult<GetCourseDetailsResponse>>),
             StatusCodes.Status200OK
         )]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]

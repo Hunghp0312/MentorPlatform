@@ -22,27 +22,22 @@ namespace ApplicationCore.Repositories
             int pageSize
         )
         {
-            // Start with the basic queryable (in-memory, database, etc.)
-            var query = _dbSet.AsQueryable(); // Assuming _dbSet is your DbSet or equivalent
+            var query = _dbSet.AsQueryable();
 
-            // Apply the passed filter from service
             if (filter != null)
             {
                 query = filter(query);
             }
 
-            // Apply the Include logic for category (keeping this in the repo)
             query = query.Include(c => c.Category).Include(c => c.Status).Include(c => c.Level);
 
-            // Get total count of records
             var totalRecords = await query.CountAsync();
 
-            // Apply pagination
             var pagedCourses = await query
-                .OrderByDescending(c => c.Created) // Ensure you have an order by clause for consistent pagination
+                .OrderByDescending(c => c.Created)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync(); // Make sure you return a list of courses
+                .ToListAsync();
 
             return (pagedCourses, totalRecords);
         }

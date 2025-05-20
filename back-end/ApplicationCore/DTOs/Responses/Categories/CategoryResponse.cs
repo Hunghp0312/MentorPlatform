@@ -1,5 +1,4 @@
-﻿using ApplicationCore.Common;
-using ApplicationCore.DTOs.Common;
+﻿using ApplicationCore.DTOs.Common;
 using Infrastructure.Entities.Enum;
 
 namespace ApplicationCore.DTOs.Responses.Categories
