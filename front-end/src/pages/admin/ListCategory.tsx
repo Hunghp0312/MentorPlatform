@@ -66,7 +66,7 @@ const ListCategory = () => {
     const data = {
       name: category.name,
       description: category.description,
-      status: category.status,
+      statusId: Number(category.status),
     };
     setLoading(true);
     if (initialData === undefined) {

@@ -23,7 +23,7 @@ const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({
         id: initialData?.id || 0,
         name: initialData?.name || "",
         description: initialData?.description || "",
-        status: initialData?.status === 1 ? 1 : 0,
+        status: initialData?.status.id === 2 ? 2 : 1,
         courseCount: initialData?.courseCount || 0,
     });
 
@@ -49,7 +49,7 @@ const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({
 
         setFormState((prevState) => ({
             ...prevState,
-            [name]: checked ? 1 : 0,
+            [name]: checked ? 2 : 1,
         }));
     }
 
@@ -117,7 +117,7 @@ const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({
                     label="Active"
                     name="status"
                     onChange={handleCheckboxChange}
-                    checked={formState.status === 1}
+                    checked={formState.status === 2}
                 />
             </div>
 

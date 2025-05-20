@@ -9,5 +9,5 @@ export interface CategoryType {
 export interface CategoryCreateType {
   name: string;
   description: string;
-  status: number;
+  statusId: number;
 }
