@@ -41,7 +41,9 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCourse([FromBody] CreateCourseRequest createDto)
+        public async Task<IActionResult> CreateCourse(
+            [FromBody] CreateUpdateCourseRequest createDto
+        )
         {
             var result = await _courseService.CreateCourseAsync(createDto);
             return ToActionResult(result);
@@ -68,7 +70,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateCourse(
             Guid id,
-            [FromBody] CreateCourseRequest updateDto
+            [FromBody] CreateUpdateCourseRequest updateDto
         )
         {
             var result = await _courseService.UpdateCourseAsync(id, updateDto);
