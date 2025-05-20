@@ -12,9 +12,8 @@ namespace ApplicationCore.Extensions
             return new GetCourseDetailsResponse
             {
                 Id = course.Id,
-                Name = course.Title,
+                Name = course.Name,
                 Description = course.Description,
-                CategoryId = course.CategoryId,
                 Category = course.Category!.ToCourseCategory(),
                 Status = course.Status!,
                 Level = course.Level!,
@@ -25,15 +24,14 @@ namespace ApplicationCore.Extensions
             };
         }
 
-        public static Course ToCourseEntity(this CreateCourseRequest createRequest)
+        public static Course ToCourseEntity(this CreateUpdateCourseRequest createRequest)
         {
             return new Course
             {
                 Id = Guid.NewGuid(),
-                Title = createRequest.Title,
+                Name = createRequest.Name,
                 Description = createRequest.Description,
                 CategoryId = createRequest.CategoryId,
-                MentorId = createRequest.MentorId,
                 StatusId = createRequest.StatusId,
                 LevelId = createRequest.LevelId,
                 Duration = createRequest.Duration,
