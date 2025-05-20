@@ -1,13 +1,14 @@
-using ApplicationCore.Entity;
-using ApplicationCore.Interfaces.RepositoryInterfaces;
+using ApplicationCore.Repositories.RepositoryInterfaces;
+using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories
+namespace ApplicationCore.Repositories
 {
-    public class CourseRepo : BaseRepo<Course>, ICourseRepo
+    public class CourseRepository : BaseRepository<Course>, ICourseRepository
     {
-        public CourseRepo(AppDbContext context)
+        public CourseRepository(AppDbContext context)
             : base(context) { }
 
         public async Task<Course?> GetCourseWithCategoryAsync(Guid courseId)
@@ -31,7 +32,7 @@ namespace Infrastructure.Repositories
             }
 
             // Apply the Include logic for category (keeping this in the repo)
-            query = query.Include(c => c.Category);
+            query = query.Include(c => c.Category).Include(c => c.Status).Include(c => c.Level);
 
             // Get total count of records
             var totalRecords = await query.CountAsync();

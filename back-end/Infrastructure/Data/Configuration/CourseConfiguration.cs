@@ -1,5 +1,5 @@
-using ApplicationCore.Entity;
 using Infrastructure.Data.Seeding;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -17,10 +17,6 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(c => c.Description).IsRequired().HasMaxLength(1000);
 
-            builder.Property(c => c.Status).IsRequired();
-
-            builder.Property(c => c.Level).IsRequired();
-
             builder.Property(c => c.Duration).IsRequired().HasMaxLength(50);
 
             builder.Property(c => c.Created).IsRequired();
@@ -29,6 +25,14 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(c => c.Tags).IsRequired().HasMaxLength(100);
 
+            builder.HasOne(c=> c.Status)
+                .WithMany()
+                .HasForeignKey(c => c.StatusId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(c => c.Level)
+                .WithMany()
+                .HasForeignKey(c => c.LevelId)
+                .OnDelete(DeleteBehavior.Restrict);
             builder
                 .HasOne(c => c.Category)
                 .WithMany(c => c.Courses)

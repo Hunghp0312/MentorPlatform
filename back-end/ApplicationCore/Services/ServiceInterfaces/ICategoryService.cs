@@ -1,9 +1,10 @@
 ﻿using ApplicationCore.Common;
-using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
+using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
 
-namespace ApplicationCore.Interfaces.ServiceInterfaces
+namespace ApplicationCore.Services.ServiceInterfaces
 {
     public interface ICategoryService
     {

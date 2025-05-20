@@ -15,7 +15,7 @@ namespace ApplicationCore.Common
         public static List<string> ConvertStringToList(string tagsString)
         {
             if (string.IsNullOrWhiteSpace(tagsString))
-                return new List<string>();
+                return [];
 
             return tagsString
                 .Split(Delimiter, StringSplitOptions.RemoveEmptyEntries)

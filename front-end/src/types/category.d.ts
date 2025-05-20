@@ -3,11 +3,11 @@ export interface CategoryType {
   name: string;
   description: string;
   courseCount: number;
-  status: number;
+  status: EnumType;
 }
 
 export interface CategoryCreateType {
   name: string;
   description: string;
-  status: number;
+  statusId: number;
 }

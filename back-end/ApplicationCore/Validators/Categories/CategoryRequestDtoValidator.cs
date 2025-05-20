@@ -1,8 +1,8 @@
 ﻿using ApplicationCore.Constants;
-using ApplicationCore.DTOs.Category;
+using ApplicationCore.DTOs.Requests.Categories;
 using FluentValidation;
 
-namespace ApplicationCore.Validators.Category
+namespace ApplicationCore.Validators.Categories
 {
     public class CategoryRequestDtoValidator : AbstractValidator<CategoryRequest>
     {
@@ -16,8 +16,8 @@ namespace ApplicationCore.Validators.Category
                 .NotEmpty().WithMessage(ValidationMessages.CategoryDescriptionRequired)
                 .MaximumLength(1000).WithMessage(ValidationMessages.CategoryDescriptionMaxLength);
 
-            RuleFor(x => x.Status)
-                 .IsInEnum().WithMessage(ValidationMessages.CategoryStatusInvalid);
+            RuleFor(x => x.StatusId)
+                 .InclusiveBetween(1, 3).WithMessage(ValidationMessages.CategoryStatusInvalid);
         }
     }
 }

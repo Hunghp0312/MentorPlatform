@@ -1,22 +1,23 @@
 ﻿using ApplicationCore.Common;
-using ApplicationCore.DTOs.Category;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
-using ApplicationCore.Entity;
 using ApplicationCore.Extensions;
-using ApplicationCore.Interfaces;
-using ApplicationCore.Interfaces.RepositoryInterfaces;
-using ApplicationCore.Interfaces.ServiceInterfaces;
+using ApplicationCore.Repositories.RepositoryInterfaces;
+using ApplicationCore.Services.ServiceInterfaces;
+using Infrastructure.Entities;
 using System.Net;
+using Infrastructure.Data;
+using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
 
 namespace ApplicationCore.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly ICategoryRepo _categoryRepo;
+        private readonly ICategoryRepository _categoryRepo;
         private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryService(ICategoryRepo categoryRepo, IUnitOfWork unitOfWork)
+        public CategoryService(ICategoryRepository categoryRepo, IUnitOfWork unitOfWork)
         {
             _categoryRepo = categoryRepo;
             _unitOfWork = unitOfWork;
@@ -34,7 +35,7 @@ namespace ApplicationCore.Services
                 Id = Guid.NewGuid(),
                 Name = createDto.Name,
                 Description = createDto.Description,
-                Status = createDto.Status,
+                StatusId = createDto.StatusId,
             };
 
             await _categoryRepo.AddAsync(category);
@@ -107,7 +108,7 @@ namespace ApplicationCore.Services
 )
         {
             Func<IQueryable<Category>, IQueryable<Category>>? filter = null;
-            if (!string.IsNullOrEmpty(parameters.Query) || !string.IsNullOrEmpty(parameters.Status))
+            if (!string.IsNullOrEmpty(parameters.Query) || parameters.Status.HasValue)
             {
                 filter = q =>
                 {
@@ -116,9 +117,9 @@ namespace ApplicationCore.Services
                         q = q.Where(c => c.Name.Contains(parameters.Query) ||
                                         c.Description.Contains(parameters.Query));
                     }
-                    if (!string.IsNullOrEmpty(parameters.Status) && Enum.TryParse(parameters.Status, true, out CategoryStatus isActive))
+                    if (parameters.Status.HasValue)
                     {
-                        q = q.Where(c => c.Status == isActive);
+                        q = q.Where(c => c.StatusId == parameters.Status);
                     }
                     return q;
                 };

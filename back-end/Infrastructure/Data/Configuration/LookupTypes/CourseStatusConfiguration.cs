@@ -1,9 +1,7 @@
-using ApplicationCore.Entities;
-using ApplicationCore.Entities.Enum;
-using Infrastructure.Data.Configuration.LookupTypes;
+using Infrastructure.Entities.Enum;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Data.Configuration
+namespace Infrastructure.Data.Configuration.LookupTypes
 {
     public class CourseStatusConfiguration : BaseTypeConfiguration<CourseStatus>
     {

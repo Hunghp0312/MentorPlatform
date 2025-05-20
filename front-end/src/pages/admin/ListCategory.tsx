@@ -53,10 +53,9 @@ const ListCategory = () => {
 
   const statusOptions = [
     { value: "", label: "All" },
-    { value: "0", label: "Inactive" },
-    { value: "1", label: "Active" },
-
-  ]
+    { value: "1", label: "Inactive" },
+    { value: "2", label: "Active" },
+  ];
   // Handlers
   const handleEdit = (category: CategoryType) => {
     setInitialData(category);
@@ -67,9 +66,9 @@ const ListCategory = () => {
     const data = {
       name: category.name,
       description: category.description,
-      status: category.status,
+      statusId: Number(category.status),
     };
-    setLoading(true)
+    setLoading(true);
     if (initialData === undefined) {
       try {
         await categoryService.createCategory(data);
@@ -108,13 +107,12 @@ const ListCategory = () => {
       setSearchTerm(e.target.value);
     }
   };
-    useEffect(() => {
+  useEffect(() => {
     if (searchDebounced) {
       setSearchTerm(searchDebounced);
       setPageIndex(1);
     }
   }, [searchDebounced]);
-
 
   const handleOnclose = () => {
     setOpenDialog(false);
@@ -139,9 +137,7 @@ const ListCategory = () => {
     }
   };
   if (loading) {
-    return (
-      <LoadingOverlay />
-    )
+    return <LoadingOverlay />;
   }
 
   return (
@@ -191,10 +187,7 @@ const ListCategory = () => {
           data={categories}
           columns={getCategoryColumns}
           keyField="id"
-          actions={getCategoryActions(
-            handleEdit,
-            handleDelete
-          )}
+          actions={getCategoryActions(handleEdit, handleDelete)}
           pagination
           pageSize={pageSize}
           setPageSize={setPageSize}

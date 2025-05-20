@@ -1,5 +1,6 @@
-﻿using ApplicationCore.DTOs.Category;
-using ApplicationCore.Entity;
+﻿using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
+using Infrastructure.Entities;
 
 namespace ApplicationCore.Extensions
 {
@@ -46,7 +47,7 @@ namespace ApplicationCore.Extensions
                 Id = Guid.NewGuid(),
                 Name = dto.Name,
                 Description = dto.Description,
-                Status = dto.Status,
+                StatusId = dto.StatusId,
             };
         }
 
@@ -66,7 +67,7 @@ namespace ApplicationCore.Extensions
 
             existingCategory.Name = dto.Name;
             existingCategory.Description = dto.Description;
-            existingCategory.Status = dto.Status;
+            existingCategory.StatusId = dto.StatusId;
         }
     }
 }

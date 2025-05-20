@@ -1,13 +1,14 @@
-using ApplicationCore.Entity;
-using ApplicationCore.Interfaces.RepositoryInterfaces;
+using ApplicationCore.Repositories.RepositoryInterfaces;
+using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Repositories
+namespace ApplicationCore.Repositories
 {
-    public class CategoryRepo : BaseRepo<Category>, ICategoryRepo
+    public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
     {
-        public CategoryRepo(AppDbContext context)
+        public CategoryRepository(AppDbContext context)
             : base(context) { }
 
         public async Task<bool> ExistsByNameAsync(string name)
@@ -40,6 +41,7 @@ namespace Infrastructure.Repositories
         {
             var queryable = _dbSet
                 .Include(c => c.Courses)
+                .Include(c => c.Status)
                 .AsQueryable();
 
             if (filter != null)

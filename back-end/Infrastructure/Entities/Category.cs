@@ -1,14 +1,15 @@
-using ApplicationCore.Common;
+using Infrastructure.Entities.Enum;
 
-namespace ApplicationCore.Entity
+namespace Infrastructure.Entities
 {
     public class Category
     {
         public Guid Id { get; set; }
         public required string Name { get; set; }
         public required string Description { get; set; }
-        public CategoryStatus Status { get; set; }
-        public ICollection<Course> Courses { get; set; } = new List<Course>();
+        public required int StatusId { get; set; }
+        public CategoryStatus? Status { get; set; }
+        public ICollection<Course> Courses { get; set; } = [];
         public int CourseCount => Courses?.Count ?? 0;
     }
 }

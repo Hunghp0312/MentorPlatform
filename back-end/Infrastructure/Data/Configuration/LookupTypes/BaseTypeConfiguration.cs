@@ -1,4 +1,4 @@
-using ApplicationCore.Entities.Enum;
+using Infrastructure.Entities.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

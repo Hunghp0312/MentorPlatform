@@ -1,7 +1,8 @@
-﻿using ApplicationCore.DTOs.Category;
-using ApplicationCore.DTOs.Common;
+﻿using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
-using ApplicationCore.Interfaces.ServiceInterfaces;
+using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
+using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers

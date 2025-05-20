@@ -1,7 +1,4 @@
-﻿using ApplicationCore.Interfaces;
-using ApplicationCore.Interfaces.RepositoryInterfaces;
-using Infrastructure.Data.Context;
-using Infrastructure.Repositories;
+﻿using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructure.Data
