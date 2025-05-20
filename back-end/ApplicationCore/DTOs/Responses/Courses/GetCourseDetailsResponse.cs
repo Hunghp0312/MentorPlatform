@@ -7,7 +7,7 @@ namespace ApplicationCore.DTOs.Responses.Courses
     {
         public required Guid CategoryId { get; set; }
         public required string CategoryName { get; set; }
-        public required CourseStatus Status { get; set; }
+        public CourseStatus? Status { get; set; }
         public required CourseLevel Level { get; set; }
         public required string Duration { get; set; }
         public DateTime Created { get; set; }

@@ -18,7 +18,7 @@ namespace ApplicationCore.Extensions
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
-                Status = category.Status?.Name,
+                Status = category.Status,
                 CourseCount = category.CourseCount,
             };
         }
