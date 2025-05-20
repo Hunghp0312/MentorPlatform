@@ -1,14 +1,14 @@
 ﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
+using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
 using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
+using Infrastructure.Data;
 using Infrastructure.Entities;
 using System.Net;
-using Infrastructure.Data;
-using ApplicationCore.DTOs.Requests.Categories;
-using ApplicationCore.DTOs.Responses.Categories;
 
 namespace ApplicationCore.Services
 {
@@ -40,7 +40,9 @@ namespace ApplicationCore.Services
 
             await _categoryRepo.AddAsync(category);
             await _unitOfWork.SaveChangesAsync();
-            var responseDto = category.ToCategoryResponseDto();
+
+            var newCreatedCategory = await _categoryRepo.GetByIdAsync(category.Id);
+            var responseDto = newCreatedCategory?.ToCategoryResponseDto();
 
             return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
         }
@@ -56,6 +58,11 @@ namespace ApplicationCore.Services
             if (existingCategory == null)
             {
                 return OperationResult<object>.NotFound($"Category with ID '{id}' was not found.");
+            }
+
+            if (existingCategory.CourseCount != 0)
+            {
+                return OperationResult<object>.BadRequest($"Can not update category as it has associated courses");
             }
 
             if (await _categoryRepo.ExistsByNameAsync(updateDto.Name, id))

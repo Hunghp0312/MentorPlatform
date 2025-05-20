@@ -32,6 +32,7 @@ namespace ApplicationCore.Repositories
         {
             return await _dbSet
                 .Include(c => c.Courses)
+                .Include(c => c.Status)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
         public override async Task<(ICollection<Category>, int)> GetPagedAsync(
