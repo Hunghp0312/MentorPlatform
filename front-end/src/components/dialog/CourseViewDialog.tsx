@@ -128,10 +128,10 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
       {viewBlock("Description", courseDetails.description)}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Status Field */}
-        {viewBlock("Enrolled Students", courseDetails.students)}
+        {viewBlock("Enrolled Students", courseDetails.students ?? 0)}
 
         {/* Level Field */}
-        {viewBlock("Completion Rate", courseDetails.completion)}
+        {viewBlock("Completion Rate", courseDetails.completion ?? 0 + "%")}
       </div>
       {/* Action Button */}
       <div className="flex justify-end pt-4 gap-4">

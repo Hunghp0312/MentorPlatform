@@ -140,6 +140,10 @@ const ComboBox: React.FC<ComboBoxProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
+    if (newQuery.length > 100) {
+      setQuery(newQuery.slice(0, 100));
+      return;
+    }
     setQuery(newQuery);
     setIsOpen(true);
     setHighlightedIndex(0);

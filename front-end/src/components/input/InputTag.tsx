@@ -33,7 +33,8 @@ const InputTag: React.FC<TagInputProps> = ({
     if ((e.key === "Enter" || e.key === ",") && input.trim() !== "") {
       e.preventDefault();
       const newTag = input.trim();
-      if (tags.includes(newTag)) {
+      const tagsTrimmed = tags.map((tag) => tag.toLowerCase());
+      if (tagsTrimmed.includes(newTag.toLowerCase())) {
         setErrorMessage("Tag is existed");
         return;
       }

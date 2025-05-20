@@ -131,7 +131,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   ];
   const statusOptions = [
     { value: 1, label: "Draft" },
-    { value: 2, label: "Publish" },
+    { value: 2, label: "Published" },
     { value: 3, label: "Archived" },
   ];
   const handleBlur = (
