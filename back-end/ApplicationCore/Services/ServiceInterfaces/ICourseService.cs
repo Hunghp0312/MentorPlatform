@@ -17,10 +17,10 @@ namespace ApplicationCore.Services.ServiceInterfaces
         );
         Task<OperationResult<GetCourseDetailsResponse>> DeleteCourseAsync(Guid courseId);
         Task<OperationResult<GetCourseDetailsResponse>> GetCourseDetailsByIdAsync(Guid courseId);
-        Task<OperationResult<ICollection<ListCourseResponse>>> GetCourseByMentorIdAsync(
+        Task<OperationResult<ICollection<GetCourseDetailsResponse>>> GetCourseByMentorIdAsync(
             Guid mentorId
         );
-        Task<OperationResult<PagedResult<ListCourseResponse>>> GetPagedCourseAsync(
+        Task<OperationResult<PagedResult<GetCourseDetailsResponse>>> GetPagedCourseAsync(
             CourseQueryParameters req
         );
     }

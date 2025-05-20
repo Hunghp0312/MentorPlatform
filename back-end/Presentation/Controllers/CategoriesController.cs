@@ -28,9 +28,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCategory(
-            [FromBody] CategoryRequest createDto
-        )
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequest createDto)
         {
             var result = await _categoryService.CreateCategoryAsync(createDto);
 
@@ -38,10 +36,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(
-            typeof(SuccessResponse<CategoryResponse>),
-            StatusCodes.Status200OK
-        )]
+        [ProducesResponseType(typeof(SuccessResponse<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -82,7 +77,7 @@ namespace Presentation.Controllers
             return ToActionResult(categories);
         }
 
-        [HttpGet]
+        [HttpGet("paged")]
         [ProducesResponseType(
             typeof(SuccessResponse<PagedResult<CategoryResponse>>),
             StatusCodes.Status200OK
