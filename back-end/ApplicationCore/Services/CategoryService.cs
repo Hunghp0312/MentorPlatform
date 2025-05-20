@@ -1,9 +1,11 @@
 ﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
+using ApplicationCore.DTOs.Requests.Categories;
 using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
+using Infrastructure.Data;
 using Infrastructure.Entities;
 using System.Net;
 using Infrastructure.Data;
@@ -40,7 +42,10 @@ namespace ApplicationCore.Services
 
             await _categoryRepo.AddAsync(category);
             await _unitOfWork.SaveChangesAsync();
-            var responseDto = category.ToCategoryResponseDto();
+
+            var newCreatedCategory = await _categoryRepo.GetByIdAsync(category.Id);
+            // tạo api get ở đây
+            var responseDto = newCreatedCategory.ToCategoryResponseDto();
 
             return OperationResult<CategoryResponse>.Created(responseDto, "Category created successfully.");
         }
