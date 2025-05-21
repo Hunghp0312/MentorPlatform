@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250520155848_initialDb")]
+    partial class initialDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -360,23 +363,6 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("ApplicationStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Pending"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Rejected"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Approved"
-                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Enum.CategoryStatus", b =>
@@ -756,9 +742,14 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("ArenaOfExpertiseId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("UserProfileId", "ArenaOfExpertiseId");
 
                     b.HasIndex("ArenaOfExpertiseId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("UserArenaOfExpertise");
                 });
@@ -824,6 +815,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("UserGoal")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -976,6 +970,10 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.User", null)
+                        .WithMany("UserArenaOfExpertises")
+                        .HasForeignKey("UserId");
+
                     b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
                         .WithMany("UserArenaOfExpertises")
                         .HasForeignKey("UserProfileId")
@@ -1060,6 +1058,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("ReviewedMentorApplications");
 
                     b.Navigation("SubmittedMentorApplications");
+
+                    b.Navigation("UserArenaOfExpertises");
 
                     b.Navigation("UserProfile");
 
