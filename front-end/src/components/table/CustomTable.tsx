@@ -9,6 +9,7 @@ export type DataAction<T> = {
   icon?: React.ReactNode;
   onClick: (row: T) => void;
   className?: string;
+  buttonName?: string;
 };
 
 export type BulkAction<T> = {
@@ -49,6 +50,8 @@ export type DataTableProps<T> = {
   setSelectedRows?: (selectedRows: T[]) => void;
   skeletonRows?: number;
   isLoading?: boolean;
+  paginationClassName?: string;
+  onRowClick?: (row: T) => void;
 };
 
 const DataTable = <T extends Record<string, any>>({
@@ -76,6 +79,8 @@ const DataTable = <T extends Record<string, any>>({
   setSelectedRows = () => {},
   skeletonRows = 5,
   isLoading = false,
+  paginationClassName = "",
+  onRowClick,
 }: DataTableProps<T>) => {
   // Pagination state
   // Selection state
@@ -158,6 +163,9 @@ const DataTable = <T extends Record<string, any>>({
                   action.className ||
                   "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 transition-colors"
                 }`}
+                {...(action.buttonName
+                  ? { "button-name": action.buttonName }
+                  : {})}
               >
                 {action.icon && (
                   <span className={action.label ? "mr-1" : ""}>
@@ -242,15 +250,25 @@ const DataTable = <T extends Record<string, any>>({
                 />
               ))
             ) : data.length > 0 ? (
-              data.map((row) => {
+              data.map((row, index) => {
                 const isSelected = isRowSelected(row);
                 return (
                   <tr
                     key={String(row[keyField])}
-                    onClick={() => selectable && toggleRowSelection(row)}
+                    onClick={() => {
+                      if (selectable) {
+                        toggleRowSelection(row);
+                      }
+                      if (onRowClick) {
+                        onRowClick(row); // Call custom row click handler
+                      }
+                    }}
                     className={`border-b border-gray-800 hover:bg-gray-800/50 ${
                       isSelected ? "bg-gray-800" : ""
-                    } ${rowClassName} ${selectable ? "cursor-pointer" : ""}`}
+                    } ${rowClassName} ${
+                      selectable || onRowClick ? "cursor-pointer" : ""
+                    }`}
+                    row-index-test={`row-${index}`}
                   >
                     {/* Checkbox cell */}
                     {selectable && (
@@ -304,7 +322,7 @@ const DataTable = <T extends Record<string, any>>({
       </div>
 
       {/* Pagination */}
-      {pagination && (
+      {pagination && data.length > 0 && (
         <TableFooter
           pageIndex={pageIndex}
           pageSize={pageSize}
@@ -312,6 +330,7 @@ const DataTable = <T extends Record<string, any>>({
           totalItems={totalItems}
           setPageSize={setPageSize}
           pageSizeOptions={pageSizeOptions}
+          className={paginationClassName || ""}
         ></TableFooter>
       )}
     </div>

@@ -251,16 +251,19 @@ const ListCourse = () => {
       icon: <View className="h-4 w-4" />,
       onClick: handleView,
       className: "bg-blue-600 hover:bg-blue-700 text-white",
+      buttonName: "view",
     },
     {
       icon: <Edit className="h-4 w-4" />,
       onClick: handleEdit,
       className: "bg-amber-600 hover:bg-amber-700 text-white",
+      buttonName: "edit",
     },
     {
       icon: <Trash2 className="h-4 w-4" />,
       onClick: handleDelete,
       className: "bg-red-600 hover:bg-red-700 text-white",
+      buttonName: "delete",
     },
   ];
 

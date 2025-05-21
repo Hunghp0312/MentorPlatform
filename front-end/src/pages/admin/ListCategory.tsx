@@ -13,7 +13,6 @@ import { categoryService } from "../../services/category.service";
 import useDebounce from "../../hooks/usedebounce";
 import { toast } from "react-toastify";
 import InputCustom from "../../components/input/InputCustom";
-import LoadingOverlay from "../../components/loading/LoadingOverlay";
 
 const ListCategory = () => {
   const [categories, setCategories] = useState<CategoryType[]>([]);
@@ -136,9 +135,7 @@ const ListCategory = () => {
       }
     }
   };
-  if (loading) {
-    return <LoadingOverlay />;
-  }
+  
 
   return (
     <main className="p-4 container mx-auto ">
@@ -194,6 +191,7 @@ const ListCategory = () => {
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           totalItems={totalItems}
+          isLoading={loading}
         />
       </div>
       <CustomModal

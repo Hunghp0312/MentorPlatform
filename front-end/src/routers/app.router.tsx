@@ -4,6 +4,7 @@ import ListCategory from "../pages/admin/ListCategory";
 import ListCourse from "../pages/admin/ListCourse";
 import { pathName } from "../constants/pathName";
 import Registration from "../pages/auth/Registration";
+import ListApproval from "../pages/admin/ListApproval";
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -15,6 +16,7 @@ const AppRouter = () => {
         { path: pathName.home, element: <div>Home</div> },
         { path: pathName.category, element: <ListCategory /> },
         { path: pathName.course, element: <ListCourse /> },
+        { path: "approval", element: <ListApproval /> },
       ],
     },
   ]);

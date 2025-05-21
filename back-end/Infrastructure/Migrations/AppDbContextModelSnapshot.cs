@@ -71,21 +71,21 @@ namespace Infrastructure.Migrations
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                             Description = "Courses related to software development and programming languages.",
                             Name = "Programming",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             Description = "Frontend and backend development tutorials and courses.",
                             Name = "Web Development",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Description = "Learn data analysis, visualization, and machine learning.",
                             Name = "Data Science",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
@@ -99,14 +99,14 @@ namespace Infrastructure.Migrations
                             Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                             Description = "Introduction to relational and non-relational databases.",
                             Name = "Databases",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                             Description = "Courses on HTML, CSS, JavaScript and modern frameworks.",
                             Name = "Frontend",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
@@ -120,7 +120,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             Description = "Build apps for iOS and Android platforms.",
                             Name = "Mobile Development",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
@@ -134,7 +134,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("44444444-4444-4444-4444-444444444444"),
                             Description = "Understand security principles and ethical hacking.",
                             Name = "Cybersecurity",
-                            StatusId = 2
+                            StatusId = 1
                         });
                 });
 
