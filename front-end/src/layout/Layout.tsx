@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Navbar from "./Navbar";
-import { Book, BookCopy } from "lucide-react";
+import { Book, BookCopy, UserCheck } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -18,6 +18,11 @@ export default function Layout() {
       label: "Courses",
       href: "/course",
     },
+    {
+      icon: <UserCheck size={20} />,
+      label: "Approvals",
+      href: "/approval",
+    },
   ];
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
@@ -27,8 +32,9 @@ export default function Layout() {
         navItems={navItems}
       />
       <main
-        className={`flex-1 transition-all duration-300 overflow-y-auto p-6 ${collapsed ? "ml-16" : "ml-64"
-          }`}
+        className={`flex-1 transition-all duration-300 overflow-y-auto p-6 ${
+          collapsed ? "ml-16" : "ml-64"
+        }`}
       >
         <div className="bg-gray-900 min-h-screen text-gray-200">
           <Outlet />
