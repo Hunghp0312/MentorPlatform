@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using ApplicationCore.Common;
+using ApplicationCore.DTOs.Requests.Registration;
+using ApplicationCore.DTOs.Responses.Registration;
 
 namespace ApplicationCore.Services.ServiceInterfaces
 {
-    public class IRegistrationService
+    public interface IRegistrationService
     {
-        
+        Task<OperationResult<RegistrationResponse>> RegisterAsync(RegistrationRequest request);
     }
 }

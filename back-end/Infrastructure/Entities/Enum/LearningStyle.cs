@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Entities.Enum
 {
-    public class LearningStyle
+    public class LearningStyle : EnumType
     {
-        
+        public LearningStyle() { }
     }
 }

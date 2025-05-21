@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace Infrastructure.Entities.Enum
 {
-    public class SessionFrequency
+    public class SessionFrequency : EnumType
     {
-        
+        public SessionFrequency() { }
     }
 }

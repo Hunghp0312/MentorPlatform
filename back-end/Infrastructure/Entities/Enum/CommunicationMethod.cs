@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Entities.Enum
 {
-    public class CommunicationMethod
+    public class CommunicationMethod : EnumType
     {
-        
+        public CommunicationMethod() { }
     }
 }
