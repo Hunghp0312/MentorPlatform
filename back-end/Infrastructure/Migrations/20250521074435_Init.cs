@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialDb : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,7 +19,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -81,8 +81,9 @@ namespace Infrastructure.Migrations
                 name: "Role",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,7 +108,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     StatusId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -128,7 +129,7 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
                     LastLogin = table.Column<DateTime>(type: "datetime2", nullable: true),
                     PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PasswordResetExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -143,7 +144,7 @@ namespace Infrastructure.Migrations
                         column: x => x.RoleId,
                         principalTable: "Role",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -196,7 +197,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ApplicantUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ApplicantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicationStatusId = table.Column<int>(type: "int", nullable: false),
                     MotivationStatement = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SubmissionDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
@@ -224,11 +225,35 @@ namespace Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_MentorApplication_User_ApplicantUserId",
-                        column: x => x.ApplicantUserId,
+                        name: "FK_MentorApplication_User_ApplicantId",
+                        column: x => x.ApplicantId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserArenaOfExpertise",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ArenaOfExpertiseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserArenaOfExpertise", x => new { x.UserId, x.ArenaOfExpertiseId });
+                    table.ForeignKey(
+                        name: "FK_UserArenaOfExpertise_ArenaOfExpertise_ArenaOfExpertiseId",
+                        column: x => x.ArenaOfExpertiseId,
+                        principalTable: "ArenaOfExpertise",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserArenaOfExpertise_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -236,8 +261,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PhotoUrl = table.Column<byte[]>(type: "varbinary(500)", maxLength: 500, nullable: true),
+                    PhotoData = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     ProfessionalSkill = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
@@ -376,34 +400,14 @@ namespace Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "UserArenaOfExpertise",
-                columns: table => new
+            migrationBuilder.InsertData(
+                table: "ApplicationStatus",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
                 {
-                    UserProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ArenaOfExpertiseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserArenaOfExpertise", x => new { x.UserProfileId, x.ArenaOfExpertiseId });
-                    table.ForeignKey(
-                        name: "FK_UserArenaOfExpertise_ArenaOfExpertise_ArenaOfExpertiseId",
-                        column: x => x.ArenaOfExpertiseId,
-                        principalTable: "ArenaOfExpertise",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserArenaOfExpertise_UserProfile_UserProfileId",
-                        column: x => x.UserProfileId,
-                        principalTable: "UserProfile",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserArenaOfExpertise_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id");
+                    { 1, "Pending" },
+                    { 2, "Rejected" },
+                    { 3, "Approved" }
                 });
 
             migrationBuilder.InsertData(
@@ -436,20 +440,30 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Role",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Admin" },
+                    { 2, "Learner" },
+                    { 3, "Mentor" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Category",
                 columns: new[] { "Id", "Description", "Name", "StatusId" },
                 values: new object[,]
                 {
                     { new Guid("11111111-1111-1111-1111-111111111111"), "Learn backend technologies and server-side programming.", "Backend", 1 },
-                    { new Guid("22222222-2222-2222-2222-222222222222"), "Build apps for iOS and Android platforms.", "Mobile Development", 2 },
+                    { new Guid("22222222-2222-2222-2222-222222222222"), "Build apps for iOS and Android platforms.", "Mobile Development", 1 },
                     { new Guid("33333333-3333-3333-3333-333333333333"), "Explore AWS, Azure, GCP and cloud infrastructure.", "Cloud Computing", 1 },
-                    { new Guid("44444444-4444-4444-4444-444444444444"), "Understand security principles and ethical hacking.", "Cybersecurity", 2 },
-                    { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Courses related to software development and programming languages.", "Programming", 2 },
-                    { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), "Frontend and backend development tutorials and courses.", "Web Development", 2 },
-                    { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), "Learn data analysis, visualization, and machine learning.", "Data Science", 2 },
+                    { new Guid("44444444-4444-4444-4444-444444444444"), "Understand security principles and ethical hacking.", "Cybersecurity", 1 },
+                    { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Courses related to software development and programming languages.", "Programming", 1 },
+                    { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), "Frontend and backend development tutorials and courses.", "Web Development", 1 },
+                    { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), "Learn data analysis, visualization, and machine learning.", "Data Science", 1 },
                     { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), "Courses on CI/CD, containers, and infrastructure automation.", "DevOps", 1 },
-                    { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), "Introduction to relational and non-relational databases.", "Databases", 2 },
-                    { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), "Courses on HTML, CSS, JavaScript and modern frameworks.", "Frontend", 2 }
+                    { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), "Introduction to relational and non-relational databases.", "Databases", 1 },
+                    { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), "Courses on HTML, CSS, JavaScript and modern frameworks.", "Frontend", 1 }
                 });
 
             migrationBuilder.InsertData(
@@ -468,12 +482,6 @@ namespace Infrastructure.Migrations
                     { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72848"), new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Learn the fundamentals of C#.", "3 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 1, new Guid("10000000-0000-0000-0000-000000000001"), "Intro to C#", 2, "C#,programming,fundamentals", null },
                     { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72849"), new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Containerize and deploy apps with Docker.", "3 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 3, new Guid("10000000-0000-0000-0000-000000000010"), "Docker for Developers", 1, "Docker,containers,devops,deployment", null }
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ApplicationStatus_Name",
-                table: "ApplicationStatus",
-                column: "Name",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ArenaOfExpertise_Name",
@@ -512,9 +520,9 @@ namespace Infrastructure.Migrations
                 column: "AdminReviewerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MentorApplication_ApplicantUserId",
+                name: "IX_MentorApplication_ApplicantId",
                 table: "MentorApplication",
-                column: "ApplicantUserId");
+                column: "ApplicantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MentorApplication_ApplicationStatusId",
@@ -535,12 +543,6 @@ namespace Infrastructure.Migrations
                 name: "IX_MentorWorkExperience_MentorApplicationId",
                 table: "MentorWorkExperience",
                 column: "MentorApplicationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Role_Name",
-                table: "Role",
-                column: "Name",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SupportingDocument_MentorApplicationId",
@@ -570,11 +572,6 @@ namespace Infrastructure.Migrations
                 column: "ArenaOfExpertiseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserArenaOfExpertise_UserId",
-                table: "UserArenaOfExpertise",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserTopicOfInterest_TopicId",
                 table: "UserTopicOfInterest",
                 column: "TopicId");
@@ -602,6 +599,9 @@ namespace Infrastructure.Migrations
                 name: "UserArenaOfExpertise");
 
             migrationBuilder.DropTable(
+                name: "UserProfile");
+
+            migrationBuilder.DropTable(
                 name: "UserTopicOfInterest");
 
             migrationBuilder.DropTable(
@@ -618,9 +618,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ArenaOfExpertise");
-
-            migrationBuilder.DropTable(
-                name: "UserProfile");
 
             migrationBuilder.DropTable(
                 name: "Topic");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250521031727_modifyData")]
-    partial class modifyData
+    [Migration("20250521074435_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,7 +51,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
@@ -75,21 +74,21 @@ namespace Infrastructure.Migrations
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                             Description = "Courses related to software development and programming languages.",
                             Name = "Programming",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             Description = "Frontend and backend development tutorials and courses.",
                             Name = "Web Development",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Description = "Learn data analysis, visualization, and machine learning.",
                             Name = "Data Science",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
@@ -103,14 +102,14 @@ namespace Infrastructure.Migrations
                             Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                             Description = "Introduction to relational and non-relational databases.",
                             Name = "Databases",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                             Description = "Courses on HTML, CSS, JavaScript and modern frameworks.",
                             Name = "Frontend",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
@@ -124,7 +123,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             Description = "Build apps for iOS and Android platforms.",
                             Name = "Mobile Development",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
@@ -138,7 +137,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("44444444-4444-4444-4444-444444444444"),
                             Description = "Understand security principles and ethical hacking.",
                             Name = "Cybersecurity",
-                            StatusId = 2
+                            StatusId = 1
                         });
                 });
 
@@ -354,15 +353,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("ApplicationStatus");
+                    b.ToTable("ApplicationStatus", (string)null);
 
                     b.HasData(
                         new
@@ -633,21 +629,37 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.Role", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
+                    b.ToTable("Role", (string)null);
 
-                    b.ToTable("Role");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Learner"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Mentor"
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
@@ -738,8 +750,8 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -753,13 +765,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
                 {
-                    b.Property<Guid>("UserProfileId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ArenaOfExpertiseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserProfileId", "ArenaOfExpertiseId");
+                    b.HasKey("UserId", "ArenaOfExpertiseId");
 
                     b.HasIndex("ArenaOfExpertiseId");
 
@@ -962,9 +974,9 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Role", "Role")
-                        .WithMany("Users")
+                        .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Role");
@@ -978,15 +990,15 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
+                    b.HasOne("Infrastructure.Entities.User", "User")
                         .WithMany("UserArenaOfExpertises")
-                        .HasForeignKey("UserProfileId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ArenaOfExpertise");
 
-                    b.Navigation("UserProfile");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
@@ -1045,11 +1057,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("SupportingDocuments");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Role", b =>
-                {
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.Topic", b =>
                 {
                     b.Navigation("UserTopicOfInterests");
@@ -1063,14 +1070,11 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("SubmittedMentorApplications");
 
+                    b.Navigation("UserArenaOfExpertises");
+
                     b.Navigation("UserProfile");
 
                     b.Navigation("UserTopicOfInterests");
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
-                {
-                    b.Navigation("UserArenaOfExpertises");
                 });
 #pragma warning restore 612, 618
         }

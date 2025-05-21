@@ -1,9 +1,11 @@
-﻿namespace Infrastructure.Entities
+﻿using Infrastructure.Entities.Enum;
+
+namespace Infrastructure.Entities
 {
-    public class Role
+    public class Role : EnumType
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public virtual ICollection<User> Users { get; set; } = new List<User>();
+        public Role()
+        {
+        }
     }
 }

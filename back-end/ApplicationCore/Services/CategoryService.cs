@@ -1,5 +1,4 @@
-﻿using System.Net;
-using ApplicationCore.Common;
+﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Categories;
@@ -9,6 +8,7 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using System.Net;
 
 namespace ApplicationCore.Services
 {
@@ -139,8 +139,8 @@ namespace ApplicationCore.Services
                     if (!string.IsNullOrEmpty(parameters.Query))
                     {
                         q = q.Where(c =>
-                            c.Name.Contains(parameters.Query)
-                            || c.Description.Contains(parameters.Query)
+                           (c.Name != null && c.Name.Contains(parameters.Query))
+                            || (c.Description != null && c.Description.Contains(parameters.Query))
                         );
                     }
                     if (parameters.Status.HasValue)
@@ -182,7 +182,7 @@ namespace ApplicationCore.Services
 
             if (categoryToDelete.Courses != null && categoryToDelete.Courses.Any())
             {
-                return OperationResult<object>.Conflict(
+                return OperationResult<object>.BadRequest(
                     $"Cannot delete category '{categoryToDelete.Name}' as it has associated courses. Please remove or reassign courses first."
                 );
             }

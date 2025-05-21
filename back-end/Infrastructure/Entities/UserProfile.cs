@@ -20,6 +20,5 @@
         public int? CommunicationMethod { get; set; }
 
         public virtual User User { get; set; } = null!;
-        public virtual ICollection<UserArenaOfExpertise> UserArenaOfExpertises { get; set; } = new List<UserArenaOfExpertise>();
     }
 }
