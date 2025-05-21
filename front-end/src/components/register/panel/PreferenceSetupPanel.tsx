@@ -4,6 +4,7 @@ interface Props {
   preferences: string;
   setPreferences: (v: string) => void;
   onSubmit: () => void;
+  onBack: () => void;
 }
 
 const PreferenceSetupPanel: React.FC<Props> = ({
