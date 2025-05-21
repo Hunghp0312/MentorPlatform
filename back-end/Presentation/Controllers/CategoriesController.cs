@@ -87,7 +87,6 @@ namespace Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
