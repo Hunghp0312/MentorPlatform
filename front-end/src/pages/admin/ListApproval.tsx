@@ -90,7 +90,7 @@ const ListApproval = () => {
   const [statusFilter, setStatusFilter] = useState("");
   //pagination
   const [totalItems, setTotalItems] = useState(0);
-  const [errors, setErrors] = useState<string | undefined>();
+  // const [errors, setErrors] = useState<string | undefined>();
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
@@ -164,28 +164,6 @@ const ListApproval = () => {
     },
   ];
 
-  // Handle search input
-  const handleChangeSearch = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
-    if ("value" in e.target && e.target instanceof HTMLInputElement) {
-      if (e.target.value.length > 1000) {
-        setErrors("Search term must not exceed 1000 characters.");
-        return;
-      }
-      setErrors(undefined);
-      setSearchTerm(e.target.value);
-      setPageIndex(1);
-    }
-  };
-
-  // Handle row selection
-  const handleSelectRow = (row: ApprovalType) => {
-    setSelectedApproval(row);
-  };
-
   // Mock action handlers
   const handleApprove = (approval: ApprovalType) => {
     if (window.confirm(`Approve application for "${approval.name}"?`)) {
@@ -222,7 +200,7 @@ const ListApproval = () => {
       console.log(`Requesting info for ${selectedApproval.name}`);
     }
   };
-  const handleSelectApproval = (approval: ApprovalType) => {
+  const handleSelectApplicants = (approval: ApprovalType) => {
     setSelectedApproval(approval);
   };
   const handleSearch = (
@@ -235,28 +213,6 @@ const ListApproval = () => {
       setPageIndex(1);
     }
   };
-  const actions = [
-    {
-      icon: <span className="text-xs">Approve</span>,
-      onClick: handleApprove,
-      className: "bg-green-600 hover:bg-green-700 text-white",
-    },
-    {
-      icon: <span className="text-xs">Reject</span>,
-      onClick: handleReject,
-      className: "bg-red-600 hover:bg-red-700 text-white",
-    },
-    {
-      icon: <span className="text-xs">Request Info</span>,
-      onClick: handleRequestInfo, // Trigger handleSelectApproval on row click
-      className: "bg-blue-600 hover:bg-blue-700 text-white", // Hide the button
-    },
-    // {
-    //   icon: <span className="text-xs">Request Info</span>,
-    //   onClick: handleSelectApproval, // Trigger handleSelectApproval on row click
-    //   className: "bg-yellow-600 hover:bg-yellow-700 text-white", // Hide the button
-    // },
-  ];
   if (loading) {
     return <LoadingOverlay />;
   }
@@ -318,21 +274,11 @@ const ListApproval = () => {
                     setPageIndex={setPageIndex}
                     totalItems={totalItems}
                     paginationClassName="pr-3 pl-3"
-                    onRowClick={handleSelectApproval}
+                    onRowClick={handleSelectApplicants}
                   />
                 </div>
               </div>
             </div>
-            {/* <div className="w-1/2">
-              <div className="bg-gray-700 rounded-lg p-8 text-center text-gray-400">
-                <div className="flex flex-col items-center pb-2">
-                  {<ClipboardList size={40} className="text-gray-500" />}
-                  <p className="pt-3 text-[14px]">
-                    Select an Applications to view detail
-                  </p>
-                </div>
-              </div>
-            </div> */}
             <div className="w-1/2">
               {selectedApproval ? (
                 <div className="bg-gray-700 rounded-lg p-4 text-gray-300">
