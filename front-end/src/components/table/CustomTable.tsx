@@ -304,7 +304,7 @@ const DataTable = <T extends Record<string, any>>({
       </div>
 
       {/* Pagination */}
-      {pagination && (
+      {pagination && data.length > 0 && (
         <TableFooter
           pageIndex={pageIndex}
           pageSize={pageSize}
