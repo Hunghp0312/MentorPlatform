@@ -13,7 +13,9 @@ interface InputProps {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => void;
-  onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (
+    event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   errorMessage?: string;
   showPassword?: boolean;
   setShowPassword?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -49,6 +51,7 @@ const InputCustom: React.FC<InputProps> = ({
             errorMessage ? "border-red-500" : "border-gray-700"
           } rounded-md text-white focus:outline-none sm:text-sm focus:ring-1 focus:ring-orange-500 ${className}`}
           placeholder={placeholder}
+          onBlur={onBlur}
         />
       );
     }

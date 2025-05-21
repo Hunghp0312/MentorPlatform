@@ -139,8 +139,8 @@ namespace ApplicationCore.Services
                     if (!string.IsNullOrEmpty(parameters.Query))
                     {
                         q = q.Where(c =>
-                            c.Name.Contains(parameters.Query)
-                            || c.Description.Contains(parameters.Query)
+                           (c.Name != null && c.Name.Contains(parameters.Query))
+                            || (c.Description != null && c.Description.Contains(parameters.Query))
                         );
                     }
                     if (parameters.Status.HasValue)
