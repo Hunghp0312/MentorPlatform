@@ -12,6 +12,7 @@ using Infrastructure.Data.Context;
 using Infrastructure.Options;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Presentation.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,7 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         connectionString,
         sqlServerOptionsAction: sqlOptions =>
         {
-            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName); // Quan trọng: chỉ định Assembly chứa migrations
+            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
         }
     )
 );
@@ -45,8 +46,8 @@ builder
     {
         options.JsonSerializerOptions.Converters.Add(new TrimmingJsonStringConverter());
     });
+builder.Services.ConfigureApiBehavior();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
