@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class initialDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -313,6 +313,27 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Resource",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Type = table.Column<int>(type: "int", nullable: true),
+                    ResourceCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Resource", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Resource_Course_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Course",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MentorCertification",
                 columns: table => new
                 {
@@ -382,7 +403,8 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ResourceId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     FileType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
@@ -398,6 +420,12 @@ namespace Infrastructure.Migrations
                         principalTable: "MentorApplication",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SupportingDocument_Resource_ResourceId",
+                        column: x => x.ResourceId,
+                        principalTable: "Resource",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -408,6 +436,21 @@ namespace Infrastructure.Migrations
                     { 1, "Pending" },
                     { 2, "Rejected" },
                     { 3, "Approved" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ArenaOfExpertise",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c1"), "Leadership" },
+                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c2"), "Programming" },
+                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c3"), "Design" },
+                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c4"), "Marketing" },
+                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c5"), "Data Science" },
+                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c6"), "Business" },
+                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c7"), "Project Management" },
+                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c8"), "Communication" }
                 });
 
             migrationBuilder.InsertData(
@@ -447,6 +490,21 @@ namespace Infrastructure.Migrations
                     { 1, "Admin" },
                     { 2, "Learner" },
                     { 3, "Mentor" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Topic",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d1"), "Career Development" },
+                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d2"), "Technical Skills" },
+                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d3"), "Leadership" },
+                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d4"), "Communication" },
+                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d5"), "Work-Life Balance" },
+                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d6"), "Industry Insights" },
+                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d7"), "Networking" },
+                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d8"), "Entrepreneurship" }
                 });
 
             migrationBuilder.InsertData(
@@ -545,9 +603,19 @@ namespace Infrastructure.Migrations
                 column: "MentorApplicationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Resource_CourseId",
+                table: "Resource",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SupportingDocument_MentorApplicationId",
                 table: "SupportingDocument",
                 column: "MentorApplicationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportingDocument_ResourceId",
+                table: "SupportingDocument",
+                column: "ResourceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Topic_Name",
@@ -581,9 +649,6 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Course");
-
-            migrationBuilder.DropTable(
                 name: "MentorCertification");
 
             migrationBuilder.DropTable(
@@ -605,6 +670,24 @@ namespace Infrastructure.Migrations
                 name: "UserTopicOfInterest");
 
             migrationBuilder.DropTable(
+                name: "MentorApplication");
+
+            migrationBuilder.DropTable(
+                name: "Resource");
+
+            migrationBuilder.DropTable(
+                name: "ArenaOfExpertise");
+
+            migrationBuilder.DropTable(
+                name: "Topic");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationStatus");
+
+            migrationBuilder.DropTable(
+                name: "Course");
+
+            migrationBuilder.DropTable(
                 name: "Category");
 
             migrationBuilder.DropTable(
@@ -614,22 +697,10 @@ namespace Infrastructure.Migrations
                 name: "CourseStatus");
 
             migrationBuilder.DropTable(
-                name: "MentorApplication");
-
-            migrationBuilder.DropTable(
-                name: "ArenaOfExpertise");
-
-            migrationBuilder.DropTable(
-                name: "Topic");
+                name: "User");
 
             migrationBuilder.DropTable(
                 name: "CategoryStatus");
-
-            migrationBuilder.DropTable(
-                name: "ApplicationStatus");
-
-            migrationBuilder.DropTable(
-                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Role");
