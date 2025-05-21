@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521061402_nullableCatDes")]
+    partial class nullableCatDes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -350,12 +353,15 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationStatus", (string)null);
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationStatus");
 
                     b.HasData(
                         new
@@ -487,7 +493,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("AdminReviewerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ApplicantId")
+                    b.Property<Guid>("ApplicantUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ApplicationStatusId")
@@ -523,7 +529,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("AdminReviewerId");
 
-                    b.HasIndex("ApplicantId");
+                    b.HasIndex("ApplicantUserId");
 
                     b.HasIndex("ApplicationStatusId");
 
@@ -626,37 +632,21 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.Role", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Role", (string)null);
+                    b.HasIndex("Name")
+                        .IsUnique();
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Learner"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Mentor"
-                        });
+                    b.ToTable("Role");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
@@ -747,8 +737,8 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -762,13 +752,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("UserProfileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ArenaOfExpertiseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserId", "ArenaOfExpertiseId");
+                    b.HasKey("UserProfileId", "ArenaOfExpertiseId");
 
                     b.HasIndex("ArenaOfExpertiseId");
 
@@ -811,8 +801,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<byte[]>("PhotoData")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<byte[]>("PhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varbinary(500)");
 
                     b.Property<bool>("PrivacyProfile")
                         .ValueGeneratedOnAdd()
@@ -905,9 +896,9 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("AdminReviewerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Infrastructure.Entities.User", "Applicant")
+                    b.HasOne("Infrastructure.Entities.User", "ApplicantUser")
                         .WithMany("SubmittedMentorApplications")
-                        .HasForeignKey("ApplicantId")
+                        .HasForeignKey("ApplicantUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -919,7 +910,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("AdminReviewer");
 
-                    b.Navigation("Applicant");
+                    b.Navigation("ApplicantUser");
 
                     b.Navigation("ApplicationStatus");
                 });
@@ -971,9 +962,9 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Role", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Role");
@@ -987,15 +978,15 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.User", "User")
+                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
                         .WithMany("UserArenaOfExpertises")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ArenaOfExpertise");
 
-                    b.Navigation("User");
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
@@ -1054,6 +1045,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("SupportingDocuments");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Role", b =>
+                {
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Topic", b =>
                 {
                     b.Navigation("UserTopicOfInterests");
@@ -1067,11 +1063,14 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("SubmittedMentorApplications");
 
-                    b.Navigation("UserArenaOfExpertises");
-
                     b.Navigation("UserProfile");
 
                     b.Navigation("UserTopicOfInterests");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
+                {
+                    b.Navigation("UserArenaOfExpertises");
                 });
 #pragma warning restore 612, 618
         }
