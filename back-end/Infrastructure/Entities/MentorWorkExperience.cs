@@ -10,7 +10,6 @@
         public DateTime? EndDate { get; set; }
         public string? Description { get; set; }
 
-        // Navigation Property
         public virtual MentorApplication MentorApplication { get; set; } = null!;
     }
 }

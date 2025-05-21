@@ -15,9 +15,10 @@ namespace Infrastructure.Data.Configuration
                    .HasForeignKey<UserProfile>(up => up.Id)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Property(up => up.PhotoUrl)
-                .HasMaxLength(500)
-                .IsRequired(false);
+
+            builder.Property(up => up.PhotoData)
+                   .HasColumnType("varbinary(max)")
+                   .IsRequired(false);
 
             builder.Property(up => up.FullName).HasMaxLength(200).IsRequired(false);
             builder.Property(up => up.Bio).HasMaxLength(1000).IsRequired(false);
