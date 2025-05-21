@@ -4,7 +4,7 @@
     {
         public Guid Id { get; set; }
         public byte[]? PhotoData { get; set; }
-        public string? FullName { get; set; }
+        public required string FullName { get; set; }
         public string? Bio { get; set; }
         public string? ProfessionalSkill { get; set; }
         public string? IndustryExperience { get; set; }
