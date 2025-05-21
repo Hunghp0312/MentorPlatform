@@ -3,7 +3,7 @@
     public class UserProfile
     {
         public Guid Id { get; set; }
-        public byte[]? PhotoUrl { get; set; }
+        public byte[]? PhotoData { get; set; }
         public string? FullName { get; set; }
         public string? Bio { get; set; }
         public string? ProfessionalSkill { get; set; }
@@ -19,7 +19,6 @@
         public bool NotificationsEnabled { get; set; } = true;
         public int? CommunicationMethod { get; set; }
 
-        // Navigation Property
         public virtual User User { get; set; } = null!;
         public virtual ICollection<UserArenaOfExpertise> UserArenaOfExpertises { get; set; } = new List<UserArenaOfExpertise>();
     }

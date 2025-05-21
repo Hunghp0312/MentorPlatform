@@ -5,7 +5,7 @@ namespace Infrastructure.Entities
     public class MentorApplication
     {
         public Guid Id { get; set; }
-        public Guid ApplicantUserId { get; set; }
+        public Guid ApplicantId { get; set; }
         public int ApplicationStatusId { get; set; }
         public string MotivationStatement { get; set; } = string.Empty;
         public DateTime SubmissionDate { get; set; }
@@ -17,7 +17,7 @@ namespace Infrastructure.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
-        public virtual User ApplicantUser { get; set; } = null!;
+        public virtual User Applicant { get; set; } = null!;
         public virtual ApplicationStatus ApplicationStatus { get; set; } = null!;
         public virtual User? AdminReviewer { get; set; }
         public virtual ICollection<MentorEducation> MentorEducations { get; set; } = new List<MentorEducation>();
