@@ -6,7 +6,7 @@ namespace Infrastructure.Entities
     {
         public Guid Id { get; set; }
         public required string Name { get; set; }
-        public required string Description { get; set; }
+        public string? Description { get; set; } = string.Empty;
         public required int StatusId { get; set; }
         public CategoryStatus? Status { get; set; }
         public ICollection<Course> Courses { get; set; } = [];

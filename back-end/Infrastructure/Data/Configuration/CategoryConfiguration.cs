@@ -13,7 +13,7 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
 
-            builder.Property(c => c.Description).IsRequired().HasMaxLength(1000);
+            builder.Property(c => c.Description).IsRequired(false).HasMaxLength(1000);
 
             builder.HasOne(c => c.Status).WithMany()
                 .HasForeignKey(c => c.StatusId)
