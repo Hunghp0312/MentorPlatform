@@ -3,6 +3,7 @@ import { CourseDetailType, CourseType } from "../../types/course";
 import Button from "../ui/Button";
 import { courseService } from "../../services/course.service";
 import LoadingOverlay from "../loading/LoadingOverlay";
+import { format } from "date-fns";
 
 interface CourseViewDialogProps {
   onClose: () => void;
@@ -37,7 +38,7 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
         setIsLoading(true);
         // Simulate an API call to fetch course details
         const res = await courseService.getCourseById(courseData.id);
-        setCourseDetails(res.data);
+        setCourseDetails(res);
       } catch (error) {
         console.error("Error fetching course details:", error);
       } finally {
@@ -77,7 +78,7 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
         {viewBlock("Title", courseDetails.name)}
 
         {/* Category Field */}
-        {viewBlock("Category", courseDetails.categoryName)}
+        {viewBlock("Category", courseDetails.category?.name)}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -115,19 +116,22 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Status Field */}
-        {viewBlock("Created", courseDetails.created)}
+        {viewBlock("Created", format(courseDetails.created, "dd/MM/yyyy"))}
 
         {/* Level Field */}
-        {viewBlock("Last Updated", courseDetails.lastUpdated)}
+        {viewBlock(
+          "Last Updated",
+          format(courseDetails.lastUpdated, "dd/MM/yyyy")
+        )}
       </div>
       {/* Description Field */}
       {viewBlock("Description", courseDetails.description)}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Status Field */}
-        {viewBlock("Enrolled Students", courseDetails.students)}
+        {viewBlock("Enrolled Students", courseDetails.students ?? 0)}
 
         {/* Level Field */}
-        {viewBlock("Completion Rate", courseDetails.completion)}
+        {viewBlock("Completion Rate", courseDetails.completion ?? 0 + "%")}
       </div>
       {/* Action Button */}
       <div className="flex justify-end pt-4 gap-4">

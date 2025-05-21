@@ -22,6 +22,25 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Infrastructure.Entities.ArenaOfExpertise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ArenaOfExpertise");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -151,6 +170,11 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("MentorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
@@ -159,10 +183,8 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -171,6 +193,8 @@ namespace Infrastructure.Migrations
                     b.HasIndex("LevelId");
 
                     b.HasIndex("StatusId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Course", (string)null);
 
@@ -185,9 +209,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000001"),
+                            Name = "Intro to C#",
                             StatusId = 2,
-                            Tags = "C#,programming,fundamentals",
-                            Title = "Intro to C#"
+                            Tags = "C#,programming,fundamentals"
                         },
                         new
                         {
@@ -199,9 +223,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000002"),
-                            StatusId = 2,
-                            Tags = "C#,OOP,classes,inheritance",
-                            Title = "OOP in C#"
+                            Name = "OOP in C#",
+                            StatusId = 1,
+                            Tags = "C#,OOP,classes,inheritance"
                         },
                         new
                         {
@@ -213,9 +237,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 3,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000003"),
+                            Name = "Advanced .NET APIs",
                             StatusId = 2,
-                            Tags = ".NET,ASP.NET Core,API,REST",
-                            Title = "Advanced .NET APIs"
+                            Tags = ".NET,ASP.NET Core,API,REST"
                         },
                         new
                         {
@@ -227,9 +251,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000004"),
-                            StatusId = 2,
-                            Tags = "SQL,database,queries,beginner",
-                            Title = "SQL for Beginners"
+                            Name = "SQL for Beginners",
+                            StatusId = 3,
+                            Tags = "SQL,database,queries,beginner"
                         },
                         new
                         {
@@ -241,9 +265,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000005"),
+                            Name = "EF Core Masterclass",
                             StatusId = 2,
-                            Tags = "EF Core,Entity Framework,data access,.NET",
-                            Title = "EF Core Masterclass"
+                            Tags = "EF Core,Entity Framework,data access,.NET"
                         },
                         new
                         {
@@ -255,9 +279,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000006"),
-                            StatusId = 2,
-                            Tags = "HTML,CSS,web design,frontend",
-                            Title = "HTML & CSS Basics"
+                            Name = "HTML & CSS Basics",
+                            StatusId = 1,
+                            Tags = "HTML,CSS,web design,frontend"
                         },
                         new
                         {
@@ -269,9 +293,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000007"),
+                            Name = "React Essentials",
                             StatusId = 2,
-                            Tags = "React,JavaScript,frontend,UI",
-                            Title = "React Essentials"
+                            Tags = "React,JavaScript,frontend,UI"
                         },
                         new
                         {
@@ -283,9 +307,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000008"),
+                            Name = "Unit Testing in .NET",
                             StatusId = 2,
-                            Tags = ".NET,testing,TDD,unit tests",
-                            Title = "Unit Testing in .NET"
+                            Tags = ".NET,testing,TDD,unit tests"
                         },
                         new
                         {
@@ -297,9 +321,9 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000009"),
-                            StatusId = 2,
-                            Tags = "Git,GitHub,version control,beginner",
-                            Title = "Git & GitHub Basics"
+                            Name = "Git & GitHub Basics",
+                            StatusId = 3,
+                            Tags = "Git,GitHub,version control,beginner"
                         },
                         new
                         {
@@ -311,9 +335,47 @@ namespace Infrastructure.Migrations
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 3,
                             MentorId = new Guid("10000000-0000-0000-0000-000000000010"),
-                            StatusId = 2,
-                            Tags = "Docker,containers,devops,deployment",
-                            Title = "Docker for Developers"
+                            Name = "Docker for Developers",
+                            StatusId = 1,
+                            Tags = "Docker,containers,devops,deployment"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("ApplicationStatus");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Pending"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Rejected"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Approved"
                         });
                 });
 
@@ -417,6 +479,372 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AdminComments")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("AdminReviewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ApplicantUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ApplicationStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApprovalDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("LastStatusUpdateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MotivationStatement")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SubmissionDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminReviewerId");
+
+                    b.HasIndex("ApplicantUserId");
+
+                    b.HasIndex("ApplicationStatusId");
+
+                    b.ToTable("MentorApplication");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorCertification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CertificationName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("CredentialUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("IssuingOrganization")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("MentorApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MentorApplicationId");
+
+                    b.ToTable("MentorCertification");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorEducation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FieldOfStudy")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int?>("GraduationYear")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InstitutionName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("MentorApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MentorApplicationId");
+
+                    b.ToTable("MentorEducation");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("MentorApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MentorApplicationId");
+
+                    b.ToTable("MentorWorkExperience");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Role");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("MentorApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MentorApplicationId");
+
+                    b.ToTable("SupportingDocument");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Topic", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Topic");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("PasswordResetExpiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("User");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
+                {
+                    b.Property<Guid>("UserProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ArenaOfExpertiseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserProfileId", "ArenaOfExpertiseId");
+
+                    b.HasIndex("ArenaOfExpertiseId");
+
+                    b.ToTable("UserArenaOfExpertise");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("AvailabilityData")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("CommunicationMethod")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FullName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("IndustryExperience")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("LearningStyle")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("MessagePermission")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("NotificationsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<byte[]>("PhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varbinary(500)");
+
+                    b.Property<bool>("PrivacyProfile")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("ProfessionalSkill")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("SessionDuration")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SessionFrequency")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TeachingApproach")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserGoal")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserProfile");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserTopicOfInterest", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TopicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "TopicId");
+
+                    b.HasIndex("TopicId");
+
+                    b.ToTable("UserTopicOfInterest");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Enum.CategoryStatus", "Status")
@@ -448,6 +876,10 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.User", null)
+                        .WithMany("MentoredCourses")
+                        .HasForeignKey("UserId");
+
                     b.Navigation("Category");
 
                     b.Navigation("Level");
@@ -455,9 +887,188 @@ namespace Infrastructure.Migrations
                     b.Navigation("Status");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
+                        .WithMany("ReviewedMentorApplications")
+                        .HasForeignKey("AdminReviewerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Infrastructure.Entities.User", "ApplicantUser")
+                        .WithMany("SubmittedMentorApplications")
+                        .HasForeignKey("ApplicantUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.ApplicationStatus", "ApplicationStatus")
+                        .WithMany("MentorApplications")
+                        .HasForeignKey("ApplicationStatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AdminReviewer");
+
+                    b.Navigation("ApplicantUser");
+
+                    b.Navigation("ApplicationStatus");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorCertification", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
+                        .WithMany("MentorCertifications")
+                        .HasForeignKey("MentorApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MentorApplication");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorEducation", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
+                        .WithMany("MentorEducations")
+                        .HasForeignKey("MentorApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MentorApplication");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
+                        .WithMany("MentorWorkExperiences")
+                        .HasForeignKey("MentorApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MentorApplication");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
+                        .WithMany("SupportingDocuments")
+                        .HasForeignKey("MentorApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MentorApplication");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.User", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.ArenaOfExpertise", "ArenaOfExpertise")
+                        .WithMany("UserArenaOfExpertises")
+                        .HasForeignKey("ArenaOfExpertiseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
+                        .WithMany("UserArenaOfExpertises")
+                        .HasForeignKey("UserProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ArenaOfExpertise");
+
+                    b.Navigation("UserProfile");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.User", "User")
+                        .WithOne("UserProfile")
+                        .HasForeignKey("Infrastructure.Entities.UserProfile", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserTopicOfInterest", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Topic", "Topic")
+                        .WithMany("UserTopicOfInterests")
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.User", "User")
+                        .WithMany("UserTopicOfInterests")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Topic");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.ArenaOfExpertise", b =>
+                {
+                    b.Navigation("UserArenaOfExpertises");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
                 {
                     b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
+                {
+                    b.Navigation("MentorApplications");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
+                {
+                    b.Navigation("MentorCertifications");
+
+                    b.Navigation("MentorEducations");
+
+                    b.Navigation("MentorWorkExperiences");
+
+                    b.Navigation("SupportingDocuments");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Role", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Topic", b =>
+                {
+                    b.Navigation("UserTopicOfInterests");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.User", b =>
+                {
+                    b.Navigation("MentoredCourses");
+
+                    b.Navigation("ReviewedMentorApplications");
+
+                    b.Navigation("SubmittedMentorApplications");
+
+                    b.Navigation("UserProfile");
+
+                    b.Navigation("UserTopicOfInterests");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
+                {
+                    b.Navigation("UserArenaOfExpertises");
                 });
 #pragma warning restore 612, 618
         }

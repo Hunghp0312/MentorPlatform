@@ -9,18 +9,18 @@ namespace ApplicationCore.Services.ServiceInterfaces
     public interface ICourseService
     {
         Task<OperationResult<GetCourseDetailsResponse>> CreateCourseAsync(
-            CreateCourseRequest request
+            CreateUpdateCourseRequest request
         );
         Task<OperationResult<GetCourseDetailsResponse>> UpdateCourseAsync(
             Guid courseId,
-            CreateCourseRequest request
+            CreateUpdateCourseRequest request
         );
         Task<OperationResult<GetCourseDetailsResponse>> DeleteCourseAsync(Guid courseId);
         Task<OperationResult<GetCourseDetailsResponse>> GetCourseDetailsByIdAsync(Guid courseId);
-        Task<OperationResult<ICollection<ListCourseResponse>>> GetCourseByMentorIdAsync(
+        Task<OperationResult<ICollection<GetCourseDetailsResponse>>> GetCourseByMentorIdAsync(
             Guid mentorId
         );
-        Task<OperationResult<PagedResult<ListCourseResponse>>> GetPagedCourseAsync(
+        Task<OperationResult<PagedResult<GetCourseDetailsResponse>>> GetPagedCourseAsync(
             CourseQueryParameters req
         );
     }

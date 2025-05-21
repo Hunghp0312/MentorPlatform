@@ -12,7 +12,7 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72848"),
-                    Title = "Intro to C#",
+                    Name = "Intro to C#",
                     Description = "Learn the fundamentals of C#.",
                     CategoryId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                     StatusId = 2,
@@ -26,10 +26,10 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72847"),
-                    Title = "OOP in C#",
+                    Name = "OOP in C#",
                     Description = "Master object-oriented programming concepts in C#.",
                     CategoryId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                    StatusId = 2,
+                    StatusId = 1,
                     LevelId = 2,
                     Duration = "4 weeks",
                     Tags = "C#,OOP,classes,inheritance",
@@ -40,7 +40,7 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72846"),
-                    Title = "Advanced .NET APIs",
+                    Name = "Advanced .NET APIs",
                     Description = "Build and deploy RESTful APIs using ASP.NET Core.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
                     StatusId = 2,
@@ -54,10 +54,10 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72845"),
-                    Title = "SQL for Beginners",
+                    Name = "SQL for Beginners",
                     Description = "Understand SQL basics and database querying.",
                     CategoryId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                    StatusId = 2,
+                    StatusId = 3,
                     LevelId = 1,
                     Duration = "2 weeks",
                     Tags = "SQL,database,queries,beginner",
@@ -68,7 +68,7 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72844"),
-                    Title = "EF Core Masterclass",
+                    Name = "EF Core Masterclass",
                     Description = "Master Entity Framework Core for modern data access.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
                     StatusId = 2,
@@ -82,10 +82,10 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72843"),
-                    Title = "HTML & CSS Basics",
+                    Name = "HTML & CSS Basics",
                     Description = "Create beautiful static websites using HTML and CSS.",
                     CategoryId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                    StatusId = 2,
+                    StatusId = 1,
                     LevelId = 1,
                     Duration = "2 weeks",
                     Tags = "HTML,CSS,web design,frontend",
@@ -96,7 +96,7 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72842"),
-                    Title = "React Essentials",
+                    Name = "React Essentials",
                     Description = "Learn how to build reactive UIs using React.",
                     CategoryId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                     StatusId = 2,
@@ -110,7 +110,7 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72841"),
-                    Title = "Unit Testing in .NET",
+                    Name = "Unit Testing in .NET",
                     Description = "Write unit tests and follow TDD in .NET.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
                     StatusId = 2,
@@ -124,10 +124,10 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72840"),
-                    Title = "Git & GitHub Basics",
+                    Name = "Git & GitHub Basics",
                     Description = "Master version control with Git and GitHub.",
                     CategoryId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                    StatusId = 2,
+                    StatusId = 3,
                     LevelId = 1,
                     Duration = "1 week",
                     Tags = "Git,GitHub,version control,beginner",
@@ -138,10 +138,10 @@ namespace Infrastructure.Data.Seeding
                 new Course
                 {
                     Id = Guid.Parse("8d02b327-6370-41c7-95bb-6a8d72b72849"),
-                    Title = "Docker for Developers",
+                    Name = "Docker for Developers",
                     Description = "Containerize and deploy apps with Docker.",
                     CategoryId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                    StatusId = 2,
+                    StatusId = 1,
                     LevelId = 3,
                     Duration = "3 weeks",
                     Tags = "Docker,containers,devops,deployment",

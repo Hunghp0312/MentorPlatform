@@ -4,17 +4,23 @@ using ApplicationCore.Constants;
 
 namespace ApplicationCore.Validators.Courses
 {
-    public class UpdateCourseRequestValidator : AbstractValidator<UpdateCourseRequest>
+    public class CreateUpdateCourseRequestValidator : AbstractValidator<CreateUpdateCourseRequest>
     {
-        public UpdateCourseRequestValidator()
+        public CreateUpdateCourseRequestValidator()
         {
-            RuleFor(x => x.Title)
+            RuleFor(x => x.Name)
                 .NotEmpty()
                 .WithMessage(ValidationMessages.CourseTitleRequired)
                 .MaximumLength(100)
+<<<<<<< HEAD:back-end/ApplicationCore/Validators/Courses/CreateCourseRequestValidator.cs
                 .WithMessage(ValidationMessages.CourseTitleMaxLength)
                 .Must(title => !string.IsNullOrWhiteSpace(title))
                 .WithMessage(ValidationMessages.CourseTitleRequired);
+=======
+                .WithMessage("Name should be 1 - 100 characters")
+                .Must(name => !string.IsNullOrWhiteSpace(name))
+                .WithMessage("Please fill out this field");
+>>>>>>> b19996730a54828ebd5dda7174c983010167a860:back-end/ApplicationCore/Validators/Courses/CreateUpdateCourseRequestValidator.cs
 
             RuleFor(x => x.CategoryId)
                 .NotEmpty()

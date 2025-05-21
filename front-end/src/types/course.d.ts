@@ -1,9 +1,9 @@
+import { CategoryType } from "./category";
 import { EnumType } from "./commonType";
 
 export interface CourseType {
   id: string;
-  categoryId: string;
-  categoryName: string;
+  category: CategoryType;
   status: EnumType; // 1: Draft, 2: Publish, 3: Archived
   level: EnumType; // 1: Beginner, 2: Intermediate, 3: Advanced
   name: string;
@@ -34,8 +34,7 @@ export interface CourseCreateUpdateType {
 export interface CourseDetailType {
   id: string;
   name: string;
-  categoryId: string;
-  categoryName: string;
+  category: CategoryType;
   status: EnumType;
   level: EnumType;
   duration: string;
