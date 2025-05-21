@@ -13,7 +13,6 @@ namespace ApplicationCore.Validators.Categories
              .MaximumLength(100).WithMessage(ValidationMessages.CategoryNameMaxLength);
 
             RuleFor(x => x.Description)
-                .NotEmpty().WithMessage(ValidationMessages.CategoryDescriptionRequired)
                 .MaximumLength(1000).WithMessage(ValidationMessages.CategoryDescriptionMaxLength);
 
             RuleFor(x => x.StatusId)

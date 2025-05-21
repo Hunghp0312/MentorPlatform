@@ -9,7 +9,10 @@ using FluentValidation.AspNetCore;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data;
 using Infrastructure.Data.Context;
+using Infrastructure.Options;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Presentation.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -20,14 +23,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         connectionString,
         sqlServerOptionsAction: sqlOptions =>
         {
-            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName); // Quan trọng: chỉ định Assembly chứa migrations
+            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
         }
     )
 );
+builder.Services.Configure<EmailSettingOption>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-
+builder.Services.AddTransient<ISendEmailService, SendEmailService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -42,8 +46,8 @@ builder
     {
         options.JsonSerializerOptions.Converters.Add(new TrimmingJsonStringConverter());
     });
+builder.Services.ConfigureApiBehavior();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>

@@ -264,7 +264,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         onChange={handleChange}
         label="Description"
         isRequired
-        placeholder="Enter book description"
+        placeholder="Enter course description"
         errorMessage={errors.description}
         onBlur={handleBlur}
       ></InputCustom>

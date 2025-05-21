@@ -14,21 +14,21 @@ namespace Infrastructure.Data.Seeding
                     Name = "Programming",
                     Description =
                         "Courses related to software development and programming languages.",
-                    StatusId = 2,
+                    StatusId = 1,
                 },
                 new Category
                 {
                     Id = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                     Name = "Web Development",
                     Description = "Frontend and backend development tutorials and courses.",
-                    StatusId = 2,
+                    StatusId = 1,
                 },
                 new Category
                 {
                     Id = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                     Name = "Data Science",
                     Description = "Learn data analysis, visualization, and machine learning.",
-                    StatusId = 2,
+                    StatusId = 1,
                 },
                 new Category
                 {
@@ -42,14 +42,14 @@ namespace Infrastructure.Data.Seeding
                     Id = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                     Name = "Databases",
                     Description = "Introduction to relational and non-relational databases.",
-                    StatusId = 2,
+                    StatusId = 1,
                 },
                 new Category
                 {
                     Id = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                     Name = "Frontend",
                     Description = "Courses on HTML, CSS, JavaScript and modern frameworks.",
-                    StatusId = 2,
+                    StatusId = 1,
                 },
                 new Category
                 {
@@ -63,7 +63,7 @@ namespace Infrastructure.Data.Seeding
                     Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                     Name = "Mobile Development",
                     Description = "Build apps for iOS and Android platforms.",
-                    StatusId = 2,
+                    StatusId = 1,
                 },
                 new Category
                 {
@@ -77,7 +77,7 @@ namespace Infrastructure.Data.Seeding
                     Id = Guid.Parse("44444444-4444-4444-4444-444444444444"),
                     Name = "Cybersecurity",
                     Description = "Understand security principles and ethical hacking.",
-                    StatusId = 2,
+                    StatusId = 1,
                 },
             };
         }
