@@ -3,6 +3,7 @@ import Layout from "../layout/Layout";
 import ListCategory from "../pages/admin/ListCategory";
 import ListCourse from "../pages/admin/ListCourse";
 import ListApproval from "../pages/admin/ListApproval";
+import MentorStatusProfile from "../pages/mentor/MentorStatusProfile";
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -14,6 +15,7 @@ const AppRouter = () => {
         { path: "category", element: <ListCategory /> },
         { path: "course", element: <ListCourse /> },
         { path: "approval", element: <ListApproval /> },
+        { path: "mentorstatus", element: <MentorStatusProfile /> },
       ],
     },
   ]);
