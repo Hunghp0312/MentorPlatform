@@ -140,6 +140,10 @@ const ComboBox: React.FC<ComboBoxProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
+    if (newQuery.length > 100) {
+      setQuery(newQuery.slice(0, 100));
+      return;
+    }
     setQuery(newQuery);
     setIsOpen(true);
     setHighlightedIndex(0);
@@ -221,7 +225,7 @@ const ComboBox: React.FC<ComboBoxProps> = ({
       {isOpen && displayedOptions.length > 0 && (
         <ul
           ref={dropdownRef}
-          className="absolute z-10 mt-1 w-full bg-gray-800 max-h-60 overflow-auto rounded-md text-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 sm:text-sm"
+          className="absolute z-10 mt-1 w-full bg-gray-800 max-h-48 overflow-auto rounded-md text-gray-100 shadow-lg ring-1 ring-black ring-opacity-5 sm:text-sm"
         >
           {displayedOptions.map((option, index) => (
             <li

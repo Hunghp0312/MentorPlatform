@@ -1,13 +1,13 @@
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
+using ApplicationCore.DTOs.Requests.Courses;
+using ApplicationCore.DTOs.Responses.Courses;
 using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
-using Infrastructure.Entities;
-using ApplicationCore.DTOs.Requests.Courses;
-using ApplicationCore.DTOs.Responses.Courses;
 using Infrastructure.Data;
+using Infrastructure.Entities;
 
 namespace ApplicationCore.Services
 {
@@ -29,7 +29,7 @@ namespace ApplicationCore.Services
         }
 
         public async Task<OperationResult<GetCourseDetailsResponse>> CreateCourseAsync(
-            CreateCourseRequest request
+            CreateUpdateCourseRequest request
         )
         {
             var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
@@ -44,7 +44,9 @@ namespace ApplicationCore.Services
             await _courseRepo.AddAsync(course);
             await _unitOfWork.SaveChangesAsync();
 
-            var response = course.CourseDetailResponseMap();
+            course = await _courseRepo.GetCourseWithCategoryAsync(course.Id);
+
+            var response = course!.CourseDetailResponseMap();
 
             return OperationResult<GetCourseDetailsResponse>.Created(
                 response,
@@ -66,35 +68,29 @@ namespace ApplicationCore.Services
 
             var response = course.CourseDetailResponseMap();
 
-            return OperationResult<GetCourseDetailsResponse>.Ok(
-                response,
-                "Course retrieved successfully"
-            );
+            return OperationResult<GetCourseDetailsResponse>.Ok(response);
         }
 
         public async Task<
-            OperationResult<ICollection<ListCourseResponse>>
+            OperationResult<ICollection<GetCourseDetailsResponse>>
         > GetCourseByMentorIdAsync(Guid mentorId)
         {
             var courses = await _courseRepo.GetCoursesByMentorId(mentorId);
 
             if (courses == null)
             {
-                return OperationResult<ICollection<ListCourseResponse>>.NotFound(
+                return OperationResult<ICollection<GetCourseDetailsResponse>>.NotFound(
                     "Courses not found"
                 );
             }
 
-            var response = courses.Select(CourseMappingExtension.CourseListResponseMap).ToList();
-            return OperationResult<ICollection<ListCourseResponse>>.Ok(
-                response,
-                "Get course successfully"
-            );
+            var response = courses.Select(CourseMappingExtension.CourseDetailResponseMap).ToList();
+            return OperationResult<ICollection<GetCourseDetailsResponse>>.Ok(response);
         }
 
         public async Task<OperationResult<GetCourseDetailsResponse>> UpdateCourseAsync(
             Guid courseId,
-            CreateCourseRequest request
+            CreateUpdateCourseRequest request
         )
         {
             var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
@@ -112,7 +108,7 @@ namespace ApplicationCore.Services
                 );
             }
 
-            course.Title = request.Title;
+            course.Name = request.Name;
             course.Description = request.Description;
             course.CategoryId = request.CategoryId;
             course.StatusId = request.StatusId;
@@ -124,12 +120,11 @@ namespace ApplicationCore.Services
             _courseRepo.Update(course);
             await _unitOfWork.SaveChangesAsync();
 
-            var response = course.CourseDetailResponseMap();
+            course = await _courseRepo.GetCourseWithCategoryAsync(courseId);
 
-            return OperationResult<GetCourseDetailsResponse>.Ok(
-                response,
-                "Course updated successfully"
-            );
+            var response = course!.CourseDetailResponseMap();
+
+            return OperationResult<GetCourseDetailsResponse>.Ok(response);
         }
 
         public async Task<OperationResult<GetCourseDetailsResponse>> DeleteCourseAsync(
@@ -150,9 +145,9 @@ namespace ApplicationCore.Services
             return OperationResult<GetCourseDetailsResponse>.NoContent();
         }
 
-        public async Task<OperationResult<PagedResult<ListCourseResponse>>> GetPagedCourseAsync(
-            CourseQueryParameters req
-        )
+        public async Task<
+            OperationResult<PagedResult<GetCourseDetailsResponse>>
+        > GetPagedCourseAsync(CourseQueryParameters req)
         {
             if (req.PageIndex < 1)
                 req.PageIndex = 1;
@@ -165,7 +160,7 @@ namespace ApplicationCore.Services
                 if (!string.IsNullOrWhiteSpace(req.Query))
                 {
                     query = query.Where(c =>
-                        c.Title.Contains(req.Query) || c.Description.Contains(req.Query)
+                        c.Name.Contains(req.Query) || c.Description.Contains(req.Query)
                     );
                 }
 
@@ -194,10 +189,10 @@ namespace ApplicationCore.Services
             );
 
             var CourseDetailsResponse = courses
-                .Select(CourseMappingExtension.CourseListResponseMap)
+                .Select(CourseMappingExtension.CourseDetailResponseMap)
                 .ToList();
 
-            var coursesPageResponse = new PagedResult<ListCourseResponse>
+            var coursesPageResponse = new PagedResult<GetCourseDetailsResponse>
             {
                 Items = CourseDetailsResponse,
                 PageIndex = req.PageIndex,
@@ -205,10 +200,7 @@ namespace ApplicationCore.Services
                 TotalItems = totalCourses,
             };
 
-            return OperationResult<PagedResult<ListCourseResponse>>.Ok(
-                coursesPageResponse,
-                "Get list successfully"
-            );
+            return OperationResult<PagedResult<GetCourseDetailsResponse>>.Ok(coursesPageResponse);
         }
     }
 }

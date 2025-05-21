@@ -63,14 +63,14 @@ const ListCourse = () => {
 
   // Constants
   const optionTest = [
-    { id: "", name: "All" },
+    { id: "", name: "All mentors" },
     { id: "73fba208-a6bf-481c-8c82-24fd5ba9a531", name: "Uncle Bob" },
     { id: "4e28540d-6b6b-44da-bc92-7989bcc20201", name: "Mark Zuckerberg" },
     { id: "ca4f1d7d-ced8-473a-bfd0-c7900a098153", name: "Bill Gate" },
   ];
 
   const levelOptions = [
-    { value: "", label: "All" },
+    { value: "", label: "All levels" },
     { value: Level.Beginner, label: "Beginner" },
     { value: Level.Intermediate, label: "Intermediate" },
     { value: Level.Advanced, label: "Advanced" },
@@ -86,8 +86,8 @@ const ListCourse = () => {
         pageIndex,
         pageSize
       );
-      setCourses(res.data.items);
-      setTotalItems(res.data.totalItems);
+      setCourses(res.items);
+      setTotalItems(res.totalItems);
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -104,8 +104,8 @@ const ListCourse = () => {
       setIsPageLoading(true);
       const res = await categoryService.getAllCategories();
       setCategories([
-        { id: "", name: "All" },
-        ...res.data.sort((a: CategoryType, b: CategoryType) =>
+        { id: "", name: "All categories" },
+        ...res.sort((a: CategoryType, b: CategoryType) =>
           a.name.localeCompare(b.name)
         ),
       ]);
@@ -174,7 +174,12 @@ const ListCourse = () => {
       HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement
     >
   ) => {
-    setQuery(event.target.value);
+    const newValue = event.target.value;
+    if (newValue.length > 500) {
+      setQuery(newValue.slice(0, 500));
+      return;
+    }
+    setQuery(newValue);
   };
   useEffect(() => {
     if (searchDebounced) {
@@ -194,7 +199,7 @@ const ListCourse = () => {
     if (initialData) {
       try {
         const response = await courseService.editCourse(initialData.id, course);
-        const newCourse = response.data;
+        const newCourse = response;
         fetchCourses();
         toast.success(`Course ${newCourse.name} updated successfully`);
       } catch (error: unknown) {
@@ -215,7 +220,7 @@ const ListCourse = () => {
   ): Promise<void> => {
     try {
       const response = await courseService.createCourse(course);
-      const newCourse = response.data;
+      const newCourse = response;
       fetchCourses();
       toast.success(`Course ${newCourse.name} created successfully`);
     } catch (error: unknown) {
@@ -280,13 +285,17 @@ const ListCourse = () => {
     },
     {
       header: "CATEGORY",
-      accessor: "categoryName",
+      accessor: (course: CourseType) => (
+        <div className="font-medium">{course.category?.name}</div>
+      ),
       align: "left",
       width: "20%",
     },
     {
       header: "STUDENTS",
-      accessor: "students",
+      accessor: (course: CourseType) => (
+        <div className="font-medium">{course.students ?? 0}</div>
+      ),
       align: "center",
       width: "10%",
     },
@@ -306,7 +315,7 @@ const ListCourse = () => {
               style={{ width: `${course.completion}%` }}
             ></div>
           </div>
-          <span>{course.completion}%</span>
+          <span>{course.completion ?? 0}%</span>
         </div>
       ),
       align: "center",

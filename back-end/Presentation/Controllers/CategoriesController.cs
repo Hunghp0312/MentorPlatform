@@ -1,7 +1,7 @@
-﻿using ApplicationCore.DTOs.Category;
-using ApplicationCore.DTOs.Common;
+﻿using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,16 +21,11 @@ namespace Presentation.Controllers
 
         // POST: api/Categories
         [HttpPost]
-        [ProducesResponseType(
-            typeof(SuccessResponse<CategoryResponse>),
-            StatusCodes.Status201Created
-        )]
+        [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CreateCategory(
-            [FromBody] CategoryRequest createDto
-        )
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryRequest createDto)
         {
             var result = await _categoryService.CreateCategoryAsync(createDto);
 
@@ -38,10 +33,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [ProducesResponseType(
-            typeof(SuccessResponse<CategoryResponse>),
-            StatusCodes.Status200OK
-        )]
+        [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -54,7 +46,7 @@ namespace Presentation.Controllers
 
         // PUT: api/Categories/{id}
         [HttpPut("{id:guid}")]
-        [ProducesResponseType(typeof(SuccessResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
@@ -70,10 +62,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("all")]
-        [ProducesResponseType(
-            typeof(SuccessResponse<ICollection<CategoryResponse>>),
-            StatusCodes.Status200OK
-        )]
+        [ProducesResponseType(typeof(ICollection<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllCategories()
         {
@@ -82,11 +71,8 @@ namespace Presentation.Controllers
             return ToActionResult(categories);
         }
 
-        [HttpGet]
-        [ProducesResponseType(
-            typeof(SuccessResponse<PagedResult<CategoryResponse>>),
-            StatusCodes.Status200OK
-        )]
+        [HttpGet("paged")]
+        [ProducesResponseType(typeof(PagedResult<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPagedCategories(
             [FromQuery] CategoryQueryParameters parameters
@@ -101,7 +87,6 @@ namespace Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {

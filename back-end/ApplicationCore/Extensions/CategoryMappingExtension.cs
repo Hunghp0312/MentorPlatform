@@ -1,5 +1,5 @@
-﻿using ApplicationCore.DTOs.Category;
-using ApplicationCore.DTOs.Requests.Categories;
+﻿using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Categories;
 using Infrastructure.Entities;
 
 namespace ApplicationCore.Extensions
@@ -18,7 +18,7 @@ namespace ApplicationCore.Extensions
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
-                Status = category.Status,
+                Status = category.Status!,
                 CourseCount = category.CourseCount,
             };
         }
@@ -51,10 +51,17 @@ namespace ApplicationCore.Extensions
             };
         }
 
-        public static void MapToCategoryEntity(
-            this CategoryRequest dto,
-            Category existingCategory
-        )
+        public static CourseCategoryResponse ToCourseCategory(this Category category)
+        {
+            return new CourseCategoryResponse
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+            };
+        }
+
+        public static void MapToCategoryEntity(this CategoryRequest dto, Category existingCategory)
         {
             if (dto == null)
             {

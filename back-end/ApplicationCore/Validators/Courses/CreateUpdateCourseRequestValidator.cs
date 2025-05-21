@@ -3,16 +3,16 @@ using FluentValidation;
 
 namespace ApplicationCore.Validators.Courses
 {
-    public class UpdateCourseRequestValidator : AbstractValidator<UpdateCourseRequest>
+    public class CreateUpdateCourseRequestValidator : AbstractValidator<CreateUpdateCourseRequest>
     {
-        public UpdateCourseRequestValidator()
+        public CreateUpdateCourseRequestValidator()
         {
-            RuleFor(x => x.Title)
+            RuleFor(x => x.Name)
                 .NotEmpty()
                 .WithMessage("Please fill out this field")
                 .MaximumLength(100)
-                .WithMessage("Title should be 1 - 100 characters")
-                .Must(title => !string.IsNullOrWhiteSpace(title))
+                .WithMessage("Name should be 1 - 100 characters")
+                .Must(name => !string.IsNullOrWhiteSpace(name))
                 .WithMessage("Please fill out this field");
 
             RuleFor(x => x.CategoryId)

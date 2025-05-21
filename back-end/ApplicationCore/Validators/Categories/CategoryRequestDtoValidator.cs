@@ -17,7 +17,7 @@ namespace ApplicationCore.Validators.Categories
                 .MaximumLength(1000).WithMessage(ValidationMessages.CategoryDescriptionMaxLength);
 
             RuleFor(x => x.StatusId)
-                 .IsInEnum().WithMessage(ValidationMessages.CategoryStatusInvalid);
+                 .InclusiveBetween(1, 2).WithMessage(ValidationMessages.CategoryStatusInvalid);
         }
     }
 }

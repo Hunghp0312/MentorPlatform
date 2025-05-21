@@ -26,7 +26,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
 }) => {
   const [formState, setFormState] = useState<CourseCreateUpdateType>({
     name: initialData?.name ?? "",
-    categoryId: initialData?.categoryId ?? "",
+    categoryId: initialData?.category.id ?? "",
     statusId: initialData?.status.id ?? 1,
     levelId: initialData?.level.id !== undefined ? initialData.level.id : "",
     duration: initialData?.duration ?? "",
@@ -53,7 +53,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
         const res = await categoryService.getAllCategories();
         setCategories([
           { id: "", name: "" },
-          ...res.data.sort((a: CategoryType, b: CategoryType) =>
+          ...res.sort((a: CategoryType, b: CategoryType) =>
             a.name.localeCompare(b.name)
           ),
         ]);
@@ -84,17 +84,17 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
     const newErrors: Record<string, string> = {};
     // Title validate
     if (formState.name.length < 1 || formState.name.length > 100) {
-      newErrors.title = "Title must be between 1 and 100 characters";
+      newErrors.name = "Title must be between 1 and 100 characters";
     }
     if (!formState.name) {
-      newErrors.title = "Please fill out this field";
+      newErrors.name = "Please fill out this field";
     }
     // Category validate
     if (formState.categoryId === "") {
       newErrors.categoryId = "Please select an item in the list";
     }
     if (formState.levelId === "") {
-      newErrors.level = "Please select an item in the list";
+      newErrors.levelId = "Please select an item in the list";
     }
     if (
       formState.description.length < 1 ||
@@ -131,7 +131,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   ];
   const statusOptions = [
     { value: 1, label: "Draft" },
-    { value: 2, label: "Publish" },
+    { value: 2, label: "Published" },
     { value: 3, label: "Archived" },
   ];
   const handleBlur = (
@@ -169,7 +169,6 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
   }
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* <div className="text-white">{JSON.stringify(formState)}</div> */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Title Field */}
         <InputCustom
@@ -180,7 +179,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           onChange={handleChange}
           isRequired
           placeholder="Enter title of the course"
-          errorMessage={errors.title}
+          errorMessage={errors.name}
           onBlur={handleBlur}
         ></InputCustom>
         {/* Category Field */}
@@ -210,7 +209,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
             value: String(item.value),
             label: item.label,
           }))}
-          errorMessage={errors.status}
+          errorMessage={errors.statusId}
           isRequired
         ></Dropdown>
         {/* Level Field */}
@@ -223,7 +222,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
             value: String(item.value),
             label: item.label,
           }))}
-          errorMessage={errors.level}
+          errorMessage={errors.levelId}
           isRequired
         ></Dropdown>
       </div>
@@ -245,6 +244,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           label="Tags"
           tags={formState.tags}
           setTags={(tags) => {
+            setErrors((prev) => ({ ...prev, ["tags"]: "" }));
             setFormState((prevState) => ({
               ...prevState,
               tags: tags,

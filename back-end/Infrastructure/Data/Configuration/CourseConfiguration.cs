@@ -13,7 +13,7 @@ namespace Infrastructure.Data.Configuration
 
             builder.HasKey(c => c.Id);
 
-            builder.Property(c => c.Title).IsRequired().HasMaxLength(100);
+            builder.Property(c => c.Name).IsRequired().HasMaxLength(100);
 
             builder.Property(c => c.Description).IsRequired().HasMaxLength(1000);
 
@@ -25,11 +25,13 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(c => c.Tags).IsRequired().HasMaxLength(100);
 
-            builder.HasOne(c=> c.Status)
+            builder
+                .HasOne(c => c.Status)
                 .WithMany()
                 .HasForeignKey(c => c.StatusId)
                 .OnDelete(DeleteBehavior.Restrict);
-            builder.HasOne(c => c.Level)
+            builder
+                .HasOne(c => c.Level)
                 .WithMany()
                 .HasForeignKey(c => c.LevelId)
                 .OnDelete(DeleteBehavior.Restrict);
