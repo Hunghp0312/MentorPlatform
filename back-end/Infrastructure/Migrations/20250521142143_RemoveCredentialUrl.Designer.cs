@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521142143_RemoveCredentialUrl")]
+    partial class RemoveCredentialUrl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -382,20 +385,6 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
-                {
-                    b.Property<Guid>("SupportingDocumentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte[]>("FileContent")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.HasKey("SupportingDocumentId");
-
-                    b.ToTable("DocumentContent");
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -746,6 +735,10 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -1022,17 +1015,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
-                {
-                    b.HasOne("Infrastructure.Entities.SupportingDocument", "SupportingDocument")
-                        .WithOne("DocumentContent")
-                        .HasForeignKey("Infrastructure.Entities.DocumentContent", "SupportingDocumentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SupportingDocument");
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
@@ -1207,11 +1189,6 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
                 {
                     b.Navigation("SupportingDocuments");
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
-                {
-                    b.Navigation("DocumentContent");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Topic", b =>

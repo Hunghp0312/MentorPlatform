@@ -12,7 +12,6 @@ namespace Infrastructure.Data.Configuration
             builder.Property(mc => mc.MentorApplicationId).IsRequired();
             builder.Property(mc => mc.CertificationName).IsRequired().HasMaxLength(255);
             builder.Property(mc => mc.IssuingOrganization).IsRequired().HasMaxLength(255);
-            builder.Property(mc => mc.CredentialUrl).HasMaxLength(500).IsRequired(false);
 
             builder.HasOne(mc => mc.MentorApplication)
                 .WithMany(ma => ma.MentorCertifications)

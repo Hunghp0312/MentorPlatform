@@ -14,7 +14,6 @@ namespace Infrastructure.Data.Configuration
             builder.Property(sd => sd.FileName).IsRequired().HasMaxLength(255);
             builder.Property(sd => sd.FileType).IsRequired().HasMaxLength(100);
             builder.Property(sd => sd.FileSize).IsRequired();
-            builder.Property(sd => sd.FileContent).HasColumnType("varbinary(max)").IsRequired();
             builder.Property(sd => sd.UploadedAt)
                 .IsRequired()
                 .HasDefaultValueSql("GETUTCDATE()");

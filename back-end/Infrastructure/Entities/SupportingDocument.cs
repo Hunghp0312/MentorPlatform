@@ -10,7 +10,7 @@
         public string FileName { get; set; } = string.Empty;
         public string FileType { get; set; } = string.Empty;
         public long FileSize { get; set; }
-        public byte[] FileContent { get; set; } = Array.Empty<byte>();
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+        public virtual DocumentContent? DocumentContent { get; set; }
     }
 }
