@@ -350,15 +350,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("ApplicationStatus");
+                    b.ToTable("ApplicationStatus", (string)null);
 
                     b.HasData(
                         new
@@ -490,7 +487,7 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("AdminReviewerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ApplicantUserId")
+                    b.Property<Guid>("ApplicantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ApplicationStatusId")
@@ -526,7 +523,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("AdminReviewerId");
 
-                    b.HasIndex("ApplicantUserId");
+                    b.HasIndex("ApplicantId");
 
                     b.HasIndex("ApplicationStatusId");
 
@@ -629,21 +626,37 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.Role", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
+                    b.ToTable("Role", (string)null);
 
-                    b.ToTable("Role");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Learner"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Mentor"
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
@@ -734,8 +747,8 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("RefreshTokenExpiryTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -749,13 +762,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
                 {
-                    b.Property<Guid>("UserProfileId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ArenaOfExpertiseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserProfileId", "ArenaOfExpertiseId");
+                    b.HasKey("UserId", "ArenaOfExpertiseId");
 
                     b.HasIndex("ArenaOfExpertiseId");
 
@@ -798,9 +811,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
-                    b.Property<byte[]>("PhotoUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("varbinary(500)");
+                    b.Property<byte[]>("PhotoData")
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<bool>("PrivacyProfile")
                         .ValueGeneratedOnAdd()
@@ -893,9 +905,9 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("AdminReviewerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Infrastructure.Entities.User", "ApplicantUser")
+                    b.HasOne("Infrastructure.Entities.User", "Applicant")
                         .WithMany("SubmittedMentorApplications")
-                        .HasForeignKey("ApplicantUserId")
+                        .HasForeignKey("ApplicantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -907,7 +919,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("AdminReviewer");
 
-                    b.Navigation("ApplicantUser");
+                    b.Navigation("Applicant");
 
                     b.Navigation("ApplicationStatus");
                 });
@@ -959,9 +971,9 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Role", "Role")
-                        .WithMany("Users")
+                        .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Role");
@@ -975,15 +987,15 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
+                    b.HasOne("Infrastructure.Entities.User", "User")
                         .WithMany("UserArenaOfExpertises")
-                        .HasForeignKey("UserProfileId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ArenaOfExpertise");
 
-                    b.Navigation("UserProfile");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
@@ -1042,11 +1054,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("SupportingDocuments");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Role", b =>
-                {
-                    b.Navigation("Users");
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.Topic", b =>
                 {
                     b.Navigation("UserTopicOfInterests");
@@ -1060,14 +1067,11 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("SubmittedMentorApplications");
 
+                    b.Navigation("UserArenaOfExpertises");
+
                     b.Navigation("UserProfile");
 
                     b.Navigation("UserTopicOfInterests");
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
-                {
-                    b.Navigation("UserArenaOfExpertises");
                 });
 #pragma warning restore 612, 618
         }
