@@ -9,6 +9,5 @@ namespace ApplicationCore.DTOs.Requests.Mentors
 
         public List<CertificationDetailDto>? Certifications { get; set; }
 
-        //public List<IFormFile>? SupportingDocuments { get; set; }
     }
 }
