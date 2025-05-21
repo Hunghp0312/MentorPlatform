@@ -8,11 +8,11 @@ namespace Infrastructure.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<UserArenaOfExpertise> builder)
         {
-            builder.HasKey(uae => new { uae.UserProfileId, uae.ArenaOfExpertiseId });
+            builder.HasKey(uae => new { uae.UserId, uae.ArenaOfExpertiseId });
 
-            builder.HasOne(uae => uae.UserProfile)
+            builder.HasOne(uae => uae.User)
                 .WithMany(up => up.UserArenaOfExpertises)
-                .HasForeignKey(uae => uae.UserProfileId)
+                .HasForeignKey(uae => uae.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(uae => uae.ArenaOfExpertise)
