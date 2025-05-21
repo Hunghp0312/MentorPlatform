@@ -9,6 +9,7 @@ using FluentValidation.AspNetCore;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data;
 using Infrastructure.Data.Context;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         connectionString,
         sqlServerOptionsAction: sqlOptions =>
         {
-            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName); // Quan trọng: chỉ định Assembly chứa migrations
+            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
         }
     )
 );
@@ -41,6 +42,27 @@ builder
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new TrimmingJsonStringConverter());
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            string errorMessage = "One or more validation errors occurred.";
+
+            var errorMessages = context.ModelState.Values
+                                   .SelectMany(v => v.Errors)
+                                   .Select(e => e.ErrorMessage)
+                                   .Where(m => !string.IsNullOrEmpty(m))
+                                   .ToList();
+
+            if (errorMessages.Any())
+            {
+                errorMessage = string.Join(" | ", errorMessages);
+            }
+
+            var errorResponse = new { message = errorMessage };
+            return new BadRequestObjectResult(errorResponse);
+        };
     });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
