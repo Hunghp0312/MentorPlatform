@@ -1,11 +1,8 @@
-
 using MailKit.Net.Smtp;
 using Infrastructure.Options;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MailKit.Security;
-using Infrastructure.Entities;
-using Microsoft.VisualBasic;
 
 namespace Infrastructure.Services
 {
@@ -38,6 +35,6 @@ namespace Infrastructure.Services
                 await client.DisconnectAsync(true);
             }
         }
-
+        
     }
 }
