@@ -96,7 +96,7 @@ const RegistrationPanel: React.FC<Props> = ({
       <InputCustom
         label="Email Address"
         name="email"
-        type="email"
+        type="text"
         value={email}
         placeholder="you@example.com"
         onChange={(e) => {
