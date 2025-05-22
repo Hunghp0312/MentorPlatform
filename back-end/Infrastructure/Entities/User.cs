@@ -15,8 +15,8 @@
         public virtual Role Role { get; set; } = null!;
         public virtual UserProfile? UserProfile { get; set; }
         public virtual ICollection<UserTopicOfInterest> UserTopicOfInterests { get; set; } = new List<UserTopicOfInterest>();
-        public virtual ICollection<MentorApplication> SubmittedMentorApplications { get; set; } = new List<MentorApplication>();
-        public virtual ICollection<MentorApplication> ReviewedMentorApplications { get; set; } = new List<MentorApplication>();
+        public virtual MentorApplication SubmittedMentorApplication { get; set; } = null!;
+        public virtual MentorApplication ReviewedMentorApplication { get; set; } = null!;
         public virtual ICollection<Course> MentoredCourses { get; set; } = new List<Course>();
         public virtual ICollection<UserArenaOfExpertise> UserArenaOfExpertises { get; set; } = new List<UserArenaOfExpertise>();
     }
