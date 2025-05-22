@@ -1,3 +1,4 @@
+// ProfileCreatePanel.tsx
 import React, { useState, useEffect } from "react";
 import InputCustom from "../../input/InputCustom";
 import ProfilePictureUpload from "../child/ProfilePictureUpload";
@@ -5,17 +6,22 @@ import RoleSelectionCard from "../child/RoleSelectionCard";
 import MultiSelectButtons from "../child/MultiSelectButtons";
 import CommunicationMethodButton from "../child/CommunicationMethodButton";
 import { Video, Headphones, MessageCircle } from "lucide-react";
+import {
+  ProfileDetails,
+  Role,
+  CommunicationMethod,
+} from "../../../types/userRegister.d"; // Adjust path
 
 interface Props {
-  profile: string; // This is for Bio
-  setProfile: (v: string) => void;
+  profileData: ProfileDetails;
+  onProfileChange: (field: keyof ProfileDetails, value: any) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
 const rolesData = [
-  { name: "Learner", subtext: "I want to find mentors", icon: "👨‍🎓" },
-  { name: "Mentor", subtext: "I want to mentor others", icon: "👨‍🏫" },
+  { name: "Learner" as Role, subtext: "I want to find mentors", icon: "👨‍🎓" },
+  { name: "Mentor" as Role, subtext: "I want to mentor others", icon: "👨‍🏫" },
 ];
 
 const expertiseOptions = [
@@ -35,11 +41,22 @@ const availabilityOptions = [
   "Afternoons",
   "Evenings",
 ];
-
 const communicationMethodsData = [
-  { value: "Video Call", label: "Video Call", icon: <Video size={20} /> },
-  { value: "Audio Call", label: "Audio Call", icon: <Headphones size={20} /> },
-  { value: "Text Chat", label: "Text Chat", icon: <MessageCircle size={20} /> },
+  {
+    value: "Video Call" as CommunicationMethod,
+    label: "Video Call",
+    icon: <Video size={20} />,
+  },
+  {
+    value: "Audio Call" as CommunicationMethod,
+    label: "Audio Call",
+    icon: <Headphones size={20} />,
+  },
+  {
+    value: "Text Chat" as CommunicationMethod,
+    label: "Text Chat",
+    icon: <MessageCircle size={20} />,
+  },
 ];
 
 const MAX_FILE_SIZE_MB = 2;
@@ -47,41 +64,38 @@ const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png"];
 
 const ProfileCreatePanel: React.FC<Props> = ({
-  profile,
-  setProfile,
+  profileData,
+  onProfileChange,
   onNext,
   onBack,
 }) => {
-  const [selectedRole, setSelectedRole] = useState<"Learner" | "Mentor">(
-    "Learner"
-  ); // Initial Role
-  const [fullName, setFullName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [skillsInput, setSkillsInput] = useState("");
-  const [experience, setExperience] = useState("");
-  const [expertise, setExpertise] = useState<string[]>([]);
-  const [availability, setAvailability] = useState<string[]>([]);
-  const [communication, setCommunication] = useState("Video Call");
-  const [goals, setGoals] = useState("");
-  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
-    null
-  );
+  const [profilePictureError, setProfilePictureError] = useState("");
+  const [fullNameError, setFullNameError] = useState("");
+  const [bioError, setBioError] = useState("");
+  const [phoneNumberError, setPhoneNumberError] = useState("");
+  const [expertiseError, setExpertiseError] = useState("");
+  const [skillsError, setSkillsError] = useState(""); // For InputTag's own error message prop
+  const [experienceError, setExperienceError] = useState("");
+  const [availabilityError, setAvailabilityError] = useState("");
+
   const [profilePicturePreview, setProfilePicturePreview] = useState<
     string | null
   >(null);
-
-  const [fullNameError, setFullNameError] = useState("");
-  const [bioError, setBioError] = useState("");
-  const [expertiseError, setExpertiseError] = useState("");
-  const [availabilityError, setAvailabilityError] = useState("");
-  const [profilePictureError, setProfilePictureError] = useState("");
-  const [experienceError, setExperienceError] = useState("");
-  const [phoneNumberError, setPhoneNumberError] = useState("");
-  const [skillsError, setSkillsError] = useState("");
-
   const [firstErrorFieldId, setFirstErrorFieldId] = useState<string | null>(
     null
   );
+
+  // Sync profile picture preview if file changes from parent (e.g., on back and forth navigation)
+  useEffect(() => {
+    if (profileData.profilePictureFile) {
+      const reader = new FileReader();
+      reader.onloadend = () =>
+        setProfilePicturePreview(reader.result as string);
+      reader.readAsDataURL(profileData.profilePictureFile);
+    } else {
+      setProfilePicturePreview(null);
+    }
+  }, [profileData.profilePictureFile]);
 
   const handleProfilePictureChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -94,66 +108,64 @@ const ProfileCreatePanel: React.FC<Props> = ({
         file.size > MAX_FILE_SIZE_BYTES
       ) {
         setProfilePictureError(
-          `Please select a .png or .jpg file with a maximum of ${MAX_FILE_SIZE_MB}MB`
+          `Please select a .png or .jpg file (max ${MAX_FILE_SIZE_MB}MB)`
         );
-        setProfilePictureFile(null);
-        setProfilePicturePreview(null);
-        e.target.value = ""; // Reset file input
-        console.log(profilePictureFile);
+        onProfileChange("profilePictureFile", null);
+        e.target.value = "";
         return;
       }
-      setProfilePictureFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePicturePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      onProfileChange("profilePictureFile", file);
+    } else {
+      onProfileChange("profilePictureFile", null);
     }
   };
 
   const toggleMultiSelect = (
     option: string,
-    setter: React.Dispatch<React.SetStateAction<string[]>>,
+    field: keyof Pick<ProfileDetails, "expertise" | "availability">,
     errorSetter?: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    setter((prev) =>
-      prev.includes(option)
-        ? prev.filter((v) => v !== option)
-        : [...prev, option]
-    );
+    const currentSelection = profileData[field] as string[];
+    const newSelection = currentSelection.includes(option)
+      ? currentSelection.filter((item) => item !== option)
+      : [...currentSelection, option];
+    onProfileChange(field, newSelection);
     errorSetter?.("");
   };
-
-  const getSkillsArray = () =>
-    skillsInput
-      .split(",")
-      .map((skill) => skill.trim())
-      .filter((skill) => skill !== "");
 
   const validateAndSetFocusTarget = () => {
     let isValid = true;
     let focusTargetId: string | null = null;
 
-    const trimmedFullName = fullName.trim();
-    if (!trimmedFullName) {
-      setFullNameError("Please fill in this field");
+    const {
+      fullName,
+      bio,
+      phoneNumber,
+      expertise,
+      skills,
+      industryExperience,
+      availability,
+      role,
+    } = profileData;
+
+    if (!fullName.trim()) {
+      setFullNameError("Full name is required.");
       focusTargetId ??= "fullName";
       isValid = false;
-    } else if (trimmedFullName.length < 2 || trimmedFullName.length > 100) {
-      setFullNameError("Full name must be between 2 and 100 characters.");
+    } else if (fullName.trim().length < 2 || fullName.trim().length > 100) {
+      setFullNameError("Must be 2-100 characters.");
       focusTargetId ??= "fullName";
       isValid = false;
     } else {
       setFullNameError("");
     }
 
-    const trimmedBio = profile.trim();
-    if (!trimmedBio) {
-      setBioError("Please fill in this field");
+    if (!bio.trim()) {
+      setBioError("Bio is required.");
       focusTargetId ??= "bio";
       isValid = false;
-    } else if (trimmedBio.length > 1000) {
-      setBioError("Bio must be a maximum of 1000 characters.");
+    } else if (bio.trim().length > 1000) {
+      setBioError("Max 1000 characters.");
       focusTargetId ??= "bio";
       isValid = false;
     } else {
@@ -161,11 +173,11 @@ const ProfileCreatePanel: React.FC<Props> = ({
     }
 
     if (phoneNumber && !/^\d+$/.test(phoneNumber.replace(/\s+/g, ""))) {
-      setPhoneNumberError("Phone number should only contain digits.");
+      setPhoneNumberError("Digits only.");
       focusTargetId ??= "phoneNumber";
       isValid = false;
     } else if (phoneNumber && phoneNumber.replace(/\s+/g, "").length > 15) {
-      setPhoneNumberError("Phone number must be a maximum of 15 digits.");
+      setPhoneNumberError("Max 15 digits.");
       focusTargetId ??= "phoneNumber";
       isValid = false;
     } else {
@@ -173,50 +185,43 @@ const ProfileCreatePanel: React.FC<Props> = ({
     }
 
     if (expertise.length === 0) {
-      setExpertiseError("Please select at least one category from the list");
+      setExpertiseError("Select at least one expertise.");
       focusTargetId ??= "expertiseGroup";
       isValid = false;
     } else {
       setExpertiseError("");
     }
 
-    if (skillsInput.length > 50) {
-      setSkillsError(
-        "Professional skills input must be a maximum of 50 characters."
-      );
-      focusTargetId ??= "professionalSkills";
+    // InputTag handles its own length validation, skills here refers to the array.
+    // If skills array must not be empty:
+    if (skills.length === 0) {
+      setSkillsError("At least one skill is required.");
+      focusTargetId ??= "professionalSkillsInputTag";
       isValid = false;
     } else {
       setSkillsError("");
     }
 
-    const trimmedExperience = experience.trim();
-    if (selectedRole === "Mentor" && !trimmedExperience) {
-      setExperienceError("Please fill in this field");
-      focusTargetId ??= "experience";
+    const isExperienceRequired = role === "Mentor";
+    if (isExperienceRequired && !industryExperience.trim()) {
+      setExperienceError("Experience required for Mentors.");
+      focusTargetId ??= "industryExperience";
       isValid = false;
-    } else if (trimmedExperience.length > 50) {
-      setExperienceError(
-        "Industry experience must be a maximum of 50 characters."
-      );
-      focusTargetId ??= "experience";
+    } else if (industryExperience.trim().length > 100) {
+      setExperienceError("Max 100 characters.");
+      focusTargetId ??= "industryExperience";
       isValid = false;
-    } else {
+    } // Example max length
+    else {
       setExperienceError("");
     }
 
     if (availability.length === 0) {
-      setAvailabilityError("Please select at least one option from the list");
+      setAvailabilityError("Select at least one availability.");
       focusTargetId ??= "availabilityGroup";
       isValid = false;
     } else {
       setAvailabilityError("");
-    }
-
-    if (goals.length > 1000) {
-      setBioError("Goals must be a maximum of 1000 characters.");
-      focusTargetId ??= "goals";
-      isValid = false;
     }
 
     setFirstErrorFieldId(focusTargetId);
@@ -225,28 +230,10 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
   useEffect(() => {
     if (firstErrorFieldId) {
-      const elementToFocusOrScroll = document.getElementById(firstErrorFieldId);
-      if (elementToFocusOrScroll) {
-        if (
-          [
-            "fullName",
-            "bio",
-            "professionalSkills",
-            "experience",
-            "goals",
-            "profilePictureActualInput",
-            "phoneNumber",
-          ].includes(firstErrorFieldId)
-        ) {
-          elementToFocusOrScroll.scrollIntoView({
-            behavior: "smooth",
-            block: "center",
-          });
-        }
-        elementToFocusOrScroll.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
+      const elementToFocus = document.getElementById(firstErrorFieldId);
+      if (elementToFocus) {
+        elementToFocus.focus();
+        elementToFocus.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       setFirstErrorFieldId(null);
     }
@@ -254,6 +241,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Clear all local error states before re-validating
     setProfilePictureError("");
     setFullNameError("");
     setBioError("");
@@ -267,8 +255,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       onNext();
     }
   };
-
-  const isExperienceRequired = selectedRole === "Mentor";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8 text-white pb-8">
@@ -290,11 +276,8 @@ const ProfileCreatePanel: React.FC<Props> = ({
             label="Full Name"
             name="fullName"
             type="text"
-            value={fullName}
-            onChange={(e) => {
-              setFullName(e.target.value);
-              setFullNameError("");
-            }}
+            value={profileData.fullName}
+            onChange={(e) => onProfileChange("fullName", e.target.value)}
             placeholder="Your full name"
             isRequired
             errorMessage={fullNameError}
@@ -304,11 +287,8 @@ const ProfileCreatePanel: React.FC<Props> = ({
             label="Bio"
             name="bio"
             type="textarea"
-            value={profile}
-            onChange={(e) => {
-              setProfile(e.target.value);
-              setBioError("");
-            }}
+            value={profileData.bio}
+            onChange={(e) => onProfileChange("bio", e.target.value)}
             placeholder="A brief introduction about yourself…"
             isRequired
             errorMessage={bioError}
@@ -317,13 +297,10 @@ const ProfileCreatePanel: React.FC<Props> = ({
           <InputCustom
             label="Phone number"
             name="phoneNumber"
-            type="tel" // Use type="tel" for phone numbers
-            value={phoneNumber}
-            onChange={(e) => {
-              setPhoneNumber(e.target.value);
-              setPhoneNumberError("");
-            }}
-            placeholder="Your phone number"
+            type="tel"
+            value={profileData.phoneNumber || ""}
+            onChange={(e) => onProfileChange("phoneNumber", e.target.value)}
+            placeholder="Your phone number (optional)"
             errorMessage={phoneNumberError}
             className="bg-gray-800 border-gray-700"
           />
@@ -335,34 +312,26 @@ const ProfileCreatePanel: React.FC<Props> = ({
           I am joining as <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-4 w-full">
-          {rolesData.map((role) => (
+          {rolesData.map((roleOpt) => (
             <RoleSelectionCard
-              key={role.name}
-              role={role}
-              isSelected={selectedRole === role.name}
-              onClick={() => {
-                setSelectedRole(role.name as "Learner" | "Mentor");
-                if (
-                  role.name === "Learner" &&
-                  isExperienceRequired &&
-                  experience.trim() === ""
-                ) {
-                  setExperienceError("");
-                }
-              }}
+              key={roleOpt.name}
+              role={roleOpt}
+              isSelected={profileData.role === roleOpt.name}
+              onClick={() => onProfileChange("role", roleOpt.name)}
             />
           ))}
         </div>
       </div>
 
-      <div>
+      <div id="expertiseGroup">
+        {" "}
+        {/* ID for focusing the group */}
         <MultiSelectButtons
-          id="expertiseGroup"
           label="Areas of Expertise"
           options={expertiseOptions}
-          selectedOptions={expertise}
+          selectedOptions={profileData.expertise}
           onToggleSelect={(option) =>
-            toggleMultiSelect(option, setExpertise, setExpertiseError)
+            toggleMultiSelect(option, "expertise", setExpertiseError)
           }
           gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
           isRequired
@@ -374,53 +343,45 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <InputCustom
+          name="professionalSkillsInputTag" // ID for focusing
           label="Professional Skills"
-          name="professionalSkills"
           type="text"
-          value={skillsInput}
-          onChange={(e) => {
-            setSkillsInput(e.target.value);
-            setSkillsError("");
-          }}
-          placeholder="e.g., JavaScript, Project Management"
-          errorMessage={skillsError}
+          value={profileData.skills.join(", ")} // Assuming skills is an array of strings
+          onChange={(e) =>
+            onProfileChange(
+              "skills",
+              e.target.value.split(",").map((s) => s.trim())
+            )
+          }
+          placeholder="Type and press Enter"
+          errorMessage={skillsError} // Show parent error
           className="bg-gray-800 border-gray-700"
+          isRequired
         />
         <InputCustom
           label="Industry Experience"
-          name="experience"
+          name="industryExperience"
           type="text"
-          value={experience}
-          onChange={(e) => {
-            setExperience(e.target.value);
-            if (isExperienceRequired) setExperienceError("");
-          }}
-          placeholder="e.g., 5 years in Tech, 3 years in Finance"
-          isRequired={isExperienceRequired}
+          value={profileData.industryExperience}
+          onChange={(e) =>
+            onProfileChange("industryExperience", e.target.value)
+          }
+          placeholder="e.g., 5 years in Tech"
+          isRequired={profileData.role === "Mentor"}
           errorMessage={experienceError}
           className="bg-gray-800 border-gray-700"
         />
       </div>
-      {getSkillsArray().length > 0 && (
-        <div className="flex flex-wrap items-center -mt-6 mb-2 gap-2 px-1">
-          {getSkillsArray().map((skill, index) => (
-            <span
-              key={index}
-              className="bg-gray-600 text-gray-200 px-2 py-1 rounded-md text-xs">
-              {skill}
-            </span>
-          ))}
-        </div>
-      )}
 
-      <div>
+      <div id="availabilityGroup">
+        {" "}
+        {/* ID for focusing the group */}
         <MultiSelectButtons
-          id="availabilityGroup"
           label="Your Availability"
           options={availabilityOptions}
-          selectedOptions={availability}
+          selectedOptions={profileData.availability}
           onToggleSelect={(option) =>
-            toggleMultiSelect(option, setAvailability, setAvailabilityError)
+            toggleMultiSelect(option, "availability", setAvailabilityError)
           }
           gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
           isRequired
@@ -439,24 +400,16 @@ const ProfileCreatePanel: React.FC<Props> = ({
             <CommunicationMethodButton
               key={method.value}
               method={method}
-              isSelected={communication === method.value}
-              onClick={() => setCommunication(method.value)}
+              isSelected={profileData.preferredCommunication === method.value}
+              onClick={() =>
+                onProfileChange("preferredCommunication", method.value)
+              }
             />
           ))}
         </div>
       </div>
 
-      <InputCustom
-        label="What do you hope to learn?"
-        name="goals"
-        type="textarea"
-        value={goals}
-        onChange={(e) => {
-          setGoals(e.target.value);
-        }}
-        placeholder="Describe your learning objectives and what you hope to achieve…"
-        className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
-      />
+      {/* Learning Goals removed as it's now in PreferenceSetupPanel */}
 
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <button
@@ -468,7 +421,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         <button
           type="submit"
           className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 transition rounded-lg text-white font-semibold">
-          Continue to Final Step
+          Continue to Preferences
         </button>
       </div>
     </form>
