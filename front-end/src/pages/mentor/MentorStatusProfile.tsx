@@ -112,9 +112,9 @@ const MentorStatusProfile = () => {
       </div>
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2">Documents</h3>
-        {/* {mentorData.documents.length > 0 ? (
+        {mentorData?.documents.length > 0 ? (
           <div className="space-y-2">
-            {mentorData.documents.map((doc, index) => (
+            {mentorData?.documents.map((doc, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between bg-gray-600 p-2 rounded"
@@ -152,7 +152,7 @@ const MentorStatusProfile = () => {
           </div>
         ) : (
           <p className="text-gray-200">No documents available.</p>
-        )} */}
+        )}
       </div>
     </div>
   );
