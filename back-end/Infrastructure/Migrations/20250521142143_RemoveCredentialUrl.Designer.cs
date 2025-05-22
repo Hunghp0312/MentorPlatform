@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521142143_RemoveCredentialUrl")]
+    partial class RemoveCredentialUrl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,70 +116,70 @@ namespace Infrastructure.Migrations
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                             Description = "Courses related to software development and programming languages.",
                             Name = "Programming",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             Description = "Frontend and backend development tutorials and courses.",
                             Name = "Web Development",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Description = "Learn data analysis, visualization, and machine learning.",
                             Name = "Data Science",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
                             Description = "Courses on CI/CD, containers, and infrastructure automation.",
                             Name = "DevOps",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                             Description = "Introduction to relational and non-relational databases.",
                             Name = "Databases",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                             Description = "Courses on HTML, CSS, JavaScript and modern frameworks.",
                             Name = "Frontend",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             Description = "Learn backend technologies and server-side programming.",
                             Name = "Backend",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             Description = "Build apps for iOS and Android platforms.",
                             Name = "Mobile Development",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
                             Description = "Explore AWS, Azure, GCP and cloud infrastructure.",
                             Name = "Cloud Computing",
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-444444444444"),
                             Description = "Understand security principles and ethical hacking.",
                             Name = "Cybersecurity",
-                            StatusId = 2
+                            StatusId = 1
                         });
                 });
 
@@ -380,29 +383,6 @@ namespace Infrastructure.Migrations
                             StatusId = 1,
                             Tags = "Docker,containers,devops,deployment"
                         });
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<byte[]>("FileContent")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DocumentContent");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
@@ -697,9 +677,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<Guid?>("DocumentContentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("ResourceCategoryId")
                         .HasColumnType("uniqueidentifier");
 
@@ -713,10 +690,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("DocumentContentId")
-                        .IsUnique()
-                        .HasFilter("[DocumentContentId] IS NOT NULL");
 
                     b.ToTable("Resource");
                 });
@@ -762,8 +735,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DocumentContentId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -781,6 +755,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("MentorApplicationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ResourceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UploadedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -788,11 +765,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DocumentContentId")
-                        .IsUnique()
-                        .HasFilter("[DocumentContentId] IS NOT NULL");
-
                     b.HasIndex("MentorApplicationId");
+
+                    b.HasIndex("ResourceId");
 
                     b.ToTable("SupportingDocument");
                 });
@@ -1105,31 +1080,24 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("CourseId");
 
-                    b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
-                        .WithOne("Resource")
-                        .HasForeignKey("Infrastructure.Entities.Resource", "DocumentContentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.Navigation("Course");
-
-                    b.Navigation("DocumentContent");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
-                        .WithOne("SupportingDocument")
-                        .HasForeignKey("Infrastructure.Entities.SupportingDocument", "DocumentContentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
                         .WithMany("SupportingDocuments")
                         .HasForeignKey("MentorApplicationId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("DocumentContent");
+                    b.HasOne("Infrastructure.Entities.Resource", "Resource")
+                        .WithMany("SupportingDocuments")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("MentorApplication");
+
+                    b.Navigation("Resource");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
@@ -1202,13 +1170,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
-                {
-                    b.Navigation("Resource");
-
-                    b.Navigation("SupportingDocument");
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
                 {
                     b.Navigation("MentorApplications");
@@ -1222,6 +1183,11 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("MentorWorkExperiences");
 
+                    b.Navigation("SupportingDocuments");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
+                {
                     b.Navigation("SupportingDocuments");
                 });
 
