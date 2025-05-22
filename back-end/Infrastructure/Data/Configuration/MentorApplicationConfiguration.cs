@@ -8,9 +8,8 @@ namespace Infrastructure.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<MentorApplication> builder)
         {
-            builder.HasKey(ma => ma.Id);
+            builder.HasKey(ma => ma.ApplicantId);
 
-            builder.Property(ma => ma.ApplicantId).IsRequired();
             builder.Property(ma => ma.ApplicationStatusId).IsRequired();
             builder.Property(ma => ma.MotivationStatement).IsRequired();
 
@@ -28,10 +27,9 @@ namespace Infrastructure.Data.Configuration
                 .HasDefaultValueSql("GETUTCDATE()");
             builder.Property(ma => ma.UpdatedAt).IsRequired(false);
 
-            // Relationships
             builder.HasOne(ma => ma.Applicant)
-                .WithMany(u => u.SubmittedMentorApplications)
-                .HasForeignKey(ma => ma.ApplicantId)
+                .WithOne(u => u.SubmittedMentorApplication)
+                .HasForeignKey<MentorApplication>(ma => ma.ApplicantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(ma => ma.ApplicationStatus)
@@ -40,8 +38,8 @@ namespace Infrastructure.Data.Configuration
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(ma => ma.AdminReviewer)
-                .WithMany(u => u.ReviewedMentorApplications)
-                .HasForeignKey(ma => ma.AdminReviewerId)
+                .WithOne(u => u.ReviewedMentorApplication)
+                .HasForeignKey<MentorApplication>(ma => ma.AdminReviewerId)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }
