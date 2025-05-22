@@ -8,12 +8,7 @@ namespace Infrastructure.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<DocumentContent> builder)
         {
-            builder.HasKey(d => d.SupportingDocumentId);
-            builder.HasOne(dc => dc.SupportingDocument)
-                   .WithOne(sd => sd.DocumentContent)
-                   .HasForeignKey<DocumentContent>(dc => dc.SupportingDocumentId)
-                   .OnDelete(DeleteBehavior.Cascade);
-
+            builder.HasKey(d => d.Id);
             builder.Property(sd => sd.FileContent).HasColumnType("varbinary(max)").IsRequired();
 
         }

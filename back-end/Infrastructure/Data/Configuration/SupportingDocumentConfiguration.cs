@@ -10,7 +10,7 @@ namespace Infrastructure.Data.Configuration
         {
             builder.HasKey(sd => sd.Id);
             builder.Property(sd => sd.MentorApplicationId).IsRequired(false);
-            builder.Property(sd => sd.ResourceId).IsRequired(false);
+            builder.Property(sd => sd.DocumentContentId).IsRequired(false);
             builder.Property(sd => sd.FileName).IsRequired().HasMaxLength(255);
             builder.Property(sd => sd.FileType).IsRequired().HasMaxLength(100);
             builder.Property(sd => sd.FileSize).IsRequired();
@@ -18,7 +18,10 @@ namespace Infrastructure.Data.Configuration
                 .IsRequired()
                 .HasDefaultValueSql("GETUTCDATE()");
 
-            builder.HasOne(sd => sd.Resource).WithMany(r => r.SupportingDocuments).HasForeignKey(sd => sd.ResourceId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(sd => sd.DocumentContent)
+                   .WithOne(dc => dc.SupportingDocument)
+                   .HasForeignKey<SupportingDocument>(sd => sd.DocumentContentId)
+                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(sd => sd.MentorApplication)
                 .WithMany(ma => ma.SupportingDocuments)
