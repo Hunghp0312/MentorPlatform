@@ -1,4 +1,5 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Data.Seeding;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,6 +14,8 @@ namespace Infrastructure.Data.Configuration
                 .IsRequired()
                 .HasMaxLength(200);
             builder.HasIndex(t => t.Name).IsUnique();
+
+            builder.HasData(TopicSeeding.SeedTopics());
         }
     }
 }
