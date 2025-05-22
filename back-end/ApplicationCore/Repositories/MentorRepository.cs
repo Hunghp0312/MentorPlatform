@@ -12,7 +12,7 @@ namespace ApplicationCore.Repositories
         {
         }
 
-        protected async Task<(ICollection<MentorApplication> mentors, int totalCount)> GetPaged(
+        public override async Task<(ICollection<MentorApplication> , int )> GetPagedAsync(
             Func<IQueryable<MentorApplication>, IQueryable<MentorApplication>>? filter,
             int pageIndex,
             int pageSize
@@ -21,7 +21,7 @@ namespace ApplicationCore.Repositories
             var queryable = _dbSet.Include(x => x.Applicant)
             .ThenInclude(x => x.UserProfile)
             .ThenInclude(x => x.User)
-            .ThenInclude(x => x.UserArenaOfExpertises)
+            .ThenInclude(x => x != null ? x.UserArenaOfExpertises : null)
             .Include(x => x.SupportingDocuments)
             .Include(x => x.ApplicationStatus)
             .AsQueryable();
