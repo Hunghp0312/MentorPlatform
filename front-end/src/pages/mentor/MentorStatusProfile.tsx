@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { MentorStatusType } from "../../types/mentorwaitingstatus";
+import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 // import { set } from "date-fns";
 
 const mockMentorWaiting: MentorStatusType[] = [
@@ -100,6 +101,61 @@ const MentorStatusProfile = () => {
       setError(null);
     }
   };
+  // Define the content for ExpandProfileSettings
+  const additionalSettingsContent = (
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-sm font-medium text-gray-400 mb-1">
+          Submitted Date
+        </h3>
+        <p className="text-gray-200">{mentorData?.submittedDate}</p>
+      </div>
+      <div>
+        <h3 className="text-sm font-medium text-gray-400 mb-2">Documents</h3>
+        {/* {mentorData.documents.length > 0 ? (
+          <div className="space-y-2">
+            {mentorData.documents.map((doc, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between bg-gray-600 p-2 rounded"
+              >
+                <div className="flex items-center">
+                  <span
+                    className={`mr-2 text-sm font-medium ${
+                      doc.type === "PDF" ? "text-red-400" : "text-blue-400"
+                    }`}
+                  >
+                    {doc.type}
+                  </span>
+                  <span className="text-sm text-gray-200">{doc.name}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <a
+                    href={doc.url}
+                    className="text-blue-400 hover:text-blue-300 text-sm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View
+                  </a>
+                  {isEditing && (
+                    <button
+                      onClick={() => handleRemoveDocument(index)}
+                      className="text-red-400 hover:text-red-300 text-sm"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-200">No documents available.</p>
+        )} */}
+      </div>
+    </div>
+  );
 
   if (loading) return <div>Loading...</div>;
   if (!editedMentor) return <div>No data available</div>;
@@ -154,6 +210,61 @@ const MentorStatusProfile = () => {
               <h3 className="text-sm font-medium text-gray-400 mb-1">About</h3>
               <p className="text-gray-200">No bio provided.</p>
             </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-2">
+                Areas of expertise
+              </h3>
+              <div className="flex flex-wrap gap-1.5">
+                {mentorData.expertiseAreas.map((area, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1 bg-gray-700 text-white-700 rounded-full text-sm"
+                  >
+                    {area}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">
+                Professional skills
+              </h3>
+              <p className="text-gray-200">No skills provided.</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">
+                Industry experience
+              </h3>
+              <p className="text-gray-200">{mentorData.experience}</p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">
+                Contact
+              </h3>
+              <p className="text-gray-200">{mentorData?.email}</p>
+            </div>
+            {/* <div className="pt-4 border-t border-gray-700">
+              <button className="text-orange-500 hover:text-orange-400 text-sm flex items-center">
+                <span>View Additional Profile Settings</span>
+                <svg
+                  className="w-4 h-4 ml-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  ></path>
+                </svg>
+              </button>
+            </div> */}
+            <ExpandProfileSettings
+              additionalSettings={additionalSettingsContent}
+            />
           </div>
         </div>
       </div>
