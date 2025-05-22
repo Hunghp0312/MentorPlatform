@@ -11,19 +11,21 @@ namespace ApplicationCore.Extensions
         {
             return new MetorApplicantResponse
             {
-                Id = mentorApplication.Id,
-                Avatar = mentorApplication.ApplicantUser?.UserProfile?.PhotoUrl ?? [],
-                FullName = mentorApplication.ApplicantUser?.UserProfile?.FullName ?? string.Empty,
-                Email = mentorApplication.ApplicantUser?.Email ?? string.Empty,
-                ExpertiseAreas = mentorApplication.ApplicantUser?.UserProfile?.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
+                ApplicantUserId = mentorApplication.ApplicantId,
+                PhotoData = mentorApplication.Applicant?.UserProfile?.PhotoData != null
+                    ? Convert.ToBase64String(mentorApplication.Applicant.UserProfile.PhotoData)
+                    : string.Empty,
+                FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
+                Email = mentorApplication.Applicant?.Email ?? string.Empty,
+                ExpertiseAreas = mentorApplication.Applicant?.UserProfile?.User.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
                 {
                     Name = x.ArenaOfExpertise.Name,
                 }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
-                ProfessionExperience = mentorApplication.ApplicantUser?.UserProfile?.IndustryExperience ?? string.Empty,
-                ApplicationTimeline = mentorApplication.SubmissionDate.ToString("yyyy-MM-dd"),
+                ProfessionExperience = mentorApplication.Applicant?.UserProfile?.IndustryExperience ?? string.Empty,
+                ApplicationTimeline = mentorApplication.SubmissionDate,
                 SubmissionDate = mentorApplication.SubmissionDate,
                 LastStatusUpdateDate = mentorApplication.LastStatusUpdateDate,
-                AdminReviewerId = mentorApplication.AdminReviewerId,
+                ApproverName = mentorApplication.AdminReviewer?.UserProfile?.FullName ?? string.Empty,
                 AdminComments = mentorApplication.AdminComments,
                 RejectionReason = mentorApplication.RejectionReason,
                 ApprovalDate = mentorApplication.ApprovalDate,
@@ -34,7 +36,7 @@ namespace ApplicationCore.Extensions
                     FileName = x.FileName,
                     FileId = x.Id,
                 }).ToList(),
-                Status = mentorApplication.ApplicationStatus,
+                Status = mentorApplication.ApplicationStatus.Name,
             };
         }
         public static List<MetorApplicantResponse> ToMetorApplicantResponseList(this ICollection<MentorApplication> mentorApplications)
