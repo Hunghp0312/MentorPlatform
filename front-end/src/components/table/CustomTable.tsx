@@ -9,6 +9,7 @@ export type DataAction<T> = {
   icon?: React.ReactNode;
   onClick: (row: T) => void;
   className?: string;
+  buttonName?: string;
 };
 
 export type BulkAction<T> = {
@@ -162,6 +163,9 @@ const DataTable = <T extends Record<string, any>>({
                   action.className ||
                   "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700 transition-colors"
                 }`}
+                {...(action.buttonName
+                  ? { "button-name": action.buttonName }
+                  : {})}
               >
                 {action.icon && (
                   <span className={action.label ? "mr-1" : ""}>
@@ -246,7 +250,7 @@ const DataTable = <T extends Record<string, any>>({
                 />
               ))
             ) : data.length > 0 ? (
-              data.map((row) => {
+              data.map((row, index) => {
                 const isSelected = isRowSelected(row);
                 return (
                   <tr
@@ -264,6 +268,7 @@ const DataTable = <T extends Record<string, any>>({
                     } ${rowClassName} ${
                       selectable || onRowClick ? "cursor-pointer" : ""
                     }`}
+                    row-index-test={`row-${index}`}
                   >
                     {/* Checkbox cell */}
                     {selectable && (

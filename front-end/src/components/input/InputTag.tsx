@@ -39,7 +39,7 @@ const InputTag: React.FC<TagInputProps> = ({
         return;
       }
       if (newTag.length > 50 || newTag.length < 1) {
-        setErrorMessage("Tags should be 1-50 characters");
+        setErrorMessage("Tags must be 1-50 characters");
         return;
       }
       setTags([...tags, newTag]);

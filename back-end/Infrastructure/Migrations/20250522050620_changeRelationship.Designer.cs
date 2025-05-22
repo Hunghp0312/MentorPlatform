@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250522050620_changeRelationship")]
+    partial class changeRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -542,13 +545,17 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
-                    b.Property<Guid>("ApplicantId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AdminComments")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("AdminReviewerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ApplicantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ApplicationStatusId")
@@ -579,11 +586,11 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ApplicantId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("AdminReviewerId")
-                        .IsUnique()
-                        .HasFilter("[AdminReviewerId] IS NOT NULL");
+                    b.HasIndex("AdminReviewerId");
+
+                    b.HasIndex("ApplicantId");
 
                     b.HasIndex("ApplicationStatusId");
 
@@ -1039,13 +1046,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
-                        .WithOne("ReviewedMentorApplication")
-                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "AdminReviewerId")
+                        .WithMany("ReviewedMentorApplications")
+                        .HasForeignKey("AdminReviewerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Infrastructure.Entities.User", "Applicant")
-                        .WithOne("SubmittedMentorApplication")
-                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "ApplicantId")
+                        .WithMany("SubmittedMentorApplications")
+                        .HasForeignKey("ApplicantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1230,11 +1237,9 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("MentoredCourses");
 
-                    b.Navigation("ReviewedMentorApplication")
-                        .IsRequired();
+                    b.Navigation("ReviewedMentorApplications");
 
-                    b.Navigation("SubmittedMentorApplication")
-                        .IsRequired();
+                    b.Navigation("SubmittedMentorApplications");
 
                     b.Navigation("UserArenaOfExpertises");
 

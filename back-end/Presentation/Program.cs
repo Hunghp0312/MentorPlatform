@@ -12,8 +12,7 @@ using Infrastructure.Data.Context;
 using Infrastructure.Options;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
-
-
+using Presentation.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -48,6 +47,8 @@ builder
     {
         options.JsonSerializerOptions.Converters.Add(new TrimmingJsonStringConverter());
     });
+builder.Services.ConfigureApiBehavior();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>

@@ -46,10 +46,12 @@ export const getCategoryActions = (
     icon: <Edit className="h-4 w-4" />,
     onClick: handleEdit,
     className: "bg-blue-600 hover:bg-blue-700 text-white",
+    buttonName: "edit",
   },
   {
     icon: <Trash2 className="h-4 w-4" />,
     onClick: handleDelete,
     className: "bg-red-600 hover:bg-red-700 text-white",
+    buttonName: "delete",
   },
 ];
