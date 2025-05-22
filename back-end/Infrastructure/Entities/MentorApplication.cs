@@ -15,7 +15,6 @@ namespace Infrastructure.Entities
         public DateTime? ApprovalDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
         public virtual User Applicant { get; set; } = null!;
         public virtual ApplicationStatus ApplicationStatus { get; set; } = null!;
         public virtual User? AdminReviewer { get; set; }

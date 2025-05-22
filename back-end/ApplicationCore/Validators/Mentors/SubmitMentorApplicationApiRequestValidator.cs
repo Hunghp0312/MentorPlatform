@@ -16,12 +16,8 @@ namespace ApplicationCore.Validators.Mentors
                 .NotEmpty().WithMessage(ValidationMessages.MotivationStatementRequired)
                 .MaximumLength(2000).WithMessage(ValidationMessages.MotivationStatementMaxLength);
 
-            // 'required' keyword đảm bảo các list không null.
-            // RuleFor().NotEmpty() ở đây sẽ đảm bảo list không rỗng (phải có ít nhất 1 item).
-            // Nếu bạn cho phép list rỗng, hãy bỏ .NotEmpty() cho các list.
             RuleFor(x => x.EducationDetails)
-                .NotNull().WithMessage(ValidationMessages.EducationDetailsRequired) // Đảm bảo list được cung cấp (dù 'required' đã làm)
-                                                                                    // .NotEmpty().WithMessage(ValidationMessages.CollectionNotEmpty) // Bỏ comment nếu muốn list phải có ít nhất 1 item
+                .NotNull().WithMessage(ValidationMessages.EducationDetailsRequired)
                 .ForEach(educationRule =>
                 {
                     educationRule.SetValidator(new EducationDetailDtoValidator());
@@ -29,7 +25,6 @@ namespace ApplicationCore.Validators.Mentors
 
             RuleFor(x => x.WorkExperienceDetails)
                 .NotNull().WithMessage(ValidationMessages.WorkExperienceDetailsRequired)
-                // .NotEmpty().WithMessage(ValidationMessages.CollectionNotEmpty)
                 .ForEach(experienceRule =>
                 {
                     experienceRule.SetValidator(new WorkExperienceDetailDtoValidator());
