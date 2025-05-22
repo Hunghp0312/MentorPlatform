@@ -23,16 +23,22 @@ public static class SecurityHelper
     }
     public static bool VerifyPassword(string password, string hashedPassword)
     {
-        byte[] hashBytes = Convert.FromBase64String(hashedPassword);
+        try
+        {
+            byte[] hashBytes = Convert.FromBase64String(hashedPassword);
+            byte[] salt = new byte[16];
+            Array.Copy(hashBytes, 0, salt, 0, 16);
+            byte[] storedHash = new byte[32];
+            Array.Copy(hashBytes, 16, storedHash, 0, 32);
 
-        byte[] salt = new byte[16];
-        Array.Copy(hashBytes, 0, salt, 0, 16);
-        byte[] storedHash = new byte[32];
-        Array.Copy(hashBytes, 16, storedHash, 0, 32);
+            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000, HashAlgorithmName.SHA256);
+            byte[] hash = pbkdf2.GetBytes(32);
 
-        var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100000, HashAlgorithmName.SHA256);
-        byte[] hash = pbkdf2.GetBytes(32);
-
-        return CryptographicOperations.FixedTimeEquals(storedHash, hash);
+            return CryptographicOperations.FixedTimeEquals(storedHash, hash);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

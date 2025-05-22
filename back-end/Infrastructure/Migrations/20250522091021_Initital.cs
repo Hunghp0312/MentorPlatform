@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialDB : Migration
+    public partial class Initital : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,6 +75,20 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CourseStatus", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DocumentContent",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FileContent = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentContent", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -200,7 +214,7 @@ namespace Infrastructure.Migrations
                     ApplicantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicationStatusId = table.Column<int>(type: "int", nullable: false),
                     MotivationStatement = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SubmissionDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    SubmissionDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastStatusUpdateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     AdminReviewerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AdminComments = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -321,7 +335,8 @@ namespace Infrastructure.Migrations
                     CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: true),
                     ResourceCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true)
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -331,6 +346,12 @@ namespace Infrastructure.Migrations
                         column: x => x.CourseId,
                         principalTable: "Course",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Resource_DocumentContent_DocumentContentId",
+                        column: x => x.DocumentContentId,
+                        principalTable: "DocumentContent",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -340,8 +361,7 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CertificationName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    IssuingOrganization = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    CredentialUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    IssuingOrganization = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -404,26 +424,25 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ResourceId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     FileType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
-                    FileContent = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()")
+                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SupportingDocument", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SupportingDocument_MentorApplication_MentorApplicationId",
-                        column: x => x.MentorApplicationId,
-                        principalTable: "MentorApplication",
+                        name: "FK_SupportingDocument_DocumentContent_DocumentContentId",
+                        column: x => x.DocumentContentId,
+                        principalTable: "DocumentContent",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SupportingDocument_Resource_ResourceId",
-                        column: x => x.ResourceId,
-                        principalTable: "Resource",
+                        name: "FK_SupportingDocument_MentorApplication_MentorApplicationId",
+                        column: x => x.MentorApplicationId,
+                        principalTable: "MentorApplication",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -525,6 +544,23 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "User",
+                columns: new[] { "Id", "Email", "LastLogin", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiryTime", "RoleId" },
+                values: new object[,]
+                {
+                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "minhchau.admin@gmail.com", null, "mx31ZEfKpYBolnpQdU24oZr6J8rgcmeekox8OBXQjETbsl4JcFqFbX6VwbrRUngk", null, null, null, null, 1 },
+                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "huynguyen.mentor@gmail.com", null, "S5oA4POvzUKSeBQTJCs3YrB7T6reeQXFhqLhq9FVjt8iPCwLLijsfrdYVKZDjYaU", null, null, null, null, 3 },
+                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), "dancega713@gmail.com", null, "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw", null, null, null, null, 2 },
+                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "huynguyen.admin@gmail.com", null, "J24qoemyIGuKyAln3/Pi8RE91q37SzIJG73mRFp3NZdqEIACwi8kt+zwc2H83LoW", null, null, null, null, 1 },
+                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "huykhuong.admin@gmail.com", null, "MEO5BmXN7sVmKAnTj2gETwED6W21cDTnsB2r9wir+fLFKTHRsmuDEnA134c8XS7g", null, null, null, null, 1 },
+                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), "minhchau.mentor@gmail.com", null, "JusmH4xgMpPCqpXoHUmy5gIrmPE8Tn3FnmL4oJwoo5pdSUihid8bh2A8X47pDT0p", null, null, null, null, 3 },
+                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "huykhuong.mentor@gmail.com", null, "cfvPgZ274jQi71+hIv9qWL1GW4fl8c1krVlChe4zfN/W1GWQ+iI7hVe6acsAVs4r", null, null, null, null, 3 },
+                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "huynguyen.learner@gmail.com", null, "V5ValFHZWsVzHsJ1/kVQNY7voa9/s82t0wCoXgKANAmUV7jIXB3fSDqPrEWXyDQE", null, null, null, null, 2 },
+                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "huykhuong.learner@gmail.com", null, "ij89QzFzzSDgkoM4/BxIQP/XGsF+jpIqE9jCQ54glK+RtGhTwWNA+tAgoq+VvcWP", null, null, null, null, 2 },
+                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "minhchau.learner@gmail.com", null, "PrMl19R6c0HX1trcVn7rrzICN0cwn9dfaVqYRy5MKE2ooPNFDCkNvOi3eYFQ+t3Y", null, null, null, null, 2 }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Course",
                 columns: new[] { "Id", "CategoryId", "Created", "Description", "Duration", "LastUpdated", "LevelId", "MentorId", "Name", "StatusId", "Tags", "UserId" },
                 values: new object[,]
@@ -608,14 +644,23 @@ namespace Infrastructure.Migrations
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Resource_DocumentContentId",
+                table: "Resource",
+                column: "DocumentContentId",
+                unique: true,
+                filter: "[DocumentContentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportingDocument_DocumentContentId",
+                table: "SupportingDocument",
+                column: "DocumentContentId",
+                unique: true,
+                filter: "[DocumentContentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SupportingDocument_MentorApplicationId",
                 table: "SupportingDocument",
                 column: "MentorApplicationId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_SupportingDocument_ResourceId",
-                table: "SupportingDocument",
-                column: "ResourceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Topic_Name",
@@ -658,6 +703,9 @@ namespace Infrastructure.Migrations
                 name: "MentorWorkExperience");
 
             migrationBuilder.DropTable(
+                name: "Resource");
+
+            migrationBuilder.DropTable(
                 name: "SupportingDocument");
 
             migrationBuilder.DropTable(
@@ -670,22 +718,19 @@ namespace Infrastructure.Migrations
                 name: "UserTopicOfInterest");
 
             migrationBuilder.DropTable(
-                name: "MentorApplication");
+                name: "Course");
 
             migrationBuilder.DropTable(
-                name: "Resource");
+                name: "DocumentContent");
+
+            migrationBuilder.DropTable(
+                name: "MentorApplication");
 
             migrationBuilder.DropTable(
                 name: "ArenaOfExpertise");
 
             migrationBuilder.DropTable(
                 name: "Topic");
-
-            migrationBuilder.DropTable(
-                name: "ApplicationStatus");
-
-            migrationBuilder.DropTable(
-                name: "Course");
 
             migrationBuilder.DropTable(
                 name: "Category");
@@ -695,6 +740,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "CourseStatus");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationStatus");
 
             migrationBuilder.DropTable(
                 name: "User");
