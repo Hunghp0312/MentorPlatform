@@ -1,11 +1,9 @@
-using System.Runtime.InteropServices.Marshalling;
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
-using Infrastructure.Data;
 
 namespace ApplicationCore.Services
 {
