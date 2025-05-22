@@ -1,14 +1,16 @@
+import { EnumType } from "./commonType";
+import { ArenaOfExpertise } from "./mentor";
+
 export interface User {
   id: string;
   email: string;
   passwordHash: string;
-  roleId: number;
   lastLogin?: string; // ISO string for DateTime
   passwordResetToken?: string;
   passwordResetExpiry?: string; // ISO string for DateTime
   refreshToken?: string;
   refreshTokenExpiryTime?: string; // ISO string for DateTime
-  role?: Role;
+  role?: EnumType;
   userProfile?: UserProfile;
   userTopicOfInterests?: UserTopicOfInterest[];
   submittedMentorApplication?: MentorApplication;
@@ -36,14 +38,19 @@ export interface UserProfile {
   user?: User;
 }
 export interface UserTopicOfInterest {
-  userId: string;
-  topicId: string;
+  //   userId: string;
+  //   topicId: string;
   user?: User;
   topic?: Topic;
 }
 export interface UserArenaOfExpertise {
-  userId: string;
-  arenaOfExpertiseId: string;
+  //   userId: string;
+  //   arenaOfExpertiseId: string;
   user?: User;
   arenaOfExpertise?: ArenaOfExpertise;
+}
+export interface Topic {
+  id: string;
+  name: string;
+  userTopicOfInterests?: UserTopicOfInterest[];
 }

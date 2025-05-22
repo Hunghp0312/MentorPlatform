@@ -1,16 +1,22 @@
-import { EnumType } from "./commonType";
+import { admin } from "./admin";
+import { User } from "./user";
 
 // src/types/approval.ts
 export interface MentorApplication {
-  id: string | number;
-  // user: undefined;
-  status: EnumType; // 1 = Pending, 2 = Approved 3= Rejected
+  applicantId: string;
+  applicationStatus?: ApplicationStatus;
+  adminReviewer?: admin;
   motivationStatement: string;
   submissionDate: string;
-  lastStatusUpdateDate?: string;
-  // admin?: undefined;
-  adminComment?: string;
-  rejectReason?: string;
-  createAt?: string;
-  approveDate?: string;
+  lastStatusUpdateDate?: string; // ISO string for DateTime
+  adminComments?: string;
+  rejectionReason?: string;
+  approvalDate?: string; // ISO string for DateTime
+  createdAt: string; // ISO string for DateTime
+  updatedAt?: string; // ISO string for DateTime
+  applicant?: User;
+  mentorEducations?: MentorEducation[];
+  mentorWorkExperiences?: MentorWorkExperience[];
+  mentorCertifications?: MentorCertification[];
+  supportingDocuments?: SupportingDocument[];
 }
