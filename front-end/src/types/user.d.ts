@@ -1,21 +1,23 @@
 import { EnumType } from "./commonType";
 import { ArenaOfExpertise } from "./mentor";
+import { MentorApplication } from "./approval";
 
 export interface User {
   id: string;
   email: string;
-  passwordHash: string;
-  lastLogin?: string; // ISO string for DateTime
-  passwordResetToken?: string;
-  passwordResetExpiry?: string; // ISO string for DateTime
-  refreshToken?: string;
-  refreshTokenExpiryTime?: string; // ISO string for DateTime
+  //   passwordHash: string;
+  //   lastLogin?: string; // ISO string for DateTime
+  //   passwordResetToken?: string;
+  //   passwordResetExpiry?: string; // ISO string for DateTime
+  //   refreshToken?: string;
+  //   refreshTokenExpiryTime?: string; // ISO string for DateTime
   role?: EnumType;
   userProfile?: UserProfile;
-  userTopicOfInterests?: UserTopicOfInterest[];
+  //   userTopicOfInterests?: UserTopicOfInterest[];
+  mentorApplications?: MentorApplication;
   submittedMentorApplication?: MentorApplication;
   reviewedMentorApplication?: MentorApplication;
-  mentoredCourses?: Course[];
+  //   mentoredCourses?: Course[];
   userArenaOfExpertises?: UserArenaOfExpertise[];
 }
 export interface UserProfile {
@@ -25,32 +27,32 @@ export interface UserProfile {
   bio?: string;
   professionalSkill?: string;
   industryExperience?: string;
-  availabilityData?: number;
-  userGoal?: string;
-  sessionFrequency?: number;
-  sessionDuration?: number;
-  learningStyle?: number;
-  teachingApproach?: number;
-  privacyProfile: boolean;
-  messagePermission: boolean;
-  notificationsEnabled: boolean;
-  communicationMethod?: number;
+  availabilityData?: EnumType[];
+  //   userGoal?: string;
+  //   sessionFrequency?: number;
+  //   sessionDuration?: number;
+  //   learningStyle?: number;
+  //   teachingApproach?: number;
+  //   privacyProfile: boolean;
+  //   messagePermission: boolean;
+  //   notificationsEnabled: boolean;
+  communicationMethod?: EnumType;
   user?: User;
 }
-export interface UserTopicOfInterest {
-  //   userId: string;
-  //   topicId: string;
-  user?: User;
-  topic?: Topic;
-}
+// export interface UserTopicOfInterest {
+//   //   userId: string;
+//   //   topicId: string;
+//   user?: User;
+//   topic?: Topic;
+// }
 export interface UserArenaOfExpertise {
-  //   userId: string;
+  userId: string;
   //   arenaOfExpertiseId: string;
-  user?: User;
+  //user?: User;
   arenaOfExpertise?: ArenaOfExpertise;
 }
-export interface Topic {
-  id: string;
-  name: string;
-  userTopicOfInterests?: UserTopicOfInterest[];
-}
+// export interface Topic {
+//   id: string;
+//   name: string;
+//   userTopicOfInterests?: UserTopicOfInterest[];
+// }
