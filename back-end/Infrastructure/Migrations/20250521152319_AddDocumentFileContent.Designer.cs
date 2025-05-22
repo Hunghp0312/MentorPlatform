@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250521152319_AddDocumentFileContent")]
+    partial class AddDocumentFileContent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -384,23 +387,14 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("SupportingDocumentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<byte[]>("FileContent")
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
+                    b.HasKey("SupportingDocumentId");
 
                     b.ToTable("DocumentContent");
                 });
@@ -697,9 +691,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<Guid?>("DocumentContentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("ResourceCategoryId")
                         .HasColumnType("uniqueidentifier");
 
@@ -713,10 +704,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("DocumentContentId")
-                        .IsUnique()
-                        .HasFilter("[DocumentContentId] IS NOT NULL");
 
                     b.ToTable("Resource");
                 });
@@ -762,9 +749,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DocumentContentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -781,6 +765,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("MentorApplicationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ResourceId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("UploadedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -788,11 +775,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DocumentContentId")
-                        .IsUnique()
-                        .HasFilter("[DocumentContentId] IS NOT NULL");
-
                     b.HasIndex("MentorApplicationId");
+
+                    b.HasIndex("ResourceId");
 
                     b.ToTable("SupportingDocument");
                 });
@@ -1040,6 +1025,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Status");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.SupportingDocument", "SupportingDocument")
+                        .WithOne("DocumentContent")
+                        .HasForeignKey("Infrastructure.Entities.DocumentContent", "SupportingDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SupportingDocument");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
@@ -1105,31 +1101,24 @@ namespace Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("CourseId");
 
-                    b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
-                        .WithOne("Resource")
-                        .HasForeignKey("Infrastructure.Entities.Resource", "DocumentContentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.Navigation("Course");
-
-                    b.Navigation("DocumentContent");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
-                        .WithOne("SupportingDocument")
-                        .HasForeignKey("Infrastructure.Entities.SupportingDocument", "DocumentContentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
                         .WithMany("SupportingDocuments")
                         .HasForeignKey("MentorApplicationId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.Navigation("DocumentContent");
+                    b.HasOne("Infrastructure.Entities.Resource", "Resource")
+                        .WithMany("SupportingDocuments")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("MentorApplication");
+
+                    b.Navigation("Resource");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
@@ -1202,13 +1191,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
-                {
-                    b.Navigation("Resource");
-
-                    b.Navigation("SupportingDocument");
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
                 {
                     b.Navigation("MentorApplications");
@@ -1223,6 +1205,16 @@ namespace Infrastructure.Migrations
                     b.Navigation("MentorWorkExperiences");
 
                     b.Navigation("SupportingDocuments");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
+                {
+                    b.Navigation("SupportingDocuments");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
+                {
+                    b.Navigation("DocumentContent");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Topic", b =>

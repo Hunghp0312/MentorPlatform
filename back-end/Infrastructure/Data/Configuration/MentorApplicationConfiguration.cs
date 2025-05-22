@@ -15,8 +15,7 @@ namespace Infrastructure.Data.Configuration
             builder.Property(ma => ma.MotivationStatement).IsRequired();
 
             builder.Property(ma => ma.SubmissionDate)
-                .IsRequired()
-                .HasDefaultValueSql("GETUTCDATE()");
+                .IsRequired();
 
             builder.Property(ma => ma.LastStatusUpdateDate).IsRequired(false);
             builder.Property(ma => ma.AdminReviewerId).IsRequired(false);

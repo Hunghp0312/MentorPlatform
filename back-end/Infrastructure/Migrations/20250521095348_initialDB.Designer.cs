@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250521074435_Init")]
-    partial class Init
+    [Migration("20250521095348_initialDB")]
+    partial class initialDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,48 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("ArenaOfExpertise");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c1"),
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c2"),
+                            Name = "Programming"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c3"),
+                            Name = "Design"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c4"),
+                            Name = "Marketing"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c5"),
+                            Name = "Data Science"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c6"),
+                            Name = "Business"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c7"),
+                            Name = "Project Management"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c8"),
+                            Name = "Communication"
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
@@ -627,6 +669,36 @@ namespace Infrastructure.Migrations
                     b.ToTable("MentorWorkExperience");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CourseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("ResourceCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("Resource");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -685,7 +757,10 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("MentorApplicationId")
+                    b.Property<Guid?>("MentorApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ResourceId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UploadedAt")
@@ -696,6 +771,8 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("MentorApplicationId");
+
+                    b.HasIndex("ResourceId");
 
                     b.ToTable("SupportingDocument");
                 });
@@ -717,6 +794,48 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Topic");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d1"),
+                            Name = "Career Development"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d2"),
+                            Name = "Technical Skills"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d3"),
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d4"),
+                            Name = "Communication"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d5"),
+                            Name = "Work-Life Balance"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d6"),
+                            Name = "Industry Insights"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d7"),
+                            Name = "Networking"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d8"),
+                            Name = "Entrepreneurship"
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
@@ -960,15 +1079,30 @@ namespace Infrastructure.Migrations
                     b.Navigation("MentorApplication");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId");
+
+                    b.Navigation("Course");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
                 {
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
                         .WithMany("SupportingDocuments")
                         .HasForeignKey("MentorApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Infrastructure.Entities.Resource", "Resource")
+                        .WithMany("SupportingDocuments")
+                        .HasForeignKey("ResourceId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("MentorApplication");
+
+                    b.Navigation("Resource");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
@@ -1054,6 +1188,11 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("MentorWorkExperiences");
 
+                    b.Navigation("SupportingDocuments");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
+                {
                     b.Navigation("SupportingDocuments");
                 });
 
