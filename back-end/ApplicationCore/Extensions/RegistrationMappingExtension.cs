@@ -1,6 +1,7 @@
 using ApplicationCore.DTOs.Requests.Registration;
 using Infrastructure.Entities;
 
+
 namespace ApplicationCore.Extensions
 {
     public static class RegistrationMappingExtension
@@ -16,7 +17,7 @@ namespace ApplicationCore.Extensions
             };
         }
 
-        public static UserProfile ToUserProfileEntity(this RegistrationRequest dto)
+        public static UserProfile ToUserProfileEntity(this RegistrationRequest dto, byte[]? photoData)
         {
             return new UserProfile
             {
@@ -35,7 +36,7 @@ namespace ApplicationCore.Extensions
                 MessagePermission = dto.MessagePermission,
                 NotificationsEnabled = dto.NotificationsEnabled,
                 CommunicationMethod = dto.CommunicationMethod,
-                PhotoData = dto.PhotoData
+                PhotoData = photoData
             };
         }
     }

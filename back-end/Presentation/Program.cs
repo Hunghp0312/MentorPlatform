@@ -12,6 +12,8 @@ using Infrastructure.Data.Context;
 using Infrastructure.Options;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,7 +24,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         connectionString,
         sqlServerOptionsAction: sqlOptions =>
         {
-            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName); // Quan trọng: chỉ định Assembly chứa migrations
+            sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
         }
     )
 );
@@ -30,9 +32,10 @@ builder.Services.Configure<EmailSettingOption>(builder.Configuration.GetSection(
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddTransient<ISendEmailService, SendEmailService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
@@ -45,8 +48,6 @@ builder
     {
         options.JsonSerializerOptions.Converters.Add(new TrimmingJsonStringConverter());
     });
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace ApplicationCore.DTOs.Requests.Registration
 {
     public class RegistrationRequest

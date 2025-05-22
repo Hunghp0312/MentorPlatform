@@ -25,18 +25,24 @@ namespace Presentation.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("register")]
         [ProducesResponseType(typeof(RegistrationResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Register([FromBody] RegistrationRequest request)
+        public async Task<IActionResult> Register([FromForm] RegistrationRequest request, IFormFile? photoData)
         {
+            if (photoData != null)
+            {
+                using var ms = new MemoryStream();
+                await photoData.CopyToAsync(ms);
+                request.PhotoData = ms.ToArray();
+            }
+
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
-                // Trả về lỗi 400 nếu validate fail
                 return BadRequest(new { errors = validationResult.Errors.Select(e => e.ErrorMessage) });
             }
 
