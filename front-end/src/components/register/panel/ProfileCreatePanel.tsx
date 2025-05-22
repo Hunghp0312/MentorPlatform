@@ -99,6 +99,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         setProfilePictureFile(null);
         setProfilePicturePreview(null);
         e.target.value = ""; // Reset file input
+        console.log(profilePictureFile);
         return;
       }
       setProfilePictureFile(file);

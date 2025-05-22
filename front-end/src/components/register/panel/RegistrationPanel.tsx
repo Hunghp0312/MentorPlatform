@@ -42,7 +42,7 @@ const RegistrationPanel: React.FC<Props> = ({
     if (password.length < 8) return "Password must be at least 8 characters";
     const passwordComplexity =
       /[a-zA-Z]/.test(password) &&
-      /[0-9]/.test(password) &&
+      /\d/.test(password) &&
       /[^a-zA-Z0-9]/.test(password);
     if (!passwordComplexity) {
       return "Password must contain letters, numbers, and symbols";

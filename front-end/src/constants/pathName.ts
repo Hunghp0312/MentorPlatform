@@ -4,4 +4,5 @@ export const pathName = {
   course: "/course",
   register: "/register",
   login: "/login",
+  approval: "/approval",
 };

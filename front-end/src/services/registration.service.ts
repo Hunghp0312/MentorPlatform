@@ -4,7 +4,6 @@ export const submitRegistration = async (
   profile: string,
   preferences: string
 ) => {
-  // Example payload
   const payload = {
     email,
     password,
@@ -13,5 +12,4 @@ export const submitRegistration = async (
   };
 
   console.log("Submitting registration:", payload);
-  // await fetch("/api/register", { method: "POST", body: JSON.stringify(payload) });
 };

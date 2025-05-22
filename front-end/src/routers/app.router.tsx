@@ -16,7 +16,7 @@ const AppRouter = () => {
         { path: pathName.home, element: <div>Home</div> },
         { path: pathName.category, element: <ListCategory /> },
         { path: pathName.course, element: <ListCourse /> },
-        { path: "approval", element: <ListApproval /> },
+        { path: pathName.approval, element: <ListApproval /> },
       ],
     },
   ]);
