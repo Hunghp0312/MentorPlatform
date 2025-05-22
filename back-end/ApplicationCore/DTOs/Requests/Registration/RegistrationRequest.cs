@@ -22,6 +22,6 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public bool MessagePermission { get; set; } = true;
         public bool NotificationsEnabled { get; set; } = true;
         public int? CommunicationMethod { get; set; }
-        public byte[]? PhotoData { get; set; }
+        public IFormFile? PhotoData { get; set; }
     }
 }

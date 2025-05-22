@@ -27,7 +27,7 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<RegistrationResponse>> RegisterAsync(RegistrationRequest request)
+        public async Task<OperationResult<RegistrationResponse>> RegisterAsync(RegistrationRequest request, byte[]? photoData)
         {
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
@@ -43,7 +43,7 @@ namespace ApplicationCore.Services
             }
             var passwordHash = SecurityHelper.HashPassword(request.Password);
             var user = request.ToUserEntity(passwordHash, 1);
-            var userProfile = request.ToUserProfileEntity(request.PhotoData);
+            var userProfile = request.ToUserProfileEntity(photoData);
 
             await _registrationRepository.AddUserAsync(user);
             userProfile.Id = user.Id;

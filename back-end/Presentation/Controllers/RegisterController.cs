@@ -24,20 +24,20 @@ namespace Presentation.Controllers
             _validator = validator;
         }
 
-
-        [HttpPost("register")]
+        [HttpPost]
         [ProducesResponseType(typeof(RegistrationResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Register([FromForm] RegistrationRequest request, IFormFile? photoData)
+        public async Task<IActionResult> Register([FromForm] RegistrationRequest request)
         {
-            if (photoData != null)
+            byte[]? photoBytes = null;
+            if (request.PhotoData != null)
             {
                 using var ms = new MemoryStream();
-                await photoData.CopyToAsync(ms);
-                request.PhotoData = ms.ToArray();
+                await request.PhotoData.CopyToAsync(ms);
+                photoBytes = ms.ToArray();
             }
 
             var validationResult = await _validator.ValidateAsync(request);
@@ -46,7 +46,7 @@ namespace Presentation.Controllers
                 return BadRequest(new { errors = validationResult.Errors.Select(e => e.ErrorMessage) });
             }
 
-            var result = await _registrationService.RegisterAsync(request);
+            var result = await _registrationService.RegisterAsync(request, photoBytes);
             return ToActionResult(result);
         }
     }
