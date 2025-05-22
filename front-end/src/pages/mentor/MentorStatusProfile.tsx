@@ -1,24 +1,26 @@
 import { useState, useEffect } from "react";
-import { MentorStatusType } from "../../types/mentorwaitingstatus";
+import mockUser1, { mockArenaOfExpertises } from "../../data/_mockuserdata";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
+import { EnumType } from "../../types/commonType";
+import { MentorEducation, MentorWorkExperience } from "../../types/mentor";
 // import { set } from "date-fns";
 
-const mockMentorWaiting: MentorStatusType[] = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah.j@example.com",
-    expertiseAreas: ["Data Science", "Machine Learning", "Python"],
-    status: "pending",
-    submittedDate: "2023-09-10",
-    profileImage: "https://randomuser.me/api/portraits/women/32.jpg",
-    experience: "5 years at Tech Corp, 3 years teaching",
-    documents: [
-      { name: "Resume.pdf", type: "PDF", url: "#" },
-      { name: "Certification.jpg", type: "JPG", url: "#" },
-    ],
-  },
-];
+interface MentorStatusType {
+  id: string;
+  name: string;
+  email: string;
+  expertiseAreas: string[];
+  status: string;
+  profileImage: string;
+  bio: string;
+  professionalSkill: string;
+  industryExperience: string;
+  availability: EnumType[];
+  communicationMethod: EnumType;
+  mentorEducation: MentorEducation[];
+  mentorWorkExperience: MentorWorkExperience[];
+}
+
 const MentorStatusProfile = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,29 @@ const MentorStatusProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   useEffect(() => {
     setLoading(true);
-    const initialMentor = mockMentorWaiting[0];
+    const initialMentor: MentorStatusType = {
+      id: mockUser1.id ?? "", // Fallback to empty string if id is undefined
+      name: mockUser1.userProfile?.fullName ?? "Unknown Name", // Fallback for name
+      email: mockUser1.email ?? "", // Fallback for email
+      expertiseAreas:
+        mockUser1.userArenaOfExpertises
+          ?.map((expertise) => expertise.arenaOfExpertise?.name ?? "")
+          .filter((name) => name !== "") ?? [], // Filter out empty strings, fallback to empty array
+      status:
+        mockUser1.mentorApplications?.applicationStatus?.name ?? "unknown", // Fallback for status
+      profileImage: mockUser1.userProfile?.photoData ?? "", // Fallback for profileImage
+      bio: mockUser1.userProfile?.bio ?? "", // Fallback for bio
+      professionalSkill: mockUser1.userProfile?.professionalSkill ?? "", // Fallback for professionalSkill
+      industryExperience: mockUser1.userProfile?.industryExperience ?? "", // Fallback for industryExperience
+      availability: mockUser1.userProfile?.availabilityData ?? [], // Fallback for availability
+      communicationMethod: mockUser1.userProfile?.communicationMethod ?? {
+        id: 1,
+        name: "Email",
+      }, // Fallback for communicationMethod
+      mentorEducation: mockUser1.mentorApplications?.mentorEducations ?? [], // Fallback for mentorEducation
+      mentorWorkExperience:
+        mockUser1.mentorApplications?.mentorWorkExperiences ?? [], // Fallback for mentorWorkExperience
+    };
     setMentorData(initialMentor);
     setEditedMentor({ ...initialMentor });
     setLoading(false);
@@ -57,28 +81,28 @@ const MentorStatusProfile = () => {
     }
   };
   // Thêm tài liệu mới
-  const handleAddDocument = (doc: {
-    name: string;
-    type: string;
-    url: string;
-  }) => {
-    if (editedMentor) {
-      setEditedMentor((prev) =>
-        prev ? { ...prev, documents: [...(prev.documents || []), doc] } : prev
-      );
-    }
-  };
-  // Xóa tài liệu
-  const handleRemoveDocument = (index: number) => {
-    if (editedMentor) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        const documents = [...(prev.documents || [])];
-        documents.splice(index, 1);
-        return { ...prev, documents };
-      });
-    }
-  };
+  // const handleAddDocument = (doc: {
+  //   name: string;
+  //   type: string;
+  //   url: string;
+  // }) => {
+  //   if (editedMentor) {
+  //     setEditedMentor((prev) =>
+  //       prev ? { ...prev, documents: [...(prev.documents || []), doc] } : prev
+  //     );
+  //   }
+  // };
+  // // Xóa tài liệu
+  // const handleRemoveDocument = (index: number) => {
+  //   if (editedMentor) {
+  //     setEditedMentor((prev) => {
+  //       if (!prev) return prev;
+  //       const documents = [...(prev.documents || [])];
+  //       documents.splice(index, 1);
+  //       return { ...prev, documents };
+  //     });
+  //   }
+  // };
 
   // Lưu thay đổi
   const handleSave = () => {
@@ -102,57 +126,121 @@ const MentorStatusProfile = () => {
     }
   };
   // Define the content for ExpandProfileSettings
+  // const additionalSettingsContent = (
+  //   <div className="space-y-4">
+  //     <div>
+  //       <h3 className="text-sm font-medium text-gray-400 mb-1">
+  //         Submitted Date
+  //       </h3>
+  //       <p className="text-gray-200">{mentorData?.submittedDate}</p>
+  //     </div>
+  //     <div>
+  //       <h3 className="text-sm font-medium text-gray-400 mb-2">Documents</h3>
+  //       {mentorData?.documents.length > 0 ? (
+  //         <div className="space-y-2">
+  //           {mentorData?.documents.map((doc, index) => (
+  //             <div
+  //               key={index}
+  //               className="flex items-center justify-between bg-gray-600 p-2 rounded"
+  //             >
+  //               <div className="flex items-center">
+  //                 <span
+  //                   className={`mr-2 text-sm font-medium ${
+  //                     doc.type === "PDF" ? "text-red-400" : "text-blue-400"
+  //                   }`}
+  //                 >
+  //                   {doc.type}
+  //                 </span>
+  //                 <span className="text-sm text-gray-200">{doc.name}</span>
+  //               </div>
+  //               <div className="flex items-center space-x-2">
+  //                 <a
+  //                   href={doc.url}
+  //                   className="text-blue-400 hover:text-blue-300 text-sm"
+  //                   target="_blank"
+  //                   rel="noopener noreferrer"
+  //                 >
+  //                   View
+  //                 </a>
+  //                 {isEditing && (
+  //                   <button
+  //                     onClick={() => handleRemoveDocument(index)}
+  //                     className="text-red-400 hover:text-red-300 text-sm"
+  //                   >
+  //                     Remove
+  //                   </button>
+  //                 )}
+  //               </div>
+  //             </div>
+  //           ))}
+  //         </div>
+  //       ) : (
+  //         <p className="text-gray-200">No documents available.</p>
+  //       )}
+  //     </div>
+  //   </div>
+  // );
   const additionalSettingsContent = (
     <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-1">
-          Submitted Date
-        </h3>
-        <p className="text-gray-200">{mentorData?.submittedDate}</p>
+        <h3 className="text-sm font-medium text-gray-400 mb-1">Availability</h3>
+        <p className="text-gray-200">
+          {mentorData?.availability?.map((day) => day.name).join(", ") ||
+            "Not specified"}
+        </p>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-2">Documents</h3>
-        {mentorData?.documents.length > 0 ? (
-          <div className="space-y-2">
-            {mentorData?.documents.map((doc, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between bg-gray-600 p-2 rounded"
-              >
-                <div className="flex items-center">
-                  <span
-                    className={`mr-2 text-sm font-medium ${
-                      doc.type === "PDF" ? "text-red-400" : "text-blue-400"
-                    }`}
-                  >
-                    {doc.type}
-                  </span>
-                  <span className="text-sm text-gray-200">{doc.name}</span>
+        <h3 className="text-sm font-medium text-gray-400 mb-1">
+          Communication Method
+        </h3>
+        <p className="text-gray-200">
+          {mentorData?.communicationMethod?.name || "Not specified"}
+        </p>
+      </div>
+      <div>
+        <h3 className="text-sm font-medium text-gray-400 mb-2">Education</h3>
+        <div className="bg-gray-700 p-4 rounded-lg">
+          {mentorData && mentorData.mentorEducation?.length > 0 ? (
+            mentorData.mentorEducation.map((education, index) => (
+              <div key={index} className="flex justify-between py-2">
+                <div className="text-sm text-gray-200">
+                  {education.institutionName} - {education.fieldOfStudy}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <a
-                    href={doc.url}
-                    className="text-blue-400 hover:text-blue-300 text-sm"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View
-                  </a>
-                  {isEditing && (
-                    <button
-                      onClick={() => handleRemoveDocument(index)}
-                      className="text-red-400 hover:text-red-300 text-sm"
-                    >
-                      Remove
-                    </button>
-                  )}
+                <div className="text-sm text-gray-400">
+                  {education.graduationYear ?? "N/A"}
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-200">No documents available.</p>
-        )}
+            ))
+          ) : (
+            <p className="text-sm text-gray-200">No education provided.</p>
+          )}
+        </div>
+      </div>
+      <div>
+        <h3 className="text-sm font-medium text-gray-400 mb-2">
+          Work Experience
+        </h3>
+        <div className="bg-gray-700 p-4 rounded-lg">
+          {mentorData && mentorData.mentorWorkExperience?.length > 0 ? (
+            mentorData.mentorWorkExperience.map((experience, index) => (
+              <div key={index} className="flex justify-between py-2">
+                <div className="text-sm text-gray-200">
+                  {experience.companyName} - {experience.position}
+                </div>
+                <div className="text-sm text-gray-400">
+                  {new Date(experience.startDate).getFullYear()}–
+                  {experience.endDate
+                    ? new Date(experience.endDate).getFullYear()
+                    : "Present"}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-200">
+              No work experience provided.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -208,7 +296,7 @@ const MentorStatusProfile = () => {
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">About</h3>
-              <p className="text-gray-200">No bio provided.</p>
+              <p className="text-gray-200">{mentorData?.bio}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-2">
@@ -229,13 +317,13 @@ const MentorStatusProfile = () => {
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Professional skills
               </h3>
-              <p className="text-gray-200">No skills provided.</p>
+              <p className="text-gray-200">{mentorData.professionalSkill}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Industry experience
               </h3>
-              <p className="text-gray-200">{mentorData.experience}</p>
+              <p className="text-gray-200">{mentorData.industryExperience}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">

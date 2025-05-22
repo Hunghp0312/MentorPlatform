@@ -1,6 +1,7 @@
 import { admin } from "./admin";
 import { User } from "./user";
 import { ApplicationStatus } from "./mentor";
+import { MentorEducation, MentorWorkExperience } from "./mentor";
 // src/types/approval.ts
 export interface MentorApplication {
   applicantId: string;
