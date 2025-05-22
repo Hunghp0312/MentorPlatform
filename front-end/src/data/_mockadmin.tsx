@@ -11,3 +11,4 @@ export const mockAdmins: admin[] = [
     role: "admin",
   },
 ];
+export default mockAdmins;
