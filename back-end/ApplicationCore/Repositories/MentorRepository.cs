@@ -18,8 +18,9 @@ namespace ApplicationCore.Repositories
             int pageSize
         )
         {
-            var queryable = _dbSet.Include(x => x.ApplicantUser)
+            var queryable = _dbSet.Include(x => x.Applicant)
             .ThenInclude(x => x.UserProfile)
+            .ThenInclude(x => x.User)
             .ThenInclude(x => x.UserArenaOfExpertises)
             .Include(x => x.SupportingDocuments)
             .Include(x => x.ApplicationStatus)

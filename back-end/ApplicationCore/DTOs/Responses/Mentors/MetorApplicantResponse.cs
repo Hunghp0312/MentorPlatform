@@ -13,7 +13,7 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public required string Email { get; set; }
         public Guid ApplicantUserId { get; set; }
         public string MotivationStatement { get; set; } = string.Empty;
-        public DateTime SubmissionDate { get; set; }
+        public string SubmissionDate { get; set; } = string.Empty;
         public DateTime? LastStatusUpdateDate { get; set; }
         public Guid? AdminReviewerId { get; set; }
         public string? AdminComments { get; set; }
