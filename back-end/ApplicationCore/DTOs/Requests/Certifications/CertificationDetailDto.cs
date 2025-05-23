@@ -1,4 +1,4 @@
-﻿namespace ApplicationCore.DTOs.Requests.Mentors
+﻿namespace ApplicationCore.DTOs.Requests.Certifications
 {
     public class CertificationDetailDto
     {

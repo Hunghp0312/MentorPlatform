@@ -66,6 +66,10 @@ builder.Services.AddScoped<IAuthenticateService, AuthenticateService>();
 
 builder.Services.AddScoped<IMentorService, MentorService>();
 builder.Services.AddScoped<IMentorRepository, MentorRepository>();
+builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository>();
+builder.Services.AddScoped<
+   ISupportingDocumentRepository, SupportingDocumentRepository>();
+builder.Services.AddScoped<IDocumentContentService, DocumentContentService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);
 builder

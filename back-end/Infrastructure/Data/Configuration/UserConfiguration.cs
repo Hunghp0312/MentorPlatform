@@ -1,7 +1,6 @@
 ﻿using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Org.BouncyCastle.Crypto;
 
 namespace Infrastructure.Data.Configuration
 {
@@ -89,8 +88,8 @@ namespace Infrastructure.Data.Configuration
                     Email = "minhchau.mentor@gmail.com",
                     PasswordHash = "JusmH4xgMpPCqpXoHUmy5gIrmPE8Tn3FnmL4oJwoo5pdSUihid8bh2A8X47pDT0p",
                     RoleId = 3,
-                    
-                },new User
+
+                }, new User
                 {
                     Id = Guid.Parse("0dd85da0-9214-419e-aa02-adefac68c264"),
                     Email = "dancega713@gmail.com",
