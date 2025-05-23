@@ -5,10 +5,12 @@ import ListCourse from "../pages/admin/ListCourse";
 import { pathName } from "../constants/pathName";
 import Registration from "../pages/auth/Registration";
 import ListApproval from "../pages/admin/ListApproval";
+import LoginPage from "../pages/auth/Login";
 
 const AppRouter = () => {
   const routes = useRoutes([
     { path: pathName.register, element: <Registration /> },
+    { path: pathName.login, element: <LoginPage /> },
     {
       path: "/",
       element: <Layout />,
