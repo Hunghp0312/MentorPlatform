@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class initialDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -428,7 +428,7 @@ namespace Infrastructure.Migrations
                     FileType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
                     UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -651,8 +651,7 @@ namespace Infrastructure.Migrations
                 name: "IX_SupportingDocument_DocumentContentId",
                 table: "SupportingDocument",
                 column: "DocumentContentId",
-                unique: true,
-                filter: "[DocumentContentId] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SupportingDocument_MentorApplicationId",
