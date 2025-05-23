@@ -1,5 +1,4 @@
-// Registration.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import StepProgressBar from "../../components/progress/StepProgressBar";
 import RegistrationPanel from "../../components/register/panel/RegistrationPanel";
 import ProfileCreatePanel from "../../components/register/panel/ProfileCreatePanel";
@@ -9,8 +8,6 @@ import {
   UserRegistrationRequest,
   AccountDetails,
   SharedProfileDetails,
-  LearnerDetails,
-  MentorDetails,
   UserPreferences,
   Role,
   createInitialData,
@@ -33,23 +30,16 @@ const Registration = () => {
     nextStep();
   };
 
-  // This updater is simplified because ProfileCreatePanel will only send SharedProfileDetails updates
   const handleSharedProfileUpdate = (
     updates: Partial<SharedProfileDetails>
   ) => {
     setFormData((prev) => {
       const newProfileData = { ...prev.profile, ...updates };
-      // If the role is Mentor and industryExperience is updated via shared profile,
-      // also update the specific mentorDetails.industryExperience.
       if (
         prev.role === Role.Mentor &&
         updates.industryExperience !== undefined
       ) {
-        // We need to ensure we are working with the Mentor version of the formData
-        const currentMentorData = prev as Extract<
-          UserRegistrationRequest,
-          { role: Role.Mentor }
-        >;
+        const currentMentorData = prev;
         return {
           ...prev,
           profile: newProfileData,
@@ -57,7 +47,7 @@ const Registration = () => {
             ...currentMentorData.mentorDetails,
             industryExperience: updates.industryExperience,
           },
-        } as UserRegistrationRequest; // Cast back to the union type
+        } as UserRegistrationRequest;
       }
       return { ...prev, profile: newProfileData };
     });
@@ -79,13 +69,12 @@ const Registration = () => {
 
       if (newRole === Role.Learner) {
         return {
-          ...newStructure, // This is already a Learner structure
+          ...newStructure,
           account: prev.account,
           profile: { ...newStructure.profile, ...preservedProfileData },
           preferences: prev.preferences,
-        } as UserRegistrationRequest; // Ensure correct type
+        } as UserRegistrationRequest;
       } else {
-        // Mentor
         const currentMentorDetails = (
           newStructure as Extract<
             UserRegistrationRequest,
@@ -93,17 +82,15 @@ const Registration = () => {
           >
         ).mentorDetails;
         return {
-          ...newStructure, // This is already a Mentor structure
+          ...newStructure,
           account: prev.account,
           profile: { ...newStructure.profile, ...preservedProfileData },
           mentorDetails: {
-            // Ensure mentorDetails is correctly structured
             ...currentMentorDetails,
-            industryExperience: preservedProfileData.industryExperience || "", // Sync from what was in shared
-            // teachingApproach will come from newStructure.mentorDetails
+            industryExperience: preservedProfileData.industryExperience ?? "",
           },
           preferences: prev.preferences,
-        } as UserRegistrationRequest; // Ensure correct type
+        } as UserRegistrationRequest;
       }
     });
   };
@@ -141,7 +128,7 @@ const Registration = () => {
           teachingApproach: teachingApproach,
         };
       }
-      return updatedFormData as UserRegistrationRequest; // Cast needed because TS can't infer the exact union member after conditional spreads
+      return updatedFormData as UserRegistrationRequest;
     });
   };
 
@@ -178,7 +165,7 @@ const Registration = () => {
         return (
           <ProfileCreatePanel
             currentUserData={formData}
-            onUpdateProfile={handleSharedProfileUpdate} // Changed prop name for clarity
+            onUpdateProfile={handleSharedProfileUpdate}
             onRoleChange={handleRoleChange}
             onNext={nextStep}
             onBack={prevStep}
@@ -188,7 +175,6 @@ const Registration = () => {
         return (
           <PreferenceSetupPanel
             currentPreferences={formData.preferences}
-            // Pass learnerDetails or mentorDetails based on the role for PreferenceSetupPanel to use
             currentLearnerDetails={
               formData.role === Role.Learner
                 ? formData.learnerDetails
@@ -214,11 +200,17 @@ const Registration = () => {
         <div className="bg-gray-800 p-8 sm:p-10 rounded-xl shadow-xl">
           <div className="flex justify-between items-start gap-4 sm:gap-6 mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-left flex-shrink-0">
-              {step === 1
-                ? "Create Your Account"
-                : step === 2
-                ? "Setup Your Profile"
-                : "Set Your Preferences"}
+              {(() => {
+                let title;
+                if (step === 1) {
+                  title = "Create Your Account";
+                } else if (step === 2) {
+                  title = "Setup Your Profile";
+                } else {
+                  title = "Set Your Preferences";
+                }
+                return title;
+              })()}
             </h2>
             <div className="flex-grow min-w-0">
               <StepProgressBar step={step} totalSteps={totalSteps} />
@@ -230,4 +222,5 @@ const Registration = () => {
     </div>
   );
 };
+
 export default Registration;

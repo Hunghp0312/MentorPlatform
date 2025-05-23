@@ -69,7 +69,16 @@ const RegistrationPanel: React.FC<Props> = ({
           name="agreed"
           label={""}
         />
-        <label className="ml-2 text-sm">I agree to terms</label>
+        <label className="ml-2 text-sm">
+          By continuing, you agree to our{" "}
+          <a href="/terms-of-service" className="text-orange-500 underline">
+            Terms of Service
+          </a>
+          {" and "}
+          <a href="/privacy-policy" className="text-orange-500 underline">
+            Privacy Policy
+          </a>
+        </label>
       </div>
       {errors.agreed && <p className="text-xs text-red-500">{errors.agreed}</p>}
       <button type="submit" className="w-full py-2 bg-orange-500 rounded">

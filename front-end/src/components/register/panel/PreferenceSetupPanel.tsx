@@ -1,9 +1,8 @@
-// components/register/panel/PreferenceSetupPanel.tsx
 import React, { useState, useEffect } from "react";
-import Dropdown from "../../input/Dropdown"; // Adjust path
-import InputCheckbox from "../../input/InputCheckbox"; // Adjust path
-import InputCustom from "../../input/InputCustom"; // Adjust path
-import MultiSelectButtons from "../child/MultiSelectButtons"; // Adjust path
+import Dropdown from "../../input/Dropdown";
+import InputCheckbox from "../../input/InputCheckbox";
+import InputCustom from "../../input/InputCustom";
+import MultiSelectButtons from "../child/MultiSelectButtons";
 import {
   UserPreferences,
   LearnerDetails,
@@ -13,7 +12,7 @@ import {
   SessionDurationOption,
   LearningStyleOption,
   TeachingApproachOption,
-} from "../../../types/userRegister.d"; // Adjust path
+} from "../../../types/userRegister.d";
 
 interface Props {
   currentPreferences: UserPreferences;
@@ -71,7 +70,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
   const handleMultiSelectToggle = (
     option: string,
     currentSelection: string[] | undefined,
-    fieldKey: "interestedTopics" | "learningStyle" | "teachingApproach", // Key to update in onUpdate
+    fieldKey: "interestedTopics" | "learningStyle" | "teachingApproach",
     errorSetter?: React.Dispatch<React.SetStateAction<string>>
   ) => {
     const safeCurrentSelection = currentSelection || [];
@@ -79,7 +78,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
       ? safeCurrentSelection.filter((item) => item !== option)
       : [...safeCurrentSelection, option];
 
-    onUpdate({ [fieldKey]: newSelection } as any); // 'as any' because fieldKey is dynamic
+    onUpdate({ [fieldKey]: newSelection } as any);
     errorSetter?.("");
   };
 

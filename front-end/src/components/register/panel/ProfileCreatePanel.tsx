@@ -1,21 +1,19 @@
-// components/register/panel/ProfileCreatePanel.tsx
 import React, { useState, useEffect } from "react";
-import InputCustom from "../../input/InputCustom"; // Adjust path
-import InputTag from "../../input/InputTag"; // Adjust path
-import ProfilePictureUpload from "../child/ProfilePictureUpload"; // Adjust path
-import RoleSelectionCard from "../child/RoleSelectionCard"; // Adjust path
-import MultiSelectButtons from "../child/MultiSelectButtons"; // Adjust path
-import { Video, Headphones, MessageCircle } from "lucide-react"; // For communication buttons
+import InputCustom from "../../input/InputCustom";
+import ProfilePictureUpload from "../child/ProfilePictureUpload";
+import RoleSelectionCard from "../child/RoleSelectionCard";
+import MultiSelectButtons from "../child/MultiSelectButtons";
+import { Video, Headphones, MessageCircle } from "lucide-react";
 import {
-  UserRegistrationRequest, // The whole DTO to get the role
+  UserRegistrationRequest,
   SharedProfileDetails,
-  Role, // Enum for Role
-  CommunicationMethod, // Enum
-} from "../../../types/userRegister.d"; // Adjust path
+  Role,
+  CommunicationMethod,
+} from "../../../types/userRegister.d";
 
 interface Props {
-  currentUserData: UserRegistrationRequest; // Pass the whole object to access 'role' and 'profile'
-  onUpdateProfile: (updates: Partial<SharedProfileDetails>) => void; // Only updates SharedProfileDetails
+  currentUserData: UserRegistrationRequest;
+  onUpdateProfile: (updates: Partial<SharedProfileDetails>) => void;
   onRoleChange: (newRole: Role) => void;
   onNext: () => void;
   onBack: () => void;
@@ -42,24 +40,6 @@ const availabilityOptionsData = [
   "Afternoons",
   "Evenings",
 ];
-// Communication methods are now part of SharedProfileDetails
-const communicationMethodsSharedData = [
-  {
-    value: CommunicationMethod.VideoCall,
-    label: "Video Call",
-    icon: <Video size={18} />,
-  },
-  {
-    value: CommunicationMethod.AudioCall,
-    label: "Audio Call",
-    icon: <Headphones size={18} />,
-  },
-  {
-    value: CommunicationMethod.TextChat,
-    label: "Text Chat",
-    icon: <MessageCircle size={18} />,
-  },
-];
 
 const MAX_FILE_SIZE_MB = 2;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -72,9 +52,8 @@ const ProfileCreatePanel: React.FC<Props> = ({
   onNext,
   onBack,
 }) => {
-  const { role, profile } = currentUserData; // Destructure for easier access
+  const { role, profile } = currentUserData;
 
-  // Local UI State for errors, preview, and focus target
   const [profilePictureError, setProfilePictureError] = useState("");
   const [fullNameError, setFullNameError] = useState("");
   const [bioError, setBioError] = useState("");
@@ -107,7 +86,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
   const handleMultiSelectToggle = (
     option: string,
-    currentSelection: string[] | undefined, // skills can be undefined
+    currentSelection: string[] | undefined,
     field: keyof Pick<
       SharedProfileDetails,
       "expertise" | "availability" | "skills"
@@ -171,7 +150,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setExpertiseError("");
     }
 
-    // Skills are in SharedProfileDetails. Required for Mentor.
     if (
       role === Role.Mentor &&
       (!profile.skills || profile.skills.length === 0)
@@ -183,7 +161,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setSkillsError("");
     }
 
-    // Industry Experience is in SharedProfileDetails. Required for Mentor.
     if (role === Role.Mentor && !profile.industryExperience?.trim()) {
       setIndustryExperienceError(
         "Industry experience is required for Mentors."
@@ -315,7 +292,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         placeholder="Add skills (e.g., JavaScript)"
         errorMessage={skillsError}
         className="bg-gray-800 border-gray-700"
-        isRequired={role === Role.Mentor} // Visually indicate required for mentor
+        isRequired={role === Role.Mentor}
         name="skills"
         type="text"
         value={profile.skills?.join(", ") || ""}
@@ -336,7 +313,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
           handleFieldChange("industryExperience", e.target.value)
         }
         placeholder="e.g., 5 years in Software Development"
-        isRequired={role === Role.Mentor} // Visually indicate required for mentor
+        isRequired={role === Role.Mentor}
         errorMessage={industryExperienceError}
         className="bg-gray-800 border-gray-700"
       />
@@ -410,4 +387,5 @@ const ProfileCreatePanel: React.FC<Props> = ({
     </form>
   );
 };
+
 export default ProfileCreatePanel;
