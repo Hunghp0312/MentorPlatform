@@ -6,5 +6,6 @@
         Task BeginTransactionAsync();
         Task RollbackAsync();
         Task<int> SaveChangesAsync();
+        int SaveChanges();
     }
 }

@@ -819,7 +819,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DocumentContentId")
+                    b.Property<Guid>("DocumentContentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FileName")
@@ -846,8 +846,7 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentContentId")
-                        .IsUnique()
-                        .HasFilter("[DocumentContentId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("MentorApplicationId");
 
@@ -1188,7 +1187,8 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
                         .WithOne("SupportingDocument")
                         .HasForeignKey("Infrastructure.Entities.SupportingDocument", "DocumentContentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
                         .WithMany("SupportingDocuments")

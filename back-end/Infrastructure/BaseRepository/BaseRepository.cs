@@ -27,6 +27,11 @@ namespace Infrastructure.BaseRepository
             _dbSet.Remove(entity);
         }
 
+        public virtual void DeleteRange(IEnumerable<TEntity> entities)
+        {
+            _dbSet.RemoveRange(entities);
+        }
+
         public virtual async Task<bool> DeleteById(Guid id)
         {
             var obj = await _dbSet.FindAsync(id);
