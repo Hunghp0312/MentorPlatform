@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,7 +27,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ArenaOfExpertise",
+                name: "AreaOfExpertise",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -36,7 +36,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArenaOfExpertise", x => x.Id);
+                    table.PrimaryKey("PK_AreaOfExpertise", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -247,23 +247,23 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserArenaOfExpertise",
+                name: "UserAreaOfExpertise",
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ArenaOfExpertiseId = table.Column<int>(type: "int", nullable: false)
+                    AreaOfExpertiseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserArenaOfExpertise", x => new { x.UserId, x.ArenaOfExpertiseId });
+                    table.PrimaryKey("PK_UserAreaOfExpertise", x => new { x.UserId, x.AreaOfExpertiseId });
                     table.ForeignKey(
-                        name: "FK_UserArenaOfExpertise_ArenaOfExpertise_ArenaOfExpertiseId",
-                        column: x => x.ArenaOfExpertiseId,
-                        principalTable: "ArenaOfExpertise",
+                        name: "FK_UserAreaOfExpertise_AreaOfExpertise_AreaOfExpertiseId",
+                        column: x => x.AreaOfExpertiseId,
+                        principalTable: "AreaOfExpertise",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserArenaOfExpertise_User_UserId",
+                        name: "FK_UserAreaOfExpertise_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -458,7 +458,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "ArenaOfExpertise",
+                table: "AreaOfExpertise",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
@@ -548,16 +548,16 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Email", "LastLogin", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiryTime", "RoleId" },
                 values: new object[,]
                 {
-                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "minhchau.admin@gmail.com", null, "mx31ZEfKpYBolnpQdU24oZr6J8rgcmeekox8OBXQjETbsl4JcFqFbX6VwbrRUngk", null, null, null, null, 1 },
-                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "huynguyen.mentor@gmail.com", null, "S5oA4POvzUKSeBQTJCs3YrB7T6reeQXFhqLhq9FVjt8iPCwLLijsfrdYVKZDjYaU", null, null, null, null, 3 },
+                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "minhchau.admin@gmail.com", null, "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8", null, null, null, null, 1 },
+                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "huynguyen.mentor@gmail.com", null, "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq", null, null, null, null, 3 },
                     { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), "dancega713@gmail.com", null, "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw", null, null, null, null, 2 },
-                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "huynguyen.admin@gmail.com", null, "J24qoemyIGuKyAln3/Pi8RE91q37SzIJG73mRFp3NZdqEIACwi8kt+zwc2H83LoW", null, null, null, null, 1 },
-                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "huykhuong.admin@gmail.com", null, "MEO5BmXN7sVmKAnTj2gETwED6W21cDTnsB2r9wir+fLFKTHRsmuDEnA134c8XS7g", null, null, null, null, 1 },
-                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), "minhchau.mentor@gmail.com", null, "JusmH4xgMpPCqpXoHUmy5gIrmPE8Tn3FnmL4oJwoo5pdSUihid8bh2A8X47pDT0p", null, null, null, null, 3 },
-                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "huykhuong.mentor@gmail.com", null, "cfvPgZ274jQi71+hIv9qWL1GW4fl8c1krVlChe4zfN/W1GWQ+iI7hVe6acsAVs4r", null, null, null, null, 3 },
-                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "huynguyen.learner@gmail.com", null, "V5ValFHZWsVzHsJ1/kVQNY7voa9/s82t0wCoXgKANAmUV7jIXB3fSDqPrEWXyDQE", null, null, null, null, 2 },
-                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "huykhuong.learner@gmail.com", null, "ij89QzFzzSDgkoM4/BxIQP/XGsF+jpIqE9jCQ54glK+RtGhTwWNA+tAgoq+VvcWP", null, null, null, null, 2 },
-                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "minhchau.learner@gmail.com", null, "PrMl19R6c0HX1trcVn7rrzICN0cwn9dfaVqYRy5MKE2ooPNFDCkNvOi3eYFQ+t3Y", null, null, null, null, 2 }
+                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "huynguyen.admin@gmail.com", null, "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I", null, null, null, null, 1 },
+                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "huykhuong.admin@gmail.com", null, "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E", null, null, null, null, 1 },
+                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), "minhchau.mentor@gmail.com", null, "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr", null, null, null, null, 3 },
+                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "huykhuong.mentor@gmail.com", null, "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV", null, null, null, null, 3 },
+                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "huynguyen.learner@gmail.com", null, "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu", null, null, null, null, 2 },
+                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "huykhuong.learner@gmail.com", null, "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi", null, null, null, null, 2 },
+                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "minhchau.learner@gmail.com", null, "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT", null, null, null, null, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -578,8 +578,8 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArenaOfExpertise_Name",
-                table: "ArenaOfExpertise",
+                name: "IX_AreaOfExpertise_Name",
+                table: "AreaOfExpertise",
                 column: "Name",
                 unique: true);
 
@@ -677,9 +677,9 @@ namespace Infrastructure.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserArenaOfExpertise_ArenaOfExpertiseId",
-                table: "UserArenaOfExpertise",
-                column: "ArenaOfExpertiseId");
+                name: "IX_UserAreaOfExpertise_AreaOfExpertiseId",
+                table: "UserAreaOfExpertise",
+                column: "AreaOfExpertiseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTopicOfInterest_TopicId",
@@ -706,7 +706,7 @@ namespace Infrastructure.Migrations
                 name: "SupportingDocument");
 
             migrationBuilder.DropTable(
-                name: "UserArenaOfExpertise");
+                name: "UserAreaOfExpertise");
 
             migrationBuilder.DropTable(
                 name: "UserProfile");
@@ -724,7 +724,7 @@ namespace Infrastructure.Migrations
                 name: "MentorApplication");
 
             migrationBuilder.DropTable(
-                name: "ArenaOfExpertise");
+                name: "AreaOfExpertise");
 
             migrationBuilder.DropTable(
                 name: "Topic");
