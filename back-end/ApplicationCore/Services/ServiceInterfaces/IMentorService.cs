@@ -14,6 +14,8 @@ namespace ApplicationCore.Services.ServiceInterfaces
        );
         //Task<OperationResult<MentorApplicationResponseDto>> GetMyApplicationAsync(Guid applicantUserId);
 
-
+        Task<OperationResult<MentorApplicationResponseDto>> UpdateMyApplicationAsync(
+          UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId
+      );
     }
 }

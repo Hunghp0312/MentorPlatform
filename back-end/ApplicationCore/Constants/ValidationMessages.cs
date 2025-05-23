@@ -3,7 +3,8 @@
     public static class ValidationMessages
     {
         public const string MaxLengthExceeded = "{PropertyName} must not exceed {MaxLength} characters.";
-
+        public const string FileCannotBeEmpty = "Uploaded file cannot be empty.";
+        public const string FieldRequired = "{PropertyName} is required and cannot be empty.";
         public const string CategoryNameRequired = "Category name is required and cannot be empty.";
         public const string CategoryNameMaxLength = "Category name must not exceed 100 characters.";
         public const string CategoryDescriptionRequired = "Description is required and cannot be empty.";

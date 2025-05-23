@@ -20,15 +20,30 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Mentor")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(MentorApplicationResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        [Authorize(Roles = "Mentor")]
         public async Task<IActionResult> SubmitCompleteApplication([FromForm] SubmitMentorApplicationApiRequest apiRequest)
         {
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
             var result = await _mentorService.SubmitApplicationAsync(apiRequest, userId);
+
+            return ToActionResult(result);
+        }
+
+        [HttpPut]
+        [Authorize(Roles = "Mentor")]
+        [Consumes("multipart/form-data")]
+        [ProducesResponseType(typeof(MentorApplicationResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateMyApplication([FromForm] UpdateMyApplicationApiRequest apiRequest)
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _mentorService.UpdateMyApplicationAsync(apiRequest, userId);
 
             return ToActionResult(result);
         }
