@@ -1,6 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using ApplicationCore.Common;
+﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Authenticates;
 using ApplicationCore.DTOs.Responses.Authenticates;
@@ -9,6 +7,8 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 using Infrastructure.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Utilities;
 
 namespace ApplicationCore.Services;
@@ -30,7 +30,7 @@ public class AuthenticateService : IAuthenticateService
     public async Task<OperationResult<MessageResponse>> ForgotPasswordAsync(ForgotPasswordRequest email)
     {
         var user = await _userRepository.GetByEmailAsync(email.Email);
-        if(user == null)
+        if (user == null)
         {
             return OperationResult<MessageResponse>.BadRequest("User not found.");
         }
@@ -185,7 +185,7 @@ public class AuthenticateService : IAuthenticateService
         var tokenHandler = new JwtSecurityTokenHandler();
         var loginResponse = new TokenResponse
         {
-            AccessToken = tokenHandler.WriteToken(accessToken), 
+            AccessToken = tokenHandler.WriteToken(accessToken),
             RefreshToken = refreshToken,
         };
         return OperationResult<TokenResponse>.Ok(loginResponse);
@@ -212,14 +212,14 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetToken = null;
         user.PasswordResetExpiry = null;
         await _unitOfWork.SaveChangesAsync();
-        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password response successfully"});
+        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password response successfully" });
     }
 
     public async Task<OperationResult<TokenResponse>> RetrieveAccessToken(RefreshRequest refreshTokenRequest)
     {
         var principal = _tokenService.GetPrincipalFromExpiredToken(refreshTokenRequest.AccessToken);
-        var id = principal?.FindFirst("id")?.Value; 
-        if(id == null)
+        var id = principal?.FindFirst("id")?.Value;
+        if (id == null)
         {
             return OperationResult<TokenResponse>.BadRequest("Invalid token.");
         }

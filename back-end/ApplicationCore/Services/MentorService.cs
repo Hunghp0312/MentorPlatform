@@ -46,10 +46,9 @@ namespace ApplicationCore.Services
         }
         public async Task<OperationResult<MentorApplicationResponseDto>> SubmitApplicationAsync(
           SubmitMentorApplicationApiRequest apiRequest
-         // , Guid applicantUserId
+          , Guid applicantUserId
          )
         {
-            Guid applicantUserId = Guid.Parse("5c306965-7176-4cce-b192-4a21285794f3");
             var existingApplication = await _mentorRepository.GetByIdAsync(applicantUserId);
             if (existingApplication != null)
             {

@@ -14,7 +14,8 @@ namespace ApplicationCore.Repositories
         public override async Task<MentorApplication?> GetByIdAsync(Guid id)
         {
             var query = await _dbSet.Include(m => m.ApplicationStatus)
-                .Include(m => m.Applicant).ThenInclude(u => u.UserProfile)
+                .Include(m => m.Applicant)
+                    .ThenInclude(u => u.UserProfile)
                 .Include(m => m.SupportingDocuments)
                 .Include(m => m.MentorCertifications)
                 .Include(m => m.MentorWorkExperiences)

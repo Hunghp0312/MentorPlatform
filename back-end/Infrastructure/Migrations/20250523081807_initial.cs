@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Initital : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,7 +30,8 @@ namespace Infrastructure.Migrations
                 name: "ArenaOfExpertise",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
@@ -108,7 +109,8 @@ namespace Infrastructure.Migrations
                 name: "Topic",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
@@ -210,10 +212,8 @@ namespace Infrastructure.Migrations
                 name: "MentorApplication",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicationStatusId = table.Column<int>(type: "int", nullable: false),
-                    MotivationStatement = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SubmissionDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastStatusUpdateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     AdminReviewerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -225,7 +225,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MentorApplication", x => x.Id);
+                    table.PrimaryKey("PK_MentorApplication", x => x.ApplicantId);
                     table.ForeignKey(
                         name: "FK_MentorApplication_ApplicationStatus_ApplicationStatusId",
                         column: x => x.ApplicationStatusId,
@@ -251,7 +251,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ArenaOfExpertiseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ArenaOfExpertiseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -307,7 +307,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TopicId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TopicId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -370,7 +370,7 @@ namespace Infrastructure.Migrations
                         name: "FK_MentorCertification_MentorApplication_MentorApplicationId",
                         column: x => x.MentorApplicationId,
                         principalTable: "MentorApplication",
-                        principalColumn: "Id",
+                        principalColumn: "ApplicantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -391,7 +391,7 @@ namespace Infrastructure.Migrations
                         name: "FK_MentorEducation_MentorApplication_MentorApplicationId",
                         column: x => x.MentorApplicationId,
                         principalTable: "MentorApplication",
-                        principalColumn: "Id",
+                        principalColumn: "ApplicantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -414,7 +414,7 @@ namespace Infrastructure.Migrations
                         name: "FK_MentorWorkExperience_MentorApplication_MentorApplicationId",
                         column: x => x.MentorApplicationId,
                         principalTable: "MentorApplication",
-                        principalColumn: "Id",
+                        principalColumn: "ApplicantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -443,7 +443,7 @@ namespace Infrastructure.Migrations
                         name: "FK_SupportingDocument_MentorApplication_MentorApplicationId",
                         column: x => x.MentorApplicationId,
                         principalTable: "MentorApplication",
-                        principalColumn: "Id",
+                        principalColumn: "ApplicantId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -462,14 +462,14 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c1"), "Leadership" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c2"), "Programming" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c3"), "Design" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c4"), "Marketing" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c5"), "Data Science" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c6"), "Business" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c7"), "Project Management" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c8"), "Communication" }
+                    { 1, "Leadership" },
+                    { 2, "Programming" },
+                    { 3, "Design" },
+                    { 4, "Marketing" },
+                    { 5, "Data Science" },
+                    { 6, "Business" },
+                    { 7, "Project Management" },
+                    { 8, "Communication" }
                 });
 
             migrationBuilder.InsertData(
@@ -516,14 +516,14 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d1"), "Career Development" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d2"), "Technical Skills" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d3"), "Leadership" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d4"), "Communication" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d5"), "Work-Life Balance" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d6"), "Industry Insights" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d7"), "Networking" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d8"), "Entrepreneurship" }
+                    { 1, "Career Development" },
+                    { 2, "Technical Skills" },
+                    { 3, "Leadership" },
+                    { 4, "Communication" },
+                    { 5, "Work-Life Balance" },
+                    { 6, "Industry Insights" },
+                    { 7, "Networking" },
+                    { 8, "Entrepreneurship" }
                 });
 
             migrationBuilder.InsertData(
@@ -611,12 +611,9 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MentorApplication_AdminReviewerId",
                 table: "MentorApplication",
-                column: "AdminReviewerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MentorApplication_ApplicantId",
-                table: "MentorApplication",
-                column: "ApplicantId");
+                column: "AdminReviewerId",
+                unique: true,
+                filter: "[AdminReviewerId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MentorApplication_ApplicationStatusId",
