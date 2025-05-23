@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
 import mockUser1, { mockArenaOfExpertises } from "../../data/_mockuserdata";
+import { CirclePlus } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import { EnumType } from "../../types/commonType";
-import { MentorEducation, MentorWorkExperience } from "../../types/mentor";
+import InputCustom from "../../components/input/InputCustom";
+import ApplicationAddDialog from "../../components/dialog/ApplicationDialog";
+import {
+  MentorCertification,
+  MentorEducation,
+  MentorWorkExperience,
+} from "../../types/mentor";
+import CustomModal from "../../components/ui/Modal";
 // import { set } from "date-fns";
 
 interface MentorStatusType {
@@ -19,6 +27,7 @@ interface MentorStatusType {
   communicationMethod: EnumType;
   mentorEducation: MentorEducation[];
   mentorWorkExperience: MentorWorkExperience[];
+  certifications: MentorCertification[];
 }
 
 const MentorStatusProfile = () => {
@@ -29,6 +38,17 @@ const MentorStatusProfile = () => {
     null
   );
   const [isEditing, setIsEditing] = useState(false);
+
+  const [newEducation, setNewEducation] = useState<Partial<MentorEducation>>(
+    {}
+  );
+  const [newWorkExperience, setNewWorkExperience] = useState<
+    Partial<MentorWorkExperience>
+  >({});
+  const [newCertification, setNewCertification] = useState<
+    Partial<MentorCertification>
+  >({});
+  const [openDialog, setOpenDialog] = useState(false);
   useEffect(() => {
     setLoading(true);
     const initialMentor: MentorStatusType = {
@@ -53,6 +73,7 @@ const MentorStatusProfile = () => {
       mentorEducation: mockUser1.mentorApplications?.mentorEducations ?? [], // Fallback for mentorEducation
       mentorWorkExperience:
         mockUser1.mentorApplications?.mentorWorkExperiences ?? [], // Fallback for mentorWorkExperience
+      certifications: mockUser1.mentorApplications?.mentorCertifications ?? [], // Fallback for certifications
     };
     setMentorData(initialMentor);
     setEditedMentor({ ...initialMentor });
@@ -80,6 +101,197 @@ const MentorStatusProfile = () => {
       });
     }
   };
+  const handleNewEducationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setNewEducation((prev) => ({ ...prev, [name]: value }));
+    setOpenDialog(true);
+  };
+  const handleSubmitNewEducation = async (newEducation: MentorEducation) => {
+    if (
+      newEducation.institutionName &&
+      newEducation.fieldOfStudy &&
+      newEducation.graduationYear
+    ) {
+      setEditedMentor((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          mentorEducation: [...(prev.mentorEducation || []), newEducation],
+        };
+      });
+      setMentorData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          mentorEducation: [...(prev.mentorEducation || []), newEducation],
+        };
+      });
+      setNewEducation({});
+      setOpenDialog(false);
+    }
+  };
+  const handleOnclose = () => {
+    setOpenDialog(false);
+    setNewEducation({});
+  };
+  const handleNewWorkExperienceChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setNewWorkExperience((prev) => ({ ...prev, [name]: value }));
+  };
+  const handleNewCertificationChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setNewCertification((prev) => ({ ...prev, [name]: value }));
+  };
+  // const handleAddEducation = () => {
+  //   if (
+  //     editedMentor &&
+  //     newEducation.institutionName &&
+  //     newEducation.fieldOfStudy &&
+  //     newEducation.graduationYear
+  //   ) {
+  //     setEditedMentor((prev) => {
+  //       if (!prev) return prev;
+  //       return {
+  //         ...prev,
+  //         mentorEducation: [
+  //           ...(prev.mentorEducation || []),
+  //           newEducation as MentorEducation,
+  //         ],
+  //       };
+  //     });
+  //     setNewEducation({});
+  //   }
+  // };
+  const handleAddEducation = () => {
+    if (
+      editedMentor &&
+      newEducation.institutionName &&
+      newEducation.fieldOfStudy &&
+      newEducation.graduationYear
+    ) {
+      setEditedMentor((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          mentorEducation: [
+            ...(prev.mentorEducation || []),
+            newEducation as MentorEducation,
+          ],
+        };
+      });
+      setMentorData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          mentorEducation: [
+            ...(prev.mentorEducation || []),
+            newEducation as MentorEducation,
+          ],
+        };
+      });
+      setNewEducation({});
+    }
+  };
+
+  // Add new work experience
+  const handleAddWorkExperience = () => {
+    if (
+      editedMentor &&
+      newWorkExperience.companyName &&
+      newWorkExperience.position &&
+      newWorkExperience.startDate
+    ) {
+      setEditedMentor((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          mentorWorkExperience: [
+            ...(prev.mentorWorkExperience || []),
+            newWorkExperience as MentorWorkExperience,
+          ],
+        };
+      });
+      setNewWorkExperience({});
+    }
+  };
+
+  // Add new certification
+  const handleAddCertification = () => {
+    if (
+      editedMentor &&
+      newCertification.certificationName &&
+      newCertification.issuingOrganization
+    ) {
+      setEditedMentor((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          certifications: [
+            ...(prev.certifications || []),
+            newCertification as MentorCertification,
+          ],
+        };
+      });
+      setNewCertification({});
+    }
+  };
+
+  // Remove education
+  // const handleRemoveEducation = (index: number) => {
+  //   if (editedMentor) {
+  //     setEditedMentor((prev) => {
+  //       if (!prev) return prev;
+  //       const mentorEducation = [...(prev.mentorEducation || [])];
+  //       mentorEducation.splice(index, 1);
+  //       return { ...prev, mentorEducation };
+  //     });
+  //   }
+  // };
+  const handleRemoveEducation = (index: number) => {
+    if (editedMentor) {
+      setEditedMentor((prev) => {
+        if (!prev) return prev;
+        const mentorEducation = [...(prev.mentorEducation || [])];
+        mentorEducation.splice(index, 1);
+        return { ...prev, mentorEducation };
+      });
+      setMentorData((prev) => {
+        if (!prev) return prev;
+        const mentorEducation = [...(prev.mentorEducation || [])];
+        mentorEducation.splice(index, 1);
+        return { ...prev, mentorEducation };
+      });
+    }
+  };
+
+  // Remove work experience
+  const handleRemoveWorkExperience = (index: number) => {
+    if (editedMentor) {
+      setEditedMentor((prev) => {
+        if (!prev) return prev;
+        const mentorWorkExperience = [...(prev.mentorWorkExperience || [])];
+        mentorWorkExperience.splice(index, 1);
+        return { ...prev, mentorWorkExperience };
+      });
+    }
+  };
+
+  // Remove certification
+  const handleRemoveCertification = (index: number) => {
+    if (editedMentor) {
+      setEditedMentor((prev) => {
+        if (!prev) return prev;
+        const certifications = [...(prev.certifications || [])];
+        certifications.splice(index, 1);
+        return { ...prev, certifications };
+      });
+    }
+  };
+
   // Thêm tài liệu mới
   // const handleAddDocument = (doc: {
   //   name: string;
@@ -110,105 +322,61 @@ const MentorStatusProfile = () => {
       setLoading(true);
       setTimeout(() => {
         setMentorData(editedMentor);
-        setIsEditing(false); // Tắt chế độ chỉnh sửa sau khi lưu
+        setIsEditing(false);
         setLoading(false);
         setError(null);
       }, 1000);
     }
   };
 
-  // Hủy bỏ chỉnh sửa
+  // Cancel editing
   const handleCancel = () => {
     if (mentorData) {
       setEditedMentor({ ...mentorData });
-      setIsEditing(false); // Tắt chế độ chỉnh sửa khi hủy
+      setIsEditing(false);
       setError(null);
+      setNewEducation({});
+      setNewWorkExperience({});
+      setNewCertification({});
     }
   };
-  // Define the content for ExpandProfileSettings
-  // const additionalSettingsContent = (
-  //   <div className="space-y-4">
-  //     <div>
-  //       <h3 className="text-sm font-medium text-gray-400 mb-1">
-  //         Submitted Date
-  //       </h3>
-  //       <p className="text-gray-200">{mentorData?.submittedDate}</p>
-  //     </div>
-  //     <div>
-  //       <h3 className="text-sm font-medium text-gray-400 mb-2">Documents</h3>
-  //       {mentorData?.documents.length > 0 ? (
-  //         <div className="space-y-2">
-  //           {mentorData?.documents.map((doc, index) => (
-  //             <div
-  //               key={index}
-  //               className="flex items-center justify-between bg-gray-600 p-2 rounded"
-  //             >
-  //               <div className="flex items-center">
-  //                 <span
-  //                   className={`mr-2 text-sm font-medium ${
-  //                     doc.type === "PDF" ? "text-red-400" : "text-blue-400"
-  //                   }`}
-  //                 >
-  //                   {doc.type}
-  //                 </span>
-  //                 <span className="text-sm text-gray-200">{doc.name}</span>
-  //               </div>
-  //               <div className="flex items-center space-x-2">
-  //                 <a
-  //                   href={doc.url}
-  //                   className="text-blue-400 hover:text-blue-300 text-sm"
-  //                   target="_blank"
-  //                   rel="noopener noreferrer"
-  //                 >
-  //                   View
-  //                 </a>
-  //                 {isEditing && (
-  //                   <button
-  //                     onClick={() => handleRemoveDocument(index)}
-  //                     className="text-red-400 hover:text-red-300 text-sm"
-  //                   >
-  //                     Remove
-  //                   </button>
-  //                 )}
-  //               </div>
-  //             </div>
-  //           ))}
-  //         </div>
-  //       ) : (
-  //         <p className="text-gray-200">No documents available.</p>
-  //       )}
-  //     </div>
-  //   </div>
-  // );
+
   const additionalSettingsContent = (
     <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-1">Availability</h3>
-        <p className="text-gray-200">
-          {mentorData?.availability?.map((day) => day.name).join(", ") ||
-            "Not specified"}
-        </p>
-      </div>
-      <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-1">
-          Communication Method
+        <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
+          Education
+          <button onClick={() => setOpenDialog(true)} className="ml-1">
+            <CirclePlus
+              size={20}
+              className="text-green-500 hover:text-green-600"
+            />
+          </button>
         </h3>
-        <p className="text-gray-200">
-          {mentorData?.communicationMethod?.name || "Not specified"}
-        </p>
-      </div>
-      <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-2">Education</h3>
         <div className="bg-gray-700 p-4 rounded-lg">
           {mentorData && mentorData.mentorEducation?.length > 0 ? (
             mentorData.mentorEducation.map((education, index) => (
-              <div key={index} className="flex justify-between py-2">
-                <div className="text-sm text-gray-200">
-                  {education.institutionName} - {education.fieldOfStudy}
-                </div>
+              <div
+                key={index}
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+              >
+                <h5 className="font-medium">
+                  {education.fieldOfStudy}
+                  <div>
+                    <p className="text-[12px] text-gray-400">
+                      {education.institutionName}
+                    </p>
+                  </div>
+                </h5>
                 <div className="text-sm text-gray-400">
                   {education.graduationYear ?? "N/A"}
                 </div>
+                <button
+                  onClick={() => handleRemoveEducation(index)}
+                  className="text-red-500 hover:text-red-700 text-2xl"
+                >
+                  -
+                </button>
               </div>
             ))
           ) : (
@@ -223,10 +391,18 @@ const MentorStatusProfile = () => {
         <div className="bg-gray-700 p-4 rounded-lg">
           {mentorData && mentorData.mentorWorkExperience?.length > 0 ? (
             mentorData.mentorWorkExperience.map((experience, index) => (
-              <div key={index} className="flex justify-between py-2">
-                <div className="text-sm text-gray-200">
-                  {experience.companyName} - {experience.position}
-                </div>
+              <div
+                key={index}
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+              >
+                <h5 className="font-medium">
+                  {experience.position}
+                  <div>
+                    <p className="text-[12px] text-gray-400">
+                      {experience.companyName}
+                    </p>
+                  </div>
+                </h5>
                 <div className="text-sm text-gray-400">
                   {new Date(experience.startDate).getFullYear()}–
                   {experience.endDate
@@ -242,24 +418,57 @@ const MentorStatusProfile = () => {
           )}
         </div>
       </div>
+      <div>
+        <h3 className="text-sm font-medium text-gray-400 mb-2">
+          Certifications
+        </h3>
+        <div className="bg-gray-700 p-4 rounded-lg">
+          {mentorData && mentorData.certifications?.length > 0 ? (
+            mentorData.certifications.map((certificate, index) => (
+              <div
+                key={index}
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+              >
+                <h5 className="font-medium">
+                  {certificate.certificationName}
+                  <div>
+                    <p className="text-[12px] text-gray-400">
+                      {certificate.issuingOrganization}
+                    </p>
+                  </div>
+                </h5>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-200">No certifications provided.</p>
+          )}
+        </div>
+      </div>
+      <div>
+        <h3 className="text-sm font-medium text-gray-400 mb-2">Documents</h3>
+        <div className="bg-gray-700 p-4 rounded-lg">
+          <p className="text-sm text-gray-200">No documents provided.</p>
+        </div>
+      </div>
     </div>
   );
 
   if (loading) return <div>Loading...</div>;
   if (!editedMentor) return <div>No data available</div>;
+
   return (
     <main className="container mx-auto py-8 px-4">
       <div className="max-w-3xl mx-auto bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <div className="p-8">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-semibold text-gray-200">
-              Your Profile
+              Your Application
             </h1>
             <button
               onClick={() => setIsEditing(true)}
               className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
             >
-              Edit Profile
+              Edit Application
             </button>
           </div>
           <div className="space-y-6">
@@ -269,7 +478,7 @@ const MentorStatusProfile = () => {
                   <img
                     src={mentorData.profileImage}
                     alt={mentorData.name}
-                    className=" rounded-full object-cover"
+                    className="rounded-full object-cover"
                   />
                 </span>
               </div>
@@ -293,10 +502,6 @@ const MentorStatusProfile = () => {
                   </span>
                 </div>
               </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1">About</h3>
-              <p className="text-gray-200">{mentorData?.bio}</p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-2">
@@ -326,33 +531,32 @@ const MentorStatusProfile = () => {
               <p className="text-gray-200">{mentorData.industryExperience}</p>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-1">
-                Contact
-              </h3>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">Email</h3>
               <p className="text-gray-200">{mentorData?.email}</p>
             </div>
-            {/* <div className="pt-4 border-t border-gray-700">
-              <button className="text-orange-500 hover:text-orange-400 text-sm flex items-center">
-                <span>View Additional Profile Settings</span>
-                <svg
-                  className="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 5l7 7-7 7"
-                  ></path>
-                </svg>
-              </button>
-            </div> */}
             <ExpandProfileSettings
               additionalSettings={additionalSettingsContent}
             />
+            <CustomModal
+              isOpen={openDialog}
+              onClose={handleOnclose}
+              title="Add Education"
+              size="md"
+            >
+              <ApplicationAddDialog
+                onClose={handleOnclose}
+                onSubmit={handleSubmitNewEducation}
+                initialData={
+                  newEducation.institutionName &&
+                  newEducation.fieldOfStudy &&
+                  newEducation.graduationYear
+                    ? (newEducation as MentorEducation)
+                    : undefined
+                }
+                actionButtonText="Add Education"
+                isSubmitting={false}
+              />
+            </CustomModal>
           </div>
         </div>
       </div>

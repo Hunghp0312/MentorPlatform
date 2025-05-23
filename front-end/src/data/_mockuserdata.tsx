@@ -47,8 +47,42 @@ export const mockUser1: User = {
   mentorApplications: {
     applicantId: "1",
     applicationStatus: { id: 1, name: "pending" },
-    mentorEducations: [],
-    mentorWorkExperiences: [],
+    mentorEducations: [
+      {
+        institutionName: "ABC University", //nho
+        fieldOfStudy: "Computer Science", //to
+        graduationYear: 2020,
+      },
+      {
+        institutionName: "XYZ College",
+        fieldOfStudy: "Mathematics",
+        graduationYear: 2018,
+      },
+    ],
+    mentorWorkExperiences: [
+      {
+        companyName: "ABC Corp", //nho
+        position: "Software Engineer", //to
+        startDate: "2021-01-01",
+        endDate: "2022-12-31",
+      },
+      {
+        companyName: "XYZ Inc",
+        position: "Data Analyst",
+        startDate: "2019-01-01",
+        endDate: "2020-12-31",
+      },
+    ],
+    mentorCertifications: [
+      {
+        certificationName: "AWS Certified Cloud Practitioner",
+        issuingOrganization: "Microsoft",
+      },
+      {
+        certificationName: "Asp.net core", //to
+        issuingOrganization: "Microsoft", //nho
+      },
+    ],
   },
   userArenaOfExpertises: [
     {

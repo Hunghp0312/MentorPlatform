@@ -1,7 +1,11 @@
 import { admin } from "./admin";
 import { User } from "./user";
 import { ApplicationStatus } from "./mentor";
-import { MentorEducation, MentorWorkExperience } from "./mentor";
+import {
+  MentorEducation,
+  MentorWorkExperience,
+  MentorCertification,
+} from "./mentor";
 // src/types/approval.ts
 export interface MentorApplication {
   applicantId: string;
@@ -18,6 +22,6 @@ export interface MentorApplication {
   applicant?: User;
   mentorEducations?: MentorEducation[];
   mentorWorkExperiences?: MentorWorkExperience[];
-  // mentorCertifications?: MentorCertification[];
+  mentorCertifications?: MentorCertification[];
   // supportingDocuments?: SupportingDocument[];
 }

@@ -2,12 +2,12 @@ import { MentorApplication } from "./approval";
 // import { CourseType } from "./course";
 import { UserArenaOfExpertise } from "./user";
 
-// export interface MentorCertification {
-//   id: string;
-//   certificationName: string;
-//   issuingOrganization: string;
-//   mentorApplication?: MentorApplication;
-// // }
+export interface MentorCertification {
+  //id: string;
+  certificationName: string;
+  issuingOrganization: string;
+  mentorApplication?: MentorApplication;
+}
 // export interface SupportingDocument {
 //   id: string;
 //   mentorApplication?: MentorApplication;
@@ -32,7 +32,6 @@ export interface MentorWorkExperience {
   position: string;
   startDate: string; // ISO string for DateTime
   endDate?: string; // ISO string for DateTime
-  description?: string;
   mentorApplication?: MentorApplication;
 }
 export interface MentorEducation {
