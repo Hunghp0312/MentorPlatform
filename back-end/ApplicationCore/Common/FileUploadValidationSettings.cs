@@ -12,5 +12,6 @@
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         };
         public static long MaxFileSizeInMB => MaxFileSizeInBytes / 1024 / 1024;
+        public const int MaxFileNameLength = 255;
     }
 }

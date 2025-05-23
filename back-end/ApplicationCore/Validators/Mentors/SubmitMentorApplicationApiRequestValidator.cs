@@ -14,7 +14,7 @@ namespace ApplicationCore.Validators.Mentors
         {
             RuleFor(x => x.MotivationStatement)
                 .NotEmpty().WithMessage(ValidationMessages.MotivationStatementRequired)
-                .MaximumLength(2000).WithMessage(ValidationMessages.MotivationStatementMaxLength);
+                .MaximumLength(1000).WithMessage(ValidationMessages.MotivationStatementMaxLength);
 
             RuleFor(x => x.EducationDetails)
                 .NotNull().WithMessage(ValidationMessages.EducationDetailsRequired)
@@ -41,6 +41,8 @@ namespace ApplicationCore.Validators.Mentors
             RuleFor(x => x.SupportingDocument)
                .NotNull().WithMessage(ValidationMessages.SupportingDocumentRequired)
                .Must(file => file.Length > 0).WithMessage("File cannot be empty.")
+               .Must(file => file.FileName.Length < 256)
+                        .WithMessage(ValidationMessages.FileNameTooLong)
                .Must(file => file.Length <= FileUploadConstants.MaxFileSizeInBytes)
                    .WithMessage(ValidationMessages.FileTooLarge.Replace("{MaxSizeInMB}", FileUploadConstants.MaxFileSizeInMB.ToString()))
                .Must(file => FileUploadConstants.AllowedFileTypes.Contains(file.ContentType))

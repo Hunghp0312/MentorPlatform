@@ -77,7 +77,7 @@ namespace ApplicationCore.Services
                 ApplicantId = applicantUserId,
                 MotivationStatement = apiRequest.MotivationStatement,
                 ApplicationStatusId = 1,
-                SubmissionDate = DateTime.UtcNow.ToShortDateString(),
+                SubmissionDate = DateTime.UtcNow.ToString(),
                 CreatedAt = DateTime.UtcNow,
                 LastStatusUpdateDate = DateTime.UtcNow
             };

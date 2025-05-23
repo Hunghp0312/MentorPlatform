@@ -1,4 +1,5 @@
-﻿using ApplicationCore.DTOs.Requests.Mentors;
+﻿using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.Requests.Mentors;
 using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace Presentation.Controllers
         [HttpPost]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(MentorApplicationResponseDto), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SubmitCompleteApplication([FromForm] SubmitMentorApplicationApiRequest apiRequest)
         {
             var result = await _mentorService.SubmitApplicationAsync(apiRequest);
