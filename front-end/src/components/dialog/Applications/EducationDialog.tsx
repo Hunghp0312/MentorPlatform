@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import InputCustom from "../input/InputCustom";
-import { MentorEducation } from "../../types/mentor";
+import InputCustom from "../../input/InputCustom";
+import { MentorEducation } from "../../../types/mentor";
 // import InputCheckbox from "../input/InputCheckbox";
-import Button from "../ui/Button";
-import loading from "../../assets/loadingIcon.svg";
+import Button from "../../ui/Button";
+import loading from "../../../assets/loadingIcon.svg";
 interface EducationAddDialogProps {
   onClose: () => void;
   onSubmit: (education: MentorEducation) => void;

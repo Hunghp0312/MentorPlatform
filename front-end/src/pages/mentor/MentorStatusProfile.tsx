@@ -10,7 +10,10 @@ import {
   MentorWorkExperience,
 } from "../../types/mentor";
 import CustomModal from "../../components/ui/Modal";
-import EducationAddDialog from "../../components/dialog/EducationDialog";
+import EducationAddDialog from "../../components/dialog/Applications/EducationDialog";
+import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkExperienceDialog";
+import CertificationAddDialog from "../../components/dialog/Applications/CertificationDialog";
+import { set } from "date-fns";
 // import { set } from "date-fns";
 
 interface MentorStatusType {
@@ -48,7 +51,9 @@ const MentorStatusProfile = () => {
   const [newCertification, setNewCertification] = useState<
     Partial<MentorCertification>
   >({});
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openEducationDialog, setOpenEducationDialog] = useState(false);
+  const [openWorkExperienceDialog, setWorkExperienceDialog] = useState(false);
+  const [openCertificationDialog, setCertificationDialog] = useState(false);
   useEffect(() => {
     setLoading(true);
     const initialMentor: MentorStatusType = {
@@ -101,12 +106,22 @@ const MentorStatusProfile = () => {
         };
       });
       setNewEducation({});
-      setOpenDialog(false);
+      setOpenEducationDialog(false);
     }
   };
-  const handleOnclose = () => {
-    setOpenDialog(false);
+  const handleOnEducationClose = () => {
+    setOpenEducationDialog(false);
     setNewEducation({});
+  };
+
+  const handleOnWorkExperienceClose = () => {
+    setWorkExperienceDialog(false);
+    setNewWorkExperience({});
+  };
+
+  const handleOnCertificationClose = () => {
+    setCertificationDialog(false);
+    setNewCertification({});
   };
 
   // Add new work experience
@@ -139,7 +154,7 @@ const MentorStatusProfile = () => {
         };
       });
       setNewWorkExperience({});
-      setOpenDialog(false);
+      setWorkExperienceDialog(false);
     }
   };
 
@@ -166,7 +181,7 @@ const MentorStatusProfile = () => {
         };
       });
       setNewCertification({});
-      setOpenDialog(false);
+      setCertificationDialog(false);
     }
   };
 
@@ -282,7 +297,7 @@ const MentorStatusProfile = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Education
-          <button onClick={() => setOpenDialog(true)} className="ml-1">
+          <button onClick={() => setOpenEducationDialog(true)} className="ml-1">
             <CirclePlus
               size={20}
               className="text-green-500 hover:text-green-600"
@@ -296,23 +311,25 @@ const MentorStatusProfile = () => {
                 key={index}
                 className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
               >
-                <h5 className="font-medium">
-                  {education.fieldOfStudy}
-                  <div>
+                <div className="flex w-full justify-between items-start">
+                  <div className="flex flex-col">
+                    <h5 className="font-medium">{education.fieldOfStudy}</h5>
                     <p className="text-[12px] text-gray-400">
                       {education.institutionName}
                     </p>
                   </div>
-                </h5>
-                <div className="text-sm text-gray-400">
-                  {education.graduationYear ?? "N/A"}
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-400">
+                      {education.graduationYear ?? "N/A"}
+                    </span>
+                    <button onClick={() => handleRemoveWorkExperience(index)}>
+                      <CircleMinus
+                        size={20}
+                        className="text-red-500 hover:text-red-600"
+                      />
+                    </button>
+                  </div>
                 </div>
-                <button onClick={() => handleRemoveEducation(index)}>
-                  <CircleMinus
-                    size={20}
-                    className="text-red-500 hover:text-red-600"
-                  />
-                </button>
               </div>
             ))
           ) : (
@@ -323,7 +340,10 @@ const MentorStatusProfile = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Work Experience
-          <button onClick={() => setOpenDialog(true)} className="ml-1">
+          <button
+            onClick={() => setWorkExperienceDialog(true)}
+            className="ml-1"
+          >
             <CirclePlus
               size={20}
               className="text-green-500 hover:text-green-600"
@@ -337,26 +357,31 @@ const MentorStatusProfile = () => {
                 key={index}
                 className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
               >
-                <h5 className="font-medium">
-                  {experience.position}
-                  <div>
+                <div className="flex w-full justify-between items-start">
+                  {/* Bên trái */}
+                  <div className="flex flex-col">
+                    <h5 className="font-medium">{experience.position}</h5>
                     <p className="text-[12px] text-gray-400">
                       {experience.companyName}
                     </p>
                   </div>
-                </h5>
-                <div className="text-sm text-gray-400">
-                  {new Date(experience.startDate).getFullYear()}–
-                  {experience.endDate
-                    ? new Date(experience.endDate).getFullYear()
-                    : "Present"}
+
+                  {/* Bên phải */}
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-400">
+                      {new Date(experience.startDate).getFullYear()}–
+                      {experience.endDate && experience.endDate !== "Present"
+                        ? new Date(experience.endDate).getFullYear()
+                        : "Present"}
+                    </span>
+                    <button onClick={() => handleRemoveWorkExperience(index)}>
+                      <CircleMinus
+                        size={20}
+                        className="text-red-500 hover:text-red-600"
+                      />
+                    </button>
+                  </div>
                 </div>
-                <button onClick={() => handleRemoveWorkExperience(index)}>
-                  <CircleMinus
-                    size={20}
-                    className="text-red-500 hover:text-red-600"
-                  />
-                </button>
               </div>
             ))
           ) : (
@@ -369,7 +394,7 @@ const MentorStatusProfile = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Certifications
-          <button onClick={() => setOpenDialog(true)} className="ml-1">
+          <button onClick={() => setCertificationDialog(true)} className="ml-1">
             <CirclePlus
               size={20}
               className="text-green-500 hover:text-green-600"
@@ -498,13 +523,13 @@ const MentorStatusProfile = () => {
               additionalSettings={additionalSettingsContent}
             />
             <CustomModal
-              isOpen={openDialog}
-              onClose={handleOnclose}
+              isOpen={openEducationDialog}
+              onClose={handleOnEducationClose}
               title="Add Education"
               size="md"
             >
               <EducationAddDialog
-                onClose={handleOnclose}
+                onClose={handleOnEducationClose}
                 onSubmit={handleAddNewEducation}
                 initialData={
                   newEducation.institutionName &&
@@ -514,6 +539,45 @@ const MentorStatusProfile = () => {
                     : undefined
                 }
                 actionButtonText="Add Education"
+                isSubmitting={false}
+              />
+            </CustomModal>
+            <CustomModal
+              isOpen={openCertificationDialog}
+              onClose={handleOnCertificationClose}
+              title="Add Certification"
+              size="md"
+            >
+              <CertificationAddDialog
+                onClose={handleOnCertificationClose}
+                onSubmit={handleAddCertification}
+                initialData={
+                  newCertification.certificationName &&
+                  newCertification.issuingOrganization
+                    ? (newCertification as MentorCertification)
+                    : undefined
+                }
+                actionButtonText="Add Education"
+                isSubmitting={false}
+              />
+            </CustomModal>
+            <CustomModal
+              isOpen={openWorkExperienceDialog}
+              onClose={handleOnWorkExperienceClose}
+              title="Add Work Experience"
+              size="md"
+            >
+              <WorkExperienceAddDialog
+                onClose={handleOnWorkExperienceClose}
+                onSubmit={handleAddWorkExperience}
+                initialData={
+                  newWorkExperience.companyName &&
+                  newWorkExperience.position &&
+                  newWorkExperience.startDate
+                    ? (newWorkExperience as MentorWorkExperience)
+                    : undefined
+                }
+                actionButtonText="Add Work Experience"
                 isSubmitting={false}
               />
             </CustomModal>
