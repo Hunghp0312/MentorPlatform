@@ -21,7 +21,7 @@ namespace Infrastructure.Entities
         public bool PrivacyProfile { get; set; } = true;
         public bool MessagePermission { get; set; } = true;
         public bool NotificationsEnabled { get; set; } = true;
-        public int CommunicationMethod { get; set; }
+        public required int CommunicationMethod { get; set; }
         public virtual User User { get; set; } = null!;
     }
 }

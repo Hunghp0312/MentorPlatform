@@ -14,7 +14,7 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public string? Bio { get; set; }
         public required string SelectedRole { get; set; } // "Learner" hoặc "Mentor"
         public IFormFile? PhotoData { get; set; }
-        public ArenaOfExpertise? ArenaOfExpertise { get; set; }
+        public List<int>? ArenaOfExpertise { get; set; }
 
         public required string ProfessionalSkill { get; set; }
 

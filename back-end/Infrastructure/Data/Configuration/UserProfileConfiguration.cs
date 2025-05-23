@@ -23,14 +23,14 @@ namespace Infrastructure.Data.Configuration
             builder.Property(up => up.FullName).HasMaxLength(200).IsRequired(false);
             builder.Property(up => up.Bio).HasMaxLength(1000).IsRequired(false);
             builder.Property(up => up.ProfessionalSkill).HasMaxLength(1000).IsRequired(false);
-            builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false);
-            builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
+            builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false); builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
 
-            builder.Property(up => up.SessionFrequency).IsRequired(false);
-            builder.Property(up => up.SessionDuration).IsRequired(false);
-            builder.Property(up => up.LearningStyle).IsRequired(false);
-            builder.Property(up => up.CommunicationMethod).IsRequired(false);
+            // Ignore navigation properties for enums - we use the Id properties instead
+            builder.Ignore(up => up.SessionFrequency);
+            builder.Ignore(up => up.SessionDuration);
+            builder.Ignore(up => up.LearningStyle);
 
+            builder.Property(up => up.CommunicationMethod).IsRequired();
             builder.Property(up => up.PrivacyProfile).IsRequired().HasDefaultValue(true);
             builder.Property(up => up.MessagePermission).IsRequired().HasDefaultValue(true);
             builder.Property(up => up.NotificationsEnabled).IsRequired().HasDefaultValue(true);
