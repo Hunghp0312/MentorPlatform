@@ -12,7 +12,7 @@ interface EducationAddDialogProps {
   isSubmitting?: boolean;
 }
 
-const ApplicationAddDialog: React.FC<EducationAddDialogProps> = ({
+const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
   onClose,
   onSubmit,
   initialData,
@@ -161,4 +161,4 @@ const ApplicationAddDialog: React.FC<EducationAddDialogProps> = ({
   );
 };
 
-export default ApplicationAddDialog;
+export default EducationAddDialog;

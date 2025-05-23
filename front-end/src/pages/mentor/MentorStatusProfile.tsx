@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
 import mockUser1, { mockArenaOfExpertises } from "../../data/_mockuserdata";
-import { CirclePlus } from "lucide-react";
+import { CirclePlus, CircleMinus } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import { EnumType } from "../../types/commonType";
 import InputCustom from "../../components/input/InputCustom";
-import ApplicationAddDialog from "../../components/dialog/ApplicationDialog";
 import {
   MentorCertification,
   MentorEducation,
   MentorWorkExperience,
 } from "../../types/mentor";
 import CustomModal from "../../components/ui/Modal";
+import EducationAddDialog from "../../components/dialog/EducationDialog";
 // import { set } from "date-fns";
 
 interface MentorStatusType {
@@ -79,34 +79,8 @@ const MentorStatusProfile = () => {
     setEditedMentor({ ...initialMentor });
     setLoading(false);
   }, []);
-  // Xử lý thay đổi input (name, email, experience, profileImage)
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (editedMentor) {
-      setEditedMentor((prev) => (prev ? { ...prev, [name]: value } : prev));
-    }
-  };
-  // Xử lý thay đổi expertiseAreas (thêm/xóa)
-  const handleExpertiseChange = (value: string, action: "add" | "remove") => {
-    if (editedMentor) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        const expertiseAreas = [...(prev.expertiseAreas || [])];
-        if (action === "add" && !expertiseAreas.includes(value)) {
-          expertiseAreas.push(value);
-        } else if (action === "remove" && expertiseAreas.includes(value)) {
-          expertiseAreas.splice(expertiseAreas.indexOf(value), 1);
-        }
-        return { ...prev, expertiseAreas };
-      });
-    }
-  };
-  const handleNewEducationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewEducation((prev) => ({ ...prev, [name]: value }));
-    setOpenDialog(true);
-  };
-  const handleSubmitNewEducation = async (newEducation: MentorEducation) => {
+
+  const handleAddNewEducation = async (newEducation: MentorEducation) => {
     if (
       newEducation.institutionName &&
       newEducation.fieldOfStudy &&
@@ -134,73 +108,12 @@ const MentorStatusProfile = () => {
     setOpenDialog(false);
     setNewEducation({});
   };
-  const handleNewWorkExperienceChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-    setNewWorkExperience((prev) => ({ ...prev, [name]: value }));
-  };
-  const handleNewCertificationChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const { name, value } = e.target;
-    setNewCertification((prev) => ({ ...prev, [name]: value }));
-  };
-  // const handleAddEducation = () => {
-  //   if (
-  //     editedMentor &&
-  //     newEducation.institutionName &&
-  //     newEducation.fieldOfStudy &&
-  //     newEducation.graduationYear
-  //   ) {
-  //     setEditedMentor((prev) => {
-  //       if (!prev) return prev;
-  //       return {
-  //         ...prev,
-  //         mentorEducation: [
-  //           ...(prev.mentorEducation || []),
-  //           newEducation as MentorEducation,
-  //         ],
-  //       };
-  //     });
-  //     setNewEducation({});
-  //   }
-  // };
-  const handleAddEducation = () => {
-    if (
-      editedMentor &&
-      newEducation.institutionName &&
-      newEducation.fieldOfStudy &&
-      newEducation.graduationYear
-    ) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          mentorEducation: [
-            ...(prev.mentorEducation || []),
-            newEducation as MentorEducation,
-          ],
-        };
-      });
-      setMentorData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          mentorEducation: [
-            ...(prev.mentorEducation || []),
-            newEducation as MentorEducation,
-          ],
-        };
-      });
-      setNewEducation({});
-    }
-  };
 
   // Add new work experience
-  const handleAddWorkExperience = () => {
+  const handleAddWorkExperience = async (
+    newWorkExperience: MentorWorkExperience
+  ) => {
     if (
-      editedMentor &&
       newWorkExperience.companyName &&
       newWorkExperience.position &&
       newWorkExperience.startDate
@@ -211,18 +124,30 @@ const MentorStatusProfile = () => {
           ...prev,
           mentorWorkExperience: [
             ...(prev.mentorWorkExperience || []),
-            newWorkExperience as MentorWorkExperience,
+            newWorkExperience,
+          ],
+        };
+      });
+      setMentorData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          mentorWorkExperience: [
+            ...(prev.mentorWorkExperience || []),
+            newWorkExperience,
           ],
         };
       });
       setNewWorkExperience({});
+      setOpenDialog(false);
     }
   };
 
   // Add new certification
-  const handleAddCertification = () => {
+  const handleAddCertification = async (
+    newCertification: MentorCertification
+  ) => {
     if (
-      editedMentor &&
       newCertification.certificationName &&
       newCertification.issuingOrganization
     ) {
@@ -230,13 +155,18 @@ const MentorStatusProfile = () => {
         if (!prev) return prev;
         return {
           ...prev,
-          certifications: [
-            ...(prev.certifications || []),
-            newCertification as MentorCertification,
-          ],
+          certifications: [...(prev.certifications || []), newCertification],
+        };
+      });
+      setMentorData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          certifications: [...(prev.certifications || []), newCertification],
         };
       });
       setNewCertification({});
+      setOpenDialog(false);
     }
   };
 
@@ -252,44 +182,50 @@ const MentorStatusProfile = () => {
   //   }
   // };
   const handleRemoveEducation = (index: number) => {
-    if (editedMentor) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        const mentorEducation = [...(prev.mentorEducation || [])];
-        mentorEducation.splice(index, 1);
-        return { ...prev, mentorEducation };
-      });
-      setMentorData((prev) => {
-        if (!prev) return prev;
-        const mentorEducation = [...(prev.mentorEducation || [])];
-        mentorEducation.splice(index, 1);
-        return { ...prev, mentorEducation };
-      });
-    }
+    setEditedMentor((prev) => {
+      if (!prev) return prev;
+      const mentorEducation = [...(prev.mentorEducation || [])];
+      mentorEducation.splice(index, 1);
+      return { ...prev, mentorEducation };
+    });
+    setMentorData((prev) => {
+      if (!prev) return prev;
+      const mentorEducation = [...(prev.mentorEducation || [])];
+      mentorEducation.splice(index, 1);
+      return { ...prev, mentorEducation };
+    });
   };
 
   // Remove work experience
   const handleRemoveWorkExperience = (index: number) => {
-    if (editedMentor) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        const mentorWorkExperience = [...(prev.mentorWorkExperience || [])];
-        mentorWorkExperience.splice(index, 1);
-        return { ...prev, mentorWorkExperience };
-      });
-    }
+    setEditedMentor((prev) => {
+      if (!prev) return prev;
+      const mentorWorkExperience = [...(prev.mentorWorkExperience || [])];
+      mentorWorkExperience.splice(index, 1);
+      return { ...prev, mentorWorkExperience };
+    });
+    setMentorData((prev) => {
+      if (!prev) return prev;
+      const mentorWorkExperience = [...(prev.mentorWorkExperience || [])];
+      mentorWorkExperience.splice(index, 1);
+      return { ...prev, mentorWorkExperience };
+    });
   };
 
   // Remove certification
   const handleRemoveCertification = (index: number) => {
-    if (editedMentor) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        const certifications = [...(prev.certifications || [])];
-        certifications.splice(index, 1);
-        return { ...prev, certifications };
-      });
-    }
+    setEditedMentor((prev) => {
+      if (!prev) return prev;
+      const certifications = [...(prev.certifications || [])];
+      certifications.splice(index, 1);
+      return { ...prev, certifications };
+    });
+    setMentorData((prev) => {
+      if (!prev) return prev;
+      const certifications = [...(prev.certifications || [])];
+      certifications.splice(index, 1);
+      return { ...prev, certifications };
+    });
   };
 
   // Thêm tài liệu mới
@@ -371,11 +307,11 @@ const MentorStatusProfile = () => {
                 <div className="text-sm text-gray-400">
                   {education.graduationYear ?? "N/A"}
                 </div>
-                <button
-                  onClick={() => handleRemoveEducation(index)}
-                  className="text-red-500 hover:text-red-700 text-2xl"
-                >
-                  -
+                <button onClick={() => handleRemoveEducation(index)}>
+                  <CircleMinus
+                    size={20}
+                    className="text-red-500 hover:text-red-600"
+                  />
                 </button>
               </div>
             ))
@@ -385,8 +321,14 @@ const MentorStatusProfile = () => {
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-2">
+        <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Work Experience
+          <button onClick={() => setOpenDialog(true)} className="ml-1">
+            <CirclePlus
+              size={20}
+              className="text-green-500 hover:text-green-600"
+            />
+          </button>
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
           {mentorData && mentorData.mentorWorkExperience?.length > 0 ? (
@@ -409,6 +351,12 @@ const MentorStatusProfile = () => {
                     ? new Date(experience.endDate).getFullYear()
                     : "Present"}
                 </div>
+                <button onClick={() => handleRemoveWorkExperience(index)}>
+                  <CircleMinus
+                    size={20}
+                    className="text-red-500 hover:text-red-600"
+                  />
+                </button>
               </div>
             ))
           ) : (
@@ -419,8 +367,14 @@ const MentorStatusProfile = () => {
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium text-gray-400 mb-2">
+        <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Certifications
+          <button onClick={() => setOpenDialog(true)} className="ml-1">
+            <CirclePlus
+              size={20}
+              className="text-green-500 hover:text-green-600"
+            />
+          </button>
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
           {mentorData && mentorData.certifications?.length > 0 ? (
@@ -437,6 +391,12 @@ const MentorStatusProfile = () => {
                     </p>
                   </div>
                 </h5>
+                <button onClick={() => handleRemoveCertification(index)}>
+                  <CircleMinus
+                    size={20}
+                    className="text-red-500 hover:text-red-600"
+                  />
+                </button>
               </div>
             ))
           ) : (
@@ -543,9 +503,9 @@ const MentorStatusProfile = () => {
               title="Add Education"
               size="md"
             >
-              <ApplicationAddDialog
+              <EducationAddDialog
                 onClose={handleOnclose}
-                onSubmit={handleSubmitNewEducation}
+                onSubmit={handleAddNewEducation}
                 initialData={
                   newEducation.institutionName &&
                   newEducation.fieldOfStudy &&
