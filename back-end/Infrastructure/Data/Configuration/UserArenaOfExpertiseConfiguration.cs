@@ -14,11 +14,6 @@ namespace Infrastructure.Data.Configuration
                 .WithMany(up => up.UserArenaOfExpertises)
                 .HasForeignKey(uae => uae.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(uae => uae.ArenaOfExpertise)
-                .WithMany(a => a.UserArenaOfExpertises)
-                .HasForeignKey(uae => uae.ArenaOfExpertiseId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

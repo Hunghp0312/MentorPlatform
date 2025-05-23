@@ -12,7 +12,7 @@
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public virtual Role Role { get; set; } = null!;
-        public virtual UserProfile? UserProfile { get; set; }
+        public virtual UserProfile UserProfile { get; set; } = default!;
         public virtual ICollection<UserTopicOfInterest> UserTopicOfInterests { get; set; } = new List<UserTopicOfInterest>();
         public virtual MentorApplication SubmittedMentorApplication { get; set; } = null!;
         public virtual MentorApplication ReviewedMentorApplication { get; set; } = null!;

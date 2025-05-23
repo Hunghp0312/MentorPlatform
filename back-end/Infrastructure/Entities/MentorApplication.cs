@@ -6,7 +6,6 @@ namespace Infrastructure.Entities
     {
         public Guid ApplicantId { get; set; }
         public int ApplicationStatusId { get; set; }
-        public string MotivationStatement { get; set; } = string.Empty;
         public string SubmissionDate { get; set; } = string.Empty;
         public DateTime? LastStatusUpdateDate { get; set; }
         public Guid? AdminReviewerId { get; set; }
@@ -15,7 +14,6 @@ namespace Infrastructure.Entities
         public DateTime? ApprovalDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-
         public virtual User Applicant { get; set; } = null!;
         public virtual ApplicationStatus ApplicationStatus { get; set; } = null!;
         public virtual User? AdminReviewer { get; set; }
