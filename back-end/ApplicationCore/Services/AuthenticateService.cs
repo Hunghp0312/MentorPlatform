@@ -180,7 +180,7 @@ public class AuthenticateService : IAuthenticateService
         var accessToken = _tokenService.GenerateAccessToken(claims);
         var refreshToken = _tokenService.GenerateRefreshToken();
         user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
         await _unitOfWork.SaveChangesAsync();
         var tokenHandler = new JwtSecurityTokenHandler();
         var loginResponse = new TokenResponse
