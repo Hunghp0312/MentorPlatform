@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Utilities;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ApplicationCore.Services;
 
@@ -40,11 +41,13 @@ public class AuthenticateService : IAuthenticateService
         var tokenResetPassword = _tokenService.GenerateRefreshToken();
         user.PasswordResetToken = tokenResetPassword;
         user.PasswordResetExpiry = DateTime.UtcNow.AddMinutes(30);
+        var encodedPasswordResetToken = Uri.EscapeDataString(user.PasswordResetToken);
+        var encodedEmail = Uri.EscapeDataString(user.Email);
         await _unitOfWork.SaveChangesAsync();
         await _sendEmailService.SendEmail(
             email.Email,
             "Reset Password",
-            $"<p>Click <a href='https://localhost:5173/reset-password?token={user.PasswordResetToken}&email={user.Email}'>here</a> to reset your password.</p>"
+            $"<p>Click <a href='https://localhost:5173/reset-password?token={encodedPasswordResetToken}&email={encodedEmail}'>here</a> to reset your password.</p>"
         );
         return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Reset password email sent." });
     }
