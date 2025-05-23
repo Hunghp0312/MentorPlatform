@@ -18,6 +18,7 @@ type DropdownProps = {
   label?: string;
   isRequired?: boolean;
   haveOptionAll?: boolean;
+  dataTestId?: string;
 };
 
 const Dropdown: React.FC<DropdownProps> = ({
@@ -32,6 +33,7 @@ const Dropdown: React.FC<DropdownProps> = ({
   label,
   isRequired = false,
   haveOptionAll = false,
+  dataTestId,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
@@ -160,7 +162,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     <div className="relative" ref={wrapperRef}>
       {label && (
         <label
-          htmlFor={name}
+          htmlFor={dataTestId}
           className="text-base font-medium text-gray-300 block mb-2"
         >
           {label} {isRequired && <span className="text-red-500">*</span>}
@@ -172,6 +174,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           role="button"
           onClick={() => setIsOpen(!isOpen)}
           onKeyDown={handleKeyDown}
+          data-testid={dataTestId}
           className={`bg-gray-700 text-left focus:outline-none ${
             selectedOption?.label ? "text-gray-100" : "text-gray-400"
           } sm:text-sm rounded-lg block w-full pr-10 ${
@@ -187,6 +190,7 @@ const Dropdown: React.FC<DropdownProps> = ({
           className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-200"
           onClick={() => setIsOpen(!isOpen)}
           tabIndex={-1}
+          id={dataTestId}
         >
           <ChevronDown
             className={`h-4 w-4 ${
