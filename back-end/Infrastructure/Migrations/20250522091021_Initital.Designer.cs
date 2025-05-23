@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250521074435_Init")]
-    partial class Init
+    [Migration("20250522091021_Initital")]
+    partial class Initital
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,6 +42,48 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("ArenaOfExpertise");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c1"),
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c2"),
+                            Name = "Programming"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c3"),
+                            Name = "Design"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c4"),
+                            Name = "Marketing"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c5"),
+                            Name = "Data Science"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c6"),
+                            Name = "Business"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c7"),
+                            Name = "Project Management"
+                        },
+                        new
+                        {
+                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c8"),
+                            Name = "Communication"
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
@@ -74,70 +116,70 @@ namespace Infrastructure.Migrations
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                             Description = "Courses related to software development and programming languages.",
                             Name = "Programming",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             Description = "Frontend and backend development tutorials and courses.",
                             Name = "Web Development",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Description = "Learn data analysis, visualization, and machine learning.",
                             Name = "Data Science",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
                             Description = "Courses on CI/CD, containers, and infrastructure automation.",
                             Name = "DevOps",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                             Description = "Introduction to relational and non-relational databases.",
                             Name = "Databases",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                             Description = "Courses on HTML, CSS, JavaScript and modern frameworks.",
                             Name = "Frontend",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             Description = "Learn backend technologies and server-side programming.",
                             Name = "Backend",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             Description = "Build apps for iOS and Android platforms.",
                             Name = "Mobile Development",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
                             Description = "Explore AWS, Azure, GCP and cloud infrastructure.",
                             Name = "Cloud Computing",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-444444444444"),
                             Description = "Understand security principles and ethical hacking.",
                             Name = "Cybersecurity",
-                            StatusId = 1
+                            StatusId = 2
                         });
                 });
 
@@ -343,6 +385,29 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DocumentContent");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -514,10 +579,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("RejectionReason")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("SubmissionDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                    b.Property<string>("SubmissionDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -543,10 +607,6 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("CredentialUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("IssuingOrganization")
                         .IsRequired()
@@ -627,6 +687,43 @@ namespace Infrastructure.Migrations
                     b.ToTable("MentorWorkExperience");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CourseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid?>("DocumentContentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ResourceCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("DocumentContentId")
+                        .IsUnique()
+                        .HasFilter("[DocumentContentId] IS NOT NULL");
+
+                    b.ToTable("Resource");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -668,9 +765,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<byte[]>("FileContent")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                    b.Property<Guid?>("DocumentContentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -685,7 +781,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("MentorApplicationId")
+                    b.Property<Guid?>("MentorApplicationId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UploadedAt")
@@ -694,6 +790,10 @@ namespace Infrastructure.Migrations
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DocumentContentId")
+                        .IsUnique()
+                        .HasFilter("[DocumentContentId] IS NOT NULL");
 
                     b.HasIndex("MentorApplicationId");
 
@@ -717,6 +817,48 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("Topic");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d1"),
+                            Name = "Career Development"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d2"),
+                            Name = "Technical Skills"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d3"),
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d4"),
+                            Name = "Communication"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d5"),
+                            Name = "Work-Life Balance"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d6"),
+                            Name = "Industry Insights"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d7"),
+                            Name = "Networking"
+                        },
+                        new
+                        {
+                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d8"),
+                            Name = "Entrepreneurship"
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
@@ -761,6 +903,78 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("User");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
+                            Email = "huynguyen.admin@gmail.com",
+                            PasswordHash = "J24qoemyIGuKyAln3/Pi8RE91q37SzIJG73mRFp3NZdqEIACwi8kt+zwc2H83LoW",
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
+                            Email = "huykhuong.admin@gmail.com",
+                            PasswordHash = "MEO5BmXN7sVmKAnTj2gETwED6W21cDTnsB2r9wir+fLFKTHRsmuDEnA134c8XS7g",
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
+                            Email = "minhchau.admin@gmail.com",
+                            PasswordHash = "mx31ZEfKpYBolnpQdU24oZr6J8rgcmeekox8OBXQjETbsl4JcFqFbX6VwbrRUngk",
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            Email = "huynguyen.learner@gmail.com",
+                            PasswordHash = "V5ValFHZWsVzHsJ1/kVQNY7voa9/s82t0wCoXgKANAmUV7jIXB3fSDqPrEWXyDQE",
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
+                            Email = "huykhuong.learner@gmail.com",
+                            PasswordHash = "ij89QzFzzSDgkoM4/BxIQP/XGsF+jpIqE9jCQ54glK+RtGhTwWNA+tAgoq+VvcWP",
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
+                            Email = "minhchau.learner@gmail.com",
+                            PasswordHash = "PrMl19R6c0HX1trcVn7rrzICN0cwn9dfaVqYRy5MKE2ooPNFDCkNvOi3eYFQ+t3Y",
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            Email = "huynguyen.mentor@gmail.com",
+                            PasswordHash = "S5oA4POvzUKSeBQTJCs3YrB7T6reeQXFhqLhq9FVjt8iPCwLLijsfrdYVKZDjYaU",
+                            RoleId = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            Email = "huykhuong.mentor@gmail.com",
+                            PasswordHash = "cfvPgZ274jQi71+hIv9qWL1GW4fl8c1krVlChe4zfN/W1GWQ+iI7hVe6acsAVs4r",
+                            RoleId = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            Email = "minhchau.mentor@gmail.com",
+                            PasswordHash = "JusmH4xgMpPCqpXoHUmy5gIrmPE8Tn3FnmL4oJwoo5pdSUihid8bh2A8X47pDT0p",
+                            RoleId = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
+                            Email = "dancega713@gmail.com",
+                            PasswordHash = "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw",
+                            RoleId = 2
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
@@ -960,13 +1174,35 @@ namespace Infrastructure.Migrations
                     b.Navigation("MentorApplication");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId");
+
+                    b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
+                        .WithOne("Resource")
+                        .HasForeignKey("Infrastructure.Entities.Resource", "DocumentContentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Course");
+
+                    b.Navigation("DocumentContent");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
                 {
+                    b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
+                        .WithOne("SupportingDocument")
+                        .HasForeignKey("Infrastructure.Entities.SupportingDocument", "DocumentContentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
                         .WithMany("SupportingDocuments")
                         .HasForeignKey("MentorApplicationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("DocumentContent");
 
                     b.Navigation("MentorApplication");
                 });
@@ -1039,6 +1275,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
                 {
                     b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
+                {
+                    b.Navigation("Resource");
+
+                    b.Navigation("SupportingDocument");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
