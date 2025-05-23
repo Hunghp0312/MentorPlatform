@@ -1,11 +1,9 @@
-// src/types/registration.ts (or your chosen path)
-
 export enum Role {
   Learner = "Learner",
   Mentor = "Mentor",
 }
 
-export enum LearnerCommunicationMethod {
+export enum CommunicationMethod {
   VideoCall = "Video Call",
   AudioCall = "Audio Call",
   TextChat = "Text Chat",
@@ -41,20 +39,19 @@ export enum TeachingApproachOption {
 
 export interface AccountDetails {
   email: string;
-  password: string; // This DTO will hold the password temporarily before submission
+  password: string;
 }
 
 export interface SharedProfileDetails {
   fullName: string;
   bio: string;
-  profilePictureUrl?: string; // URL after upload
-  profilePictureFile?: File | null; // For client-side state before upload
-  goal: string;
+  profilePictureUrl?: string;
+  profilePictureFile?: File | null;
   expertise: string[];
-  skills: string[];
-  industryExperience: string;
+  skills?: string[];
+  industryExperience?: string;
   availability: string[];
-  preferredCommunication: LearnerCommunicationMethod;
+  preferredCommunication: CommunicationMethod;
 }
 
 export interface LearnerDetails {
@@ -62,13 +59,15 @@ export interface LearnerDetails {
 }
 
 export interface MentorDetails {
-  teachingApproach: [];
+  industryExperience: string;
+  teachingApproach: TeachingApproachOption[];
 }
 
 export interface UserPreferences {
   interestedTopics: string[];
   sessionFrequency: SessionFrequencyOption;
   sessionDuration: SessionDurationOption;
+  goal: string;
   privacySettings: {
     isProfilePrivate: boolean;
     allowMessages: boolean;
@@ -76,73 +75,73 @@ export interface UserPreferences {
   };
 }
 
-export type UserRegistrationRequest =
-  | {
-      role: Role.Learner;
-      account: AccountDetails;
-      profile: SharedProfileDetails;
-      learnerDetails: LearnerDetails;
-      preferences: UserPreferences;
-    }
-  | {
-      role: Role.Mentor;
-      account: AccountDetails;
-      profile: SharedProfileDetails;
-      mentorDetails: MentorDetails;
-      preferences: UserPreferences;
-    };
+interface BaseUserRegistration {
+  account: AccountDetails;
+  profile: SharedProfileDetails;
+  preferences: UserPreferences;
+}
 
-// Helper to create initial data based on role
+export type UserRegistrationRequest =
+  | (BaseUserRegistration & {
+      role: Role.Learner;
+      learnerDetails: LearnerDetails;
+    })
+  | (BaseUserRegistration & {
+      role: Role.Mentor;
+      mentorDetails: MentorDetails;
+    });
+
+const baseAccount: AccountDetails = {
+  email: "",
+  password: "",
+};
+
+const baseProfile: SharedProfileDetails = {
+  fullName: "",
+  bio: "",
+  profilePictureFile: null,
+  expertise: [],
+  skills: [],
+  industryExperience: "",
+  availability: [],
+  preferredCommunication: CommunicationMethod.VideoCall,
+};
+
+const basePreferences: UserPreferences = {
+  interestedTopics: [],
+  sessionFrequency: SessionFrequencyOption.Weekly,
+  sessionDuration: SessionDurationOption.OneHour,
+  goal: "",
+  privacySettings: {
+    isProfilePrivate: false,
+    allowMessages: true,
+    receiveNotifications: true,
+  },
+};
+
 export const createInitialData = (role: Role): UserRegistrationRequest => {
-  const account: AccountDetails = { email: "", password: "" };
-  const profile: SharedProfileDetails = {
-    fullName: "",
-    bio: "",
-    profilePictureFile: null,
-  };
-  const basePreferences: Omit<
-    UserPreferences,
-    "learningStyle" /* | "teachingApproach" */
-  > = {
-    interestedTopics: [],
-    sessionFrequency: SessionFrequencyOption.Weekly,
-    sessionDuration: SessionDurationOption.OneHour,
-    privacySettings: {
-      isProfilePrivate: false,
-      allowMessages: true,
-      receiveNotifications: true,
-    },
-  };
+  const account = { ...baseAccount };
+  const profile = { ...baseProfile };
+  const preferences = { ...basePreferences };
 
   if (role === Role.Learner) {
     return {
-      role: Role.Learner,
+      role,
       account,
       profile,
-      learnerDetails: {
-        learningGoals: "",
-        preferredCommunication: LearnerCommunicationMethod.VideoCall,
-      },
-      preferences: {
-        ...basePreferences,
-        learningStyle: LearningStyleOption.Visual,
-      },
+      learnerDetails: { learningStyle: [LearningStyleOption.Visual] },
+      preferences,
     };
   } else {
-    // Mentor
     return {
-      role: Role.Mentor,
+      role,
       account,
       profile,
       mentorDetails: {
-        expertise: [],
-        skills: [],
         industryExperience: "",
-        availability: [],
+        teachingApproach: [TeachingApproachOption.HandsOn],
       },
-      preferences: {
-        ...basePreferences /* teachingApproach: TeachingApproachOption.HandsOn */,
-      }, // Add teachingApproach if defined
+      preferences,
     };
   }
 };

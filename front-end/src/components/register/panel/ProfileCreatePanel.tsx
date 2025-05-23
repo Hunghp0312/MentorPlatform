@@ -1,31 +1,21 @@
 // components/register/panel/ProfileCreatePanel.tsx
 import React, { useState, useEffect } from "react";
-import InputCustom from "../../input/InputCustom";
-import InputTag from "../../input/InputTag";
-import ProfilePictureUpload from "../child/ProfilePictureUpload";
-import RoleSelectionCard from "../child/RoleSelectionCard";
-import MultiSelectButtons from "../child/MultiSelectButtons";
-import CommunicationMethodButton from "../child/CommunicationMethodButton";
-import { Video, Headphones, MessageCircle } from "lucide-react";
+import InputCustom from "../../input/InputCustom"; // Adjust path
+import InputTag from "../../input/InputTag"; // Adjust path
+import ProfilePictureUpload from "../child/ProfilePictureUpload"; // Adjust path
+import RoleSelectionCard from "../child/RoleSelectionCard"; // Adjust path
+import MultiSelectButtons from "../child/MultiSelectButtons"; // Adjust path
+import { Video, Headphones, MessageCircle } from "lucide-react"; // For communication buttons
 import {
-  UserRegistrationRequest,
+  UserRegistrationRequest, // The whole DTO to get the role
   SharedProfileDetails,
-  LearnerDetails,
-  MentorDetails,
-  Role,
-  LearnerCommunicationMethod,
-} from "../../../types/userRegister.d"; // Adjust
+  Role, // Enum for Role
+  CommunicationMethod, // Enum
+} from "../../../types/userRegister.d"; // Adjust path
 
 interface Props {
-  currentUserData: UserRegistrationRequest;
-  onUpdate: (
-    updates: Partial<{
-      // Allows sending partial updates for any section
-      profile: Partial<SharedProfileDetails>;
-      learnerDetails: Partial<LearnerDetails>;
-      mentorDetails: Partial<MentorDetails>;
-    }>
-  ) => void;
+  currentUserData: UserRegistrationRequest; // Pass the whole object to access 'role' and 'profile'
+  onUpdateProfile: (updates: Partial<SharedProfileDetails>) => void; // Only updates SharedProfileDetails
   onRoleChange: (newRole: Role) => void;
   onNext: () => void;
   onBack: () => void;
@@ -52,19 +42,20 @@ const availabilityOptionsData = [
   "Afternoons",
   "Evenings",
 ];
-const communicationMethodsData = [
+// Communication methods are now part of SharedProfileDetails
+const communicationMethodsSharedData = [
   {
-    value: LearnerCommunicationMethod.VideoCall,
+    value: CommunicationMethod.VideoCall,
     label: "Video Call",
     icon: <Video size={18} />,
-  }, // Smaller icon
+  },
   {
-    value: LearnerCommunicationMethod.AudioCall,
+    value: CommunicationMethod.AudioCall,
     label: "Audio Call",
     icon: <Headphones size={18} />,
   },
   {
-    value: LearnerCommunicationMethod.TextChat,
+    value: CommunicationMethod.TextChat,
     label: "Text Chat",
     icon: <MessageCircle size={18} />,
   },
@@ -76,28 +67,20 @@ const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png"];
 
 const ProfileCreatePanel: React.FC<Props> = ({
   currentUserData,
-  onUpdate,
+  onUpdateProfile,
   onRoleChange,
   onNext,
   onBack,
 }) => {
-  const { role, profile } = currentUserData;
-  // Access role-specific details conditionally
-  const learnerDetails =
-    role === Role.Learner ? currentUserData.learnerDetails : undefined;
-  const mentorDetails =
-    role === Role.Mentor ? currentUserData.mentorDetails : undefined;
+  const { role, profile } = currentUserData; // Destructure for easier access
 
-  // Local UI State (errors, preview, focus target)
+  // Local UI State for errors, preview, and focus target
   const [profilePictureError, setProfilePictureError] = useState("");
   const [fullNameError, setFullNameError] = useState("");
   const [bioError, setBioError] = useState("");
-  // Learner specific errors
-  const [learningGoalsError, setLearningGoalsError] = useState("");
-  // Mentor specific errors
   const [expertiseError, setExpertiseError] = useState("");
   const [skillsError, setSkillsError] = useState("");
-  const [experienceError, setExperienceError] = useState("");
+  const [industryExperienceError, setIndustryExperienceError] = useState("");
   const [availabilityError, setAvailabilityError] = useState("");
 
   const [profilePicturePreview, setProfilePicturePreview] = useState<
@@ -118,25 +101,24 @@ const ProfileCreatePanel: React.FC<Props> = ({
     }
   }, [profile.profilePictureFile]);
 
-  const handleFieldChange = (
-    section: "profile" | "learnerDetails" | "mentorDetails",
-    field: string,
-    value: any
-  ) => {
-    onUpdate({ [section]: { [field]: value } });
+  const handleFieldChange = (field: keyof SharedProfileDetails, value: any) => {
+    onUpdateProfile({ [field]: value });
   };
 
   const handleMultiSelectToggle = (
     option: string,
-    currentSelection: string[],
-    detailType: "mentorDetails", // Currently only mentorDetails has multi-select arrays here
-    field: keyof MentorDetails, // Restrict to MentorDetails fields
+    currentSelection: string[] | undefined, // skills can be undefined
+    field: keyof Pick<
+      SharedProfileDetails,
+      "expertise" | "availability" | "skills"
+    >,
     errorSetter?: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    const newSelection = currentSelection.includes(option)
-      ? currentSelection.filter((item) => item !== option)
-      : [...currentSelection, option];
-    handleFieldChange(detailType, field, newSelection);
+    const safeCurrentSelection = currentSelection || [];
+    const newSelection = safeCurrentSelection.includes(option)
+      ? safeCurrentSelection.filter((item) => item !== option)
+      : [...safeCurrentSelection, option];
+    handleFieldChange(field, newSelection);
     errorSetter?.("");
   };
 
@@ -150,14 +132,14 @@ const ProfileCreatePanel: React.FC<Props> = ({
         !ALLOWED_FILE_TYPES.includes(file.type) ||
         file.size > MAX_FILE_SIZE_BYTES
       ) {
-        setProfilePictureError(`PNG/JPG only, max ${MAX_FILE_SIZE_MB}MB.`);
-        handleFieldChange("profile", "profilePictureFile", null);
+        setProfilePictureError(`PNG/JPG only, max ${MAX_FILE_SIZE_MB}MB`);
+        handleFieldChange("profilePictureFile", null);
         e.target.value = "";
         return;
       }
-      handleFieldChange("profile", "profilePictureFile", file);
+      handleFieldChange("profilePictureFile", file);
     } else {
-      handleFieldChange("profile", "profilePictureFile", null);
+      handleFieldChange("profilePictureFile", null);
     }
   };
 
@@ -172,6 +154,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
     } else {
       setFullNameError("");
     }
+
     if (!profile.bio.trim()) {
       setBioError("Bio is required.");
       focusTargetId ??= "profileBio";
@@ -180,44 +163,45 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setBioError("");
     }
 
-    if (role === Role.Learner && learnerDetails) {
-      if (!learnerDetails.learningGoals.trim()) {
-        setLearningGoalsError("Goals are required.");
-        focusTargetId ??= "learnerLearningGoals";
-        isValid = false;
-      } else {
-        setLearningGoalsError("");
-      }
-    } else if (role === Role.Mentor && mentorDetails) {
-      if (mentorDetails.expertise.length === 0) {
-        setExpertiseError("Select expertise.");
-        focusTargetId ??= "mentorExpertiseGroup";
-        isValid = false;
-      } else {
-        setExpertiseError("");
-      }
-      if (mentorDetails.skills.length === 0) {
-        setSkillsError("Add skills.");
-        focusTargetId ??= "mentorSkillsInputTag";
-        isValid = false;
-      } else {
-        setSkillsError("");
-      }
-      if (!mentorDetails.industryExperience.trim()) {
-        setExperienceError("Experience required.");
-        focusTargetId ??= "mentorIndustryExperience";
-        isValid = false;
-      } else {
-        setExperienceError("");
-      }
-      if (mentorDetails.availability.length === 0) {
-        setAvailabilityError("Select availability.");
-        focusTargetId ??= "mentorAvailabilityGroup";
-        isValid = false;
-      } else {
-        setAvailabilityError("");
-      }
+    if (profile.expertise.length === 0) {
+      setExpertiseError("Select at least one expertise area.");
+      focusTargetId ??= "profileExpertiseGroup";
+      isValid = false;
+    } else {
+      setExpertiseError("");
     }
+
+    // Skills are in SharedProfileDetails. Required for Mentor.
+    if (
+      role === Role.Mentor &&
+      (!profile.skills || profile.skills.length === 0)
+    ) {
+      setSkillsError("Skills are required for Mentors.");
+      focusTargetId ??= "profileSkillsInputTag";
+      isValid = false;
+    } else {
+      setSkillsError("");
+    }
+
+    // Industry Experience is in SharedProfileDetails. Required for Mentor.
+    if (role === Role.Mentor && !profile.industryExperience?.trim()) {
+      setIndustryExperienceError(
+        "Industry experience is required for Mentors."
+      );
+      focusTargetId ??= "profileIndustryExperience";
+      isValid = false;
+    } else {
+      setIndustryExperienceError("");
+    }
+
+    if (profile.availability.length === 0) {
+      setAvailabilityError("Select at least one availability slot.");
+      focusTargetId ??= "profileAvailabilityGroup";
+      isValid = false;
+    } else {
+      setAvailabilityError("");
+    }
+
     setFirstErrorFieldId(focusTargetId);
     return isValid;
   };
@@ -226,7 +210,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
     if (firstErrorFieldId) {
       const elementToFocus = document.getElementById(firstErrorFieldId);
       if (elementToFocus) {
-        elementToFocus.focus({ preventScroll: true }); // preventScroll then manually scroll
+        elementToFocus.focus({ preventScroll: true });
         elementToFocus.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       setFirstErrorFieldId(null);
@@ -238,10 +222,9 @@ const ProfileCreatePanel: React.FC<Props> = ({
     setProfilePictureError("");
     setFullNameError("");
     setBioError("");
-    setLearningGoalsError("");
     setExpertiseError("");
     setSkillsError("");
-    setExperienceError("");
+    setIndustryExperienceError("");
     setAvailabilityError("");
 
     if (validateAndSetFocusTarget()) {
@@ -270,9 +253,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
             name="fullName"
             type="text"
             value={profile.fullName}
-            onChange={(e) =>
-              handleFieldChange("profile", "fullName", e.target.value)
-            }
+            onChange={(e) => handleFieldChange("fullName", e.target.value)}
             placeholder="Your full name"
             isRequired
             errorMessage={fullNameError}
@@ -283,10 +264,8 @@ const ProfileCreatePanel: React.FC<Props> = ({
             name="bio"
             type="textarea"
             value={profile.bio}
-            onChange={(e) =>
-              handleFieldChange("profile", "bio", e.target.value)
-            }
-            placeholder="A brief introduction..."
+            onChange={(e) => handleFieldChange("bio", e.target.value)}
+            placeholder="A brief introduction about yourself..."
             isRequired
             errorMessage={bioError}
             className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
@@ -310,128 +289,110 @@ const ProfileCreatePanel: React.FC<Props> = ({
         </div>
       </div>
 
-      {role === Role.Learner && learnerDetails && (
-        <>
-          <InputCustom
-            label="Learning Goals"
-            name="learningGoals"
-            type="textarea"
-            value={learnerDetails.learningGoals}
-            onChange={(e) =>
-              handleFieldChange(
-                "learnerDetails",
-                "learningGoals",
-                e.target.value
-              )
-            }
-            placeholder="What do you hope to achieve?"
-            isRequired
-            errorMessage={learningGoalsError}
-            className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
-          />
-          <div>
-            <label className="text-base font-medium text-gray-300 block mb-2">
-              Preferred Communication Method{" "}
-              <span className="text-red-500">*</span>
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
-              {communicationMethodsData.map((method) => (
-                <CommunicationMethodButton
-                  key={method.value}
-                  method={method}
-                  isSelected={
-                    learnerDetails.preferredCommunication === method.value
-                  }
-                  onClick={() =>
-                    handleFieldChange(
-                      "learnerDetails",
-                      "preferredCommunication",
-                      method.value
-                    )
-                  }
-                />
-              ))}
-            </div>
-          </div>
-        </>
-      )}
+      <div id="profileExpertiseGroup">
+        <MultiSelectButtons
+          label="Areas of Expertise / Interest"
+          options={expertiseOptionsData}
+          selectedOptions={profile.expertise}
+          onToggleSelect={(option) =>
+            handleMultiSelectToggle(
+              option,
+              profile.expertise,
+              "expertise",
+              setExpertiseError
+            )
+          }
+          gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
+          isRequired
+        />
+        {expertiseError && (
+          <p className="text-sm text-red-500 mt-1">{expertiseError}</p>
+        )}
+      </div>
 
-      {role === Role.Mentor && mentorDetails && (
-        <>
-          <div id="mentorExpertiseGroup">
-            <MultiSelectButtons
-              label="Areas of Expertise"
-              options={expertiseOptionsData}
-              selectedOptions={mentorDetails.expertise}
-              onToggleSelect={(option) =>
-                handleMultiSelectToggle(
-                  option,
-                  mentorDetails.expertise,
-                  "mentorDetails",
-                  "expertise",
-                  setExpertiseError
-                )
-              }
-              gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
-              isRequired
-            />
-            {expertiseError && (
-              <p className="text-sm text-red-500 mt-1">{expertiseError}</p>
-            )}
-          </div>
-          <InputTag
-            label="Professional Skills"
-            tags={mentorDetails.skills}
-            setTags={(newSkills) =>
-              handleFieldChange("mentorDetails", "skills", newSkills)
-            }
-            placeholder="Type and press Enter"
-            errorMessage={skillsError}
-            setErrorMessage={setSkillsError}
-            inputPadding="px-4 py-3"
-            className="bg-gray-800 border-gray-700"
-            isRequired
-          />
-          <InputCustom
-            label="Industry Experience"
-            name="industryExperience"
-            type="text"
-            value={mentorDetails.industryExperience}
-            onChange={(e) =>
-              handleFieldChange(
-                "mentorDetails",
-                "industryExperience",
-                e.target.value
-              )
-            }
-            placeholder="e.g., 5 years in Tech"
-            isRequired
-            errorMessage={experienceError}
-            className="bg-gray-800 border-gray-700"
-          />
-          <div id="mentorAvailabilityGroup">
-            <MultiSelectButtons
-              label="Your Availability"
-              options={availabilityOptionsData}
-              selectedOptions={mentorDetails.availability}
-              onToggleSelect={(option) =>
-                handleMultiSelectToggle(
-                  option,
-                  mentorDetails.availability,
-                  "mentorDetails",
-                  "availability",
-                  setAvailabilityError
-                )
-              }
-              gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
-              isRequired
-            />
-            {availabilityError && (
-              <p className="text-sm text-red-500 mt-1">{availabilityError}</p>
-            )}
-          </div>
-        </>
-      )}
+      <InputCustom
+        label="Professional Skills"
+        placeholder="Add skills (e.g., JavaScript)"
+        errorMessage={skillsError}
+        className="bg-gray-800 border-gray-700"
+        isRequired={role === Role.Mentor} // Visually indicate required for mentor
+        name="skills"
+        type="text"
+        value={profile.skills?.join(", ") || ""}
+        onChange={(e) =>
+          handleFieldChange(
+            "skills",
+            e.target.value.split(",").map((skill) => skill.trim())
+          )
+        }
+      />
+
+      <InputCustom
+        label="Industry Experience"
+        name="industryExperience"
+        type="text"
+        value={profile.industryExperience || ""}
+        onChange={(e) =>
+          handleFieldChange("industryExperience", e.target.value)
+        }
+        placeholder="e.g., 5 years in Software Development"
+        isRequired={role === Role.Mentor} // Visually indicate required for mentor
+        errorMessage={industryExperienceError}
+        className="bg-gray-800 border-gray-700"
+      />
+
+      <div id="profileAvailabilityGroup">
+        <MultiSelectButtons
+          label="Your Availability"
+          options={availabilityOptionsData}
+          selectedOptions={profile.availability}
+          onToggleSelect={(option) =>
+            handleMultiSelectToggle(
+              option,
+              profile.availability,
+              "availability",
+              setAvailabilityError
+            )
+          }
+          gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
+          isRequired
+        />
+        {availabilityError && (
+          <p className="text-sm text-red-500 mt-1">{availabilityError}</p>
+        )}
+      </div>
+
+      <div>
+        <label className="text-base font-medium text-gray-300 block mb-2">
+          Preferred Communication Method <span className="text-red-500">*</span>
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+          {Object.values(CommunicationMethod).map((methodValue) => (
+            <button
+              type="button"
+              key={methodValue}
+              className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border font-medium transition-colors text-sm focus:outline-none focus:ring-2 ${
+                profile.preferredCommunication === methodValue
+                  ? "bg-orange-500 text-white border-orange-500 ring-orange-500"
+                  : "bg-gray-700 border-gray-600 hover:bg-gray-650 text-gray-300 hover:text-white ring-gray-600 focus:ring-orange-500"
+              }`}
+              onClick={() =>
+                handleFieldChange("preferredCommunication", methodValue)
+              }>
+              {methodValue === CommunicationMethod.VideoCall && (
+                <Video size={18} />
+              )}
+              {methodValue === CommunicationMethod.AudioCall && (
+                <Headphones size={18} />
+              )}
+              {methodValue === CommunicationMethod.TextChat && (
+                <MessageCircle size={18} />
+              )}
+              <span>{methodValue}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <button
@@ -443,7 +404,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         <button
           type="submit"
           className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold">
-          Continue
+          Continue to Preferences
         </button>
       </div>
     </form>

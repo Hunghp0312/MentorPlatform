@@ -1,10 +1,10 @@
 // Registration.tsx
 import React, { useState } from "react";
-import StepProgressBar from "../../components/progress/StepProgressBar"; // Adjust
-import RegistrationPanel from "../../components/register/panel/RegistrationPanel"; // Adjust
-import ProfileCreatePanel from "../../components/register/panel/ProfileCreatePanel"; // Adjust
-import PreferenceSetupPanel from "../../components/register/panel/PreferenceSetupPanel"; // Adjust
-import { submitRegistration } from "../../services/registration.service"; // Adjust
+import StepProgressBar from "../../components/progress/StepProgressBar";
+import RegistrationPanel from "../../components/register/panel/RegistrationPanel";
+import ProfileCreatePanel from "../../components/register/panel/ProfileCreatePanel";
+import PreferenceSetupPanel from "../../components/register/panel/PreferenceSetupPanel";
+import { submitRegistration } from "../../services/registration.service";
 import {
   UserRegistrationRequest,
   AccountDetails,
@@ -14,12 +14,13 @@ import {
   UserPreferences,
   Role,
   createInitialData,
-} from "../../types/userRegister.d"; // Adjust
+  LearningStyleOption,
+  TeachingApproachOption,
+} from "../../types/userRegister.d";
 
 const Registration = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
-
   const [formData, setFormData] = useState<UserRegistrationRequest>(
     createInitialData(Role.Learner)
   );
@@ -32,70 +33,116 @@ const Registration = () => {
     nextStep();
   };
 
-  const handleProfileUpdate = (
-    updates:
-      | Partial<SharedProfileDetails>
-      | Partial<LearnerDetails>
-      | Partial<MentorDetails>,
-    detailType: "profile" | "learnerDetails" | "mentorDetails"
+  // This updater is simplified because ProfileCreatePanel will only send SharedProfileDetails updates
+  const handleSharedProfileUpdate = (
+    updates: Partial<SharedProfileDetails>
   ) => {
     setFormData((prev) => {
-      if (detailType === "profile") {
-        return { ...prev, profile: { ...prev.profile, ...updates } };
-      }
-      if (prev.role === Role.Learner && detailType === "learnerDetails") {
+      const newProfileData = { ...prev.profile, ...updates };
+      // If the role is Mentor and industryExperience is updated via shared profile,
+      // also update the specific mentorDetails.industryExperience.
+      if (
+        prev.role === Role.Mentor &&
+        updates.industryExperience !== undefined
+      ) {
+        // We need to ensure we are working with the Mentor version of the formData
+        const currentMentorData = prev as Extract<
+          UserRegistrationRequest,
+          { role: Role.Mentor }
+        >;
         return {
           ...prev,
-          learnerDetails: {
-            ...prev.learnerDetails,
-            ...(updates as Partial<LearnerDetails>),
-          },
-        };
-      }
-      if (prev.role === Role.Mentor && detailType === "mentorDetails") {
-        return {
-          ...prev,
+          profile: newProfileData,
           mentorDetails: {
-            ...prev.mentorDetails,
-            ...(updates as Partial<MentorDetails>),
+            ...currentMentorData.mentorDetails,
+            industryExperience: updates.industryExperience,
           },
-        };
+        } as UserRegistrationRequest; // Cast back to the union type
       }
-      return prev;
+      return { ...prev, profile: newProfileData };
     });
   };
 
   const handleRoleChange = (newRole: Role) => {
     setFormData((prev) => {
       const newStructure = createInitialData(newRole);
-      return {
-        ...newStructure,
-        account: prev.account, // Keep existing account info
-        profile: {
-          // Keep existing shared profile info, but ensure new role
-          ...newStructure.profile, // Gets default picture if any
-          fullName: prev.profile.fullName,
-          bio: prev.profile.bio,
-          profilePictureFile: prev.profile.profilePictureFile,
-        },
-        // Use preferences from new structure to get role-specific defaults
-        preferences: newStructure.preferences,
+      const preservedProfileData: Partial<SharedProfileDetails> = {
+        fullName: prev.profile.fullName,
+        bio: prev.profile.bio,
+        profilePictureFile: prev.profile.profilePictureFile,
+        expertise: prev.profile.expertise,
+        availability: prev.profile.availability,
+        preferredCommunication: prev.profile.preferredCommunication,
+        skills: prev.profile.skills || [],
+        industryExperience: prev.profile.industryExperience || "",
       };
+
+      if (newRole === Role.Learner) {
+        return {
+          ...newStructure, // This is already a Learner structure
+          account: prev.account,
+          profile: { ...newStructure.profile, ...preservedProfileData },
+          preferences: prev.preferences,
+        } as UserRegistrationRequest; // Ensure correct type
+      } else {
+        // Mentor
+        const currentMentorDetails = (
+          newStructure as Extract<
+            UserRegistrationRequest,
+            { role: Role.Mentor }
+          >
+        ).mentorDetails;
+        return {
+          ...newStructure, // This is already a Mentor structure
+          account: prev.account,
+          profile: { ...newStructure.profile, ...preservedProfileData },
+          mentorDetails: {
+            // Ensure mentorDetails is correctly structured
+            ...currentMentorDetails,
+            industryExperience: preservedProfileData.industryExperience || "", // Sync from what was in shared
+            // teachingApproach will come from newStructure.mentorDetails
+          },
+          preferences: prev.preferences,
+        } as UserRegistrationRequest; // Ensure correct type
+      }
     });
   };
 
-  const handlePreferencesUpdate = (
-    updates:
-      | Partial<UserPreferences>
-      | ((prevPrefs: UserPreferences) => UserPreferences)
+  const handlePreferencesAndRoleSpecificDetailsUpdate = (
+    updates: Partial<
+      UserPreferences & {
+        learningStyle?: LearningStyleOption[];
+        teachingApproach?: TeachingApproachOption[];
+      }
+    >
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      preferences:
-        typeof updates === "function"
-          ? updates(prev.preferences)
-          : { ...prev.preferences, ...updates },
-    }));
+    setFormData((prev) => {
+      const { learningStyle, teachingApproach, ...preferenceUpdates } = updates;
+      let updatedFormData = {
+        ...prev,
+        preferences: { ...prev.preferences, ...preferenceUpdates },
+      };
+
+      if (
+        updatedFormData.role === Role.Learner &&
+        learningStyle !== undefined
+      ) {
+        updatedFormData.learnerDetails = {
+          ...updatedFormData.learnerDetails,
+          learningStyle: learningStyle,
+        };
+      }
+      if (
+        updatedFormData.role === Role.Mentor &&
+        teachingApproach !== undefined
+      ) {
+        updatedFormData.mentorDetails = {
+          ...updatedFormData.mentorDetails,
+          teachingApproach: teachingApproach,
+        };
+      }
+      return updatedFormData as UserRegistrationRequest; // Cast needed because TS can't infer the exact union member after conditional spreads
+    });
   };
 
   const handleFinalSubmit = async () => {
@@ -123,7 +170,7 @@ const Registration = () => {
         return (
           <RegistrationPanel
             initialEmail={formData.account.email}
-            initialPassword={formData.account.password} // Pass current password (might be empty initially)
+            initialPassword={formData.account.password}
             onAccountSubmit={handleAccountSubmit}
           />
         );
@@ -131,14 +178,7 @@ const Registration = () => {
         return (
           <ProfileCreatePanel
             currentUserData={formData}
-            onUpdate={(updates) => {
-              const { profile, learnerDetails, mentorDetails } = updates;
-              if (profile) handleProfileUpdate(profile, "profile");
-              if (learnerDetails)
-                handleProfileUpdate(learnerDetails, "learnerDetails");
-              if (mentorDetails)
-                handleProfileUpdate(mentorDetails, "mentorDetails");
-            }}
+            onUpdateProfile={handleSharedProfileUpdate} // Changed prop name for clarity
             onRoleChange={handleRoleChange}
             onNext={nextStep}
             onBack={prevStep}
@@ -148,7 +188,16 @@ const Registration = () => {
         return (
           <PreferenceSetupPanel
             currentPreferences={formData.preferences}
-            onPreferencesChange={handlePreferencesUpdate}
+            // Pass learnerDetails or mentorDetails based on the role for PreferenceSetupPanel to use
+            currentLearnerDetails={
+              formData.role === Role.Learner
+                ? formData.learnerDetails
+                : undefined
+            }
+            currentMentorDetails={
+              formData.role === Role.Mentor ? formData.mentorDetails : undefined
+            }
+            onUpdate={handlePreferencesAndRoleSpecificDetailsUpdate}
             userRole={formData.role}
             onSubmit={handleFinalSubmit}
             onBack={prevStep}
@@ -181,5 +230,4 @@ const Registration = () => {
     </div>
   );
 };
-
 export default Registration;

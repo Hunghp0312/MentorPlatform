@@ -1,23 +1,31 @@
 // components/register/panel/PreferenceSetupPanel.tsx
 import React, { useState, useEffect } from "react";
-import Dropdown from "../../input/Dropdown";
-import InputCheckbox from "../../input/InputCheckbox";
-import InputCustom from "../../input/InputCustom"; // Learning goals moved to LearnerDetails
-import MultiSelectButtons from "../child/MultiSelectButtons";
+import Dropdown from "../../input/Dropdown"; // Adjust path
+import InputCheckbox from "../../input/InputCheckbox"; // Adjust path
+import InputCustom from "../../input/InputCustom"; // Adjust path
+import MultiSelectButtons from "../child/MultiSelectButtons"; // Adjust path
 import {
   UserPreferences,
+  LearnerDetails,
+  MentorDetails,
   Role,
   SessionFrequencyOption,
   SessionDurationOption,
   LearningStyleOption,
+  TeachingApproachOption,
 } from "../../../types/userRegister.d"; // Adjust path
 
 interface Props {
   currentPreferences: UserPreferences;
-  onPreferencesChange: (
-    updates:
-      | Partial<UserPreferences>
-      | ((prevPrefs: UserPreferences) => UserPreferences)
+  currentLearnerDetails?: LearnerDetails;
+  currentMentorDetails?: MentorDetails;
+  onUpdate: (
+    updates: Partial<
+      UserPreferences & {
+        learningStyle: LearningStyleOption[];
+        teachingApproach: TeachingApproachOption[];
+      }
+    >
   ) => void;
   userRole: Role;
   onSubmit: () => void;
@@ -34,88 +42,63 @@ const topicsOptionsData = [
   "Networking",
   "Entrepreneurship",
 ];
-const frequencyOptionsData = [
-  { value: SessionFrequencyOption.Weekly, label: "Weekly" },
-  { value: SessionFrequencyOption.Biweekly, label: "Every two weeks" },
-  { value: SessionFrequencyOption.Monthly, label: "Monthly" },
-  { value: SessionFrequencyOption.AsNeeded, label: "As needed" },
-];
-const durationOptionsData = [
-  { value: SessionDurationOption.HalfHour, label: "30 minutes" },
-  { value: SessionDurationOption.OneHour, label: "1 hour" },
-  { value: SessionDurationOption.OneAndHalfHour, label: "1.5 hours" },
-  { value: SessionDurationOption.TwoHours, label: "2 hours" },
-];
-const learningStyleOptionsData: LearningStyleOption[] = [
-  LearningStyleOption.Visual,
-  LearningStyleOption.Auditory,
-  LearningStyleOption.ReadingWriting,
-  LearningStyleOption.Kinesthetic,
-];
-// const teachingApproachOptionsData: TeachingApproachOption[] = [ ... ]; // If you add teachingApproach to UserPreferences
+const frequencyOptionsData = Object.values(SessionFrequencyOption).map(
+  (value) => ({ value, label: value })
+);
+const durationOptionsData = Object.values(SessionDurationOption).map(
+  (value) => ({ value, label: value })
+);
+const learningStyleOptionsData = Object.values(LearningStyleOption);
+const teachingApproachOptionsData = Object.values(TeachingApproachOption);
 
 const PreferenceSetupPanel: React.FC<Props> = ({
   currentPreferences,
-  onPreferencesChange,
+  currentLearnerDetails,
+  currentMentorDetails,
+  onUpdate,
   userRole,
   onSubmit,
   onBack,
 }) => {
   const [topicsError, setTopicsError] = useState("");
+  const [goalError, setGoalError] = useState("");
   const [learningStyleError, setLearningStyleError] = useState("");
-  // const [teachingApproachError, setTeachingApproachError] = useState("");
+  const [teachingApproachError, setTeachingApproachError] = useState("");
   const [firstErrorFieldId, setFirstErrorFieldId] = useState<string | null>(
     null
   );
 
   const handleMultiSelectToggle = (
     option: string,
-    field: keyof Pick<
-      UserPreferences,
-      "interestedTopics" | "learningStyle" /* | "teachingApproach" */
-    >,
+    currentSelection: string[] | undefined,
+    fieldKey: "interestedTopics" | "learningStyle" | "teachingApproach", // Key to update in onUpdate
     errorSetter?: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    const currentSelection =
-      (currentPreferences[field] as
-        | string[]
-        | LearningStyleOption
-        | undefined) ||
-      (Array.isArray(currentPreferences[field]) ? [] : undefined);
+    const safeCurrentSelection = currentSelection || [];
+    const newSelection = safeCurrentSelection.includes(option)
+      ? safeCurrentSelection.filter((item) => item !== option)
+      : [...safeCurrentSelection, option];
 
-    let newSelection;
-    if (field === "learningStyle") {
-      // Assuming learningStyle from DTO is single, but your table said multi
-      newSelection = option as LearningStyleOption; // For single select
-    } else if (Array.isArray(currentSelection)) {
-      // For topicsOfInterest (and teachingApproach if multi)
-      newSelection = currentSelection.includes(option)
-        ? currentSelection.filter((item) => item !== option)
-        : [...currentSelection, option];
-    } else {
-      // Fallback for single non-array field
-      newSelection = option;
-    }
-
-    onPreferencesChange({ [field]: newSelection });
+    onUpdate({ [fieldKey]: newSelection } as any); // 'as any' because fieldKey is dynamic
     errorSetter?.("");
   };
 
   const handlePrivacySettingChange = (
-    field: keyof UserPreferences["privacySettings"],
+    privacyField: keyof UserPreferences["privacySettings"],
     value: boolean
   ) => {
-    onPreferencesChange((prev) => ({
-      ...prev,
-      privacySettings: { ...prev.privacySettings, [field]: value },
-    }));
+    onUpdate({
+      privacySettings: {
+        ...(currentPreferences.privacySettings ?? {}),
+        [privacyField]: value,
+      },
+    });
   };
 
   const validateAndSetFocusTarget = () => {
     let isValid = true;
     let focusTargetId: string | null = null;
-    const { interestedTopics, learningStyle /*, teachingApproach */ } =
-      currentPreferences;
+    const { interestedTopics, goal } = currentPreferences;
 
     if (interestedTopics.length === 0) {
       setTopicsError("Select at least one topic.");
@@ -125,15 +108,41 @@ const PreferenceSetupPanel: React.FC<Props> = ({
       setTopicsError("");
     }
 
-    if (userRole === Role.Learner && !learningStyle) {
-      // If learningStyle is required and single
-      setLearningStyleError("Select a learning style.");
-      focusTargetId ??= "learningStyleGroup"; // Assuming you wrap learning style buttons
+    if (!goal.trim()) {
+      setGoalError("Goal is required.");
+      focusTargetId ??= "preferencesGoalInput";
+      isValid = false;
+    } else if (goal.trim().length > 1000) {
+      setGoalError("Max 1000 characters.");
+      focusTargetId ??= "preferencesGoalInput";
       isValid = false;
     } else {
-      setLearningStyleError("");
+      setGoalError("");
     }
-    // Add validation for teachingApproach if it's added for Mentors
+
+    if (userRole === Role.Learner) {
+      if (
+        !currentLearnerDetails?.learningStyle ||
+        currentLearnerDetails.learningStyle.length === 0
+      ) {
+        setLearningStyleError("Select at least one learning style.");
+        focusTargetId ??= "learnerLearningStyleGroup";
+        isValid = false;
+      } else {
+        setLearningStyleError("");
+      }
+    } else if (userRole === Role.Mentor) {
+      if (
+        !currentMentorDetails?.teachingApproach ||
+        currentMentorDetails.teachingApproach.length === 0
+      ) {
+        setTeachingApproachError("Select at least one teaching approach.");
+        focusTargetId ??= "mentorTeachingApproachGroup";
+        isValid = false;
+      } else {
+        setTeachingApproachError("");
+      }
+    }
 
     setFirstErrorFieldId(focusTargetId);
     return isValid;
@@ -153,8 +162,9 @@ const PreferenceSetupPanel: React.FC<Props> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setTopicsError("");
+    setGoalError("");
     setLearningStyleError("");
-    // setTeachingApproachError("");
+    setTeachingApproachError("");
 
     if (validateAndSetFocusTarget()) {
       onSubmit();
@@ -169,7 +179,12 @@ const PreferenceSetupPanel: React.FC<Props> = ({
           options={topicsOptionsData}
           selectedOptions={currentPreferences.interestedTopics}
           onToggleSelect={(option) =>
-            handleMultiSelectToggle(option, "interestedTopics", setTopicsError)
+            handleMultiSelectToggle(
+              option,
+              currentPreferences.interestedTopics,
+              "interestedTopics",
+              setTopicsError
+            )
           }
           gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
           isRequired
@@ -186,9 +201,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
           options={frequencyOptionsData}
           value={currentPreferences.sessionFrequency}
           onChange={(value) =>
-            onPreferencesChange({
-              sessionFrequency: value as SessionFrequencyOption,
-            })
+            onUpdate({ sessionFrequency: value as SessionFrequencyOption })
           }
           inputPadding="px-4 py-2.5"
           className="bg-gray-700 border-gray-600"
@@ -200,9 +213,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
           options={durationOptionsData}
           value={currentPreferences.sessionDuration}
           onChange={(value) =>
-            onPreferencesChange({
-              sessionDuration: value as SessionDurationOption,
-            })
+            onUpdate({ sessionDuration: value as SessionDurationOption })
           }
           inputPadding="px-4 py-2.5"
           className="bg-gray-700 border-gray-600"
@@ -210,37 +221,62 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         />
       </div>
 
-      {/* Learning Style - Assuming single select as per DTO, but your table said multi */}
-      {userRole === Role.Learner && (
-        <div id="learningStyleGroup">
-          <label className="text-base font-medium text-gray-300 block mb-2">
-            Your preferred learning style{" "}
-            <span className="text-red-500">*</span>
-          </label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {learningStyleOptionsData.map((style) => (
-              <button
-                type="button"
-                key={style}
-                className={`w-full px-4 py-2.5 rounded-lg text-sm border font-medium transition-colors focus:outline-none focus:ring-2 ${
-                  currentPreferences.learningStyle === style
-                    ? "bg-orange-500 text-white border-orange-500 ring-orange-500"
-                    : "bg-gray-700 border-gray-600 hover:bg-gray-650 text-gray-300 hover:text-white ring-gray-600 focus:ring-orange-500"
-                }`}
-                onClick={() => {
-                  onPreferencesChange({ learningStyle: style });
-                  setLearningStyleError("");
-                }}>
-                {style}
-              </button>
-            ))}
-          </div>
+      <InputCustom
+        label="Your Goal(s)"
+        name="goal"
+        type="textarea"
+        value={currentPreferences.goal}
+        onChange={(e) => onUpdate({ goal: e.target.value })}
+        placeholder="Describe your main goal..."
+        isRequired
+        errorMessage={goalError}
+        className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
+      />
+
+      {userRole === Role.Learner && currentLearnerDetails && (
+        <div id="learnerLearningStyleGroup">
+          <MultiSelectButtons
+            label="Your Preferred Learning Style(s)"
+            options={learningStyleOptionsData}
+            selectedOptions={currentLearnerDetails.learningStyle}
+            onToggleSelect={(option) =>
+              handleMultiSelectToggle(
+                option,
+                currentLearnerDetails.learningStyle,
+                "learningStyle",
+                setLearningStyleError
+              )
+            }
+            gridColsClass="grid-cols-2 sm:grid-cols-4"
+            isRequired
+          />
           {learningStyleError && (
             <p className="text-sm text-red-500 mt-1">{learningStyleError}</p>
           )}
         </div>
       )}
-      {/* Add TeachingApproach section here if needed for Mentors, similar to learningStyle */}
+      {userRole === Role.Mentor && currentMentorDetails && (
+        <div id="mentorTeachingApproachGroup">
+          <MultiSelectButtons
+            label="Your Preferred Teaching Approach(es)"
+            options={teachingApproachOptionsData}
+            selectedOptions={currentMentorDetails.teachingApproach}
+            onToggleSelect={(option) =>
+              handleMultiSelectToggle(
+                option,
+                currentMentorDetails.teachingApproach,
+                "teachingApproach",
+                setTeachingApproachError
+              )
+            }
+            gridColsClass="grid-cols-2 sm:grid-cols-4"
+            isRequired
+          />
+          {teachingApproachError && (
+            <p className="text-sm text-red-500 mt-1">{teachingApproachError}</p>
+          )}
+        </div>
+      )}
 
       <div className="space-y-5 pt-3 border-t border-gray-700">
         <h3 className="text-xl font-semibold text-gray-200 pt-2">
