@@ -23,11 +23,8 @@ interface MentorStatusType {
   expertiseAreas: string[];
   status: string;
   profileImage: string;
-  bio: string;
   professionalSkill: string;
   industryExperience: string;
-  availability: EnumType[];
-  communicationMethod: EnumType;
   mentorEducation: MentorEducation[];
   mentorWorkExperience: MentorWorkExperience[];
   certifications: MentorCertification[];
@@ -67,14 +64,8 @@ const MentorStatusProfile = () => {
       status:
         mockUser1.mentorApplications?.applicationStatus?.name ?? "unknown", // Fallback for status
       profileImage: mockUser1.userProfile?.photoData ?? "", // Fallback for profileImage
-      bio: mockUser1.userProfile?.bio ?? "", // Fallback for bio
       professionalSkill: mockUser1.userProfile?.professionalSkill ?? "", // Fallback for professionalSkill
       industryExperience: mockUser1.userProfile?.industryExperience ?? "", // Fallback for industryExperience
-      availability: mockUser1.userProfile?.availabilityData ?? [], // Fallback for availability
-      communicationMethod: mockUser1.userProfile?.communicationMethod ?? {
-        id: 1,
-        name: "Email",
-      }, // Fallback for communicationMethod
       mentorEducation: mockUser1.mentorApplications?.mentorEducations ?? [], // Fallback for mentorEducation
       mentorWorkExperience:
         mockUser1.mentorApplications?.mentorWorkExperiences ?? [], // Fallback for mentorWorkExperience
