@@ -341,7 +341,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DocumentContent", (string)null);
+                    b.ToTable("DocumentContent");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Enum.ApplicationStatus", b =>
@@ -379,7 +379,7 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Enum.ArenaOfExpertise", b =>
+            modelBuilder.Entity("Infrastructure.Entities.Enum.AreaOfExpertise", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -397,7 +397,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("ArenaOfExpertise", (string)null);
+                    b.ToTable("AreaOfExpertise");
 
                     b.HasData(
                         new
@@ -560,7 +560,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Topic", (string)null);
+                    b.ToTable("Topic");
 
                     b.HasData(
                         new
@@ -648,7 +648,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("ApplicationStatusId");
 
-                    b.ToTable("MentorApplication", (string)null);
+                    b.ToTable("MentorApplication");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorCertification", b =>
@@ -674,7 +674,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("MentorApplicationId");
 
-                    b.ToTable("MentorCertification", (string)null);
+                    b.ToTable("MentorCertification");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorEducation", b =>
@@ -703,7 +703,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("MentorApplicationId");
 
-                    b.ToTable("MentorEducation", (string)null);
+                    b.ToTable("MentorEducation");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
@@ -738,7 +738,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("MentorApplicationId");
 
-                    b.ToTable("MentorWorkExperience", (string)null);
+                    b.ToTable("MentorWorkExperience");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
@@ -775,7 +775,7 @@ namespace Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[DocumentContentId] IS NOT NULL");
 
-                    b.ToTable("Resource", (string)null);
+                    b.ToTable("Resource");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Role", b =>
@@ -851,7 +851,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("MentorApplicationId");
 
-                    b.ToTable("SupportingDocument", (string)null);
+                    b.ToTable("SupportingDocument");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
@@ -895,70 +895,70 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("User", (string)null);
+                    b.ToTable("User");
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
                             Email = "huynguyen.admin@gmail.com",
-                            PasswordHash = "J24qoemyIGuKyAln3/Pi8RE91q37SzIJG73mRFp3NZdqEIACwi8kt+zwc2H83LoW",
+                            PasswordHash = "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I",
                             RoleId = 1
                         },
                         new
                         {
                             Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
                             Email = "huykhuong.admin@gmail.com",
-                            PasswordHash = "MEO5BmXN7sVmKAnTj2gETwED6W21cDTnsB2r9wir+fLFKTHRsmuDEnA134c8XS7g",
+                            PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
                             RoleId = 1
                         },
                         new
                         {
                             Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
                             Email = "minhchau.admin@gmail.com",
-                            PasswordHash = "mx31ZEfKpYBolnpQdU24oZr6J8rgcmeekox8OBXQjETbsl4JcFqFbX6VwbrRUngk",
+                            PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
                             RoleId = 1
                         },
                         new
                         {
                             Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
                             Email = "huynguyen.learner@gmail.com",
-                            PasswordHash = "V5ValFHZWsVzHsJ1/kVQNY7voa9/s82t0wCoXgKANAmUV7jIXB3fSDqPrEWXyDQE",
+                            PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
                             RoleId = 2
                         },
                         new
                         {
                             Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             Email = "huykhuong.learner@gmail.com",
-                            PasswordHash = "ij89QzFzzSDgkoM4/BxIQP/XGsF+jpIqE9jCQ54glK+RtGhTwWNA+tAgoq+VvcWP",
+                            PasswordHash = "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi",
                             RoleId = 2
                         },
                         new
                         {
                             Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
                             Email = "minhchau.learner@gmail.com",
-                            PasswordHash = "PrMl19R6c0HX1trcVn7rrzICN0cwn9dfaVqYRy5MKE2ooPNFDCkNvOi3eYFQ+t3Y",
+                            PasswordHash = "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT",
                             RoleId = 2
                         },
                         new
                         {
                             Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             Email = "huynguyen.mentor@gmail.com",
-                            PasswordHash = "S5oA4POvzUKSeBQTJCs3YrB7T6reeQXFhqLhq9FVjt8iPCwLLijsfrdYVKZDjYaU",
+                            PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
                             RoleId = 3
                         },
                         new
                         {
                             Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Email = "huykhuong.mentor@gmail.com",
-                            PasswordHash = "cfvPgZ274jQi71+hIv9qWL1GW4fl8c1krVlChe4zfN/W1GWQ+iI7hVe6acsAVs4r",
+                            PasswordHash = "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV",
                             RoleId = 3
                         },
                         new
                         {
                             Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
                             Email = "minhchau.mentor@gmail.com",
-                            PasswordHash = "JusmH4xgMpPCqpXoHUmy5gIrmPE8Tn3FnmL4oJwoo5pdSUihid8bh2A8X47pDT0p",
+                            PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
                             RoleId = 3
                         },
                         new
@@ -970,19 +970,19 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
+            modelBuilder.Entity("Infrastructure.Entities.UserAreaOfExpertise", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ArenaOfExpertiseId")
+                    b.Property<int>("AreaOfExpertiseId")
                         .HasColumnType("int");
 
-                    b.HasKey("UserId", "ArenaOfExpertiseId");
+                    b.HasKey("UserId", "AreaOfExpertiseId");
 
-                    b.HasIndex("ArenaOfExpertiseId");
+                    b.HasIndex("AreaOfExpertiseId");
 
-                    b.ToTable("UserArenaOfExpertise", (string)null);
+                    b.ToTable("UserAreaOfExpertise");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
@@ -1048,7 +1048,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserProfile", (string)null);
+                    b.ToTable("UserProfile");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserTopicOfInterest", b =>
@@ -1063,7 +1063,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TopicId");
 
-                    b.ToTable("UserTopicOfInterest", (string)null);
+                    b.ToTable("UserTopicOfInterest");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
@@ -1211,11 +1211,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
+            modelBuilder.Entity("Infrastructure.Entities.UserAreaOfExpertise", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.Enum.ArenaOfExpertise", "ArenaOfExpertise")
+                    b.HasOne("Infrastructure.Entities.Enum.AreaOfExpertise", "AreaOfExpertise")
                         .WithMany()
-                        .HasForeignKey("ArenaOfExpertiseId")
+                        .HasForeignKey("AreaOfExpertiseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1225,7 +1225,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ArenaOfExpertise");
+                    b.Navigation("AreaOfExpertise");
 
                     b.Navigation("User");
                 });

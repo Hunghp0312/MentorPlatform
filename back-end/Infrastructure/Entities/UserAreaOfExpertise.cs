@@ -2,12 +2,12 @@
 
 namespace Infrastructure.Entities
 {
-    public class UserArenaOfExpertise
+    public class UserAreaOfExpertise
     {
         public Guid UserId { get; set; }
-        public int ArenaOfExpertiseId { get; set; }
+        public int AreaOfExpertiseId { get; set; }
 
         public virtual User User { get; set; } = null!;
-        public virtual ArenaOfExpertise ArenaOfExpertise { get; set; } = null!;
+        public virtual AreaOfExpertise AreaOfExpertise { get; set; } = null!;
     }
 }
