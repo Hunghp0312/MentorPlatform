@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250522091021_Initital")]
+    partial class Initital
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -113,70 +116,70 @@ namespace Infrastructure.Migrations
                             Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
                             Description = "Courses related to software development and programming languages.",
                             Name = "Programming",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
                             Description = "Frontend and backend development tutorials and courses.",
                             Name = "Web Development",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
                             Description = "Learn data analysis, visualization, and machine learning.",
                             Name = "Data Science",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
                             Description = "Courses on CI/CD, containers, and infrastructure automation.",
                             Name = "DevOps",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
                             Description = "Introduction to relational and non-relational databases.",
                             Name = "Databases",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
                             Description = "Courses on HTML, CSS, JavaScript and modern frameworks.",
                             Name = "Frontend",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             Description = "Learn backend technologies and server-side programming.",
                             Name = "Backend",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("22222222-2222-2222-2222-222222222222"),
                             Description = "Build apps for iOS and Android platforms.",
                             Name = "Mobile Development",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("33333333-3333-3333-3333-333333333333"),
                             Description = "Explore AWS, Azure, GCP and cloud infrastructure.",
                             Name = "Cloud Computing",
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("44444444-4444-4444-4444-444444444444"),
                             Description = "Understand security principles and ethical hacking.",
                             Name = "Cybersecurity",
-                            StatusId = 1
+                            StatusId = 2
                         });
                 });
 
@@ -440,69 +443,6 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Enum.ArenaOfExpertise", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("ArenaOfExpertise");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Leadership"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Programming"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Design"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Marketing"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Data Science"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Business"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Project Management"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Communication"
-                        });
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.Enum.CategoryStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -603,72 +543,10 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Enum.Topic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Topic");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Career Development"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Technical Skills"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Leadership"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Communication"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Work-Life Balance"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Industry Insights"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Networking"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Entrepreneurship"
-                        });
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
-                    b.Property<Guid>("ApplicantId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AdminComments")
@@ -708,11 +586,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ApplicantId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("AdminReviewerId")
-                        .IsUnique()
-                        .HasFilter("[AdminReviewerId] IS NOT NULL");
+                    b.HasIndex("AdminReviewerId");
 
                     b.HasIndex("ApplicantId");
 
@@ -1109,12 +985,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("ArenaOfExpertiseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("ArenaOfExpertiseId1")
-                        .HasColumnType("int");
-
                     b.HasKey("UserId", "ArenaOfExpertiseId");
 
-                    b.HasIndex("ArenaOfExpertiseId1");
+                    b.HasIndex("ArenaOfExpertiseId");
 
                     b.ToTable("UserArenaOfExpertise");
                 });
@@ -1193,12 +1066,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("TopicId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("TopicId1")
-                        .HasColumnType("int");
-
                     b.HasKey("UserId", "TopicId");
 
-                    b.HasIndex("TopicId1");
+                    b.HasIndex("TopicId");
 
                     b.ToTable("UserTopicOfInterest");
                 });
@@ -1248,13 +1118,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
-                        .WithOne("ReviewedMentorApplication")
-                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "AdminReviewerId")
+                        .WithMany("ReviewedMentorApplications")
+                        .HasForeignKey("AdminReviewerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Infrastructure.Entities.User", "Applicant")
-                        .WithOne("SubmittedMentorApplication")
-                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "ApplicantId")
+                        .WithMany("SubmittedMentorApplications")
+                        .HasForeignKey("ApplicantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1350,9 +1220,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.Enum.ArenaOfExpertise", "ArenaOfExpertise")
-                        .WithMany()
-                        .HasForeignKey("ArenaOfExpertiseId1")
+                    b.HasOne("Infrastructure.Entities.ArenaOfExpertise", "ArenaOfExpertise")
+                        .WithMany("UserArenaOfExpertises")
+                        .HasForeignKey("ArenaOfExpertiseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1380,9 +1250,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.UserTopicOfInterest", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.Enum.Topic", "Topic")
-                        .WithMany()
-                        .HasForeignKey("TopicId1")
+                    b.HasOne("Infrastructure.Entities.Topic", "Topic")
+                        .WithMany("UserTopicOfInterests")
+                        .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1439,16 +1309,13 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("MentoredCourses");
 
-                    b.Navigation("ReviewedMentorApplication")
-                        .IsRequired();
+                    b.Navigation("ReviewedMentorApplications");
 
-                    b.Navigation("SubmittedMentorApplication")
-                        .IsRequired();
+                    b.Navigation("SubmittedMentorApplications");
 
                     b.Navigation("UserArenaOfExpertises");
 
-                    b.Navigation("UserProfile")
-                        .IsRequired();
+                    b.Navigation("UserProfile");
 
                     b.Navigation("UserTopicOfInterests");
                 });
