@@ -135,7 +135,6 @@ const ListCategory = () => {
       }
     }
   };
-  
 
   return (
     <main className="p-4 container mx-auto ">
@@ -165,6 +164,7 @@ const ListCategory = () => {
           </div>
           <select
             className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+            data-testid="category-status"
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
