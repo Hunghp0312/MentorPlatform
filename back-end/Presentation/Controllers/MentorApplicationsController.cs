@@ -19,6 +19,19 @@ namespace Presentation.Controllers
             _mentorService = mentorService;
         }
 
+        [HttpGet("MyApplication")]
+        [Authorize]
+        [ProducesResponseType(typeof(MentorApplicationDetailResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMyApplication()
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _mentorService.GetMyApplicationDetailAsync(userId);
+
+            return ToActionResult(result);
+        }
+
         [HttpPost]
         [Authorize(Roles = "Mentor")]
         [Consumes("multipart/form-data")]
@@ -47,5 +60,7 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
+
+
     }
 }

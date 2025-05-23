@@ -2,6 +2,7 @@
 {
     public static class ValidationMessages
     {
+        public const string MaxFilesExceeded = "You can upload a maximum of {MaxFiles} files.";
         public const string MaxLengthExceeded = "{PropertyName} must not exceed {MaxLength} characters.";
         public const string FileCannotBeEmpty = "Uploaded file cannot be empty.";
         public const string FieldRequired = "{PropertyName} is required and cannot be empty.";
