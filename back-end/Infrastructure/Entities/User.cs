@@ -11,7 +11,6 @@
         public DateTime? PasswordResetExpiry { get; set; }
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
-
         public virtual Role Role { get; set; } = null!;
         public virtual UserProfile? UserProfile { get; set; }
         public virtual ICollection<UserTopicOfInterest> UserTopicOfInterests { get; set; } = new List<UserTopicOfInterest>();

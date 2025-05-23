@@ -32,21 +32,13 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Register([FromForm] RegistrationRequest request)
         {
-            byte[]? photoBytes = null;
-            if (request.PhotoData != null)
-            {
-                using var ms = new MemoryStream();
-                await request.PhotoData.CopyToAsync(ms);
-                photoBytes = ms.ToArray();
-            }
-
             var validationResult = await _validator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
                 return BadRequest(new { errors = validationResult.Errors.Select(e => e.ErrorMessage) });
             }
 
-            var result = await _registrationService.RegisterAsync(request, photoBytes);
+            var result = await _registrationService.RegisterAsync(request, request.PhotoData);
             return ToActionResult(result);
         }
     }

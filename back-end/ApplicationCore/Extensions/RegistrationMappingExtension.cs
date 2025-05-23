@@ -1,3 +1,4 @@
+using ApplicationCore.Common;
 using ApplicationCore.DTOs.Requests.Registration;
 using Infrastructure.Entities;
 
@@ -26,12 +27,12 @@ namespace ApplicationCore.Extensions
                 Bio = dto.Bio ?? string.Empty,
                 ProfessionalSkill = dto.ProfessionalSkill ?? string.Empty,
                 IndustryExperience = dto.IndustryExperience ?? string.Empty,
-                AvailabilityData = dto.AvailabilityData,
+                UserProfileAvailabilities = dto.AvailabilityIds?.Select(id => new UserProfileAvailability { AvailabilityId = id }).ToList() ?? new List<UserProfileAvailability>(),
+                TeachingApproaches = dto.TeachingApproachIds?.Select(id => new MentorTeachingApproach { TeachingApproachId = id }).ToList() ?? new List<MentorTeachingApproach>(),
                 UserGoal = dto.UserGoal,
-                SessionFrequency = dto.SessionFrequency,
-                SessionDuration = dto.SessionDuration,
-                LearningStyle = dto.LearningStyle,
-                TeachingApproach = dto.TeachingApproach,
+                SessionFrequencyId = dto.SessionFrequency,
+                SessionDurationId = dto.SessionDuration,
+                LearningStyleId = dto.LearningStyle,
                 PrivacyProfile = dto.PrivacyProfile,
                 MessagePermission = dto.MessagePermission,
                 NotificationsEnabled = dto.NotificationsEnabled,

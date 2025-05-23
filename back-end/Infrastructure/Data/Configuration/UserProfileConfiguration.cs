@@ -26,11 +26,9 @@ namespace Infrastructure.Data.Configuration
             builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false);
             builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
 
-            builder.Property(up => up.AvailabilityData).IsRequired(false);
             builder.Property(up => up.SessionFrequency).IsRequired(false);
             builder.Property(up => up.SessionDuration).IsRequired(false);
             builder.Property(up => up.LearningStyle).IsRequired(false);
-            builder.Property(up => up.TeachingApproach).IsRequired(false);
             builder.Property(up => up.CommunicationMethod).IsRequired(false);
 
             builder.Property(up => up.PrivacyProfile).IsRequired().HasDefaultValue(true);

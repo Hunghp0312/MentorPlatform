@@ -5,9 +5,5 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Entities.Enum
 {
-    public class Availability : EnumType
-    {
-        public Availability() { }
-
-    }
+    // XÓA file này hoặc hợp nhất với class Availability kế thừa từ EnumType nếu cần.
 }
