@@ -1,30 +1,41 @@
-// ProfileCreatePanel.tsx
+// components/register/panel/ProfileCreatePanel.tsx
 import React, { useState, useEffect } from "react";
 import InputCustom from "../../input/InputCustom";
+import InputTag from "../../input/InputTag";
 import ProfilePictureUpload from "../child/ProfilePictureUpload";
 import RoleSelectionCard from "../child/RoleSelectionCard";
 import MultiSelectButtons from "../child/MultiSelectButtons";
 import CommunicationMethodButton from "../child/CommunicationMethodButton";
 import { Video, Headphones, MessageCircle } from "lucide-react";
 import {
-  ProfileDetails,
+  UserRegistrationRequest,
+  SharedProfileDetails,
+  LearnerDetails,
+  MentorDetails,
   Role,
-  CommunicationMethod,
-} from "../../../types/userRegister.d"; // Adjust path
+  LearnerCommunicationMethod,
+} from "../../../types/userRegister.d"; // Adjust
 
 interface Props {
-  profileData: ProfileDetails;
-  onProfileChange: (field: keyof ProfileDetails, value: any) => void;
+  currentUserData: UserRegistrationRequest;
+  onUpdate: (
+    updates: Partial<{
+      // Allows sending partial updates for any section
+      profile: Partial<SharedProfileDetails>;
+      learnerDetails: Partial<LearnerDetails>;
+      mentorDetails: Partial<MentorDetails>;
+    }>
+  ) => void;
+  onRoleChange: (newRole: Role) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
 const rolesData = [
-  { name: "Learner" as Role, subtext: "I want to find mentors", icon: "👨‍🎓" },
-  { name: "Mentor" as Role, subtext: "I want to mentor others", icon: "👨‍🏫" },
+  { name: Role.Learner, subtext: "I want to find mentors", icon: "👨‍🎓" },
+  { name: Role.Mentor, subtext: "I want to mentor others", icon: "👨‍🏫" },
 ];
-
-const expertiseOptions = [
+const expertiseOptionsData = [
   "Leadership",
   "Programming",
   "Design",
@@ -34,7 +45,7 @@ const expertiseOptions = [
   "Project Management",
   "Communication",
 ];
-const availabilityOptions = [
+const availabilityOptionsData = [
   "Weekdays",
   "Weekends",
   "Mornings",
@@ -43,19 +54,19 @@ const availabilityOptions = [
 ];
 const communicationMethodsData = [
   {
-    value: "Video Call" as CommunicationMethod,
+    value: LearnerCommunicationMethod.VideoCall,
     label: "Video Call",
-    icon: <Video size={20} />,
-  },
+    icon: <Video size={18} />,
+  }, // Smaller icon
   {
-    value: "Audio Call" as CommunicationMethod,
+    value: LearnerCommunicationMethod.AudioCall,
     label: "Audio Call",
-    icon: <Headphones size={20} />,
+    icon: <Headphones size={18} />,
   },
   {
-    value: "Text Chat" as CommunicationMethod,
+    value: LearnerCommunicationMethod.TextChat,
     label: "Text Chat",
-    icon: <MessageCircle size={20} />,
+    icon: <MessageCircle size={18} />,
   },
 ];
 
@@ -64,17 +75,28 @@ const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png"];
 
 const ProfileCreatePanel: React.FC<Props> = ({
-  profileData,
-  onProfileChange,
+  currentUserData,
+  onUpdate,
+  onRoleChange,
   onNext,
   onBack,
 }) => {
+  const { role, profile } = currentUserData;
+  // Access role-specific details conditionally
+  const learnerDetails =
+    role === Role.Learner ? currentUserData.learnerDetails : undefined;
+  const mentorDetails =
+    role === Role.Mentor ? currentUserData.mentorDetails : undefined;
+
+  // Local UI State (errors, preview, focus target)
   const [profilePictureError, setProfilePictureError] = useState("");
   const [fullNameError, setFullNameError] = useState("");
   const [bioError, setBioError] = useState("");
-  const [phoneNumberError, setPhoneNumberError] = useState("");
+  // Learner specific errors
+  const [learningGoalsError, setLearningGoalsError] = useState("");
+  // Mentor specific errors
   const [expertiseError, setExpertiseError] = useState("");
-  const [skillsError, setSkillsError] = useState(""); // For InputTag's own error message prop
+  const [skillsError, setSkillsError] = useState("");
   const [experienceError, setExperienceError] = useState("");
   const [availabilityError, setAvailabilityError] = useState("");
 
@@ -85,17 +107,38 @@ const ProfileCreatePanel: React.FC<Props> = ({
     null
   );
 
-  // Sync profile picture preview if file changes from parent (e.g., on back and forth navigation)
   useEffect(() => {
-    if (profileData.profilePictureFile) {
+    if (profile.profilePictureFile) {
       const reader = new FileReader();
       reader.onloadend = () =>
         setProfilePicturePreview(reader.result as string);
-      reader.readAsDataURL(profileData.profilePictureFile);
+      reader.readAsDataURL(profile.profilePictureFile);
     } else {
       setProfilePicturePreview(null);
     }
-  }, [profileData.profilePictureFile]);
+  }, [profile.profilePictureFile]);
+
+  const handleFieldChange = (
+    section: "profile" | "learnerDetails" | "mentorDetails",
+    field: string,
+    value: any
+  ) => {
+    onUpdate({ [section]: { [field]: value } });
+  };
+
+  const handleMultiSelectToggle = (
+    option: string,
+    currentSelection: string[],
+    detailType: "mentorDetails", // Currently only mentorDetails has multi-select arrays here
+    field: keyof MentorDetails, // Restrict to MentorDetails fields
+    errorSetter?: React.Dispatch<React.SetStateAction<string>>
+  ) => {
+    const newSelection = currentSelection.includes(option)
+      ? currentSelection.filter((item) => item !== option)
+      : [...currentSelection, option];
+    handleFieldChange(detailType, field, newSelection);
+    errorSetter?.("");
+  };
 
   const handleProfilePictureChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -107,123 +150,74 @@ const ProfileCreatePanel: React.FC<Props> = ({
         !ALLOWED_FILE_TYPES.includes(file.type) ||
         file.size > MAX_FILE_SIZE_BYTES
       ) {
-        setProfilePictureError(
-          `Please select a .png or .jpg file (max ${MAX_FILE_SIZE_MB}MB)`
-        );
-        onProfileChange("profilePictureFile", null);
+        setProfilePictureError(`PNG/JPG only, max ${MAX_FILE_SIZE_MB}MB.`);
+        handleFieldChange("profile", "profilePictureFile", null);
         e.target.value = "";
         return;
       }
-      onProfileChange("profilePictureFile", file);
+      handleFieldChange("profile", "profilePictureFile", file);
     } else {
-      onProfileChange("profilePictureFile", null);
+      handleFieldChange("profile", "profilePictureFile", null);
     }
-  };
-
-  const toggleMultiSelect = (
-    option: string,
-    field: keyof Pick<ProfileDetails, "expertise" | "availability">,
-    errorSetter?: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    const currentSelection = profileData[field] as string[];
-    const newSelection = currentSelection.includes(option)
-      ? currentSelection.filter((item) => item !== option)
-      : [...currentSelection, option];
-    onProfileChange(field, newSelection);
-    errorSetter?.("");
   };
 
   const validateAndSetFocusTarget = () => {
     let isValid = true;
     let focusTargetId: string | null = null;
 
-    const {
-      fullName,
-      bio,
-      phoneNumber,
-      expertise,
-      skills,
-      industryExperience,
-      availability,
-      role,
-    } = profileData;
-
-    if (!fullName.trim()) {
+    if (!profile.fullName.trim()) {
       setFullNameError("Full name is required.");
-      focusTargetId ??= "fullName";
-      isValid = false;
-    } else if (fullName.trim().length < 2 || fullName.trim().length > 100) {
-      setFullNameError("Must be 2-100 characters.");
-      focusTargetId ??= "fullName";
+      focusTargetId ??= "profileFullName";
       isValid = false;
     } else {
       setFullNameError("");
     }
-
-    if (!bio.trim()) {
+    if (!profile.bio.trim()) {
       setBioError("Bio is required.");
-      focusTargetId ??= "bio";
-      isValid = false;
-    } else if (bio.trim().length > 1000) {
-      setBioError("Max 1000 characters.");
-      focusTargetId ??= "bio";
+      focusTargetId ??= "profileBio";
       isValid = false;
     } else {
       setBioError("");
     }
 
-    if (phoneNumber && !/^\d+$/.test(phoneNumber.replace(/\s+/g, ""))) {
-      setPhoneNumberError("Digits only.");
-      focusTargetId ??= "phoneNumber";
-      isValid = false;
-    } else if (phoneNumber && phoneNumber.replace(/\s+/g, "").length > 15) {
-      setPhoneNumberError("Max 15 digits.");
-      focusTargetId ??= "phoneNumber";
-      isValid = false;
-    } else {
-      setPhoneNumberError("");
+    if (role === Role.Learner && learnerDetails) {
+      if (!learnerDetails.learningGoals.trim()) {
+        setLearningGoalsError("Goals are required.");
+        focusTargetId ??= "learnerLearningGoals";
+        isValid = false;
+      } else {
+        setLearningGoalsError("");
+      }
+    } else if (role === Role.Mentor && mentorDetails) {
+      if (mentorDetails.expertise.length === 0) {
+        setExpertiseError("Select expertise.");
+        focusTargetId ??= "mentorExpertiseGroup";
+        isValid = false;
+      } else {
+        setExpertiseError("");
+      }
+      if (mentorDetails.skills.length === 0) {
+        setSkillsError("Add skills.");
+        focusTargetId ??= "mentorSkillsInputTag";
+        isValid = false;
+      } else {
+        setSkillsError("");
+      }
+      if (!mentorDetails.industryExperience.trim()) {
+        setExperienceError("Experience required.");
+        focusTargetId ??= "mentorIndustryExperience";
+        isValid = false;
+      } else {
+        setExperienceError("");
+      }
+      if (mentorDetails.availability.length === 0) {
+        setAvailabilityError("Select availability.");
+        focusTargetId ??= "mentorAvailabilityGroup";
+        isValid = false;
+      } else {
+        setAvailabilityError("");
+      }
     }
-
-    if (expertise.length === 0) {
-      setExpertiseError("Select at least one expertise.");
-      focusTargetId ??= "expertiseGroup";
-      isValid = false;
-    } else {
-      setExpertiseError("");
-    }
-
-    // InputTag handles its own length validation, skills here refers to the array.
-    // If skills array must not be empty:
-    if (skills.length === 0) {
-      setSkillsError("At least one skill is required.");
-      focusTargetId ??= "professionalSkillsInputTag";
-      isValid = false;
-    } else {
-      setSkillsError("");
-    }
-
-    const isExperienceRequired = role === "Mentor";
-    if (isExperienceRequired && !industryExperience.trim()) {
-      setExperienceError("Experience required for Mentors.");
-      focusTargetId ??= "industryExperience";
-      isValid = false;
-    } else if (industryExperience.trim().length > 100) {
-      setExperienceError("Max 100 characters.");
-      focusTargetId ??= "industryExperience";
-      isValid = false;
-    } // Example max length
-    else {
-      setExperienceError("");
-    }
-
-    if (availability.length === 0) {
-      setAvailabilityError("Select at least one availability.");
-      focusTargetId ??= "availabilityGroup";
-      isValid = false;
-    } else {
-      setAvailabilityError("");
-    }
-
     setFirstErrorFieldId(focusTargetId);
     return isValid;
   };
@@ -232,7 +226,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
     if (firstErrorFieldId) {
       const elementToFocus = document.getElementById(firstErrorFieldId);
       if (elementToFocus) {
-        elementToFocus.focus();
+        elementToFocus.focus({ preventScroll: true }); // preventScroll then manually scroll
         elementToFocus.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       setFirstErrorFieldId(null);
@@ -241,11 +235,10 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Clear all local error states before re-validating
     setProfilePictureError("");
     setFullNameError("");
     setBioError("");
-    setPhoneNumberError("");
+    setLearningGoalsError("");
     setExpertiseError("");
     setSkillsError("");
     setExperienceError("");
@@ -266,7 +259,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
             inputId="profilePictureActualInput"
           />
           {profilePictureError && (
-            <p className="text-sm text-red-500 mt-1 text-center">
+            <p className="text-xs text-red-500 mt-1 text-center">
               {profilePictureError}
             </p>
           )}
@@ -276,8 +269,10 @@ const ProfileCreatePanel: React.FC<Props> = ({
             label="Full Name"
             name="fullName"
             type="text"
-            value={profileData.fullName}
-            onChange={(e) => onProfileChange("fullName", e.target.value)}
+            value={profile.fullName}
+            onChange={(e) =>
+              handleFieldChange("profile", "fullName", e.target.value)
+            }
             placeholder="Your full name"
             isRequired
             errorMessage={fullNameError}
@@ -287,22 +282,14 @@ const ProfileCreatePanel: React.FC<Props> = ({
             label="Bio"
             name="bio"
             type="textarea"
-            value={profileData.bio}
-            onChange={(e) => onProfileChange("bio", e.target.value)}
-            placeholder="A brief introduction about yourself…"
+            value={profile.bio}
+            onChange={(e) =>
+              handleFieldChange("profile", "bio", e.target.value)
+            }
+            placeholder="A brief introduction..."
             isRequired
             errorMessage={bioError}
             className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
-          />
-          <InputCustom
-            label="Phone number"
-            name="phoneNumber"
-            type="tel"
-            value={profileData.phoneNumber || ""}
-            onChange={(e) => onProfileChange("phoneNumber", e.target.value)}
-            placeholder="Your phone number (optional)"
-            errorMessage={phoneNumberError}
-            className="bg-gray-800 border-gray-700"
           />
         </div>
       </div>
@@ -316,116 +303,150 @@ const ProfileCreatePanel: React.FC<Props> = ({
             <RoleSelectionCard
               key={roleOpt.name}
               role={roleOpt}
-              isSelected={profileData.role === roleOpt.name}
-              onClick={() => onProfileChange("role", roleOpt.name)}
+              isSelected={role === roleOpt.name}
+              onClick={() => onRoleChange(roleOpt.name)}
             />
           ))}
         </div>
       </div>
 
-      <div id="expertiseGroup">
-        {" "}
-        {/* ID for focusing the group */}
-        <MultiSelectButtons
-          label="Areas of Expertise"
-          options={expertiseOptions}
-          selectedOptions={profileData.expertise}
-          onToggleSelect={(option) =>
-            toggleMultiSelect(option, "expertise", setExpertiseError)
-          }
-          gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
-          isRequired
-        />
-        {expertiseError && (
-          <p className="text-sm text-red-500 mt-1">{expertiseError}</p>
-        )}
-      </div>
+      {role === Role.Learner && learnerDetails && (
+        <>
+          <InputCustom
+            label="Learning Goals"
+            name="learningGoals"
+            type="textarea"
+            value={learnerDetails.learningGoals}
+            onChange={(e) =>
+              handleFieldChange(
+                "learnerDetails",
+                "learningGoals",
+                e.target.value
+              )
+            }
+            placeholder="What do you hope to achieve?"
+            isRequired
+            errorMessage={learningGoalsError}
+            className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
+          />
+          <div>
+            <label className="text-base font-medium text-gray-300 block mb-2">
+              Preferred Communication Method{" "}
+              <span className="text-red-500">*</span>
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+              {communicationMethodsData.map((method) => (
+                <CommunicationMethodButton
+                  key={method.value}
+                  method={method}
+                  isSelected={
+                    learnerDetails.preferredCommunication === method.value
+                  }
+                  onClick={() =>
+                    handleFieldChange(
+                      "learnerDetails",
+                      "preferredCommunication",
+                      method.value
+                    )
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <InputCustom
-          name="professionalSkillsInputTag" // ID for focusing
-          label="Professional Skills"
-          type="text"
-          value={profileData.skills.join(", ")} // Assuming skills is an array of strings
-          onChange={(e) =>
-            onProfileChange(
-              "skills",
-              e.target.value.split(",").map((s) => s.trim())
-            )
-          }
-          placeholder="Type and press Enter"
-          errorMessage={skillsError} // Show parent error
-          className="bg-gray-800 border-gray-700"
-          isRequired
-        />
-        <InputCustom
-          label="Industry Experience"
-          name="industryExperience"
-          type="text"
-          value={profileData.industryExperience}
-          onChange={(e) =>
-            onProfileChange("industryExperience", e.target.value)
-          }
-          placeholder="e.g., 5 years in Tech"
-          isRequired={profileData.role === "Mentor"}
-          errorMessage={experienceError}
-          className="bg-gray-800 border-gray-700"
-        />
-      </div>
-
-      <div id="availabilityGroup">
-        {" "}
-        {/* ID for focusing the group */}
-        <MultiSelectButtons
-          label="Your Availability"
-          options={availabilityOptions}
-          selectedOptions={profileData.availability}
-          onToggleSelect={(option) =>
-            toggleMultiSelect(option, "availability", setAvailabilityError)
-          }
-          gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
-          isRequired
-        />
-        {availabilityError && (
-          <p className="text-sm text-red-500 mt-1">{availabilityError}</p>
-        )}
-      </div>
-
-      <div>
-        <label className="text-base font-medium text-gray-300 block mb-2">
-          Preferred Communication Method <span className="text-red-500">*</span>
-        </label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
-          {communicationMethodsData.map((method) => (
-            <CommunicationMethodButton
-              key={method.value}
-              method={method}
-              isSelected={profileData.preferredCommunication === method.value}
-              onClick={() =>
-                onProfileChange("preferredCommunication", method.value)
+      {role === Role.Mentor && mentorDetails && (
+        <>
+          <div id="mentorExpertiseGroup">
+            <MultiSelectButtons
+              label="Areas of Expertise"
+              options={expertiseOptionsData}
+              selectedOptions={mentorDetails.expertise}
+              onToggleSelect={(option) =>
+                handleMultiSelectToggle(
+                  option,
+                  mentorDetails.expertise,
+                  "mentorDetails",
+                  "expertise",
+                  setExpertiseError
+                )
               }
+              gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
+              isRequired
             />
-          ))}
-        </div>
-      </div>
-
-      {/* Learning Goals removed as it's now in PreferenceSetupPanel */}
+            {expertiseError && (
+              <p className="text-sm text-red-500 mt-1">{expertiseError}</p>
+            )}
+          </div>
+          <InputTag
+            label="Professional Skills"
+            tags={mentorDetails.skills}
+            setTags={(newSkills) =>
+              handleFieldChange("mentorDetails", "skills", newSkills)
+            }
+            placeholder="Type and press Enter"
+            errorMessage={skillsError}
+            setErrorMessage={setSkillsError}
+            inputPadding="px-4 py-3"
+            className="bg-gray-800 border-gray-700"
+            isRequired
+          />
+          <InputCustom
+            label="Industry Experience"
+            name="industryExperience"
+            type="text"
+            value={mentorDetails.industryExperience}
+            onChange={(e) =>
+              handleFieldChange(
+                "mentorDetails",
+                "industryExperience",
+                e.target.value
+              )
+            }
+            placeholder="e.g., 5 years in Tech"
+            isRequired
+            errorMessage={experienceError}
+            className="bg-gray-800 border-gray-700"
+          />
+          <div id="mentorAvailabilityGroup">
+            <MultiSelectButtons
+              label="Your Availability"
+              options={availabilityOptionsData}
+              selectedOptions={mentorDetails.availability}
+              onToggleSelect={(option) =>
+                handleMultiSelectToggle(
+                  option,
+                  mentorDetails.availability,
+                  "mentorDetails",
+                  "availability",
+                  setAvailabilityError
+                )
+              }
+              gridColsClass="grid-cols-2 sm:grid-cols-3 md:grid-cols-5"
+              isRequired
+            />
+            {availabilityError && (
+              <p className="text-sm text-red-500 mt-1">{availabilityError}</p>
+            )}
+          </div>
+        </>
+      )}
 
       <div className="flex flex-col sm:flex-row gap-4 pt-4">
         <button
           type="button"
           onClick={onBack}
-          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 transition rounded-lg text-gray-300 font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold">
           Back
         </button>
         <button
           type="submit"
-          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 transition rounded-lg text-white font-semibold">
-          Continue to Preferences
+          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold">
+          Continue
         </button>
       </div>
     </form>
   );
 };
-
 export default ProfileCreatePanel;

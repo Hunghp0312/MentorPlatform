@@ -1,103 +1,115 @@
 // Registration.tsx
 import React, { useState } from "react";
-import StepProgressBar from "../../components/progress/StepProgressBar";
-import RegistrationPanel from "../../components/register/panel/RegistrationPanel";
-import ProfileCreatePanel from "../../components/register/panel/ProfileCreatePanel";
-import PreferenceSetupPanel from "../../components/register/panel/PreferenceSetupPanel";
-import { submitRegistration } from "../../services/registration.service";
+import StepProgressBar from "../../components/progress/StepProgressBar"; // Adjust
+import RegistrationPanel from "../../components/register/panel/RegistrationPanel"; // Adjust
+import ProfileCreatePanel from "../../components/register/panel/ProfileCreatePanel"; // Adjust
+import PreferenceSetupPanel from "../../components/register/panel/PreferenceSetupPanel"; // Adjust
+import { submitRegistration } from "../../services/registration.service"; // Adjust
 import {
-  UserRegistrationEntity,
-  initialUserRegistrationEntity,
-} from "../../types/userRegister.d"; // Adjust path
+  UserRegistrationRequest,
+  AccountDetails,
+  SharedProfileDetails,
+  LearnerDetails,
+  MentorDetails,
+  UserPreferences,
+  Role,
+  createInitialData,
+} from "../../types/userRegister.d"; // Adjust
 
 const Registration = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
 
-  // Single state object for all registration data
-  const [formData, setFormData] = useState<UserRegistrationEntity>(
-    initialUserRegistrationEntity
+  const [formData, setFormData] = useState<UserRegistrationRequest>(
+    createInitialData(Role.Learner)
   );
-  const [rawPassword, setRawPassword] = useState(""); // Keep password separate for security, hash before sending
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
-  const handleAccountChange = (
-    field: keyof UserRegistrationEntity["account"],
-    value: string
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      account: { ...prev.account, [field]: value },
-    }));
+  const handleAccountSubmit = (accountDetails: AccountDetails) => {
+    setFormData((prev) => ({ ...prev, account: accountDetails }));
+    nextStep();
   };
 
-  const handleProfileChange = (
-    field: keyof UserRegistrationEntity["profile"],
-    value: any
+  const handleProfileUpdate = (
+    updates:
+      | Partial<SharedProfileDetails>
+      | Partial<LearnerDetails>
+      | Partial<MentorDetails>,
+    detailType: "profile" | "learnerDetails" | "mentorDetails"
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      profile: { ...prev.profile, [field]: value },
-    }));
-  };
-
-  const handlePreferenceChange = (
-    field:
-      | keyof UserRegistrationEntity["preferences"]
-      | keyof UserRegistrationEntity["preferences"]["privacySettings"],
-    value: any,
-    isPrivacySetting: boolean = false
-  ) => {
-    if (isPrivacySetting) {
-      setFormData((prev) => ({
-        ...prev,
-        preferences: {
-          ...prev.preferences,
-          privacySettings: {
-            ...prev.preferences.privacySettings,
-            [field as keyof UserRegistrationEntity["preferences"]["privacySettings"]]:
-              value,
+    setFormData((prev) => {
+      if (detailType === "profile") {
+        return { ...prev, profile: { ...prev.profile, ...updates } };
+      }
+      if (prev.role === Role.Learner && detailType === "learnerDetails") {
+        return {
+          ...prev,
+          learnerDetails: {
+            ...prev.learnerDetails,
+            ...(updates as Partial<LearnerDetails>),
           },
+        };
+      }
+      if (prev.role === Role.Mentor && detailType === "mentorDetails") {
+        return {
+          ...prev,
+          mentorDetails: {
+            ...prev.mentorDetails,
+            ...(updates as Partial<MentorDetails>),
+          },
+        };
+      }
+      return prev;
+    });
+  };
+
+  const handleRoleChange = (newRole: Role) => {
+    setFormData((prev) => {
+      const newStructure = createInitialData(newRole);
+      return {
+        ...newStructure,
+        account: prev.account, // Keep existing account info
+        profile: {
+          // Keep existing shared profile info, but ensure new role
+          ...newStructure.profile, // Gets default picture if any
+          fullName: prev.profile.fullName,
+          bio: prev.profile.bio,
+          profilePictureFile: prev.profile.profilePictureFile,
         },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        preferences: {
-          ...prev.preferences,
-          [field as keyof UserRegistrationEntity["preferences"]]: value,
-        },
-      }));
-    }
+        // Use preferences from new structure to get role-specific defaults
+        preferences: newStructure.preferences,
+      };
+    });
+  };
+
+  const handlePreferencesUpdate = (
+    updates:
+      | Partial<UserPreferences>
+      | ((prevPrefs: UserPreferences) => UserPreferences)
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      preferences:
+        typeof updates === "function"
+          ? updates(prev.preferences)
+          : { ...prev.preferences, ...updates },
+    }));
   };
 
   const handleFinalSubmit = async () => {
-    // Assemble the final entity (formData already is the entity)
-    // You might want to add rawPassword to a temporary object if your backend needs it for hashing
-    const submissionData = {
-      ...formData,
-      account: {
-        ...formData.account,
-        // password: rawPassword, // Only if backend expects raw password
-      },
-    };
-    console.log("Final Registration Entity to Submit:", submissionData);
-
+    console.log("Final Registration Data to Submit:", formData);
     try {
+      const { account, profile, preferences } = formData;
       await submitRegistration(
-        submissionData.account.email,
-        rawPassword,
-        JSON.stringify(submissionData.profile),
-        JSON.stringify(submissionData.preferences)
-      ); // Your service takes the entity
-
-      console.log("Registration Successful! Submitted Data:", submissionData);
+        account.email,
+        account.password,
+        JSON.stringify(profile),
+        JSON.stringify(preferences)
+      );
       alert("Registration complete!");
-      // Reset state or redirect
-      setFormData(initialUserRegistrationEntity);
-      setRawPassword("");
+      setFormData(createInitialData(Role.Learner));
       setStep(1);
     } catch (error) {
       console.error("Registration submission failed:", error);
@@ -110,18 +122,24 @@ const Registration = () => {
       case 1:
         return (
           <RegistrationPanel
-            email={formData.account.email}
-            password={rawPassword} // Use rawPassword state
-            setEmail={(value) => handleAccountChange("email", value)}
-            setPassword={setRawPassword} // Set rawPassword
-            onNext={nextStep}
+            initialEmail={formData.account.email}
+            initialPassword={formData.account.password} // Pass current password (might be empty initially)
+            onAccountSubmit={handleAccountSubmit}
           />
         );
       case 2:
         return (
           <ProfileCreatePanel
-            profileData={formData.profile}
-            onProfileChange={handleProfileChange}
+            currentUserData={formData}
+            onUpdate={(updates) => {
+              const { profile, learnerDetails, mentorDetails } = updates;
+              if (profile) handleProfileUpdate(profile, "profile");
+              if (learnerDetails)
+                handleProfileUpdate(learnerDetails, "learnerDetails");
+              if (mentorDetails)
+                handleProfileUpdate(mentorDetails, "mentorDetails");
+            }}
+            onRoleChange={handleRoleChange}
             onNext={nextStep}
             onBack={prevStep}
           />
@@ -129,9 +147,9 @@ const Registration = () => {
       case 3:
         return (
           <PreferenceSetupPanel
-            preferencesData={formData.preferences}
-            onPreferenceChange={handlePreferenceChange}
-            userRole={formData.profile.role}
+            currentPreferences={formData.preferences}
+            onPreferencesChange={handlePreferencesUpdate}
+            userRole={formData.role}
             onSubmit={handleFinalSubmit}
             onBack={prevStep}
           />
@@ -144,8 +162,6 @@ const Registration = () => {
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center px-4 py-12 text-white">
       <div className="w-full max-w-3xl">
-        {" "}
-        {/* Panel width control */}
         <div className="bg-gray-800 p-8 sm:p-10 rounded-xl shadow-xl">
           <div className="flex justify-between items-start gap-4 sm:gap-6 mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-left flex-shrink-0">
