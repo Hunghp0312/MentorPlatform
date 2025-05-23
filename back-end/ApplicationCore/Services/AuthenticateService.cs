@@ -9,6 +9,7 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 using Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
 using Utilities;
 
 namespace ApplicationCore.Services;
@@ -19,12 +20,14 @@ public class AuthenticateService : IAuthenticateService
     private readonly ITokenService _tokenService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISendEmailService _sendEmailService;
-    public AuthenticateService(IUserRepository userRepository, ITokenService tokenService, IUnitOfWork unitOfWork, ISendEmailService sendEmailService)
+    private readonly IConfiguration _configuration;
+    public AuthenticateService(IUserRepository userRepository, ITokenService tokenService, IUnitOfWork unitOfWork, ISendEmailService sendEmailService, IConfiguration configuration)
     {
         _userRepository = userRepository;
         _tokenService = tokenService;
         _unitOfWork = unitOfWork;
         _sendEmailService = sendEmailService;
+        _configuration = configuration;
     }
 
     public async Task<OperationResult<MessageResponse>> ForgotPasswordAsync(ForgotPasswordRequest email)
@@ -60,8 +63,8 @@ public class AuthenticateService : IAuthenticateService
         // 1. Exchange code for access token
         using var httpClient = new HttpClient();
         var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
-        var clientId = Environment.GetEnvironmentVariable("GITHUB_CLIENT_ID");
-        var clientSecret = Environment.GetEnvironmentVariable("GITHUB_CLIENT_SECRET");
+        var clientId = _configuration["Github:ClientId"];
+        var clientSecret = _configuration["Github:ClientSecret"];
         tokenRequest.Content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             { "client_id", clientId ?? "" },
@@ -126,7 +129,7 @@ public class AuthenticateService : IAuthenticateService
                 Id = Guid.NewGuid(),
                 Email = githubEmail,
                 PasswordHash = "", // No password for OAuth users
-                RoleId = 1, // Default role, adjust as needed
+                RoleId = 2, // Default role, adjust as needed
                 LastLogin = DateTime.UtcNow
             };
             await _userRepository.AddAsync(user);
@@ -212,7 +215,7 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetToken = null;
         user.PasswordResetExpiry = null;
         await _unitOfWork.SaveChangesAsync();
-        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password response successfully"});
+        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password change successfully"});
     }
 
     public async Task<OperationResult<TokenResponse>> RetrieveAccessToken(RefreshRequest refreshTokenRequest)
