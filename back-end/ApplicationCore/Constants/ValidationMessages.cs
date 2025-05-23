@@ -10,9 +10,6 @@
         public const string CategoryDescriptionMaxLength = "Description must not exceed 1000 characters.";
         public const string CategoryStatusInvalid = "Invalid category status value.";
 
-        public const string MotivationStatementRequired = "Motivation statement is required.";
-        public const string MotivationStatementMaxLength = "Motivation statement must not exceed 1000 characters.";
-
         public const string EducationDetailsRequired = "Education details are required.";
         public const string WorkExperienceDetailsRequired = "Work experience details are required.";
         public const string CertificationsRequired = "Certifications are required.";

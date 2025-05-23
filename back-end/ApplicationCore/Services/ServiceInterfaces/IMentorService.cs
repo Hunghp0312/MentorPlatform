@@ -12,6 +12,8 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<MentorApplicationResponseDto>> SubmitApplicationAsync(
            SubmitMentorApplicationApiRequest apiRequest
        );
+        //Task<OperationResult<MentorApplicationResponseDto>> GetMyApplicationAsync(Guid applicantUserId);
+
 
     }
 }

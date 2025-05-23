@@ -75,7 +75,6 @@ namespace ApplicationCore.Services
             var mentorApplicationEntity = new MentorApplication
             {
                 ApplicantId = applicantUserId,
-                MotivationStatement = apiRequest.MotivationStatement,
                 ApplicationStatusId = 1,
                 SubmissionDate = DateTime.UtcNow.ToString(),
                 CreatedAt = DateTime.UtcNow,

@@ -11,7 +11,6 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public string ApplicantFullName { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public string SubmissionDate { get; set; } = string.Empty;
-        public string MotivationStatement { get; set; } = string.Empty;
         public List<EducationDetailDto> EducationDetails { get; set; } = new List<EducationDetailDto>();
         public List<WorkExperienceDetailDto> WorkExperienceDetails { get; set; } = new List<WorkExperienceDetailDto>();
         public List<CertificationDetailDto> Certifications { get; set; } = new List<CertificationDetailDto>();

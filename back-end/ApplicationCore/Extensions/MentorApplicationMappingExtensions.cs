@@ -74,7 +74,6 @@ namespace ApplicationCore.Extensions
                 ApplicantFullName = applicantUser.UserProfile.FullName,
                 Status = applicationStatus.Name,
                 SubmissionDate = submissionDateForResponse,
-                MotivationStatement = entity.MotivationStatement,
                 CreatedAt = entity.CreatedAt,
                 LastStatusUpdateDate = entity.LastStatusUpdateDate,
                 EducationDetails = entity.MentorEducations.Select(e => e.ToEducationDetailDto()).ToList(),

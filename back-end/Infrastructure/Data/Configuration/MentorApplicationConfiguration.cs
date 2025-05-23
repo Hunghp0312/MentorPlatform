@@ -11,7 +11,6 @@ namespace Infrastructure.Data.Configuration
             builder.HasKey(ma => ma.ApplicantId);
 
             builder.Property(ma => ma.ApplicationStatusId).IsRequired();
-            builder.Property(ma => ma.MotivationStatement).IsRequired();
 
             builder.Property(ma => ma.SubmissionDate)
                 .IsRequired();

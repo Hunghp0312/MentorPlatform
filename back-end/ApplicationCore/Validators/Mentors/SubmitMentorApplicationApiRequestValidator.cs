@@ -12,10 +12,6 @@ namespace ApplicationCore.Validators.Mentors
     {
         public SubmitMentorApplicationApiRequestValidator()
         {
-            RuleFor(x => x.MotivationStatement)
-                .NotEmpty().WithMessage(ValidationMessages.MotivationStatementRequired)
-                .MaximumLength(1000).WithMessage(ValidationMessages.MotivationStatementMaxLength);
-
             RuleFor(x => x.EducationDetails)
                 .NotNull().WithMessage(ValidationMessages.EducationDetailsRequired)
                 .ForEach(educationRule =>
@@ -32,7 +28,6 @@ namespace ApplicationCore.Validators.Mentors
 
             RuleFor(x => x.Certifications)
                 .NotNull().WithMessage(ValidationMessages.CertificationsRequired)
-                // .NotEmpty().WithMessage(ValidationMessages.CollectionNotEmpty)
                 .ForEach(certificationRule =>
                 {
                     certificationRule.SetValidator(new CertificationDetailDtoValidator());

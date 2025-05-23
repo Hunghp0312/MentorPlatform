@@ -6,7 +6,6 @@ namespace Infrastructure.Entities
     {
         public Guid ApplicantId { get; set; }
         public int ApplicationStatusId { get; set; }
-        public string MotivationStatement { get; set; } = string.Empty;
         public string SubmissionDate { get; set; } = string.Empty;
         public DateTime? LastStatusUpdateDate { get; set; }
         public Guid? AdminReviewerId { get; set; }
