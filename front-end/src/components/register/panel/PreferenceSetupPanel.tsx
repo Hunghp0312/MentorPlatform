@@ -164,7 +164,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
     setGoalError("");
     setLearningStyleError("");
     setTeachingApproachError("");
-
+    window.scrollTo({ top: 0, behavior: "smooth" });
     if (validateAndSetFocusTarget()) {
       onSubmit();
     }

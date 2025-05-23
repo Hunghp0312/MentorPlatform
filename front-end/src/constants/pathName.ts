@@ -5,4 +5,6 @@ export const pathName = {
   register: "/register",
   login: "/login",
   approval: "/approval",
+  resetPassword: "/reset-password",
+  forgotPassword: "/forgot-passord",
 };

@@ -195,27 +195,23 @@ const Registration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center px-4 py-12 text-white">
-      <div className="w-full max-w-3xl">
+    <div className="min-h-screen bg-gray-900 px-4 py-6">
+      <div className="w-full max-w-3xl mx-auto mt-10">
         <div className="bg-gray-800 p-8 sm:p-10 rounded-xl shadow-xl">
           <div className="flex justify-between items-start gap-4 sm:gap-6 mb-8">
             <h2 className="text-2xl sm:text-3xl font-bold text-left flex-shrink-0">
               {(() => {
-                let title;
-                if (step === 1) {
-                  title = "Create Your Account";
-                } else if (step === 2) {
-                  title = "Setup Your Profile";
-                } else {
-                  title = "Set Your Preferences";
-                }
-                return title;
+                if (step === 1) return "Create Your Account";
+                if (step === 2) return "Setup Your Profile";
+                return "Set Your Preferences";
               })()}
             </h2>
-            <div className="flex-grow min-w-0">
+
+            <div className="w-64">
               <StepProgressBar step={step} totalSteps={totalSteps} />
             </div>
           </div>
+
           {renderStep()}
         </div>
       </div>

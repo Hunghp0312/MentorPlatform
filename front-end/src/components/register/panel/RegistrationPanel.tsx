@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import InputCustom from "../../input/InputCustom";
 import InputCheckbox from "../../input/InputCheckbox";
 import { AccountDetails } from "../../../types/userRegister";
+import { pathName } from "../../../constants/pathName";
+import { Link } from "react-router-dom";
 
 type Props = {
   initialEmail: string;
@@ -33,6 +35,7 @@ const RegistrationPanel: React.FC<Props> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
     onAccountSubmit({ email, password });
   };
 
@@ -84,6 +87,14 @@ const RegistrationPanel: React.FC<Props> = ({
       <button type="submit" className="w-full py-2 bg-orange-500 rounded">
         Continue
       </button>
+      <p className="text-sm text-center text-slate-400 mt-4">
+        Already have an account?{" "}
+        <Link
+          to={pathName.login}
+          className="font-medium text-orange-400 hover:underline">
+          Log in
+        </Link>
+      </p>
     </form>
   );
 };

@@ -1,12 +1,16 @@
 // LoginPage.tsx
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import InputCustom from "../../components/input/InputCustom";
 import InputCheckbox from "../../components/input/InputCheckbox";
+import { FaGoogle, FaGithub, FaLinkedin } from "react-icons/fa";
+import { pathName } from "../../constants/pathName";
 
-const LoginPage: React.FC = () => {
+const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -14,68 +18,45 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
-    // Basic validation example
     if (!email || !password) {
       setError("Please enter both email and password.");
       setLoading(false);
       return;
     }
-
-    // Simulate API call
-    console.log("Login attempt with:", { email, password, rememberMe });
-    // Replace with your actual login logic:
-    // try {
-    //   const response = await loginUser({ email, password });
-    //   // Handle successful login (e.g., redirect, set token)
-    //   console.log("Login successful:", response);
-    // } catch (apiError: any) {
-    //   setError(apiError.message || "Login failed. Please try again.");
-    // } finally {
-    //   setLoading(false);
-    // }
+    console.log("Login attempt:", { email, password, rememberMe });
     setTimeout(() => {
-      // Simulate delay
-      // Example error
-      if (email === "fail@example.com") {
-        setError("Invalid credentials provided.");
-      } else {
-        alert(`Login successful (simulated) for ${email}`);
-        // Reset form or redirect
-      }
+      if (email === "fail@example.com") setError("Invalid credentials.");
+      else alert(`Login successful (simulated) for ${email}`);
       setLoading(false);
     }, 1500);
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-200">
-      <div className="absolute top-8 text-center w-full">
-        <h1 className="text-3xl font-bold text-orange-500">MentorConnect</h1>
-      </div>
-
-      <div className="max-w-md w-full space-y-8 bg-slate-800 p-8 sm:p-10 rounded-xl shadow-2xl mt-16 sm:mt-20">
-        <div>
-          <h2 className="text-center text-3xl font-extrabold text-slate-100">
-            Welcome Back
-          </h2>
-          <p className="mt-2 text-center text-sm text-slate-400">
-            Sign in to continue to your account
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+    <div className="min-h-screen flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 justify-start">
+      {" "}
+      <div className="w-full max-w-md px-6 py-8 bg-slate-800 rounded-2xl shadow-2xl mt-8">
+        {" "}
+        {/* Reduced mt-16 to mt-8, py-10 to py-8 */}
+        <h2 className="text-3xl font-bold mb-2 text-white text-center">
+          Welcome Back
+        </h2>
+        <p className="text-slate-400 mb-6 text-center">
+          Sign in to continue to your account
+        </p>
+        {/* Reduced space between form elements (space-y-4) */}
+        <form onSubmit={handleSubmit} className="space-y-4">
           <InputCustom
             label="Email Address"
             name="email"
-            type="email"
+            type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             isRequired
-            // Assuming InputCustom applies dark theme styles internally
-            // If not, you might pass specific classNames like:
-            // className="bg-slate-700 border-slate-600 text-slate-100 focus:ring-orange-500 focus:border-orange-500"
+            errorMessage={
+              error?.toLowerCase().includes("email") ? error : undefined
+            }
           />
-
           <div>
             <InputCustom
               label="Password"
@@ -85,125 +66,115 @@ const LoginPage: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               isRequired
-              // Assuming InputCustom applies dark theme styles internally
+              errorMessage={
+                error &&
+                error.toLowerCase().includes("password") &&
+                !error.toLowerCase().includes("email")
+                  ? error
+                  : undefined
+              }
+              showPassword={showPasswordInput}
+              setShowPassword={setShowPasswordInput}
             />
             <div className="text-right mt-1">
-              <button
-                type="button"
-                onClick={() =>
-                  alert("Forgot password functionality not implemented yet.")
-                }
-                className="text-xs font-medium text-orange-500 hover:text-orange-400">
+              <Link
+                to={pathName.forgotPassword}
+                className="text-sm text-orange-400 hover:underline">
                 Forgot password?
-              </button>
+              </Link>
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <InputCheckbox
-              label="Remember me"
-              name="rememberMe"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              // Assuming InputCheckbox styles match the theme
-            />
-          </div>
+          {error &&
+            !error.toLowerCase().includes("email") &&
+            !error.toLowerCase().includes("password") && (
+              <p className="text-sm text-red-400 text-center bg-red-900 bg-opacity-30 p-2 rounded-md">
+                {error}
+              </p>
+            )}
 
-          {error && (
-            <p className="text-sm text-red-400 text-center bg-red-900 bg-opacity-30 p-2 rounded-md">
-              {error}
-            </p>
-          )}
+          <InputCheckbox
+            label="Remember me"
+            name="rememberMe"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+          />
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed">
-              {loading ? "Signing In..." : "Sign In"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500 disabled:opacity-60">
+            {" "}
+            {/* Reduced py-3 to py-2.5 */}
+            {loading ? "Signing In..." : "Sign In"}
+          </button>
         </form>
-
-        <div className="relative my-6">
-          <div
-            className="absolute inset-0 flex items-center"
-            aria-hidden="true">
-            <div className="w-full border-t border-slate-700" />
-          </div>
-          <div className="relative flex justify-center">
-            <span className="px-2 bg-slate-800 text-sm text-slate-500">
-              or continue with
-            </span>
+        {/* Reduced margin (my-4) */}
+        <div className="my-4 text-center">
+          <div className="relative">
+            <div
+              className="absolute inset-0 flex items-center"
+              aria-hidden="true">
+              <div className="w-full border-t border-slate-700" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-slate-800 text-slate-500">
+                or continue with
+              </span>
+            </div>
           </div>
         </div>
-
         <div className="grid grid-cols-3 gap-3">
-          <div>
-            <button
-              type="button"
-              className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-700 rounded-md shadow-sm bg-red-500 text-sm font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500">
-              {/* Replace with Google icon */}
-              <span className="sr-only">Sign in with Google</span>G
-            </button>
-          </div>
-          <div>
-            <button
-              type="button"
-              className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-700 rounded-md shadow-sm bg-slate-600 text-sm font-medium text-white hover:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500">
-              {/* Replace with GitHub icon */}
-              <span className="sr-only">Sign in with GitHub</span> GH
-            </button>
-          </div>
-          <div>
-            <button
-              type="button"
-              className="w-full inline-flex justify-center py-2.5 px-4 border border-slate-700 rounded-md shadow-sm bg-blue-600 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500">
-              {/* Replace with LinkedIn icon */}
-              <span className="sr-only">Sign in with LinkedIn</span> LI
-            </button>
-          </div>
+          <button
+            type="button"
+            className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500">
+            {" "}
+            {/* Reduced py-2.5 to py-2 */}
+            <FaGoogle size={18} />
+            <span className="hidden sm:inline">Google</span>
+          </button>
+          <button
+            type="button"
+            className="w-full flex items-center justify-center gap-2 bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500">
+            <FaGithub size={18} />
+            <span className="hidden sm:inline">GitHub</span>
+          </button>
+          <button
+            type="button"
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500">
+            <FaLinkedin size={18} />
+            <span className="hidden sm:inline">LinkedIn</span>
+          </button>
         </div>
-
-        <div className="text-sm text-center mt-8">
-          <p className="text-slate-400">
-            Don't have an account?{" "}
-            <button
-              type="button"
-              onClick={() =>
-                alert("Sign-up functionality not implemented yet.")
-              }
-              className="font-medium text-orange-500 hover:text-orange-400">
-              Sign up
-            </button>
-          </p>
+        {/* Reduced margin (mt-6) */}
+        <div className="mt-6 text-center text-sm text-slate-400">
+          Don’t have an account?{" "}
+          <Link
+            to={pathName.register}
+            className="font-medium text-orange-400 hover:underline">
+            Sign up
+          </Link>
         </div>
       </div>
-
       <div className="absolute bottom-8 text-center w-full px-4">
         <p className="text-xs text-slate-500">
           By continuing, you agree to our{" "}
-          <button
-            type="button"
-            onClick={() =>
-              alert("Privacy Policy functionality not implemented yet.")
-            }
-            className="font-medium text-orange-500 hover:text-orange-400">
+          <Link
+            to="/terms"
+            className="font-medium text-orange-400 hover:underline">
             Terms of Service
-          </button>{" "}
+          </Link>{" "}
           and{" "}
-          <button
-            type="button"
-            onClick={() =>
-              alert("Privacy Policy functionality not implemented yet.")
-            }
-            className="font-medium text-orange-500 hover:text-orange-400">
+          <Link
+            to="/privacy"
+            className="font-medium text-orange-400 hover:underline">
             Privacy Policy
-          </button>
+          </Link>
+          .
         </p>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;

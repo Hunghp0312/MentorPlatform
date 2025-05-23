@@ -203,7 +203,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
     setSkillsError("");
     setIndustryExperienceError("");
     setAvailabilityError("");
-
+    window.scrollTo({ top: 0, behavior: "smooth" });
     if (validateAndSetFocusTarget()) {
       onNext();
     }
