@@ -1,4 +1,6 @@
-﻿namespace Infrastructure.Entities
+﻿using Infrastructure.Entities.Enum;
+
+namespace Infrastructure.Entities
 {
     public class UserTopicOfInterest
     {

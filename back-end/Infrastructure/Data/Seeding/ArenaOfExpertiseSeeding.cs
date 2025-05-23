@@ -1,4 +1,4 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Entities.Enum;
 
 namespace Infrastructure.Data.Seeding
 {
@@ -8,14 +8,14 @@ namespace Infrastructure.Data.Seeding
         {
             return new List<ArenaOfExpertise>
             {
-                new ArenaOfExpertise { Id = Guid.Parse("E0A0B0C0-D0E0-F0A0-B0C0-D0E0F0A0B0C1"), Name = "Leadership" },
-                new ArenaOfExpertise { Id = Guid.Parse("E0A0B0C0-D0E0-F0A0-B0C0-D0E0F0A0B0C2"), Name = "Programming" },
-                new ArenaOfExpertise { Id = Guid.Parse("E0A0B0C0-D0E0-F0A0-B0C0-D0E0F0A0B0C3"), Name = "Design" },
-                new ArenaOfExpertise { Id = Guid.Parse("E0A0B0C0-D0E0-F0A0-B0C0-D0E0F0A0B0C4"), Name = "Marketing" },
-                new ArenaOfExpertise { Id = Guid.Parse("E0A0B0C0-D0E0-F0A0-B0C0-D0E0F0A0B0C5"), Name = "Data Science" },
-                new ArenaOfExpertise { Id = Guid.Parse("E0A0B0C0-D0E0-F0A0-B0C0-D0E0F0A0B0C6"), Name = "Business" },
-                new ArenaOfExpertise { Id = Guid.Parse("E0A0B0C0-D0E0-F0A0-B0C0-D0E0F0A0B0C7"), Name = "Project Management" },
-                new ArenaOfExpertise { Id = Guid.Parse("E0A0B0C0-D0E0-F0A0-B0C0-D0E0F0A0B0C8"), Name = "Communication" }
+                new ArenaOfExpertise { Id = 1, Name = "Leadership" },
+                new ArenaOfExpertise { Id = 2, Name = "Programming" },
+                new ArenaOfExpertise { Id = 3, Name = "Design" },
+                new ArenaOfExpertise { Id = 4, Name = "Marketing" },
+                new ArenaOfExpertise { Id = 5, Name = "Data Science" },
+                new ArenaOfExpertise { Id = 6, Name = "Business" },
+                new ArenaOfExpertise { Id = 7, Name = "Project Management" },
+                new ArenaOfExpertise { Id = 8, Name = "Communication" }
             };
         }
     }
