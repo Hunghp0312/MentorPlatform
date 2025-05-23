@@ -4,11 +4,10 @@ namespace Infrastructure.Entities
 {
     public class MentorApplication
     {
-        public Guid Id { get; set; }
         public Guid ApplicantId { get; set; }
         public int ApplicationStatusId { get; set; }
         public string MotivationStatement { get; set; } = string.Empty;
-        public DateTime SubmissionDate { get; set; }
+        public string SubmissionDate { get; set; } = string.Empty;
         public DateTime? LastStatusUpdateDate { get; set; }
         public Guid? AdminReviewerId { get; set; }
         public string? AdminComments { get; set; }
