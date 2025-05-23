@@ -42,4 +42,11 @@ public class AuthController : BaseController
         return ToActionResult(result);
     }
 
+    [HttpPost("github/callback")]
+    public async Task<IActionResult> GitHubCallback([FromQuery] string code)
+    {
+        var result = await _authService.GitHubLoginAsync(code);
+        return ToActionResult(result);
+
+    }
 }

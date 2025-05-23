@@ -12,4 +12,5 @@ public interface IAuthenticateService
     Task LogoutAsync(string accessToken);
     Task<OperationResult<MessageResponse>> ForgotPasswordAsync(ForgotPasswordRequest email);
     Task<OperationResult<MessageResponse>> ResetPasswordAsync(ResetPasswordRequest resetPasswordRequest);
+    Task<OperationResult<TokenResponse>> GitHubLoginAsync(string code);
 }

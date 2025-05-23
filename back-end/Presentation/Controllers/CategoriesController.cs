@@ -20,7 +20,6 @@ namespace Presentation.Controllers
                 categoryService ?? throw new ArgumentNullException(nameof(categoryService));
         }
 
-        // POST: api/Categories
         [HttpPost]
         [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -45,7 +44,6 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        // PUT: api/Categories/{id}
         [HttpPut("{id:guid}")]
         [ProducesResponseType(typeof(CategoryResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -61,7 +59,7 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
-        [Authorize()]
+
         [HttpGet("all")]
         [ProducesResponseType(typeof(ICollection<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
