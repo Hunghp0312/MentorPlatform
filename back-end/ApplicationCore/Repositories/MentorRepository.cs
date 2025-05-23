@@ -12,29 +12,44 @@ namespace ApplicationCore.Repositories
         {
         }
 
-        public override async Task<(ICollection<MentorApplication> , int )> GetPagedAsync(
+        public override async Task<(ICollection<MentorApplication>, int)> GetPagedAsync(
             Func<IQueryable<MentorApplication>, IQueryable<MentorApplication>>? filter,
             int pageIndex,
             int pageSize
         )
         {
-            var queryable = _dbSet.Include(x => x.Applicant)
-            .ThenInclude(x => x.UserProfile)
-            .ThenInclude(x => x.User)
-            .ThenInclude(x => x != null ? x.UserArenaOfExpertises : null)
-            .Include(x => x.SupportingDocuments)
-            .Include(x => x.ApplicationStatus)
-            .AsQueryable();
+            var queryable = _dbSet
+                .Include(a => a.Applicant)
+                .ThenInclude(uae => uae.UserArenaOfExpertises)
+                .Include(a => a.Applicant)
+                .ThenInclude(uae => uae.UserProfile)
+                .Include(x => x.SupportingDocuments)
+                .Include(x => x.ApplicationStatus)
+                .AsQueryable();
+
             if (filter != null)
             {
                 queryable = filter(queryable);
             }
+
             var totalRecords = await queryable.CountAsync();
             var items = await queryable
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
             return (items, totalRecords);
+        }
+        public override async Task<MentorApplication?> GetByIdAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(a => a.Applicant)
+                .ThenInclude(uae => uae.UserArenaOfExpertises)
+                .Include(a => a.Applicant)
+                .ThenInclude(uae => uae.UserProfile)
+                .Include(x => x.SupportingDocuments)
+                .Include(x => x.ApplicationStatus)
+                .FirstOrDefaultAsync(x => x.ApplicantId == id);
         }
     }
 

@@ -1,6 +1,5 @@
 using ApplicationCore.DTOs.Responses.ArenaOfExpertises;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
-using Infrastructure.Entities.Enum;
 
 namespace ApplicationCore.DTOs.Responses.Mentors
 {
