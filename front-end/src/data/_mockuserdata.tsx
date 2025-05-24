@@ -1,4 +1,4 @@
-import { ArenaOfExpertise } from "../types/mentor";
+import { ArenaOfExpertise } from "../types/mentorapplication";
 import { EnumType } from "../types/commonType";
 import { User } from "../types/user";
 export const role: EnumType = { id: 2, name: "Mentor" };

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import InputCustom from "../../input/InputCustom";
-import { MentorWorkExperience } from "../../../types/mentor";
+import { MentorWorkExperience } from "../../../types/mentorapplication";
 import Button from "../../ui/Button";
 import loading from "../../../assets/loadingIcon.svg";
 

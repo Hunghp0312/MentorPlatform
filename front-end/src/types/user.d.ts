@@ -1,5 +1,5 @@
 import { EnumType } from "./commonType";
-import { ArenaOfExpertise } from "./mentor";
+import { ArenaOfExpertise } from "./mentorapplication";
 import { MentorApplication } from "./approval";
 
 export interface User {

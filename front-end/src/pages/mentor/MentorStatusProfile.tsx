@@ -8,7 +8,7 @@ import {
   MentorCertification,
   MentorEducation,
   MentorWorkExperience,
-} from "../../types/mentor";
+} from "../../types/mentorapplication";
 import CustomModal from "../../components/ui/Modal";
 import EducationAddDialog from "../../components/dialog/Applications/EducationDialog";
 import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkExperienceDialog";
