@@ -11,24 +11,81 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+
+    const trimmedEmail = email.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmedEmail) {
+      errs.email = "Please fill in this field";
+    } else if (trimmedEmail.length < 6 || trimmedEmail.length > 100) {
+      errs.email = "Please enter between 6-100 characters.";
+    } else if (!trimmedEmail.includes("@")) {
+      errs.email = `Please enter a ‘@’, ‘${trimmedEmail}’ is missing an ‘@’.`;
+    } else {
+      const [username, domain] = trimmedEmail.split("@");
+      if (!username) {
+        errs.email = `Please enter a part followed by ‘@’. ‘@${domain}’ is incomplete.`;
+      } else if (!domain) {
+        errs.email = `Please enter a part following ‘@’. ‘${username}@’ is incomplete.`;
+      } else if (!emailRegex.test(trimmedEmail)) {
+        errs.email = `Please enter a valid email address. ‘${trimmedEmail}’ is invalid`;
+      }
+    }
+
+    if (!password) {
+      errs.password = "Please fill in this field";
+    } else if (password.length > 100) {
+      errs.password = "Please enter between 8-100 characters.";
+    } else if (
+      password.length < 8 ||
+      !/[A-Za-z]/.test(password) ||
+      !/\d/.test(password) ||
+      !/[!@#$%^&*(),.?":{}|<>]/.test(password)
+    ) {
+      errs.password =
+        "Password must be at least 8 characters with a mix of letters, numbers, and symbols";
+    }
+
+    setError(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
-    setLoading(true);
-    if (!email || !password) {
-      setError("Please enter both email and password.");
-      setLoading(false);
-      return;
-    }
+    e.preventDefault();
+    if (!validate()) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
     console.log("Login attempt:", { email, password, rememberMe });
     setTimeout(() => {
-      if (email === "fail@example.com") setError("Invalid credentials.");
-      else alert(`Login successful (simulated) for ${email}`);
+      alert(`Login successful (simulated) for ${email}`);
       setLoading(false);
     }, 1500);
+  };
+
+  const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
+  const GITHUB_REDIRECT_URI = import.meta.env.VITE_GITHUB_REDIRECT_URI;
+
+  const handleGitHubLogin = () => {
+    if (!GITHUB_CLIENT_ID || !GITHUB_REDIRECT_URI) {
+      console.error(
+        "GitHub OAuth environment variables are not set correctly!"
+      );
+      alert("GitHub login is currently unavailable. Please contact support.");
+      return;
+    }
+
+    // Construct the GitHub authorization URL
+    // scope=user:email requests permission to read the user's primary email
+    const githubOAuthURL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(
+      GITHUB_REDIRECT_URI
+    )}&scope=user:email`;
+
+    // Redirect the user to GitHub
+    window.location.href = githubOAuthURL;
   };
 
   return (
@@ -53,9 +110,7 @@ const Login: React.FC = () => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             isRequired
-            errorMessage={
-              error?.toLowerCase().includes("email") ? error : undefined
-            }
+            errorMessage={error.email}
           />
           <div>
             <InputCustom
@@ -66,13 +121,7 @@ const Login: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter your password"
               isRequired
-              errorMessage={
-                error &&
-                error.toLowerCase().includes("password") &&
-                !error.toLowerCase().includes("email")
-                  ? error
-                  : undefined
-              }
+              errorMessage={error.password}
               showPassword={showPasswordInput}
               setShowPassword={setShowPasswordInput}
             />
@@ -84,15 +133,6 @@ const Login: React.FC = () => {
               </Link>
             </div>
           </div>
-
-          {error &&
-            !error.toLowerCase().includes("email") &&
-            !error.toLowerCase().includes("password") && (
-              <p className="text-sm text-red-400 text-center bg-red-900 bg-opacity-30 p-2 rounded-md">
-                {error}
-              </p>
-            )}
-
           <InputCheckbox
             label="Remember me"
             name="rememberMe"
@@ -135,7 +175,8 @@ const Login: React.FC = () => {
           </button>
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500">
+            className="w-full flex items-center justify-center gap-2 bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500"
+            onClick={handleGitHubLogin}>
             <FaGithub size={18} />
             <span className="hidden sm:inline">GitHub</span>
           </button>

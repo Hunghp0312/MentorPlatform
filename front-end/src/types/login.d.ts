@@ -18,6 +18,11 @@ export type RefreshTokenRequest = {
   refreshToken: string;
 };
 
-export type codeThirdParty = {
+export type CodeThirdParty = {
   code: string;
+};
+
+export type AppTokenResponse = {
+  accessToken: string;
+  refreshToken: string;
 };

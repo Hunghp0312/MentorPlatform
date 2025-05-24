@@ -21,13 +21,56 @@ const RegistrationPanel: React.FC<Props> = ({
   const [confirm, setConfirm] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validate = () => {
     const errs: Record<string, string> = {};
-    if (!email.trim()) errs.email = "Email required";
-    if (!password) errs.password = "Password required";
-    if (password !== confirm) errs.confirm = "Passwords must match";
-    if (!agreed) errs.agreed = "You must agree";
+
+    const trimmedEmail = email.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!trimmedEmail) {
+      errs.email = "Please fill in this field";
+    } else if (trimmedEmail.length < 6 || trimmedEmail.length > 100) {
+      errs.email = "Please enter between 6-100 characters.";
+    } else if (!trimmedEmail.includes("@")) {
+      errs.email = `Please enter a ‘@’, ‘${trimmedEmail}’ is missing an ‘@’.`;
+    } else {
+      const [username, domain] = trimmedEmail.split("@");
+      if (!username) {
+        errs.email = `Please enter a part followed by ‘@’. ‘@${domain}’ is incomplete.`;
+      } else if (!domain) {
+        errs.email = `Please enter a part following ‘@’. ‘${username}@’ is incomplete.`;
+      } else if (!emailRegex.test(trimmedEmail)) {
+        errs.email = `Please enter a valid email address. ‘${trimmedEmail}’ is invalid`;
+      }
+    }
+
+    if (!password) {
+      errs.password = "Please fill in this field";
+    } else if (password.length > 100) {
+      errs.password = "Please enter between 8-100 characters.";
+    } else if (
+      password.length < 8 ||
+      !/[A-Za-z]/.test(password) ||
+      !/\d/.test(password) ||
+      !/[!@#$%^&*(),.?":{}|<>]/.test(password)
+    ) {
+      errs.password =
+        "Password must be at least 8 characters with a mix of letters, numbers, and symbols";
+    }
+    if (!confirm) {
+      errs.confirm = "Please fill in this field";
+    } else if (confirm.length > 100) {
+      errs.confirm = "System block user from entering more character";
+    } else if (password !== confirm) {
+      errs.confirm = "Passwords don’t match";
+    }
+
+    if (!agreed) {
+      errs.agreed = "You must agree";
+    }
+
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -44,19 +87,29 @@ const RegistrationPanel: React.FC<Props> = ({
       <InputCustom
         label="Email"
         name="email"
-        type="email"
+        type="text"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         errorMessage={errors.email}
       />
-      <InputCustom
-        label="Password"
-        name="password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        errorMessage={errors.password}
-      />
+      <div className="space-y-0.5">
+        <InputCustom
+          label="Password"
+          name="password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          errorMessage={errors.password}
+          placeholder=""
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+        />
+        <p className="text-xs text-gray-400 ml-1 mt-1">
+          Password must be at least 8 characters with a mix of letters, numbers,
+          and symbols.
+        </p>
+      </div>
+
       <InputCustom
         label="Confirm Password"
         name="confirm"
@@ -64,7 +117,10 @@ const RegistrationPanel: React.FC<Props> = ({
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
         errorMessage={errors.confirm}
+        showPassword={showConfirmPassword}
+        setShowPassword={setShowConfirmPassword}
       />
+
       <div className="flex items-center">
         <InputCheckbox
           checked={agreed}
@@ -92,7 +148,7 @@ const RegistrationPanel: React.FC<Props> = ({
         <Link
           to={pathName.login}
           className="font-medium text-orange-400 hover:underline">
-          Log in
+          Sign in
         </Link>
       </p>
     </form>

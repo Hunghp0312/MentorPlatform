@@ -9,6 +9,7 @@ import LoginPage from "../pages/auth/Login";
 import ResetPasswordPage from "../pages/auth/ResetPassword";
 import AuthLayout from "../layout/AuthLayout";
 import ForgotPasswordPage from "../pages/auth/ForgotPassword";
+import GitHubCallback from "../components/login/GithubCallback";
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -21,6 +22,7 @@ const AppRouter = () => {
         { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
       ],
     },
+    { path: pathName.githubCallback, element: <GitHubCallback /> },
     {
       path: "/",
       element: <Layout />,

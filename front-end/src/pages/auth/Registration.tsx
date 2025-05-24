@@ -105,7 +105,7 @@ const Registration = () => {
   ) => {
     setFormData((prev) => {
       const { learningStyle, teachingApproach, ...preferenceUpdates } = updates;
-      let updatedFormData = {
+      const updatedFormData = {
         ...prev,
         preferences: { ...prev.preferences, ...preferenceUpdates },
       };

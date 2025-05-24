@@ -78,7 +78,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
       ? safeCurrentSelection.filter((item) => item !== option)
       : [...safeCurrentSelection, option];
 
-    onUpdate({ [fieldKey]: newSelection } as any);
+    onUpdate({ [fieldKey]: newSelection } as Partial<UserPreferences>);
     errorSetter?.("");
   };
 
