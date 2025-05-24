@@ -17,6 +17,6 @@
         public virtual MentorApplication SubmittedMentorApplication { get; set; } = null!;
         public virtual MentorApplication ReviewedMentorApplication { get; set; } = null!;
         public virtual ICollection<Course> MentoredCourses { get; set; } = new List<Course>();
-        public virtual ICollection<UserArenaOfExpertise> UserArenaOfExpertises { get; set; } = new List<UserArenaOfExpertise>();
+        public virtual ICollection<UserAreaOfExpertise> UserArenaOfExpertises { get; set; } = new List<UserAreaOfExpertise>();
     }
 }

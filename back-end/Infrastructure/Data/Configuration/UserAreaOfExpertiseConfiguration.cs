@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configuration
 {
-    public class UserArenaOfExpertiseConfiguration : IEntityTypeConfiguration<UserArenaOfExpertise>
+    public class UserAreaOfExpertiseConfiguration : IEntityTypeConfiguration<UserAreaOfExpertise>
     {
-        public void Configure(EntityTypeBuilder<UserArenaOfExpertise> builder)
+        public void Configure(EntityTypeBuilder<UserAreaOfExpertise> builder)
         {
-            builder.HasKey(uae => new { uae.UserId, uae.ArenaOfExpertiseId });
+            builder.HasKey(uae => new { uae.UserId, uae.AreaOfExpertiseId });
 
             builder.HasOne(uae => uae.User)
                 .WithMany(up => up.UserArenaOfExpertises)
