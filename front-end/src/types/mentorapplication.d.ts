@@ -27,9 +27,10 @@ export interface MentorCreateApplication {
   mentorEducations: MentorEducation[];
   mentorWorkExperiences: MentorWorkExperience[];
   mentorCertifications: MentorCertification[];
+  menttorDocuments: SupportingDocument[];
 }
 export interface SupportingDocument {
-  mentorApplication?: MentorApplication;
+  //mentorApplication?: MentorApplication;
   fileName: string;
   fileType: string;
   fileSize: number;
