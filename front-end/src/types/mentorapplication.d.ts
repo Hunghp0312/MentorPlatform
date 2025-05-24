@@ -36,21 +36,12 @@ export interface SupportingDocument {
   uploadedAt: string; // ISO string for DateTime
   documentContent?: DocumentContent;
 }
-export interface Resource {
-  title?: string;
-  type?: number;
-  // resourceCategoryId?: string;
-  description?: string;
-  course?: CourseType;
-  documentContent?: DocumentContent;
-}
 
 export interface DocumentContent {
   fileContent: string; // Base64 string for binary data
   fileName: string;
   fileType: string;
   supportingDocument?: SupportingDocument;
-  resource?: Resource;
 }
 export interface ArenaOfExpertise {
   id: string;
