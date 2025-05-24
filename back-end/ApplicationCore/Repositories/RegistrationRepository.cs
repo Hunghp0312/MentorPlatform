@@ -25,5 +25,21 @@ namespace ApplicationCore.Repositories
         {
             await _context.Set<UserProfile>().AddAsync(userProfile);
         }
+
+        public async Task<UserProfile?> GetUserProfileAsync(Guid userId)
+        {
+            return await _context.Set<UserProfile>()
+                                 .Include(up => up.UserTopicOfInterests) // Eager load related data
+                                 .Include(up => up.TeachingApproaches)
+                                 .Include(up => up.UserProfileAvailabilities)
+                                 .FirstOrDefaultAsync(up => up.Id == userId);
+        }
+
+        public async Task UpdateUserProfileAsync(UserProfile userProfile)
+        {
+            _context.Set<UserProfile>().Update(userProfile);
+            // No SaveChangesAsync() here, UnitOfWork will handle it.
+            await Task.CompletedTask;
+        }
     }
 }

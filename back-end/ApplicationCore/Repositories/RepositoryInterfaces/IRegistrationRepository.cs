@@ -9,5 +9,7 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
         Task<User?> GetByEmailAsync(string email);
         Task AddUserAsync(User user);
         Task AddUserProfileAsync(UserProfile userProfile);
+        Task<UserProfile?> GetUserProfileAsync(Guid userId);
+        Task UpdateUserProfileAsync(UserProfile userProfile);
     }
 }

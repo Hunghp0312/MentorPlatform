@@ -1,11 +1,11 @@
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Http;
+using System.Collections.Generic; // Added for List
 
 namespace ApplicationCore.DTOs.Requests.Registration
 {
     public class RegistrationProfileRequest
     {
-        public static List<string>? Availability { get; internal set; }
         public required string Email { get; set; }
         public required string Password { get; set; }
         public required string ConfirmPassword { get; set; }
@@ -20,8 +20,9 @@ namespace ApplicationCore.DTOs.Requests.Registration
 
         public required string IndustryExperience { get; set; }
 
-        public List<string>? AvalabilityData { get; set; }
+        public List<int>? AvailabilityIds { get; set; } // Changed from AvalabilityData (List<string>)
 
-        public int CommunicationMethod { get; set; }
+        public List<int>? CommunicationMethods { get; set; } // Changed from CommunicationMethod (int)
+        public string? UserGoal { get; set; } // Added
     }
 }

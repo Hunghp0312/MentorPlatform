@@ -50,5 +50,41 @@
         public const string CertificationNameRequired = "Certification name is required.";
         public const string IssuingOrganizationRequired = "Issuing organization is required.";
         public const string CredentialUrlInvalid = "Credential URL is not a valid URL.";
+
+        // --- Registration --- 
+        public const string EMAIL_REQUIRED = "Email is required.";
+        public const string EMAIL_INVALID_FORMAT = "Email format is invalid.";
+        public const string PASSWORD_REQUIRED = "Password is required.";
+        public const string PASSWORD_MIN_LENGTH = "Password must be at least 8 characters long.";
+        public const string PASSWORD_UPPERCASE_REQUIRED = "Password must contain at least one uppercase letter.";
+        public const string PASSWORD_LOWERCASE_REQUIRED = "Password must contain at least one lowercase letter.";
+        public const string PASSWORD_DIGIT_REQUIRED = "Password must contain at least one digit.";
+        public const string PASSWORD_SPECIAL_CHAR_REQUIRED = "Password must contain at least one special character.";
+        public const string CONFIRM_PASSWORD_NOT_MATCH = "Confirm password does not match password.";
+        public const string ROLE_REQUIRED = "Role is required.";
+        public const string ROLE_INVALID = "Invalid role selected. Must be 'Learner' or 'Mentor'.";
+        public const string FULL_NAME_REQUIRED = "Full name is required.";
+        public const string FULL_NAME_MAX_LENGTH = "Full name must not exceed 100 characters.";
+        public const string BIO_MAX_LENGTH = "Bio must not exceed 500 characters.";
+        public const string PHOTO_REQUIRED = "Photo is required.";
+        public const string EXPERTISE_AREAS_INVALID_FORMAT = "Expertise areas must be a list of non-empty strings.";
+        public const string PROFESSIONAL_SKILL_REQUIRED = "Professional skill is required for mentors.";
+        public const string PROFESSIONAL_SKILL_MAX_LENGTH = "Professional skill must not exceed 200 characters.";
+        public const string INDUSTRY_EXPERIENCE_REQUIRED = "Industry experience is required for mentors.";
+        public const string INDUSTRY_EXPERIENCE_MAX_LENGTH = "Industry experience must not exceed 200 characters.";
+        public const string AVAILABILITY_REQUIRED = "Availability is required.";
+        public const string AVAILABILITY_REQUIRED_ALMENO_UNO = "At least one availability slot must be selected.";
+        public const string COMMUNICATION_METHODS_REQUIRED = "Communication methods are required.";
+        public const string COMMUNICATION_METHODS_REQUIRED_ALMENO_UNO = "At least one communication method must be selected.";
+        public const string USER_GOAL_REQUIRED = "User goal is required.";
+        public const string USER_GOAL_MAX_LENGTH = "User goal must not exceed 500 characters.";
+
+        // --- Preferences ---
+        public const string TOPIC_OF_INTEREST_REQUIRED = "Topics of interest are required.";
+        public const string TOPIC_OF_INTEREST_REQUIRED_ALMENO_UNO = "At least one topic of interest must be selected.";
+        public const string SESSION_FREQUENCY_REQUIRED = "Session frequency is required.";
+        public const string SESSION_DURATION_REQUIRED = "Session duration is required.";
+        public const string LEARNING_STYLE_REQUIRED_ALMENO_UNO = "At least one learning style must be selected for learners.";
+        public const string TEACHING_APPROACH_REQUIRED_ALMENO_UNO = "At least one teaching approach must be selected for mentors.";
     }
 }

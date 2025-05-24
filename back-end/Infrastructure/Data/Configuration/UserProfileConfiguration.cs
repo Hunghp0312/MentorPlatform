@@ -26,9 +26,8 @@ namespace Infrastructure.Data.Configuration
             builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false); builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
 
             // Ignore navigation properties for enums - we use the Id properties instead
-            builder.Ignore(up => up.SessionFrequency);
-            builder.Ignore(up => up.SessionDuration);
-            builder.Ignore(up => up.LearningStyle);
+            builder.Property(up => up.SessionFrequencyId).IsRequired();
+            builder.Property(up => up.SessionDurationId).IsRequired();
 
             builder.Property(up => up.CommunicationMethod).IsRequired();
             builder.Property(up => up.PrivacyProfile).IsRequired().HasDefaultValue(true);

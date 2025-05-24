@@ -21,7 +21,7 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public int SessionFrequency { get; set; }
         public int SessionDuration { get; set; }
         public int LearningStyle { get; set; }
-        public List<int>? TeachingApproachIds { get; set; }
+        public List<int>? TeachingApproach { get; set; }
         public bool PrivacyProfile { get; set; } = true;
         public bool MessagePermission { get; set; } = true;
         public bool NotificationsEnabled { get; set; } = true;
