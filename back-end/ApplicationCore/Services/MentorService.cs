@@ -26,8 +26,7 @@ namespace ApplicationCore.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISendEmailService _sendEmailService;
 
-        public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IDocumentContentRepository documentContentRepository, ISupportingDocumentRepository supportingDocumentRepository, IMentorEducationRepository mentorEducationRepository, IMentorWorkExperienceRepository mentorWorkExperienceRepository, IMentorCertificationRepository mentorCertificationRepository)
-
+        public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IDocumentContentRepository documentContentRepository, ISupportingDocumentRepository supportingDocumentRepository, IMentorEducationRepository mentorEducationRepository, IMentorWorkExperienceRepository mentorWorkExperienceRepository, IMentorCertificationRepository mentorCertificationRepository, ISendEmailService sendEmailService)
         {
             _sendEmailService = sendEmailService;
             _mentorRepository = mentorRepository;
@@ -162,7 +161,7 @@ namespace ApplicationCore.Services
 
             return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
         }
-        
+
         public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request)
         {
             if (request.MentorId == Guid.Empty)
@@ -193,7 +192,7 @@ namespace ApplicationCore.Services
                 return OperationResult<MentorApplicantResponse>.NotFound("Mentor application not found after update");
             }
             await SendStatusUpdateEmailIfNeeded(mentorApplication, request);
-            
+
 
             var result = mentorApplication.ToMetorApplicantResponse();
 
@@ -284,7 +283,7 @@ namespace ApplicationCore.Services
                 var emailRecipient = mentorApplication.Applicant.Email;
                 await _sendEmailService.SendEmail(emailRecipient, emailSubject, emailBody);
             }
-           }
+        }
 
         public async Task<OperationResult<MentorApplicationResponseDto>> UpdateMyApplicationAsync(
          UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId)

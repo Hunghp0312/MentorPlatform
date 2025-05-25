@@ -19,7 +19,7 @@ namespace Presentation.Controllers
             _mentorService = mentorService;
         }
 
-        [HttpGet("MyApplication")]
+        [HttpGet("my-application")]
         [Authorize]
         [ProducesResponseType(typeof(MentorApplicationDetailResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]

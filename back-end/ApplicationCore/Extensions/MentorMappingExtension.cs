@@ -17,7 +17,7 @@ namespace ApplicationCore.Extensions
                     : string.Empty,
                 FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
                 Email = mentorApplication.Applicant?.Email ?? string.Empty,
-                ExpertiseAreas = mentorApplication.Applicant?.UserProfile?.User.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
+                ExpertiseAreas = mentorApplication.Applicant?.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
                 {
                     Name = x.AreaOfExpertise.Name,
                 }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
