@@ -22,8 +22,13 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
   const [formState, setFormState] = useState<MentorWorkExperience>({
     companyName: initialData?.companyName || "",
     position: initialData?.position || "",
-    startDate: initialData?.startDate || "",
-    endDate: initialData?.endDate || "",
+    startDate: initialData?.startDate
+      ? new Date(initialData.startDate).getFullYear().toString()
+      : "",
+    endDate:
+      initialData?.endDate && initialData.endDate !== "Present"
+        ? new Date(initialData.endDate).getFullYear().toString()
+        : "",
   });
   const [errors, setErrors] = useState({
     companyName: "",
@@ -104,7 +109,11 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
     }
     const updatedFormState = {
       ...formState,
-      endDate: formState.endDate?.trim() === "" ? "Present" : formState.endDate,
+      startDate: `${formState.startDate}-01-01T00:00:00.000Z`,
+      endDate:
+        formState.endDate?.trim() === ""
+          ? "Present"
+          : `${formState.endDate}-01-01T00:00:00.000Z`,
     };
     onSubmit(updatedFormState);
     onClose();

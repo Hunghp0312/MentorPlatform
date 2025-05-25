@@ -1,9 +1,25 @@
 // import axiosInstance from "../configs/axiosInstance";
 // import { MentorCreateApplication } from "../types/mentorapplication";
-// export const menterService = {
-//   async submitCompleteApplication(application: MentorCreateApplication) {
+
+// export const mentorService = {
+//   async submitCompleteApplication(
+//     application: MentorCreateApplication,
+//     file: File
+//   ) {
 //     try {
 //       const formData = new FormData();
+//       const token = localStorage.getItem("accessToken");
+//       if (token) {
+//         const payload = JSON.parse(atob(token.split(".")[1]));
+
+//         const userId = payload.id;
+//         if (userId) {
+//           formData.append("UserId", userId);
+//         }
+//         console.log("User ID:", userId);
+//       }
+
+//       // Append education details
 //       application.mentorEducations.forEach((education, index) => {
 //         formData.append(
 //           `EducationDetails[${index}].InstitutionName`,
@@ -29,17 +45,21 @@
 //           `WorkExperienceDetails[${index}].Position`,
 //           work.position
 //         );
+//         const startDate = new Date(work.startDate);
 //         formData.append(
 //           `WorkExperienceDetails[${index}].StartDate`,
-//           work.startDate
+//           startDate.toISOString().split("T")[0] // Format as "yyyy-MM-dd"
 //         );
 //         if (work.endDate) {
+//           const endDate =
+//             work.endDate === "Present" ? new Date() : new Date(work.endDate);
 //           formData.append(
 //             `WorkExperienceDetails[${index}].EndDate`,
-//             work.endDate
+//             endDate.toISOString().split("T")[0] // Format as "yyyy-MM-dd"
 //           );
 //         }
 //       });
+//       // Append certification details
 //       application.mentorCertifications.forEach((cert, index) => {
 //         formData.append(
 //           `Certifications[${index}].CertificationName`,
@@ -50,18 +70,9 @@
 //           cert.issuingOrganization
 //         );
 //       });
-//       // Append supporting document (assuming first document in the array)
-//       if (application.menttorDocuments.length > 0) {
-//         const doc = application.menttorDocuments[0];
-//         // Convert base64 file content to Blob
-//         const byteString = atob(doc.documentContent?.fileContent || "");
-//         const byteArray = new Uint8Array(byteString.length);
-//         for (let i = 0; i < byteString.length; i++) {
-//           byteArray[i] = byteString.charCodeAt(i);
-//         }
-//         const blob = new Blob([byteArray], { type: doc.fileType });
-//         formData.append("SupportingDocument", blob, doc.fileName);
-//       }
+
+//       // Append single supporting document
+//       formData.append("SupportingDocument", file, file.name);
 
 //       const response = await axiosInstance.post(
 //         "/MentorApplications",
@@ -72,6 +83,7 @@
 //           },
 //         }
 //       );
+
 //       return response.data;
 //     } catch (error) {
 //       console.error("Error submitting mentor application:", error);
@@ -79,7 +91,6 @@
 //     }
 //   },
 // };
-
 import axiosInstance from "../configs/axiosInstance";
 import { MentorCreateApplication } from "../types/mentorapplication";
 
@@ -93,12 +104,6 @@ export const mentorService = {
       const token = localStorage.getItem("accessToken");
       if (token) {
         const payload = JSON.parse(atob(token.split(".")[1]));
-        const now = Math.floor(Date.now() / 1000);
-
-        console.log("Token exp:", payload.exp);
-        console.log("Current time:", now);
-        console.log("Is expired:", payload.exp < now);
-
         const userId = payload.id;
         if (userId) {
           formData.append("UserId", userId);
@@ -125,26 +130,6 @@ export const mentorService = {
       });
 
       // Append work experience details
-      // application.mentorWorkExperiences.forEach((work, index) => {
-      //   formData.append(
-      //     `WorkExperienceDetails[${index}].CompanyName`,
-      //     work.companyName
-      //   );
-      //   formData.append(
-      //     `WorkExperienceDetails[${index}].Position`,
-      //     work.position
-      //   );
-      //   formData.append(
-      //     `WorkExperienceDetails[${index}].StartDate`,
-      //     work.startDate
-      //   );
-      //   if (work.endDate) {
-      //     formData.append(
-      //       `WorkExperienceDetails[${index}].EndDate`,
-      //       work.endDate
-      //     );
-      //   }
-      // });
       application.mentorWorkExperiences.forEach((work, index) => {
         formData.append(
           `WorkExperienceDetails[${index}].CompanyName`,
@@ -154,20 +139,18 @@ export const mentorService = {
           `WorkExperienceDetails[${index}].Position`,
           work.position
         );
-        const startDate = new Date(work.startDate);
         formData.append(
           `WorkExperienceDetails[${index}].StartDate`,
-          startDate.toISOString().split("T")[0] // Format as "yyyy-MM-dd"
+          work.startDate
         );
         if (work.endDate) {
-          const endDate =
-            work.endDate === "Present" ? new Date() : new Date(work.endDate);
           formData.append(
             `WorkExperienceDetails[${index}].EndDate`,
-            endDate.toISOString().split("T")[0] // Format as "yyyy-MM-dd"
+            work.endDate
           );
         }
       });
+
       // Append certification details
       application.mentorCertifications.forEach((cert, index) => {
         formData.append(

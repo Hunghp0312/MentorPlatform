@@ -7,21 +7,36 @@ import {
   MentorCertification,
 } from "./mentorapplication";
 // src/types/approval.ts
-export interface MentorApplication {
+export interface ApprovalType {
+  id: string;
+  name: string;
+  email: string;
+  expertiseAreas: string[];
+  status: string;
+  submittedDate: string;
+  profileImage: string;
+  experience: string;
+  documents: { type: string; name: string; url: string }[];
+}
+export interface MentorApplicationResponse {
   applicantId: string;
   applicationStatus?: ApplicationStatus;
   adminReviewer?: admin;
-  // motivationStatement: string;
   submissionDate?: string;
   lastStatusUpdateDate?: string; // ISO string for DateTime
   adminComments?: string;
   rejectionReason?: string;
   approvalDate?: string; // ISO string for DateTime
-  //createdAt: string; // ISO string for DateTime
-  updatedAt?: string; // ISO string for DateTime
   applicant?: User;
   mentorEducations?: MentorEducation[];
   mentorWorkExperiences?: MentorWorkExperience[];
   mentorCertifications?: MentorCertification[];
-  // supportingDocuments?: SupportingDocument[];
+  supportingDocuments?: SupportingDocument;
+}
+
+export interface MentorUpdateStatusRequest {
+  mentorId: string; // Guid được biểu diễn dưới dạng string trong TypeScript
+  statusId: number;
+  adminComments?: string;
+  adminReviewerId?: string; // Guid được biểu diễn dưới dạng string
 }

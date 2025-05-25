@@ -1,14 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { Search, ClipboardList } from "lucide-react";
-// import Button from "../../components/ui/Button";
+import { Search, ClipboardList, FileText } from "lucide-react";
 import { toast } from "react-toastify";
 import DataTable, { DataColumn } from "../../components/table/CustomTable";
 import InputCustom from "../../components/input/InputCustom";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import useDebounce from "../../hooks/usedebounce";
-import { ApprovalType } from "../../types/approval";
-// Components
 
+// Updated ApprovalType interface
+interface ApprovalType {
+  id: string;
+  name: string;
+  email: string;
+  expertiseAreas: string[];
+  status: "pending" | "approved" | "rejected" | "request-info";
+  submittedDate: string;
+  profileImage: string;
+  experience: string;
+  documents: { type: string; name: string; url: string }[];
+  actionHistory?: { action: string; timestamp: string }[];
+}
+
+// Mock data with actionHistory
 const mockApprovals: ApprovalType[] = [
   {
     id: "1",
@@ -23,6 +35,7 @@ const mockApprovals: ApprovalType[] = [
       { type: "PDF", name: "Resume.pdf", url: "#" },
       { type: "JPG", name: "Certification.jpg", url: "#" },
     ],
+    actionHistory: [{ action: "Submitted", timestamp: "2023-09-10" }],
   },
   {
     id: "2",
@@ -34,17 +47,19 @@ const mockApprovals: ApprovalType[] = [
     profileImage: "https://randomuser.me/api/portraits/men/42.jpg",
     experience: "4 years at Design Studio",
     documents: [{ type: "PDF", name: "Portfolio.pdf", url: "#" }],
+    actionHistory: [{ action: "Submitted", timestamp: "2023-09-12" }],
   },
   {
     id: "3",
     name: "Alex Rodriguez",
-    email: "alex.r@example.com",
+    email: "alex.stabler.r@example.com",
     expertiseAreas: ["Leadership", "Business Strategy", "Marketing"],
     status: "pending",
     submittedDate: "2023-09-14",
     profileImage: "https://randomuser.me/api/portraits/men/67.jpg",
     experience: "10 years in corporate leadership",
     documents: [{ type: "PDF", name: "CV.pdf", url: "#" }],
+    actionHistory: [{ action: "Submitted", timestamp: "2023-09-14" }],
   },
   {
     id: "4",
@@ -56,6 +71,10 @@ const mockApprovals: ApprovalType[] = [
     profileImage: "https://randomuser.me/api/portraits/women/45.jpg",
     experience: "6 years as full-stack developer",
     documents: [{ type: "PDF", name: "Resume.pdf", url: "#" }],
+    actionHistory: [
+      { action: "Submitted", timestamp: "2023-09-08" },
+      { action: "Approved", timestamp: "2023-09-09" },
+    ],
   },
   {
     id: "5",
@@ -67,6 +86,10 @@ const mockApprovals: ApprovalType[] = [
     profileImage: "https://randomuser.me/api/portraits/men/23.jpg",
     experience: "3 years in IT security",
     documents: [{ type: "PDF", name: "Certifications.pdf", url: "#" }],
+    actionHistory: [
+      { action: "Submitted", timestamp: "2023-09-07" },
+      { action: "Rejected: Insufficient experience", timestamp: "2023-09-08" },
+    ],
   },
   {
     id: "6",
@@ -78,8 +101,13 @@ const mockApprovals: ApprovalType[] = [
     profileImage: "https://randomuser.me/api/portraits/men/22.jpg",
     experience: "3 years in IT security",
     documents: [{ type: "PDF", name: "Certifications.pdf", url: "#" }],
+    actionHistory: [
+      { action: "Submitted", timestamp: "2023-09-07" },
+      { action: "Rejected: Incomplete documentation", timestamp: "2023-09-08" },
+    ],
   },
 ];
+
 const ListApproval = () => {
   const [approvals, setApprovals] = useState<ApprovalType[]>(mockApprovals);
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
@@ -88,11 +116,12 @@ const ListApproval = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  //pagination
   const [totalItems, setTotalItems] = useState(0);
-  // const [errors, setErrors] = useState<string | undefined>();
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionComment, setRejectionComment] = useState("");
+  const [adminNotes, setAdminNotes] = useState(""); // New state for admin notes
 
   const searchDebounced = useDebounce(searchTerm, 500);
 
@@ -101,7 +130,9 @@ const ListApproval = () => {
     { value: "pending", label: "Pending" },
     { value: "approved", label: "Approved" },
     { value: "rejected", label: "Rejected" },
+    { value: "request-info", label: "Request Info" },
   ];
+
   // Mock data fetching
   useEffect(() => {
     setLoading(true);
@@ -130,7 +161,7 @@ const ListApproval = () => {
           <img
             src={row.profileImage}
             alt={row.name}
-            className="w-13 h-13 rounded-full object-cover"
+            className="w-12 h-12 rounded-full object-cover"
           />
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate text-white">{row.name}</p>
@@ -146,6 +177,8 @@ const ListApproval = () => {
                     ? "bg-green-500"
                     : row.status === "rejected"
                     ? "bg-red-500"
+                    : row.status === "request-info"
+                    ? "bg-blue-500"
                     : ""
                 }`}
               ></span>
@@ -164,45 +197,103 @@ const ListApproval = () => {
     },
   ];
 
-  // Mock action handlers
+  // Get current timestamp
+  const getCurrentTimestamp = () => new Date().toISOString().split("T")[0];
+
+  // Approve handler
   const handleApprove = (approval: ApprovalType) => {
     if (window.confirm(`Approve application for "${approval.name}"?`)) {
+      const updatedApproval = {
+        ...approval,
+        status: "approved" as const,
+        actionHistory: [
+          ...(approval.actionHistory || []),
+          { action: "Approved", timestamp: getCurrentTimestamp() },
+        ],
+      };
       setApprovals((prev) =>
-        prev.map((item) =>
-          item.id === approval.id ? { ...item, status: "approved" } : item
-        )
+        prev.map((item) => (item.id === approval.id ? updatedApproval : item))
       );
       setTotalItems(mockApprovals.length);
       toast.success(`Application for ${approval.name} approved`);
       if (selectedApproval?.id === approval.id) {
-        setSelectedApproval({ ...approval, status: "approved" });
+        setSelectedApproval(updatedApproval);
       }
     }
   };
 
+  // Reject handler
   const handleReject = (approval: ApprovalType) => {
-    if (window.confirm(`Reject application for "${approval.name}"?`)) {
+    setSelectedApproval(approval);
+    setIsRejectModalOpen(true);
+  };
+
+  // Confirm rejection with comment
+  const confirmReject = () => {
+    if (selectedApproval) {
+      const updatedApproval = {
+        ...selectedApproval,
+        status: "rejected" as const,
+        actionHistory: [
+          ...(selectedApproval.actionHistory || []),
+          {
+            action: `Rejected: ${rejectionComment}`,
+            timestamp: getCurrentTimestamp(),
+          },
+        ],
+      };
       setApprovals((prev) =>
         prev.map((item) =>
-          item.id === approval.id ? { ...item, status: "rejected" } : item
+          item.id === selectedApproval.id ? updatedApproval : item
         )
       );
       setTotalItems(mockApprovals.length);
-      toast.success(`Application for ${approval.name} rejected`);
-      if (selectedApproval?.id === approval.id) {
-        setSelectedApproval({ ...approval, status: "rejected" });
-      }
+      toast.success(
+        `Application for ${selectedApproval.name} rejected. Comment: ${rejectionComment}`
+      );
+      setSelectedApproval(updatedApproval);
+      setRejectionComment("");
+      setIsRejectModalOpen(false);
     }
   };
 
+  // Request Info handler
   const handleRequestInfo = () => {
-    if (selectedApproval) {
-      console.log(`Requesting info for ${selectedApproval.name}`);
+    if (
+      selectedApproval &&
+      window.confirm(`Request additional info for "${selectedApproval.name}"?`)
+    ) {
+      const reason = adminNotes.trim() || "No reason provided";
+      const updatedApproval = {
+        ...selectedApproval,
+        status: "request-info" as const,
+        actionHistory: [
+          ...(selectedApproval.actionHistory || []),
+          {
+            action: `Request Info: ${reason}`,
+            timestamp: getCurrentTimestamp(),
+          },
+        ],
+      };
+      setApprovals((prev) =>
+        prev.map((item) =>
+          item.id === selectedApproval.id ? updatedApproval : item
+        )
+      );
+      setTotalItems(mockApprovals.length);
+      toast.success(
+        `Info requested for ${selectedApproval.name}. Reason: ${reason}`
+      );
+      setSelectedApproval(updatedApproval);
+      setAdminNotes(""); // Clear admin notes after request
     }
   };
+
   const handleSelectApplicants = (approval: ApprovalType) => {
     setSelectedApproval(approval);
+    setAdminNotes(""); // Reset admin notes when selecting a new applicant
   };
+
   const handleSearch = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -213,6 +304,15 @@ const ListApproval = () => {
       setPageIndex(1);
     }
   };
+
+  // Determine circle color based on action
+  const getActionColor = (action: string) => {
+    if (action.includes("Approved")) return "bg-green-500";
+    if (action.includes("Rejected")) return "bg-red-500";
+    if (action.includes("Request Info")) return "bg-blue-500";
+    return "bg-orange-500"; // Default for "Submitted"
+  };
+
   if (loading) {
     return <LoadingOverlay />;
   }
@@ -241,13 +341,11 @@ const ListApproval = () => {
                 setPageIndex(1);
               }}
             >
-              {statusOptions.map((option) => {
-                return (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                );
-              })}
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -298,26 +396,30 @@ const ListApproval = () => {
                         </p>
                       </div>
                     </div>
-                    <div>
-                      <button
-                        onClick={() => handleApprove(selectedApproval)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(selectedApproval)}
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md mr-2"
-                      >
-                        Reject
-                      </button>
-                      <button
-                        onClick={handleRequestInfo}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
-                      >
-                        Request Info
-                      </button>
-                    </div>
+                    {["pending", "request-info"].includes(
+                      selectedApproval.status
+                    ) && (
+                      <div>
+                        <button
+                          onClick={() => handleApprove(selectedApproval)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleReject(selectedApproval)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md mr-2"
+                        >
+                          Reject
+                        </button>
+                        <button
+                          onClick={handleRequestInfo}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
+                        >
+                          Request Info
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-4">
                     <div>
@@ -338,30 +440,49 @@ const ListApproval = () => {
                       <h4 className="text-sm font-medium text-gray-400">
                         Application Timeline
                       </h4>
-                      <p className="text-sm">
-                        Submitted on {selectedApproval.submittedDate}
-                      </p>
+                      <div className="space-y-2">
+                        {selectedApproval.actionHistory?.map((entry, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2 text-sm"
+                          >
+                            <span
+                              className={`flex items-center justify-center w-5 h-5 rounded-full ${getActionColor(
+                                entry.action
+                              )} text-white text-xs font-medium`}
+                            >
+                              {index + 1}
+                            </span>
+                            <span>
+                              {entry.action} on {entry.timestamp}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-400">
                         Uploaded Documents
                       </h4>
-                      {selectedApproval.documents.map((doc, index) => (
-                        <div
-                          key={index}
-                          className="text-sm flex items-center space-x-2"
-                        >
-                          <span>
-                            {doc.type}: {doc.name}
-                          </span>
-                          <a
-                            href={doc.url}
-                            className="text-blue-400 hover:underline"
+                      <div className="space-y-2">
+                        {selectedApproval.documents.map((doc, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center space-x-2 bg-gray-600 p-2 rounded-md hover:bg-gray-500 transition duration-150"
                           >
-                            View
-                          </a>
-                        </div>
-                      ))}
+                            <FileText size={16} className="text-gray-300" />
+                            <span className="text-sm text-gray-300">
+                              {doc.type}: {doc.name}
+                            </span>
+                            <a
+                              href={doc.url}
+                              className="text-blue-400 hover:underline text-sm"
+                            >
+                              View
+                            </a>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-400">
@@ -371,6 +492,8 @@ const ListApproval = () => {
                         className="w-full bg-gray-600 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                         placeholder="Add notes about this application..."
                         rows={3}
+                        value={adminNotes}
+                        onChange={(e) => setAdminNotes(e.target.value)}
                       />
                     </div>
                   </div>
@@ -389,7 +512,53 @@ const ListApproval = () => {
           </div>
         </div>
       </div>
+
+      {/* Rejection Modal */}
+      {isRejectModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Reject Application
+            </h3>
+            <p className="text-gray-300 mb-4">
+              Are you sure you want to reject the application for{" "}
+              <strong>{selectedApproval?.name}</strong>?
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-400 mb-1">
+                Rejection Comment
+              </label>
+              <textarea
+                className="w-full bg-gray-600 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Enter reason for rejection..."
+                rows={4}
+                value={rejectionComment}
+                onChange={(e) => setRejectionComment(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => {
+                  setIsRejectModalOpen(false);
+                  setRejectionComment("");
+                }}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmReject}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
+                disabled={!rejectionComment.trim()}
+              >
+                Confirm Reject
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
+
 export default ListApproval;

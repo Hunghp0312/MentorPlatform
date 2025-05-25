@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import mockUser1, { mockArenaOfExpertises } from "../../data/_mockuserdata";
 import { CirclePlus, CircleMinus } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
-import { EnumType } from "../../types/commonType";
-import InputCustom from "../../components/input/InputCustom";
 import { mentorService } from "../../services/mentorapplication.service";
 import {
   MentorCertification,
@@ -16,15 +13,11 @@ import CustomModal from "../../components/ui/Modal";
 import EducationAddDialog from "../../components/dialog/Applications/EducationDialog";
 import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkExperienceDialog";
 import CertificationAddDialog from "../../components/dialog/Applications/CertificationDialog";
-import { set } from "date-fns";
-// import { set } from "date-fns";
-
 interface MentorStatusType {
   // id: string;
   // name: string;
   // email: string;
   // expertiseAreas: string[];
-  // status: string;
   // profileImage: string;
   // professionalSkill: string;
   // industryExperience: string;
@@ -32,22 +25,29 @@ interface MentorStatusType {
   mentorWorkExperience: MentorWorkExperience[];
   certifications: MentorCertification[];
   mentorDocuments: SupportingDocument | null;
+  //submissionDate?: string; // Add submissionDate
+  //status?: string; // Add status
 }
 
 const MentorStatusProfile = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [, setError] = useState<string | null>(null);
   const [mentorData, setMentorData] = useState<MentorStatusType>({
     mentorEducation: [],
     mentorWorkExperience: [],
     certifications: [],
     mentorDocuments: null,
+    // submissionDate: "", // Initialize
+    // status: "", // Initialize
   });
   const [editedMentor, setEditedMentor] = useState<MentorStatusType>({
     mentorEducation: [],
     mentorWorkExperience: [],
     certifications: [],
     mentorDocuments: null,
+    // submissionDate: "", // Initialize
+    // status: "", // Initialize
   });
   const [isEditing, setIsEditing] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -305,85 +305,16 @@ const MentorStatusProfile = () => {
     });
   };
 
-  // Thêm tài liệu mới
-  // const handleAddDocument = (doc: {
-  //   name: string;
-  //   type: string;
-  //   url: string;
-  // }) => {
-  //   if (editedMentor) {
-  //     setEditedMentor((prev) =>
-  //       prev ? { ...prev, documents: [...(prev.documents || []), doc] } : prev
-  //     );
-  //   }
-  // };
-  // // Xóa tài liệu
-  // const handleRemoveDocument = (index: number) => {
-  //   if (editedMentor) {
-  //     setEditedMentor((prev) => {
-  //       if (!prev) return prev;
-  //       const documents = [...(prev.documents || [])];
-  //       documents.splice(index, 1);
-  //       return { ...prev, documents };
-  //     });
-  //   }
-  // };
-
   const handleSubmitApplication = async () => {
     if (!editedMentor || !selectedFile || !editedMentor.mentorDocuments) {
       setError("Vui lòng chọn một tài liệu.");
       return;
     }
 
-    //   const application: MentorCreateApplication = {
-    //     mentorEducations: editedMentor.mentorEducation,
-    //     mentorWorkExperiences: editedMentor.mentorWorkExperience,
-    //     mentorCertifications: editedMentor.certifications,
-    //     menttorDocuments: editedMentor.mentorDocuments,
-    //   };
-
-    //   try {
-    //     setLoading(true);
-    //     await mentorService.submitCompleteApplication(application, selectedFile);
-    //     alert("Đã gửi đơn đăng ký thành công!");
-    //     setIsEditing(true);
-    //     setSelectedFile(null);
-    //   } catch (error) {
-    //     console.error("Error submitting application:", error);
-    //     //console.error("Error submitting mentor application:", error);
-    //     console.error("Response data:", error.response?.data); // Log the server's response
-    //     throw error;
-    //     // setError(
-    //     //   `Lỗi khi gửi đơn đăng ký: ${error.message || "Vui lòng thử lại."}`
-    //     // );
-    //     // setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
-    //   }
-    //   // } finally {
-    //   //   setLoading(false);
-    //   // }
-    // };
     const application: MentorCreateApplication = {
-      mentorEducations: [
-        {
-          institutionName: "Test University",
-          fieldOfStudy: "Computer Science",
-          graduationYear: 2020,
-        },
-      ],
-      mentorWorkExperiences: [
-        {
-          companyName: "Test Company",
-          position: "Software Engineer",
-          startDate: "2021-01-01T00:00:00.000Z", // Past date in ISO 8601 format
-          endDate: "2023-01-01T00:00:00.000Z", // Past date in ISO 8601 format
-        },
-      ],
-      mentorCertifications: [
-        {
-          certificationName: "AWS Certified Developer",
-          issuingOrganization: "Amazon",
-        },
-      ],
+      mentorEducations: editedMentor.mentorEducation,
+      mentorWorkExperiences: editedMentor.mentorWorkExperience,
+      mentorCertifications: editedMentor.certifications,
       menttorDocuments: editedMentor.mentorDocuments,
     };
 
@@ -393,19 +324,64 @@ const MentorStatusProfile = () => {
       alert("Đã gửi đơn đăng ký thành công!");
       setIsEditing(true);
       setSelectedFile(null);
-    } catch (error: any) {
-      console.error(
-        "Error submitting application:",
-        error.response?.data || error.message
-      );
-      setError(
-        error.response?.data?.message ||
-          "Lỗi khi gửi đơn đăng ký. Vui lòng thử lại."
-      );
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error("Error submitting application:", error);
+      //console.error("Error submitting mentor application:", error);
+      // console.error("Response data:", error.response?.data); // Log the server's response
+      throw error;
+      // setError(
+      //   `Lỗi khi gửi đơn đăng ký: ${error.message || "Vui lòng thử lại."}`
+      // );
+      // setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
     }
+    // } finally {
+    //   setLoading(false);
+    // }
   };
+  //   // const application: MentorCreateApplication = {
+  //   //   mentorEducations: [
+  //   //     {
+  //   //       institutionName: "Test University",
+  //   //       fieldOfStudy: "Computer Science",
+  //   //       graduationYear: 2020,
+  //   //     },
+  //   //   ],
+  //   //   mentorWorkExperiences: [
+  //   //     {
+  //   //       companyName: "Test Company",
+  //   //       position: "Software Engineer",
+  //   //       startDate: "2021-01-01T00:00:00.000Z", // Past date in ISO 8601 format
+  //   //       endDate: "2023-01-01T00:00:00.000Z", // Past date in ISO 8601 format
+  //   //     },
+  //   //   ],
+  //   //   mentorCertifications: [
+  //   //     {
+  //   //       certificationName: "AWS Certified Developer",
+  //   //       issuingOrganization: "Amazon",
+  //   //     },
+  //   //   ],
+  //   //   menttorDocuments: editedMentor.mentorDocuments,
+  //   // };
+
+  //   try {
+  //     setLoading(true);
+  //     await mentorService.submitCompleteApplication(application, selectedFile);
+  //     alert("Đã gửi đơn đăng ký thành công!");
+  //     setIsEditing(true);
+  //     setSelectedFile(null);
+  //   } catch (error: any) {
+  //     console.error(
+  //       "Error submitting application:",
+  //       error.response?.data || error.message
+  //     );
+  //     setError(
+  //       error.response?.data?.message ||
+  //         "Lỗi khi gửi đơn đăng ký. Vui lòng thử lại."
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Lưu thay đổi
   const handleSave = () => {
@@ -437,12 +413,17 @@ const MentorStatusProfile = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Education
-          <button onClick={() => setOpenEducationDialog(true)} className="ml-1">
-            <CirclePlus
-              size={20}
-              className="text-green-500 hover:text-green-600"
-            />
-          </button>
+          {isEditing && (
+            <button
+              onClick={() => setOpenEducationDialog(true)}
+              className="ml-1"
+            >
+              <CirclePlus
+                size={20}
+                className="text-green-500 hover:text-green-600"
+              />
+            </button>
+          )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
           {mentorData && mentorData.mentorEducation?.length > 0 ? (
@@ -462,12 +443,14 @@ const MentorStatusProfile = () => {
                     <span className="text-sm text-gray-400">
                       {education.graduationYear ?? "N/A"}
                     </span>
-                    <button onClick={() => handleRemoveEducation(index)}>
-                      <CircleMinus
-                        size={20}
-                        className="text-red-500 hover:text-red-600"
-                      />
-                    </button>
+                    {isEditing && (
+                      <button onClick={() => handleRemoveEducation(index)}>
+                        <CircleMinus
+                          size={20}
+                          className="text-red-500 hover:text-red-600"
+                        />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -480,15 +463,17 @@ const MentorStatusProfile = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Work Experience
-          <button
-            onClick={() => setWorkExperienceDialog(true)}
-            className="ml-1"
-          >
-            <CirclePlus
-              size={20}
-              className="text-green-500 hover:text-green-600"
-            />
-          </button>
+          {isEditing && (
+            <button
+              onClick={() => setWorkExperienceDialog(true)}
+              className="ml-1"
+            >
+              <CirclePlus
+                size={20}
+                className="text-green-500 hover:text-green-600"
+              />
+            </button>
+          )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
           {mentorData && mentorData.mentorWorkExperience?.length > 0 ? (
@@ -498,15 +483,12 @@ const MentorStatusProfile = () => {
                 className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
               >
                 <div className="flex w-full justify-between items-start">
-                  {/* Bên trái */}
                   <div className="flex flex-col">
                     <h5 className="font-medium">{experience.position}</h5>
                     <p className="text-[12px] text-gray-400">
                       {experience.companyName}
                     </p>
                   </div>
-
-                  {/* Bên phải */}
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">
                       {new Date(experience.startDate).getFullYear()}–
@@ -514,12 +496,14 @@ const MentorStatusProfile = () => {
                         ? new Date(experience.endDate).getFullYear()
                         : "Present"}
                     </span>
-                    <button onClick={() => handleRemoveWorkExperience(index)}>
-                      <CircleMinus
-                        size={20}
-                        className="text-red-500 hover:text-red-600"
-                      />
-                    </button>
+                    {isEditing && (
+                      <button onClick={() => handleRemoveWorkExperience(index)}>
+                        <CircleMinus
+                          size={20}
+                          className="text-red-500 hover:text-red-600"
+                        />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -534,12 +518,17 @@ const MentorStatusProfile = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Certifications
-          <button onClick={() => setCertificationDialog(true)} className="ml-1">
-            <CirclePlus
-              size={20}
-              className="text-green-500 hover:text-green-600"
-            />
-          </button>
+          {isEditing && (
+            <button
+              onClick={() => setCertificationDialog(true)}
+              className="ml-1"
+            >
+              <CirclePlus
+                size={20}
+                className="text-green-500 hover:text-green-600"
+              />
+            </button>
+          )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
           {mentorData && mentorData.certifications?.length > 0 ? (
@@ -548,20 +537,20 @@ const MentorStatusProfile = () => {
                 key={index}
                 className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
               >
-                <h5 className="font-medium">
-                  {certificate.certificationName}
-                  <div>
-                    <p className="text-[12px] text-gray-400">
-                      {certificate.issuingOrganization}
-                    </p>
-                  </div>
-                </h5>
-                <button onClick={() => handleRemoveCertification(index)}>
-                  <CircleMinus
-                    size={20}
-                    className="text-red-500 hover:text-red-600"
-                  />
-                </button>
+                <h5 className="font-medium">{certificate.certificationName}</h5>
+                <div className="flex items-center space-x-2">
+                  <p className="text-[12px] text-gray-400">
+                    {certificate.issuingOrganization}
+                  </p>
+                  {isEditing && (
+                    <button onClick={() => handleRemoveCertification(index)}>
+                      <CircleMinus
+                        size={20}
+                        className="text-red-500 hover:text-red-600"
+                      />
+                    </button>
+                  )}
+                </div>
               </div>
             ))
           ) : (
@@ -572,17 +561,14 @@ const MentorStatusProfile = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Document
-          <button
-            onClick={() => {
-              handleOpenFileExplorer();
-            }}
-            className="ml-1"
-          >
-            <CirclePlus
-              size={20}
-              className="text-green-500 hover:text-green-600"
-            />
-          </button>
+          {isEditing && (
+            <button onClick={() => handleOpenFileExplorer()} className="ml-1">
+              <CirclePlus
+                size={20}
+                className="text-green-500 hover:text-green-600"
+              />
+            </button>
+          )}
           <input
             type="file"
             ref={fileInputRef}
@@ -602,13 +588,14 @@ const MentorStatusProfile = () => {
                   {(mentorData.mentorDocuments.fileSize / 1024).toFixed(2)} KB)
                 </p>
               </div>
-
-              <button onClick={handleRemoveDocument}>
-                <CircleMinus
-                  size={20}
-                  className="text-red-500 hover:text-red-600"
-                />
-              </button>
+              {isEditing && (
+                <button onClick={handleRemoveDocument}>
+                  <CircleMinus
+                    size={20}
+                    className="text-red-500 hover:text-red-600"
+                  />
+                </button>
+              )}
             </div>
           ) : (
             <p className="text-sm text-gray-200">No document provided.</p>
@@ -639,22 +626,15 @@ const MentorStatusProfile = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
               <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
-                <span className="text-gray-400 text-4xl">
-                  {/* <img
-                    src={mentorData.profileImage}
-                    alt={mentorData.name}
-                    className="rounded-full object-cover"
-                  /> */}
-                </span>
+                <span className="text-gray-400 text-4xl"></span>
               </div>
               <div>
-                {/* <h2 className="text-xl font-medium">{mentorData.name}</h2> */}
                 <div className="mt-1 flex items-center">
                   <span className="bg-orange-500 text-xs text-white px-2.5 py-1 rounded-full capitalize">
                     mentor
                   </span>
-                  <span className="pr-1"></span>
-                  {/* <span
+                  {/* <span className="pr-1"></span>
+                  <span
                     className={`text-xs text-white px-2.5 py-1 rounded-full capitalize ${
                       mentorData.status === "approved"
                         ? "bg-green-500"
@@ -672,35 +652,24 @@ const MentorStatusProfile = () => {
               <h3 className="text-sm font-medium text-gray-400 mb-2">
                 Areas of expertise
               </h3>
-              {/* <div className="flex flex-wrap gap-1.5">
-                {mentorData.expertiseAreas.map((area, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-gray-700 text-white-700 rounded-full text-sm"
-                  >
-                    {area}
-                  </span>
-                ))}
-              </div> */}
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Professional skills
               </h3>
-              {/* <p className="text-gray-200">{mentorData.professionalSkill}</p> */}
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Industry experience
               </h3>
-              {/* <p className="text-gray-200">{mentorData.industryExperience}</p> */}
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">Email</h3>
-              {/* <p className="text-gray-200">{mentorData?.email}</p> */}
             </div>
             <ExpandProfileSettings
               additionalSettings={additionalSettingsContent}
+              isExpanded={isExpanded}
+              onToggle={() => setIsExpanded((prev) => !prev)}
             />
             <CustomModal
               isOpen={openEducationDialog}
@@ -737,7 +706,7 @@ const MentorStatusProfile = () => {
                     ? (newCertification as MentorCertification)
                     : undefined
                 }
-                actionButtonText="Add Education"
+                actionButtonText="Add Certification"
                 isSubmitting={false}
               />
             </CustomModal>
@@ -762,16 +731,34 @@ const MentorStatusProfile = () => {
               />
             </CustomModal>
           </div>
-          <button
-            onClick={() => handleSubmitApplication()}
-            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors mt-4"
-          >
-            Submit
-          </button>
+          <div className="mt-4 flex justify-end space-x-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => handleSubmitApplication()}
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
+              >
+                Submit
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </main>
   );
 };
-
 export default MentorStatusProfile;

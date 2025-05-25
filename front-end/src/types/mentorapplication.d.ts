@@ -1,4 +1,3 @@
-import { MentorApplication } from "./approval";
 // import { CourseType } from "./course";
 import { UserArenaOfExpertise } from "./user";
 
