@@ -51,7 +51,7 @@ import { toast } from "react-toastify";
 import { handleAxiosError } from "../utils/handlerError";
 
 const defaultToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAzZWE4MjNkLWQ2MjUtNDQ4ZC05MDFkLTQxMWM1MDI4Yjc2OSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1lbnRvciIsImV4cCI6MTc0ODE2OTg1OCwiaXNzIjoibG9jYWxob3N0IiwiYXVkIjoibG9jYWxob3N0In0.Mbl3tdfdrt8EEideKoUApMNqLVMSW3jBviU13Kl2uiU";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAzZWE4MjNkLWQ2MjUtNDQ4ZC05MDFkLTQxMWM1MDI4Yjc2OSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1lbnRvciIsImV4cCI6MTc0ODE3NDU1MCwiaXNzIjoibG9jYWxob3N0IiwiYXVkIjoibG9jYWxob3N0In0._uCy5KVLfcVUsIywC26NkN8vW-z_Ert7PyF5LqtikrM";
 
 // Lưu token vào localStorage nếu chưa có
 if (!localStorage.getItem("accessToken")) {
@@ -59,7 +59,7 @@ if (!localStorage.getItem("accessToken")) {
 }
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
+  baseURL: "https://localhost:7102/api/", // import.meta.env.VITE_BACKEND_BASE_URL
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
