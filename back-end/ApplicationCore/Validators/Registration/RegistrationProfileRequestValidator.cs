@@ -1,8 +1,7 @@
 using ApplicationCore.DTOs.Requests.Registration;
 using ApplicationCore.Constants;
 using FluentValidation;
-using System.Linq;
-using Infrastructure.Entities; // Added for UserRole enum
+
 
 namespace ApplicationCore.Validators
 {

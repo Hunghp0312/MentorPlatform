@@ -7,20 +7,13 @@ using FluentValidation;
 using Utilities;
 using Infrastructure.Data;
 using ApplicationCore.Common;
-using Microsoft.AspNetCore.Http;
-using Infrastructure.Entities; // Ensure this is present for UserLearningStyle and other entities
-using Infrastructure.Entities.Enum; // Added for LearningStyle enum
-using System.Linq;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Collections.Generic; // Added for List<UserLearningStyle> initialization
+using Infrastructure.Entities;
+
 
 namespace ApplicationCore.Services
 {
     public class RegistrationService : IRegistrationService
     {
-        // private readonly IValidator<RegistrationRequest> _registrationValidator; // Removed
         private readonly IValidator<RegistrationProfileRequest> _profileValidator;
         private readonly IValidator<SetPreferenceRequest> _preferenceValidator;
         private readonly IRegistrationRepository _registrationRepository;
@@ -28,14 +21,14 @@ namespace ApplicationCore.Services
         private readonly IUnitOfWork _unitOfWork;
 
         public RegistrationService(
-            // IValidator<RegistrationRequest> registrationValidator, // Removed
+
             IValidator<RegistrationProfileRequest> profileValidator,
             IValidator<SetPreferenceRequest> preferenceValidator,
             IRegistrationRepository registrationRepository,
             IUserRepository userRepository,
             IUnitOfWork unitOfWork)
         {
-            // _registrationValidator = registrationValidator; // Removed
+
             _profileValidator = profileValidator;
             _preferenceValidator = preferenceValidator;
             _registrationRepository = registrationRepository;
@@ -43,7 +36,7 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        // Removed the first, incomplete CreateProfileAsync method
+
 
         public async Task<OperationResult<UserProfileResponse>> CreateProfileAsync(RegistrationProfileRequest request)
         {
@@ -55,7 +48,7 @@ namespace ApplicationCore.Services
 
             if (await _registrationRepository.GetByEmailAsync(request.Email) != null)
             {
-                return OperationResult<UserProfileResponse>.Conflict("Email đã tồn tại.");
+                return OperationResult<UserProfileResponse>.Conflict("Email already exists.");
             }
 
             var passwordHash = SecurityHelper.HashPassword(request.Password);
@@ -83,17 +76,14 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = request.FullName ?? string.Empty,
                 Bio = request.Bio ?? string.Empty,
-                // ProfessionalSkill = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? request.ProfessionalSkill : null,
-                // IndustryExperience = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? request.IndustryExperience : null,
-                ProfessionalSkill = request.SelectedRole == 3 ? request.ProfessionalSkill : null, // 3 is Mentor ID
-                IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : null, // 3 is Mentor ID
+                ProfessionalSkill = request.SelectedRole == 3 ? request.ProfessionalSkill : null,
+                IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : null,
                 PhotoData = photoBytes,
                 UserGoal = request.UserGoal,
                 UserProfileAvailabilities = request.Availability?.Select(id => new UserProfileAvailability { AvailabilityId = id, UserId = user.Id }).ToList() ?? new List<UserProfileAvailability>(),
                 CommunicationMethod = request.CommunicationMethods?.FirstOrDefault() ?? 0
             };
 
-            // Removed MentorExpertiseAreas assignment as the property and related entity were deleted
 
             await _registrationRepository.AddUserAsync(user);
             await _registrationRepository.AddUserProfileAsync(userProfile);
@@ -104,12 +94,9 @@ namespace ApplicationCore.Services
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = userProfile.FullName,
-                // Role = request.SelectedRole, // This would be an int ID
-                Role = user.RoleId == 3 ? "Mentor" : (user.RoleId == 2 ? "Learner" : "Unknown"), // Map RoleId to role name
+                Role = new Role { Id = user.RoleId, Name = user.RoleId == 1 ? "Admin" : user.RoleId == 2 ? "Learner" : user.RoleId == 3 ? "Mentor" : "Unknown" },
                 Bio = userProfile.Bio,
-                // PhotoUrl = ... // Generate if applicable
-                ExpertiseAreas = new List<string>(), // ExpertiseAreas are no longer stored or returned for the profile
-                ProfessionalSkills = userProfile.ProfessionalSkill,
+                ExpertiseAreas = new List<string>(),
                 IndustryExperience = userProfile.IndustryExperience,
                 Availability = userProfile.UserProfileAvailabilities?.Select(ua => ua.AvailabilityId).ToList() ?? new List<int>(), // Ensure Availability is initialized
                 CommunicationMethods = userProfile.CommunicationMethod != 0 ? new List<int> { userProfile.CommunicationMethod } : new List<int>(), // Ensure CommunicationMethods is initialized

@@ -1,6 +1,5 @@
-using Infrastructure.Entities;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic; // Added for List
+
 
 namespace ApplicationCore.DTOs.Requests.Registration
 {
@@ -12,7 +11,7 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public bool TermsAccepted { get; set; }
         public string? FullName { get; set; }
         public string? Bio { get; set; }
-        public required int SelectedRole { get; set; } // Changed to int (representing Role Id)
+        public required int SelectedRole { get; set; }
         public IFormFile? PhotoData { get; set; }
         public List<int>? ArenaOfExpertise { get; set; }
 
@@ -20,9 +19,9 @@ namespace ApplicationCore.DTOs.Requests.Registration
 
         public required string IndustryExperience { get; set; }
 
-        public List<int>? Availability { get; set; } // Changed from AvailabilityIds
+        public List<int>? Availability { get; set; }
 
-        public List<int>? CommunicationMethods { get; set; } // Changed from CommunicationMethod (int)
-        public string? UserGoal { get; set; } // Added
+        public List<int>? CommunicationMethods { get; set; }
+        public string? UserGoal { get; set; }
     }
 }

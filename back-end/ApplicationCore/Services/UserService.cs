@@ -1,101 +1,142 @@
-// filepath: d:\CSharp\Project\back-end\ApplicationCore\Services\UserService.cs
-using ApplicationCore.Common; // Added for OperationResult
+using ApplicationCore.Common;
+using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Users;
 using ApplicationCore.DTOs.Responses.Users;
+using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Infrastructure.Entities; // Required for User entity
+using Infrastructure.Data;
+using Infrastructure.Entities;
+using System.Net;
 
 namespace ApplicationCore.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        // private readonly IRoleRepository _roleRepository; // Would be needed for robust role update
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUserRepository userRepository /*, IRoleRepository roleRepository*/)
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
-            // _roleRepository = roleRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<IEnumerable<UserResponseDto>>> GetAllUsersAsync(string? roleName = null)
+        public async Task<OperationResult<PagedResult<UserResponseDto>>> GetUsersAsync(UserQueryParameters queryParameters)
         {
-            var users = await _userRepository.GetAllUsersAsync(); // Fetches users with their Roles included
+            var predicate = PredicateBuilder.True<User>();
 
-            if (!string.IsNullOrEmpty(roleName))
+            if (queryParameters.RoleId.HasValue)
             {
-                users = users.Where(u => u.Role != null && u.Role.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase));
+                predicate = predicate.And(u => u.RoleId == queryParameters.RoleId.Value);
             }
 
-            var userDtos = users.Select(u => new UserResponseDto
+            if (!string.IsNullOrEmpty(queryParameters.Status))
             {
-                Id = u.Id,
-                // Assuming UserProfile contains FullName and Avatar
-                FullName = u.UserProfile?.FullName ?? "N/A",
-                Email = u.Email,
+                if (queryParameters.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+                {
+                    predicate = predicate.And(u => u.StatusId == 2);
+                }
+                else if (queryParameters.Status.Equals("Active", StringComparison.OrdinalIgnoreCase))
+                {
+                    predicate = predicate.And(u => u.StatusId == 1);
+                }
+                else if (queryParameters.Status.Equals("Deactivated", StringComparison.OrdinalIgnoreCase))
+                {
+                    predicate = predicate.And(u => u.StatusId == 3);
+                }
+            }
 
-                Role = u.Role?.Name ?? "N/A",
-                // Status, JoinDate, LastActiveDate need to be mapped from User or UserProfile
-                // For now, setting to null or default if direct mapping is not obvious from User entity
-                Status = null, // Placeholder: Determine actual source for Status
-                JoinDate = null, // Placeholder: Determine actual source for JoinDate (e.g., u.UserProfile.CreatedAt or u.CreatedAt if it exists)
-                LastActiveDate = u.LastLogin // User.LastLogin seems to be the best fit for LastActiveDate
-            });
+            if (!string.IsNullOrEmpty(queryParameters.SearchQuery))
+            {
+                var searchQuery = queryParameters.SearchQuery.ToLower();
+                predicate = predicate.And(u =>
+                    (u.UserProfile != null && u.UserProfile.FullName != null && u.UserProfile.FullName.ToLower().Contains(searchQuery)) ||
+                    (u.Email != null && u.Email.ToLower().Contains(searchQuery))
+                );
+            }
 
+            var (users, totalCount) = await _userRepository.GetUsersWithDetailsAsync(
+                predicate,
+                queryParameters.PageIndex,
+                queryParameters.PageSize,
+                queryParameters.OrderBy
+            );
+
+            var userResponseDtos = users.Select(user => new UserResponseDto
+            {
+                Id = user.Id,
+                FullName = user.UserProfile?.FullName ?? string.Empty,
+                Email = user.Email,
+                Role = user.Role?.Name ?? string.Empty,
+                Status = user.Status?.Name ?? string.Empty,
+                JoinDate = user.CreatedAt,
+                LastActiveDate = user.LastLogin
+            }).ToList();
+
+            var pagedResult = new PagedResult<UserResponseDto>
+            {
+                Items = userResponseDtos,
+                TotalItems = totalCount,
+                PageIndex = queryParameters.PageIndex,
+                PageSize = queryParameters.PageSize
+            };
+            return OperationResult<PagedResult<UserResponseDto>>.Ok(pagedResult);
+        }
+
+        public async Task<OperationResult<IEnumerable<UserResponseDto>>> GetAllUsersAsync()
+        {
+            var users = await _userRepository.GetAllUsersAsync();
+            var userDtos = users.Select(user => new UserResponseDto
+            {
+                Id = user.Id,
+                FullName = user.UserProfile?.FullName ?? string.Empty,
+                Email = user.Email,
+                Role = user.Role?.Name ?? string.Empty,
+                Status = user.Status?.Name ?? string.Empty,
+                JoinDate = user.CreatedAt,
+                LastActiveDate = user.LastLogin
+            }).ToList();
             return OperationResult<IEnumerable<UserResponseDto>>.Ok(userDtos);
         }
 
-        public async Task<OperationResult<UserResponseDto>> UpdateUserRoleAsync(Guid userId, UpdateUserRoleRequestDto request)
+        public async Task<OperationResult<UserResponseDto>> UpdateUserRoleAsync(Guid userId, UpdateUserRoleRequestDto requestDto)
         {
-            var user = await _userRepository.GetByIdAsync(userId); // Fetches user with Role
+            var user = await _userRepository.GetUserByIdWithDetailsAsync(userId);
             if (user == null)
             {
-                return OperationResult<UserResponseDto>.Fail("User not found.");
+                return OperationResult<UserResponseDto>.NotFound($"User with ID {userId} not found.");
             }
 
-            // To properly update the role, you would typically find the Role entity by its name (request.Role)
-            // and then assign its ID to user.RoleId. This requires a RoleRepository.
-            // For now, this is a simplified approach and might not work if Role.Name is not directly settable
-            // or if EF Core doesn't track changes to user.Role.Name for updating user.RoleId.
-
-            // A more robust way (assuming you have an IRoleRepository):
-            // var targetRole = await _roleRepository.FindByNameAsync(request.Role);
-            // if (targetRole == null) {
-            // return OperationResult<UserResponseDto>.Failure($"Role '{request.Role}' not found.");
-            // }
-            // user.RoleId = targetRole.Id;
-            // user.Role = targetRole; // Optional, if EF needs the navigation property set
-
-            // Simplified: if user.Role.Name is directly mapped to a column or can trigger update of RoleId
-            if (user.Role != null && user.Role.Name != request.Role)
+            if (requestDto.RoleId <= 0)
             {
-                // This direct modification of Role.Name might not update RoleId 
-                // depending on EF Core configuration and how Role entity is managed.
-                // It's safer to update user.RoleId after fetching the new Role entity.
-                // user.Role.Name = request.Role; // This is risky
-                return OperationResult<UserResponseDto>.Fail("Role update requires changing RoleId. Direct name update not supported in this simplified version. Implement RoleRepository and update via RoleId.");
+                return OperationResult<UserResponseDto>.BadRequest("Invalid Role ID.");
             }
-            // If user.Role is null or Role.Name is already the requested role, no change or cannot change without RoleRepository
 
-            await _userRepository.UpdateUserAsync(user); // This will save changes to the User entity itself.
+            user.RoleId = requestDto.RoleId;
 
-            var userDto = new UserResponseDto
+            await _userRepository.UpdateUserAsync(user);
+            await _unitOfWork.SaveChangesAsync();
+
+            var updatedUser = await _userRepository.GetUserByIdWithDetailsAsync(userId);
+            if (updatedUser == null)
             {
-                Id = user.Id,
-                FullName = user.UserProfile?.FullName ?? "N/A",
-                Email = user.Email,
-                Role = user.Role?.Name ?? "N/A",
-                Status = null, // Placeholder
-                JoinDate = null, // Placeholder
-                LastActiveDate = user.LastLogin
+                return OperationResult<UserResponseDto>.Fail("Failed to retrieve updated user after update.", HttpStatusCode.InternalServerError);
+            }
+
+            var updatedUserDto = new UserResponseDto
+            {
+                Id = updatedUser.Id,
+                FullName = updatedUser.UserProfile?.FullName ?? string.Empty,
+                Email = updatedUser.Email,
+                Role = updatedUser.Role?.Name ?? string.Empty,
+                Status = updatedUser.Status?.Name ?? string.Empty,
+                JoinDate = updatedUser.CreatedAt,
+                LastActiveDate = updatedUser.LastLogin
             };
 
-            return OperationResult<UserResponseDto>.Ok(userDto);
+            return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
     }
 }

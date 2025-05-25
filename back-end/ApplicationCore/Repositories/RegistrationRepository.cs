@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
@@ -29,7 +28,7 @@ namespace ApplicationCore.Repositories
         public async Task<UserProfile?> GetUserProfileAsync(Guid userId)
         {
             return await _context.Set<UserProfile>()
-                                 .Include(up => up.UserTopicOfInterests) // Eager load related data
+                                 .Include(up => up.UserTopicOfInterests)
                                  .Include(up => up.TeachingApproaches)
                                  .Include(up => up.UserProfileAvailabilities)
                                  .FirstOrDefaultAsync(up => up.Id == userId);
@@ -38,7 +37,6 @@ namespace ApplicationCore.Repositories
         public async Task UpdateUserProfileAsync(UserProfile userProfile)
         {
             _context.Set<UserProfile>().Update(userProfile);
-            // No SaveChangesAsync() here, UnitOfWork will handle it.
             await Task.CompletedTask;
         }
     }

@@ -5,12 +5,12 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.Common;
+using ApplicationCore.DTOs.QueryParameters;
 
 namespace Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")] // Assuming only Admins can manage users
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
@@ -21,13 +21,25 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)] // Updated response type
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters queryParameters) // Changed parameter
+        {
+            var result = await _userService.GetUsersAsync(queryParameters); // Changed method call
+            return ToActionResult(result);
+        }
+
+        /* Optional: Keep GetAllUsers if a non-paginated version is still needed for some reason, 
+           otherwise it can be removed or refactored if GetUsersAsync covers all needs.
+        [HttpGet("all")] // Example: different route if keeping both
         [ProducesResponseType(typeof(IEnumerable<UserResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetAllUsers([FromQuery] string? role)
+        public async Task<IActionResult> GetAllUsersLegacy([FromQuery] string? role)
         {
             var result = await _userService.GetAllUsersAsync(role);
             return ToActionResult(result);
         }
+        */
 
         [HttpPut("{userId}/role")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]

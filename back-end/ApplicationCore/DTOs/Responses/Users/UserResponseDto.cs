@@ -1,4 +1,3 @@
-using System;
 
 namespace ApplicationCore.DTOs.Responses.Users
 {
@@ -9,8 +8,8 @@ namespace ApplicationCore.DTOs.Responses.Users
         public string Email { get; set; } = null!;
         public string? Avatar { get; set; }
         public string Role { get; set; } = null!;
-        public string? Status { get; set; } // Made nullable
-        public DateTime? JoinDate { get; set; } // Made nullable
+        public string? Status { get; set; }
+        public DateTime? JoinDate { get; set; }
         public DateTime? LastActiveDate { get; set; }
     }
 }

@@ -1,5 +1,3 @@
-using Infrastructure.Entities;
-using Infrastructure.Entities.Enum;
 using Microsoft.AspNetCore.Http;
 
 namespace ApplicationCore.DTOs.Requests.Registration

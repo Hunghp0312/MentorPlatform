@@ -54,16 +54,7 @@ public class AuthenticateService : IAuthenticateService
 
     public async Task<OperationResult<TokenResponse>> GitHubLoginAsync(string code)
     {
-        // Pseudocode:
-        // 1. Exchange the code for an access token from GitHub.
-        // 2. Use the access token to get user info from GitHub.
-        // 3. Check if a user with the GitHub email exists in the database.
-        // 4. If not, create a new user with the GitHub info.
-        // 5. Generate JWT access and refresh tokens.
-        // 6. Save refresh token and expiry to user, save changes.
-        // 7. Return tokens.
 
-        // 1. Exchange code for access token
         using var httpClient = new HttpClient();
         var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
         var clientId = _configuration["Github:ClientId"];

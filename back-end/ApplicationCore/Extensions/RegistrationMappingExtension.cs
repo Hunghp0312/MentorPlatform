@@ -1,4 +1,3 @@
-using ApplicationCore.Common;
 using ApplicationCore.DTOs.Requests.Registration;
 using Infrastructure.Entities;
 
@@ -6,12 +5,11 @@ namespace ApplicationCore.Extensions
 {
     public static class RegistrationMappingExtension
     {
-        // New mapping for Step 1: Profile Creation
         public static User ToUserEntity(this RegistrationProfileRequest dto, string passwordHash, int roleId)
         {
             return new User
             {
-                Id = Guid.NewGuid(), // Generate new Guid for User
+                Id = Guid.NewGuid(),
                 Email = dto.Email,
                 PasswordHash = passwordHash,
                 RoleId = roleId
@@ -22,11 +20,11 @@ namespace ApplicationCore.Extensions
         {
             var userProfile = new UserProfile
             {
-                Id = userId, // Use User's Id
+                Id = userId,
                 FullName = dto.FullName ?? string.Empty,
                 Bio = dto.Bio ?? string.Empty,
-                ProfessionalSkill = dto.ProfessionalSkill, // Always map, not just for Mentor
-                IndustryExperience = dto.IndustryExperience, // Always map, not just for Mentor
+                ProfessionalSkill = dto.ProfessionalSkill,
+                IndustryExperience = dto.IndustryExperience,
                 UserProfileAvailabilities = dto.Availability?.Select(id => new UserProfileAvailability { UserId = userId, AvailabilityId = id }).ToList() ?? new List<UserProfileAvailability>(),
                 CommunicationMethod = dto.CommunicationMethods?.FirstOrDefault() ?? 0,
                 UserGoal = dto.UserGoal,
@@ -36,7 +34,6 @@ namespace ApplicationCore.Extensions
             return userProfile;
         }
 
-        // New mapping/update logic for Step 2: Set Preferences (updates existing UserProfile)
         public static void UpdateUserProfileEntity(this UserProfile existingProfile, SetPreferenceRequest dto, User userEntity)
         {
             existingProfile.UserGoal = dto.UserGoal ?? existingProfile.UserGoal;
@@ -48,7 +45,6 @@ namespace ApplicationCore.Extensions
 
             if (dto.TopicOfInterestIds != null)
             {
-                // Ensure collection is not null
                 existingProfile.UserTopicOfInterests ??= new List<UserTopicOfInterest>();
                 existingProfile.UserTopicOfInterests.Clear();
                 foreach (var topicId in dto.TopicOfInterestIds)
@@ -57,11 +53,10 @@ namespace ApplicationCore.Extensions
                 }
             }
 
-            if (userEntity.RoleId == 2) // Learner
+            if (userEntity.RoleId == 2)
             {
                 if (dto.LearningStyleIds != null)
                 {
-                    // Ensure collection is not null
                     existingProfile.UserLearningStyles ??= new List<UserLearningStyle>();
                     existingProfile.UserLearningStyles.Clear();
                     foreach (var styleId in dto.LearningStyleIds)
@@ -70,11 +65,10 @@ namespace ApplicationCore.Extensions
                     }
                 }
             }
-            else if (userEntity.RoleId == 3) // Mentor
+            else if (userEntity.RoleId == 3)
             {
                 if (dto.TeachingApproachIds != null)
                 {
-                    // Ensure collection is not null
                     existingProfile.TeachingApproaches ??= new List<MentorTeachingApproach>();
                     existingProfile.TeachingApproaches.Clear();
                     foreach (var approachId in dto.TeachingApproachIds)

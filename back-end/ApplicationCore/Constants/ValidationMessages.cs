@@ -9,7 +9,6 @@
         public const string CategoryDescriptionRequired = "Description is required and cannot be empty.";
         public const string CategoryDescriptionMaxLength = "Description must not exceed 1000 characters.";
         public const string CategoryStatusInvalid = "Invalid category status value.";
-
         public const string CourseNameRequired = "Course name is required and cannot be empty.";
         public const string CourseNameMaxLength = "Course name must not exceed 100 characters.";
         public const string CourseDescriptionRequired = "Course description is required and cannot be empty.";
@@ -26,32 +25,25 @@
         public const string EducationDetailsRequired = "Education details are required.";
         public const string WorkExperienceDetailsRequired = "Work experience details are required.";
         public const string CertificationsRequired = "Certifications are required.";
-
-        // --- Mentor Application ---
         public const string SupportingDocumentRequired = "A supporting document is required.";
         public const string FileTooLarge = "The file size must not exceed {MaxSizeInMB} MB.";
         public const string InvalidFileType = "Invalid file type. Allowed types are: {AllowedTypes}.";
         public const string FileNameTooLong = "File name must not exceed 255 characters.";
 
-        // --- EducationDetailDto ---
         public const string InstitutionNameRequired = "Institution name is required.";
         public const string DegreeRequired = "Degree is required.";
         public const string FieldOfStudyRequired = "Field of study is required.";
         public const string GraduationYearInvalid = "Graduation year must be a valid year.";
         public const string GraduationYearRange = "{PropertyName} must be between {From} and {To}.";
 
-        // --- WorkExperienceDetailDto ---
         public const string CompanyNameRequired = "Company name is required.";
         public const string PositionRequired = "Position is required.";
         public const string StartDateRequired = "Start date is required.";
         public const string EndDateAfterStartDate = "End date must be after start date.";
 
-        // --- CertificationDetailDto ---
         public const string CertificationNameRequired = "Certification name is required.";
         public const string IssuingOrganizationRequired = "Issuing organization is required.";
         public const string CredentialUrlInvalid = "Credential URL is not a valid URL.";
-
-        // --- Registration --- 
         public const string EMAIL_REQUIRED = "Email is required.";
         public const string EMAIL_INVALID_FORMAT = "Email format is invalid.";
         public const string PASSWORD_REQUIRED = "Password is required.";
@@ -79,8 +71,6 @@
         public const string USER_GOAL_REQUIRED = "User goal is required.";
         public const string USER_GOAL_MAX_LENGTH = "User goal must not exceed 500 characters.";
         public const string ROLE_INVALID_SELECTION = "Selected role must be either Learner or Mentor.";
-
-        // --- Preferences ---
         public const string TOPIC_OF_INTEREST_REQUIRED = "Topics of interest are required.";
         public const string TOPIC_OF_INTEREST_AT_LEAST_ONE_REQUIRED = "At least one topic of interest must be selected.";
         public const string SESSION_FREQUENCY_REQUIRED = "Session frequency is required.";

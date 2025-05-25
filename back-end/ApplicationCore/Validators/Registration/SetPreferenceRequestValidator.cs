@@ -1,7 +1,7 @@
 using ApplicationCore.Constants;
 using ApplicationCore.DTOs.Requests.Registration;
 using FluentValidation;
-using System.Linq;
+
 
 namespace ApplicationCore.Validators
 {
@@ -25,14 +25,14 @@ namespace ApplicationCore.Validators
             RuleFor(x => x.SessionFrequencyId)
                 .NotEmpty().WithMessage(ValidationMessages.SESSION_FREQUENCY_REQUIRED)
                 .GreaterThan(0).WithMessage("Session frequency ID must be positive.")
-                .When(x => x.SessionFrequencyId.HasValue); // Validate only if provided
+                .When(x => x.SessionFrequencyId.HasValue);
 
             RuleFor(x => x.SessionDurationId)
                 .NotEmpty().WithMessage(ValidationMessages.SESSION_DURATION_REQUIRED)
                 .GreaterThan(0).WithMessage("Session duration ID must be positive.")
-                .When(x => x.SessionDurationId.HasValue); // Validate only if provided
+                .When(x => x.SessionDurationId.HasValue);
 
-            // Validate LearningStyleIds if provided (typically for learners)
+
             RuleFor(x => x.LearningStyleIds)
                 .NotEmpty().WithMessage(ValidationMessages.LEARNING_STYLE_AT_LEAST_ONE_REQUIRED)
                 .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.LEARNING_STYLE_AT_LEAST_ONE_REQUIRED)
@@ -42,7 +42,7 @@ namespace ApplicationCore.Validators
                 })
                 .When(x => x.LearningStyleIds != null && x.LearningStyleIds.Any());
 
-            // Validate TeachingApproachIds if provided (typically for mentors)
+
             RuleFor(x => x.TeachingApproachIds)
                 .NotEmpty().WithMessage(ValidationMessages.TEACHING_APPROACH_AT_LEAST_ONE_REQUIRED)
                 .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.TEACHING_APPROACH_AT_LEAST_ONE_REQUIRED)

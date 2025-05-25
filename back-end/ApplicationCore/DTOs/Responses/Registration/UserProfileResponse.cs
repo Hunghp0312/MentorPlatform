@@ -1,5 +1,4 @@
-using System;
-using System.Collections.Generic;
+using Infrastructure.Entities;
 
 namespace ApplicationCore.DTOs.Responses.Registration
 {
@@ -8,12 +7,12 @@ namespace ApplicationCore.DTOs.Responses.Registration
         public Guid UserId { get; set; }
         public required string Email { get; set; }
         public required string FullName { get; set; }
-        public required string Role { get; set; }
+        public required Role Role { get; set; }
         public string? Bio { get; set; }
-        public string? PhotoUrl { get; set; } // Assuming URL, adjust if byte[] or other format
-        public List<string>? ExpertiseAreas { get; set; } // For Mentor
-        public string? ProfessionalSkills { get; set; } // For Mentor
-        public string? IndustryExperience { get; set; } // For Mentor
+        public string? PhotoUrl { get; set; }
+        public List<string>? ExpertiseAreas { get; set; }
+        public string? ProfessionalSkills { get; set; }
+        public string? IndustryExperience { get; set; }
         public List<int>? Availability { get; set; }
         public List<int>? CommunicationMethods { get; set; }
         public string? UserGoals { get; set; }
