@@ -9,10 +9,6 @@ namespace ApplicationCore.Validators
     {
         public SetPreferenceRequestValidator()
         {
-            RuleFor(x => x.UserGoal)
-                .MaximumLength(500).WithMessage(ValidationMessages.USER_GOAL_MAX_LENGTH)
-                .When(x => !string.IsNullOrEmpty(x.UserGoal)); // Optional field
-
             RuleFor(x => x.TopicOfInterestIds)
                 .NotEmpty().WithMessage(ValidationMessages.TOPIC_OF_INTEREST_REQUIRED)
                 .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.TOPIC_OF_INTEREST_AT_LEAST_ONE_REQUIRED)

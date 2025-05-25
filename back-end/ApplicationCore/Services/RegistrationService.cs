@@ -68,7 +68,8 @@ namespace ApplicationCore.Services
                 Id = Guid.NewGuid(),
                 Email = request.Email,
                 PasswordHash = passwordHash,
-                RoleId = roleId
+                RoleId = roleId,
+                StatusId = 2 // Default to "Pending" status
             };
 
             var userProfile = new UserProfile
@@ -81,7 +82,9 @@ namespace ApplicationCore.Services
                 PhotoData = photoBytes,
                 UserGoal = request.UserGoal,
                 UserProfileAvailabilities = request.Availability?.Select(id => new UserProfileAvailability { AvailabilityId = id, UserId = user.Id }).ToList() ?? new List<UserProfileAvailability>(),
-                CommunicationMethod = request.CommunicationMethods?.FirstOrDefault() ?? 0
+                CommunicationMethod = request.CommunicationMethods?.FirstOrDefault() ?? 0,
+                SessionFrequencyId = request.SessionFrequencyId ?? 1, // Use provided value or default to 1
+                SessionDurationId = request.SessionDurationId ?? 1   // Use provided value or default to 1
             };
 
 

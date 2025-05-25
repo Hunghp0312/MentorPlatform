@@ -36,7 +36,6 @@ namespace ApplicationCore.Extensions
 
         public static void UpdateUserProfileEntity(this UserProfile existingProfile, SetPreferenceRequest dto, User userEntity)
         {
-            existingProfile.UserGoal = dto.UserGoal ?? existingProfile.UserGoal;
             existingProfile.SessionFrequencyId = dto.SessionFrequencyId ?? existingProfile.SessionFrequencyId;
             existingProfile.SessionDurationId = dto.SessionDurationId ?? existingProfile.SessionDurationId;
             existingProfile.PrivacyProfile = dto.PrivacyProfile;

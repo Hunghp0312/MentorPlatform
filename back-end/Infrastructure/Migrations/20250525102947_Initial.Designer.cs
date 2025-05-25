@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250523095300_Initial")]
+    [Migration("20250525102947_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -859,6 +859,41 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Enum.UserStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserStatus", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Active"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Pending"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Deactivated"
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.Property<Guid>("ApplicantId")
@@ -1134,6 +1169,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -1162,6 +1200,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
 
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -1169,78 +1210,100 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
+                    b.HasIndex("StatusId");
+
                     b.ToTable("User");
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
+                            CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.admin@gmail.com",
                             PasswordHash = "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I",
-                            RoleId = 1
+                            RoleId = 1,
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
+                            CreatedAt = new DateTime(2024, 1, 16, 11, 0, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.admin@gmail.com",
                             PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
-                            RoleId = 1
+                            RoleId = 1,
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
+                            CreatedAt = new DateTime(2024, 1, 17, 14, 20, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.admin@gmail.com",
                             PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
-                            RoleId = 1
+                            RoleId = 1,
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CreatedAt = new DateTime(2024, 2, 10, 9, 5, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.learner@gmail.com",
                             PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
-                            RoleId = 2
+                            RoleId = 2,
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
+                            CreatedAt = new DateTime(2024, 2, 12, 16, 30, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.learner@gmail.com",
                             PasswordHash = "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi",
-                            RoleId = 2
+                            RoleId = 2,
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
+                            CreatedAt = new DateTime(2024, 2, 18, 17, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.learner@gmail.com",
                             PasswordHash = "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT",
-                            RoleId = 2
+                            RoleId = 2,
+                            StatusId = 3
                         },
                         new
                         {
                             Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            CreatedAt = new DateTime(2024, 3, 1, 10, 0, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.mentor@gmail.com",
                             PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
-                            RoleId = 3
+                            RoleId = 3,
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            CreatedAt = new DateTime(2024, 3, 5, 11, 20, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.mentor@gmail.com",
                             PasswordHash = "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV",
-                            RoleId = 3
+                            RoleId = 3,
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            CreatedAt = new DateTime(2024, 3, 10, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.mentor@gmail.com",
                             PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
-                            RoleId = 3
+                            RoleId = 3,
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
+                            CreatedAt = new DateTime(2024, 3, 15, 14, 45, 0, 0, DateTimeKind.Utc),
                             Email = "dancega713@gmail.com",
                             PasswordHash = "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw",
-                            RoleId = 2
+                            RoleId = 2,
+                            StatusId = 1
                         });
                 });
 
@@ -1257,6 +1320,21 @@ namespace Infrastructure.Migrations
                     b.HasIndex("AreaOfExpertiseId");
 
                     b.ToTable("UserAreaOfExpertise");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserLearningStyle", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("LearningStyleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "LearningStyleId");
+
+                    b.HasIndex("LearningStyleId");
+
+                    b.ToTable("UserLearningStyle");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
@@ -1278,9 +1356,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("IndustryExperience")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("LearningStyleId")
-                        .HasColumnType("int");
 
                     b.Property<bool>("MessagePermission")
                         .ValueGeneratedOnAdd()
@@ -1316,6 +1391,10 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SessionDurationId");
+
+                    b.HasIndex("SessionFrequencyId");
+
                     b.ToTable("UserProfile");
                 });
 
@@ -1342,9 +1421,14 @@ namespace Infrastructure.Migrations
                     b.Property<int>("TopicId")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("UserProfileId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("UserId", "TopicId");
 
                     b.HasIndex("TopicId");
+
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("UserTopicOfInterest");
                 });
@@ -1514,7 +1598,15 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.Enum.UserStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Role");
+
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserAreaOfExpertise", b =>
@@ -1536,6 +1628,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.UserLearningStyle", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Enum.LearningStyle", "LearningStyle")
+                        .WithMany()
+                        .HasForeignKey("LearningStyleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.UserProfile", "User")
+                        .WithMany("UserLearningStyles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LearningStyle");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "User")
@@ -1543,6 +1654,22 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("Infrastructure.Entities.UserProfile", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.SessionDuration", "SessionDuration")
+                        .WithMany()
+                        .HasForeignKey("SessionDurationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.SessionFrequency", "SessionFrequency")
+                        .WithMany()
+                        .HasForeignKey("SessionFrequencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SessionDuration");
+
+                    b.Navigation("SessionFrequency");
 
                     b.Navigation("User");
                 });
@@ -1579,6 +1706,10 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.UserProfile", null)
+                        .WithMany("UserTopicOfInterests")
+                        .HasForeignKey("UserProfileId");
 
                     b.Navigation("Topic");
 
@@ -1635,7 +1766,11 @@ namespace Infrastructure.Migrations
                 {
                     b.Navigation("TeachingApproaches");
 
+                    b.Navigation("UserLearningStyles");
+
                     b.Navigation("UserProfileAvailabilities");
+
+                    b.Navigation("UserTopicOfInterests");
                 });
 #pragma warning restore 612, 618
         }

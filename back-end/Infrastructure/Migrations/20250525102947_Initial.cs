@@ -197,6 +197,19 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserStatus",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserStatus", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Category",
                 columns: table => new
                 {
@@ -228,7 +241,9 @@ namespace Infrastructure.Migrations
                     PasswordResetToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PasswordResetExpiry = table.Column<DateTime>(type: "datetime2", nullable: true),
                     RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -237,6 +252,12 @@ namespace Infrastructure.Migrations
                         name: "FK_User_Role_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Role",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_User_UserStatus_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "UserStatus",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -361,7 +382,6 @@ namespace Infrastructure.Migrations
                     UserGoal = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     SessionFrequencyId = table.Column<int>(type: "int", nullable: false),
                     SessionDurationId = table.Column<int>(type: "int", nullable: false),
-                    LearningStyleId = table.Column<int>(type: "int", nullable: false),
                     PrivacyProfile = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     MessagePermission = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     NotificationsEnabled = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
@@ -371,32 +391,20 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_UserProfile", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_UserProfile_SessionDuration_SessionDurationId",
+                        column: x => x.SessionDurationId,
+                        principalTable: "SessionDuration",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserProfile_SessionFrequency_SessionFrequencyId",
+                        column: x => x.SessionFrequencyId,
+                        principalTable: "SessionFrequency",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_UserProfile_User_Id",
                         column: x => x.Id,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserTopicOfInterest",
-                columns: table => new
-                {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TopicId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserTopicOfInterest", x => new { x.UserId, x.TopicId });
-                    table.ForeignKey(
-                        name: "FK_UserTopicOfInterest_Topic_TopicId",
-                        column: x => x.TopicId,
-                        principalTable: "Topic",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserTopicOfInterest_User_UserId",
-                        column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -554,6 +562,30 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserLearningStyle",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LearningStyleId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserLearningStyle", x => new { x.UserId, x.LearningStyleId });
+                    table.ForeignKey(
+                        name: "FK_UserLearningStyle_LearningStyle_LearningStyleId",
+                        column: x => x.LearningStyleId,
+                        principalTable: "LearningStyle",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserLearningStyle_UserProfile_UserId",
+                        column: x => x.UserId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserProfileAvailability",
                 columns: table => new
                 {
@@ -573,6 +605,36 @@ namespace Infrastructure.Migrations
                         name: "FK_UserProfileAvailability_UserProfile_UserId",
                         column: x => x.UserId,
                         principalTable: "UserProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserTopicOfInterest",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TopicId = table.Column<int>(type: "int", nullable: false),
+                    UserProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserTopicOfInterest", x => new { x.UserId, x.TopicId });
+                    table.ForeignKey(
+                        name: "FK_UserTopicOfInterest_Topic_TopicId",
+                        column: x => x.TopicId,
+                        principalTable: "Topic",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserTopicOfInterest_UserProfile_UserProfileId",
+                        column: x => x.UserProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_UserTopicOfInterest_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -724,6 +786,16 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "UserStatus",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Active" },
+                    { 2, "Pending" },
+                    { 3, "Deactivated" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Category",
                 columns: new[] { "Id", "Description", "Name", "StatusId" },
                 values: new object[,]
@@ -742,19 +814,19 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "User",
-                columns: new[] { "Id", "Email", "LastLogin", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiryTime", "RoleId" },
+                columns: new[] { "Id", "CreatedAt", "Email", "LastLogin", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiryTime", "RoleId", "StatusId" },
                 values: new object[,]
                 {
-                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "minhchau.admin@gmail.com", null, "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8", null, null, null, null, 1 },
-                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "huynguyen.mentor@gmail.com", null, "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq", null, null, null, null, 3 },
-                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), "dancega713@gmail.com", null, "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw", null, null, null, null, 2 },
-                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "huynguyen.admin@gmail.com", null, "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I", null, null, null, null, 1 },
-                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "huykhuong.admin@gmail.com", null, "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E", null, null, null, null, 1 },
-                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), "minhchau.mentor@gmail.com", null, "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr", null, null, null, null, 3 },
-                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "huykhuong.mentor@gmail.com", null, "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV", null, null, null, null, 3 },
-                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "huynguyen.learner@gmail.com", null, "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu", null, null, null, null, 2 },
-                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "huykhuong.learner@gmail.com", null, "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi", null, null, null, null, 2 },
-                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "minhchau.learner@gmail.com", null, "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT", null, null, null, null, 2 }
+                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), new DateTime(2024, 1, 17, 14, 20, 0, 0, DateTimeKind.Utc), "minhchau.admin@gmail.com", null, "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8", null, null, null, null, 1, 1 },
+                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), new DateTime(2024, 3, 1, 10, 0, 0, 0, DateTimeKind.Utc), "huynguyen.mentor@gmail.com", null, "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq", null, null, null, null, 3, 1 },
+                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), new DateTime(2024, 3, 15, 14, 45, 0, 0, DateTimeKind.Utc), "dancega713@gmail.com", null, "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw", null, null, null, null, 2, 1 },
+                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), new DateTime(2024, 1, 15, 10, 30, 0, 0, DateTimeKind.Utc), "huynguyen.admin@gmail.com", null, "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I", null, null, null, null, 1, 1 },
+                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), new DateTime(2024, 1, 16, 11, 0, 0, 0, DateTimeKind.Utc), "huykhuong.admin@gmail.com", null, "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E", null, null, null, null, 1, 1 },
+                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new DateTime(2024, 3, 10, 12, 0, 0, 0, DateTimeKind.Utc), "minhchau.mentor@gmail.com", null, "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr", null, null, null, null, 3, 1 },
+                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), new DateTime(2024, 3, 5, 11, 20, 0, 0, DateTimeKind.Utc), "huykhuong.mentor@gmail.com", null, "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV", null, null, null, null, 3, 2 },
+                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), new DateTime(2024, 2, 10, 9, 5, 0, 0, DateTimeKind.Utc), "huynguyen.learner@gmail.com", null, "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu", null, null, null, null, 2, 2 },
+                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), new DateTime(2024, 2, 12, 16, 30, 0, 0, DateTimeKind.Utc), "huykhuong.learner@gmail.com", null, "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi", null, null, null, null, 2, 1 },
+                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), new DateTime(2024, 2, 18, 17, 0, 0, 0, DateTimeKind.Utc), "minhchau.learner@gmail.com", null, "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT", null, null, null, null, 2, 3 }
                 });
 
             migrationBuilder.InsertData(
@@ -896,9 +968,29 @@ namespace Infrastructure.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_User_StatusId",
+                table: "User",
+                column: "StatusId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserAreaOfExpertise_AreaOfExpertiseId",
                 table: "UserAreaOfExpertise",
                 column: "AreaOfExpertiseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserLearningStyle_LearningStyleId",
+                table: "UserLearningStyle",
+                column: "LearningStyleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserProfile_SessionDurationId",
+                table: "UserProfile",
+                column: "SessionDurationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserProfile_SessionFrequencyId",
+                table: "UserProfile",
+                column: "SessionFrequencyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserProfileAvailability_AvailabilityId",
@@ -909,6 +1001,11 @@ namespace Infrastructure.Migrations
                 name: "IX_UserTopicOfInterest_TopicId",
                 table: "UserTopicOfInterest",
                 column: "TopicId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserTopicOfInterest_UserProfileId",
+                table: "UserTopicOfInterest",
+                column: "UserProfileId");
         }
 
         /// <inheritdoc />
@@ -916,9 +1013,6 @@ namespace Infrastructure.Migrations
         {
             migrationBuilder.DropTable(
                 name: "CommunicationMethod");
-
-            migrationBuilder.DropTable(
-                name: "LearningStyle");
 
             migrationBuilder.DropTable(
                 name: "MentorCertification");
@@ -936,16 +1030,13 @@ namespace Infrastructure.Migrations
                 name: "Resource");
 
             migrationBuilder.DropTable(
-                name: "SessionDuration");
-
-            migrationBuilder.DropTable(
-                name: "SessionFrequency");
-
-            migrationBuilder.DropTable(
                 name: "SupportingDocument");
 
             migrationBuilder.DropTable(
                 name: "UserAreaOfExpertise");
+
+            migrationBuilder.DropTable(
+                name: "UserLearningStyle");
 
             migrationBuilder.DropTable(
                 name: "UserProfileAvailability");
@@ -969,13 +1060,16 @@ namespace Infrastructure.Migrations
                 name: "AreaOfExpertise");
 
             migrationBuilder.DropTable(
+                name: "LearningStyle");
+
+            migrationBuilder.DropTable(
                 name: "Availability");
 
             migrationBuilder.DropTable(
-                name: "UserProfile");
+                name: "Topic");
 
             migrationBuilder.DropTable(
-                name: "Topic");
+                name: "UserProfile");
 
             migrationBuilder.DropTable(
                 name: "Category");
@@ -990,6 +1084,12 @@ namespace Infrastructure.Migrations
                 name: "ApplicationStatus");
 
             migrationBuilder.DropTable(
+                name: "SessionDuration");
+
+            migrationBuilder.DropTable(
+                name: "SessionFrequency");
+
+            migrationBuilder.DropTable(
                 name: "User");
 
             migrationBuilder.DropTable(
@@ -997,6 +1097,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Role");
+
+            migrationBuilder.DropTable(
+                name: "UserStatus");
         }
     }
 }
