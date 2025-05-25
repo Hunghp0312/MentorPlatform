@@ -14,6 +14,8 @@ import {
   LearningStyleOption,
   TeachingApproachOption,
 } from "../../types/userRegister.d";
+import { useNavigate } from "react-router-dom";
+import { pathName } from "../../constants/pathName";
 
 const Registration = () => {
   const [step, setStep] = useState(1);
@@ -24,6 +26,7 @@ const Registration = () => {
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+  const navigation = useNavigate()
 
   const handleAccountSubmit = (accountDetails: AccountDetails) => {
     setFormData((prev) => ({ ...prev, account: accountDetails }));
@@ -145,6 +148,7 @@ const Registration = () => {
       alert("Registration complete!");
       setFormData(createInitialData(Role.Learner));
       setStep(1);
+      navigation(pathName.home)
     } catch (error) {
       console.error("Registration submission failed:", error);
       alert("Registration failed. Please try again.");

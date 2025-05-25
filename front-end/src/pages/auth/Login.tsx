@@ -1,10 +1,11 @@
 // LoginPage.tsx
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import InputCustom from "../../components/input/InputCustom";
 import InputCheckbox from "../../components/input/InputCheckbox";
 import { FaGoogle, FaGithub, FaLinkedin } from "react-icons/fa";
 import { pathName } from "../../constants/pathName";
+import { authService } from "../../services/login.service";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -12,7 +13,8 @@ const Login: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [error, setError] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
+  const navigate = useNavigate();
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -60,10 +62,18 @@ const Login: React.FC = () => {
     if (!validate()) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
     console.log("Login attempt:", { email, password, rememberMe });
-    setTimeout(() => {
-      alert(`Login successful (simulated) for ${email}`);
-      setLoading(false);
-    }, 1500);
+
+    try {
+      const response = await authService.login({ email, password });
+
+      console.log(response);
+      localStorage.setItem("refreshToken", response.refreshToken);
+      localStorage.setItem("accessToken", response.accessToken);
+
+      navigate(pathName.home);
+    } catch {
+      console.error("Failed to get data");
+    }
   };
 
   const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
