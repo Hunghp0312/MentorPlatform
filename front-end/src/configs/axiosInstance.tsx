@@ -4,14 +4,6 @@ import { toast } from "react-toastify";
 import { handleAxiosError } from "../utils/handlerError";
 import { authService } from "../services/login.service";
 
-const defaultToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjAzZWE4MjNkLWQ2MjUtNDQ4ZC05MDFkLTQxMWM1MDI4Yjc2OSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1lbnRvciIsImV4cCI6MTc0ODE4MDExOSwiaXNzIjoibG9jYWxob3N0IiwiYXVkIjoibG9jYWxob3N0In0.Grj_lWZmBaPY9370MQR0CCmgNRQxlNrGIBRbVvGnU6k";
-
-// Lưu token vào localStorage nếu chưa có
-if (!localStorage.getItem("accessToken")) {
-  localStorage.setItem("accessToken", defaultToken);
-}
-
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
   headers: {
