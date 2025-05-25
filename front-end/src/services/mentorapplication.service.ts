@@ -90,6 +90,21 @@ export const mentorService = {
   ) {
     try {
       const formData = new FormData();
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const now = Math.floor(Date.now() / 1000);
+
+        console.log("Token exp:", payload.exp);
+        console.log("Current time:", now);
+        console.log("Is expired:", payload.exp < now);
+
+        const userId = payload.id;
+        if (userId) {
+          formData.append("UserId", userId);
+        }
+        console.log("User ID:", userId);
+      }
 
       // Append education details
       application.mentorEducations.forEach((education, index) => {
