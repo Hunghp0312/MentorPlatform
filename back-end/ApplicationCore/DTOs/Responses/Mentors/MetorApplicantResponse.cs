@@ -9,10 +9,9 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public required string FullName { get; set; }
         public required string Email { get; set; }
         public Guid ApplicantUserId { get; set; }
-        public string MotivationStatement { get; set; } = string.Empty;
         public string SubmissionDate { get; set; } = string.Empty;
         public DateTime? LastStatusUpdateDate { get; set; }
-        public string  ApproverName { get; set; } = string.Empty;
+        public string ApproverName { get; set; } = string.Empty;
         public string? AdminComments { get; set; }
         public string? RejectionReason { get; set; }
         public DateTime? ApprovalDate { get; set; }

@@ -11,7 +11,17 @@ namespace ApplicationCore.Repositories
         public MentorRepository(AppDbContext context) : base(context)
         {
         }
-
+        public override async Task<MentorApplication?> GetByIdAsync(Guid id)
+        {
+            var query = await _dbSet.Include(m => m.ApplicationStatus)
+                .Include(m => m.Applicant).ThenInclude(u => u.UserProfile)
+                .Include(m => m.SupportingDocuments)
+                .Include(m => m.MentorCertifications)
+                .Include(m => m.MentorWorkExperiences)
+                .Include(m => m.MentorEducations)
+                .SingleOrDefaultAsync(m => m.ApplicantId.Equals(id));
+            return query;
+        }
         public override async Task<(ICollection<MentorApplication>, int)> GetPagedAsync(
             Func<IQueryable<MentorApplication>, IQueryable<MentorApplication>>? filter,
             int pageIndex,
@@ -39,17 +49,6 @@ namespace ApplicationCore.Repositories
                 .ToListAsync();
 
             return (items, totalRecords);
-        }
-        public override async Task<MentorApplication?> GetByIdAsync(Guid id)
-        {
-            return await _dbSet
-                .Include(a => a.Applicant)
-                .ThenInclude(uae => uae.UserArenaOfExpertises)
-                .Include(a => a.Applicant)
-                .ThenInclude(uae => uae.UserProfile)
-                .Include(x => x.SupportingDocuments)
-                .Include(x => x.ApplicationStatus)
-                .FirstOrDefaultAsync(x => x.ApplicantId == id);
         }
     }
 
