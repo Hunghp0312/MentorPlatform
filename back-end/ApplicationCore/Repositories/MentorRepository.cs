@@ -13,15 +13,32 @@ namespace ApplicationCore.Repositories
         }
         public override async Task<MentorApplication?> GetByIdAsync(Guid id)
         {
-            var query = await _dbSet.Include(m => m.ApplicationStatus)
-                .Include(m => m.Applicant).ThenInclude(u => u.UserProfile)
-                .Include(m => m.SupportingDocuments)
+            // var query = await _dbSet.Include(m => m.ApplicationStatus)
+            //     .Include(m => m.Applicant).ThenInclude(u => u.UserProfile)
+            //     .Include(m => m.Applicant).ThenInclude(u => u.UserArenaOfExpertises).ThenInclude(uae => uae.ArenaOfExpertise)
+            //     .Include(m => m.AdminReviewer)
+            //     .Include(m => m.SupportingDocuments)
+            //     .Include(m => m.MentorCertifications)
+            //     .Include(m => m.MentorWorkExperiences)
+            //     .Include(m => m.MentorEducations)
+            //     .SingleOrDefaultAsync(m => m.ApplicantId.Equals(id));
+            // return query;
+            var query = await _dbSet.Include(a => a.Applicant)
+                .ThenInclude(uae => uae.UserArenaOfExpertises).ThenInclude(uae => uae.ArenaOfExpertise)
+                .Include(a => a.Applicant)
+                .ThenInclude(uae => uae.UserProfile)
+                .Include(x => x.AdminReviewer)
+                .Include(x => x.SupportingDocuments)
+                .Include(x => x.ApplicationStatus)
                 .Include(m => m.MentorCertifications)
                 .Include(m => m.MentorWorkExperiences)
                 .Include(m => m.MentorEducations)
-                .SingleOrDefaultAsync(m => m.ApplicantId.Equals(id));
+                .FirstOrDefaultAsync(m => m.ApplicantId.Equals(id));
             return query;
+
         }
+
+
         public override async Task<(ICollection<MentorApplication>, int)> GetPagedAsync(
             Func<IQueryable<MentorApplication>, IQueryable<MentorApplication>>? filter,
             int pageIndex,
@@ -30,11 +47,15 @@ namespace ApplicationCore.Repositories
         {
             var queryable = _dbSet
                 .Include(a => a.Applicant)
-                .ThenInclude(uae => uae.UserArenaOfExpertises)
+                .ThenInclude(uae => uae.UserArenaOfExpertises).ThenInclude(uae => uae.ArenaOfExpertise)
                 .Include(a => a.Applicant)
                 .ThenInclude(uae => uae.UserProfile)
+                .Include(x => x.AdminReviewer)
                 .Include(x => x.SupportingDocuments)
                 .Include(x => x.ApplicationStatus)
+                .Include(m => m.MentorCertifications)
+                .Include(m => m.MentorWorkExperiences)
+                .Include(m => m.MentorEducations)
                 .AsQueryable();
 
             if (filter != null)

@@ -7,15 +7,10 @@ namespace ApplicationCore.Services.ServiceInterfaces
 {
     public interface IMentorService
     {
-        Task<OperationResult<PagedResult<MetorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, string applicatioStatus);
-
+        Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus, string? searchString = null);
+        Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request);
         Task<OperationResult<MentorApplicationResponseDto>> SubmitApplicationAsync(
            SubmitMentorApplicationApiRequest apiRequest
        );
-        //Task<OperationResult<MentorApplicationResponseDto>> GetMyApplicationAsync(Guid applicantUserId);
-
-
-        Task<OperationResult<PagedResult<MetorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus,string? searchString = null);
-        Task<OperationResult<MetorApplicantResponse>> UpdateMentorApplicationStatus(Guid mentorId, int statusId, string? adminComments = null);
     }
 }

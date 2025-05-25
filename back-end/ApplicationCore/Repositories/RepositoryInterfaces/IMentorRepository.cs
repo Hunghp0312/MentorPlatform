@@ -5,5 +5,6 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
 {
     public interface IMentorRepository : IBaseRepository<MentorApplication>
     {
+        // Task<MentorApplication> GetMentorApplicationById(Guid Id);
     }
 }
