@@ -218,7 +218,7 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetToken = null;
         user.PasswordResetExpiry = null;
         await _unitOfWork.SaveChangesAsync();
-        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password change successfully"});
+        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password change successfully" });
     }
 
     public async Task<OperationResult<TokenResponse>> RetrieveAccessToken(RefreshRequest refreshTokenRequest)

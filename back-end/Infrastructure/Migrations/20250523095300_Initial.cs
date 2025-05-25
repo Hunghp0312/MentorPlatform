@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -40,6 +40,19 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Availability",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Availability", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CategoryStatus",
                 columns: table => new
                 {
@@ -50,6 +63,19 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CategoryStatus", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CommunicationMethod",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CommunicationMethod", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -93,6 +119,19 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "LearningStyle",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LearningStyle", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
                 {
@@ -103,6 +142,45 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Role", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SessionDuration",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SessionDuration", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SessionFrequency",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SessionFrequency", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TeachingApproach",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TeachingApproach", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -280,16 +358,14 @@ namespace Infrastructure.Migrations
                     Bio = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     ProfessionalSkill = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     IndustryExperience = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    AvailabilityData = table.Column<int>(type: "int", nullable: true),
                     UserGoal = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    SessionFrequency = table.Column<int>(type: "int", nullable: true),
-                    SessionDuration = table.Column<int>(type: "int", nullable: true),
-                    LearningStyle = table.Column<int>(type: "int", nullable: true),
-                    TeachingApproach = table.Column<int>(type: "int", nullable: true),
+                    SessionFrequencyId = table.Column<int>(type: "int", nullable: false),
+                    SessionDurationId = table.Column<int>(type: "int", nullable: false),
+                    LearningStyleId = table.Column<int>(type: "int", nullable: false),
                     PrivacyProfile = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     MessagePermission = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
                     NotificationsEnabled = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    CommunicationMethod = table.Column<int>(type: "int", nullable: true)
+                    CommunicationMethod = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -447,6 +523,60 @@ namespace Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "MentorTeachingApproach",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TeachingApproachId = table.Column<int>(type: "int", nullable: false),
+                    UserProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MentorTeachingApproach", x => new { x.UserId, x.TeachingApproachId });
+                    table.ForeignKey(
+                        name: "FK_MentorTeachingApproach_TeachingApproach_TeachingApproachId",
+                        column: x => x.TeachingApproachId,
+                        principalTable: "TeachingApproach",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MentorTeachingApproach_UserProfile_UserProfileId",
+                        column: x => x.UserProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_MentorTeachingApproach_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserProfileAvailability",
+                columns: table => new
+                {
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AvailabilityId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserProfileAvailability", x => new { x.UserId, x.AvailabilityId });
+                    table.ForeignKey(
+                        name: "FK_UserProfileAvailability_Availability_AvailabilityId",
+                        column: x => x.AvailabilityId,
+                        principalTable: "Availability",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_UserProfileAvailability_UserProfile_UserId",
+                        column: x => x.UserId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "ApplicationStatus",
                 columns: new[] { "Id", "Name" },
@@ -473,12 +603,34 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Availability",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Weekdays" },
+                    { 2, "Weekends" },
+                    { 3, "Mornings" },
+                    { 4, "Afternoons" },
+                    { 5, "Evenings" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "CategoryStatus",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
                     { 1, "Inactive" },
                     { 2, "Active" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "CommunicationMethod",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Video Call" },
+                    { 2, "Audio Call" },
+                    { 3, "Text Chat" }
                 });
 
             migrationBuilder.InsertData(
@@ -502,6 +654,17 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "LearningStyle",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Visual" },
+                    { 2, "Auditory" },
+                    { 3, "Reading/Writing" },
+                    { 4, "Kinesthetic" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Role",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -509,6 +672,40 @@ namespace Infrastructure.Migrations
                     { 1, "Admin" },
                     { 2, "Learner" },
                     { 3, "Mentor" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SessionDuration",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "30 minutes" },
+                    { 2, "45 minutes" },
+                    { 3, "1 hour" },
+                    { 4, "1.5 hours" },
+                    { 5, "2 hours" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SessionFrequency",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Weekly" },
+                    { 2, "Every two weeks" },
+                    { 3, "Monthly" },
+                    { 4, "As needed" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TeachingApproach",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Hands-on Practice" },
+                    { 2, "Project Based" },
+                    { 3, "Disscussion Based" },
+                    { 4, "Lecture Style" }
                 });
 
             migrationBuilder.InsertData(
@@ -584,6 +781,12 @@ namespace Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Availability_Name",
+                table: "Availability",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Category_StatusId",
                 table: "Category",
                 column: "StatusId");
@@ -631,6 +834,16 @@ namespace Infrastructure.Migrations
                 column: "MentorApplicationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_MentorTeachingApproach_TeachingApproachId",
+                table: "MentorTeachingApproach",
+                column: "TeachingApproachId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MentorTeachingApproach_UserProfileId",
+                table: "MentorTeachingApproach",
+                column: "UserProfileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_MentorWorkExperience_MentorApplicationId",
                 table: "MentorWorkExperience",
                 column: "MentorApplicationId");
@@ -660,6 +873,12 @@ namespace Infrastructure.Migrations
                 column: "MentorApplicationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TeachingApproach_Name",
+                table: "TeachingApproach",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Topic_Name",
                 table: "Topic",
                 column: "Name",
@@ -682,6 +901,11 @@ namespace Infrastructure.Migrations
                 column: "AreaOfExpertiseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserProfileAvailability_AvailabilityId",
+                table: "UserProfileAvailability",
+                column: "AvailabilityId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserTopicOfInterest_TopicId",
                 table: "UserTopicOfInterest",
                 column: "TopicId");
@@ -691,10 +915,19 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "CommunicationMethod");
+
+            migrationBuilder.DropTable(
+                name: "LearningStyle");
+
+            migrationBuilder.DropTable(
                 name: "MentorCertification");
 
             migrationBuilder.DropTable(
                 name: "MentorEducation");
+
+            migrationBuilder.DropTable(
+                name: "MentorTeachingApproach");
 
             migrationBuilder.DropTable(
                 name: "MentorWorkExperience");
@@ -703,16 +936,25 @@ namespace Infrastructure.Migrations
                 name: "Resource");
 
             migrationBuilder.DropTable(
+                name: "SessionDuration");
+
+            migrationBuilder.DropTable(
+                name: "SessionFrequency");
+
+            migrationBuilder.DropTable(
                 name: "SupportingDocument");
 
             migrationBuilder.DropTable(
                 name: "UserAreaOfExpertise");
 
             migrationBuilder.DropTable(
-                name: "UserProfile");
+                name: "UserProfileAvailability");
 
             migrationBuilder.DropTable(
                 name: "UserTopicOfInterest");
+
+            migrationBuilder.DropTable(
+                name: "TeachingApproach");
 
             migrationBuilder.DropTable(
                 name: "Course");
@@ -725,6 +967,12 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AreaOfExpertise");
+
+            migrationBuilder.DropTable(
+                name: "Availability");
+
+            migrationBuilder.DropTable(
+                name: "UserProfile");
 
             migrationBuilder.DropTable(
                 name: "Topic");
