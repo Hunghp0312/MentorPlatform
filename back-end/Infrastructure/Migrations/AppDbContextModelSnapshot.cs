@@ -22,67 +22,6 @@ namespace Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Infrastructure.Entities.ArenaOfExpertise", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("ArenaOfExpertise");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c1"),
-                            Name = "Leadership"
-                        },
-                        new
-                        {
-                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c2"),
-                            Name = "Programming"
-                        },
-                        new
-                        {
-                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c3"),
-                            Name = "Design"
-                        },
-                        new
-                        {
-                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c4"),
-                            Name = "Marketing"
-                        },
-                        new
-                        {
-                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c5"),
-                            Name = "Data Science"
-                        },
-                        new
-                        {
-                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c6"),
-                            Name = "Business"
-                        },
-                        new
-                        {
-                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c7"),
-                            Name = "Project Management"
-                        },
-                        new
-                        {
-                            Id = new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c8"),
-                            Name = "Communication"
-                        });
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -440,6 +379,117 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Enum.AreaOfExpertise", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("AreaOfExpertise");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Programming"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Design"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Marketing"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Data Science"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Business"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Project Management"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Communication"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.Availability", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Availability");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Weekdays"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Weekends"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Mornings"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Afternoons"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Evenings"
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Enum.CategoryStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -467,6 +517,41 @@ namespace Infrastructure.Migrations
                         {
                             Id = 2,
                             Name = "Active"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.CommunicationMethod", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommunicationMethod", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Video Call"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Audio Call"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Text Chat"
                         });
                 });
 
@@ -540,19 +625,246 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Enum.LearningStyle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LearningStyle", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Visual"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Auditory"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Reading/Writing"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Kinesthetic"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.SessionDuration", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SessionDuration", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "30 minutes"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "45 minutes"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "1 hour"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "1.5 hours"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "2 hours"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.SessionFrequency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SessionFrequency", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Weekly"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Every two weeks"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Monthly"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "As needed"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.TeachingApproach", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("TeachingApproach");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Hands-on Practice"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Project Based"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Disscussion Based"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Lecture Style"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.Topic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Topic");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Career Development"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Technical Skills"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Communication"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Work-Life Balance"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Industry Insights"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Networking"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Entrepreneurship"
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("ApplicantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AdminComments")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("AdminReviewerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ApplicantId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ApplicationStatusId")
@@ -569,10 +881,6 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("LastStatusUpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("MotivationStatement")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("RejectionReason")
                         .HasColumnType("nvarchar(max)");
 
@@ -583,11 +891,11 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("ApplicantId");
 
-                    b.HasIndex("AdminReviewerId");
-
-                    b.HasIndex("ApplicantId");
+                    b.HasIndex("AdminReviewerId")
+                        .IsUnique()
+                        .HasFilter("[AdminReviewerId] IS NOT NULL");
 
                     b.HasIndex("ApplicationStatusId");
 
@@ -647,6 +955,26 @@ namespace Infrastructure.Migrations
                     b.HasIndex("MentorApplicationId");
 
                     b.ToTable("MentorEducation");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorTeachingApproach", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("TeachingApproachId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("UserProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "TeachingApproachId");
+
+                    b.HasIndex("TeachingApproachId");
+
+                    b.HasIndex("UserProfileId");
+
+                    b.ToTable("MentorTeachingApproach");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
@@ -797,67 +1125,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("SupportingDocument");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Topic", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Topic");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d1"),
-                            Name = "Career Development"
-                        },
-                        new
-                        {
-                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d2"),
-                            Name = "Technical Skills"
-                        },
-                        new
-                        {
-                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d3"),
-                            Name = "Leadership"
-                        },
-                        new
-                        {
-                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d4"),
-                            Name = "Communication"
-                        },
-                        new
-                        {
-                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d5"),
-                            Name = "Work-Life Balance"
-                        },
-                        new
-                        {
-                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d6"),
-                            Name = "Industry Insights"
-                        },
-                        new
-                        {
-                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d7"),
-                            Name = "Networking"
-                        },
-                        new
-                        {
-                            Id = new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d8"),
-                            Name = "Entrepreneurship"
-                        });
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -906,63 +1173,63 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
                             Email = "huynguyen.admin@gmail.com",
-                            PasswordHash = "J24qoemyIGuKyAln3/Pi8RE91q37SzIJG73mRFp3NZdqEIACwi8kt+zwc2H83LoW",
+                            PasswordHash = "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I",
                             RoleId = 1
                         },
                         new
                         {
                             Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
                             Email = "huykhuong.admin@gmail.com",
-                            PasswordHash = "MEO5BmXN7sVmKAnTj2gETwED6W21cDTnsB2r9wir+fLFKTHRsmuDEnA134c8XS7g",
+                            PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
                             RoleId = 1
                         },
                         new
                         {
                             Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
                             Email = "minhchau.admin@gmail.com",
-                            PasswordHash = "mx31ZEfKpYBolnpQdU24oZr6J8rgcmeekox8OBXQjETbsl4JcFqFbX6VwbrRUngk",
+                            PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
                             RoleId = 1
                         },
                         new
                         {
                             Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
                             Email = "huynguyen.learner@gmail.com",
-                            PasswordHash = "V5ValFHZWsVzHsJ1/kVQNY7voa9/s82t0wCoXgKANAmUV7jIXB3fSDqPrEWXyDQE",
+                            PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
                             RoleId = 2
                         },
                         new
                         {
                             Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             Email = "huykhuong.learner@gmail.com",
-                            PasswordHash = "ij89QzFzzSDgkoM4/BxIQP/XGsF+jpIqE9jCQ54glK+RtGhTwWNA+tAgoq+VvcWP",
+                            PasswordHash = "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi",
                             RoleId = 2
                         },
                         new
                         {
                             Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
                             Email = "minhchau.learner@gmail.com",
-                            PasswordHash = "PrMl19R6c0HX1trcVn7rrzICN0cwn9dfaVqYRy5MKE2ooPNFDCkNvOi3eYFQ+t3Y",
+                            PasswordHash = "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT",
                             RoleId = 2
                         },
                         new
                         {
                             Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             Email = "huynguyen.mentor@gmail.com",
-                            PasswordHash = "S5oA4POvzUKSeBQTJCs3YrB7T6reeQXFhqLhq9FVjt8iPCwLLijsfrdYVKZDjYaU",
+                            PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
                             RoleId = 3
                         },
                         new
                         {
                             Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Email = "huykhuong.mentor@gmail.com",
-                            PasswordHash = "cfvPgZ274jQi71+hIv9qWL1GW4fl8c1krVlChe4zfN/W1GWQ+iI7hVe6acsAVs4r",
+                            PasswordHash = "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV",
                             RoleId = 3
                         },
                         new
                         {
                             Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
                             Email = "minhchau.mentor@gmail.com",
-                            PasswordHash = "JusmH4xgMpPCqpXoHUmy5gIrmPE8Tn3FnmL4oJwoo5pdSUihid8bh2A8X47pDT0p",
+                            PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
                             RoleId = 3
                         },
                         new
@@ -974,19 +1241,19 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
+            modelBuilder.Entity("Infrastructure.Entities.UserAreaOfExpertise", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ArenaOfExpertiseId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("AreaOfExpertiseId")
+                        .HasColumnType("int");
 
-                    b.HasKey("UserId", "ArenaOfExpertiseId");
+                    b.HasKey("UserId", "AreaOfExpertiseId");
 
-                    b.HasIndex("ArenaOfExpertiseId");
+                    b.HasIndex("AreaOfExpertiseId");
 
-                    b.ToTable("UserArenaOfExpertise");
+                    b.ToTable("UserAreaOfExpertise");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
@@ -994,14 +1261,11 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("AvailabilityData")
-                        .HasColumnType("int");
-
                     b.Property<string>("Bio")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("CommunicationMethod")
+                    b.Property<int>("CommunicationMethod")
                         .HasColumnType("int");
 
                     b.Property<string>("FullName")
@@ -1012,7 +1276,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("LearningStyle")
+                    b.Property<int>("LearningStyleId")
                         .HasColumnType("int");
 
                     b.Property<bool>("MessagePermission")
@@ -1037,13 +1301,10 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("SessionDuration")
+                    b.Property<int>("SessionDurationId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SessionFrequency")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TeachingApproach")
+                    b.Property<int>("SessionFrequencyId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserGoal")
@@ -1055,13 +1316,28 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserProfile");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.UserProfileAvailability", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AvailabilityId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "AvailabilityId");
+
+                    b.HasIndex("AvailabilityId");
+
+                    b.ToTable("UserProfileAvailability");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.UserTopicOfInterest", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TopicId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("TopicId")
+                        .HasColumnType("int");
 
                     b.HasKey("UserId", "TopicId");
 
@@ -1115,13 +1391,13 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
-                        .WithMany("ReviewedMentorApplications")
-                        .HasForeignKey("AdminReviewerId")
+                        .WithOne("ReviewedMentorApplication")
+                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "AdminReviewerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Infrastructure.Entities.User", "Applicant")
-                        .WithMany("SubmittedMentorApplications")
-                        .HasForeignKey("ApplicantId")
+                        .WithOne("SubmittedMentorApplication")
+                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "ApplicantId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1158,6 +1434,29 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("MentorApplication");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorTeachingApproach", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Enum.TeachingApproach", "TeachingApproach")
+                        .WithMany()
+                        .HasForeignKey("TeachingApproachId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.UserProfile", null)
+                        .WithMany("TeachingApproaches")
+                        .HasForeignKey("UserProfileId");
+
+                    b.Navigation("TeachingApproach");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
@@ -1215,11 +1514,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.UserArenaOfExpertise", b =>
+            modelBuilder.Entity("Infrastructure.Entities.UserAreaOfExpertise", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.ArenaOfExpertise", "ArenaOfExpertise")
-                        .WithMany("UserArenaOfExpertises")
-                        .HasForeignKey("ArenaOfExpertiseId")
+                    b.HasOne("Infrastructure.Entities.Enum.AreaOfExpertise", "AreaOfExpertise")
+                        .WithMany()
+                        .HasForeignKey("AreaOfExpertiseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1229,7 +1528,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("ArenaOfExpertise");
+                    b.Navigation("AreaOfExpertise");
 
                     b.Navigation("User");
                 });
@@ -1245,10 +1544,29 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.UserProfileAvailability", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Enum.Availability", "Availability")
+                        .WithMany()
+                        .HasForeignKey("AvailabilityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
+                        .WithMany("UserProfileAvailabilities")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Availability");
+
+                    b.Navigation("UserProfile");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.UserTopicOfInterest", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.Topic", "Topic")
-                        .WithMany("UserTopicOfInterests")
+                    b.HasOne("Infrastructure.Entities.Enum.Topic", "Topic")
+                        .WithMany()
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1262,11 +1580,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("Topic");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.ArenaOfExpertise", b =>
-                {
-                    b.Navigation("UserArenaOfExpertises");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
@@ -1297,24 +1610,29 @@ namespace Infrastructure.Migrations
                     b.Navigation("SupportingDocuments");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Topic", b =>
-                {
-                    b.Navigation("UserTopicOfInterests");
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
                 {
                     b.Navigation("MentoredCourses");
 
-                    b.Navigation("ReviewedMentorApplications");
+                    b.Navigation("ReviewedMentorApplication")
+                        .IsRequired();
 
-                    b.Navigation("SubmittedMentorApplications");
+                    b.Navigation("SubmittedMentorApplication")
+                        .IsRequired();
 
                     b.Navigation("UserArenaOfExpertises");
 
-                    b.Navigation("UserProfile");
+                    b.Navigation("UserProfile")
+                        .IsRequired();
 
                     b.Navigation("UserTopicOfInterests");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
+                {
+                    b.Navigation("TeachingApproaches");
+
+                    b.Navigation("UserProfileAvailabilities");
                 });
 #pragma warning restore 612, 618
         }

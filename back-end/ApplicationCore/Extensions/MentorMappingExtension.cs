@@ -19,7 +19,7 @@ namespace ApplicationCore.Extensions
                 Email = mentorApplication.Applicant?.Email ?? string.Empty,
                 ExpertiseAreas = mentorApplication.Applicant?.UserProfile?.User.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
                 {
-                    Name = x.ArenaOfExpertise.Name,
+                    Name = x.AreaOfExpertise.Name,
                 }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
                 ProfessionExperience = mentorApplication.Applicant?.UserProfile?.IndustryExperience ?? string.Empty,
                 ApplicationTimeline = mentorApplication.SubmissionDate,

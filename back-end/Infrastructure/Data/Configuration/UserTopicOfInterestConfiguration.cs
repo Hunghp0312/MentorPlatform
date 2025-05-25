@@ -14,11 +14,6 @@ namespace Infrastructure.Data.Configuration
                 .WithMany(u => u.UserTopicOfInterests)
                 .HasForeignKey(uti => uti.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasOne(uti => uti.Topic)
-                .WithMany(t => t.UserTopicOfInterests)
-                .HasForeignKey(uti => uti.TopicId)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

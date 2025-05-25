@@ -63,6 +63,7 @@ namespace Presentation.Controllers
         [HttpGet("all")]
         [ProducesResponseType(typeof(ICollection<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Learner")]
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();

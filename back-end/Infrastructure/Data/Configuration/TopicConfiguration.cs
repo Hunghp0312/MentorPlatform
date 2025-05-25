@@ -1,5 +1,5 @@
 ﻿using Infrastructure.Data.Seeding;
-using Infrastructure.Entities;
+using Infrastructure.Entities.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,6 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using ApplicationCore.Common;
+﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Authenticates;
 using ApplicationCore.DTOs.Responses.Authenticates;
@@ -9,8 +7,11 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 using Infrastructure.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Utilities;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ApplicationCore.Services;
 
@@ -33,18 +34,20 @@ public class AuthenticateService : IAuthenticateService
     public async Task<OperationResult<MessageResponse>> ForgotPasswordAsync(ForgotPasswordRequest email)
     {
         var user = await _userRepository.GetByEmailAsync(email.Email);
-        if(user == null)
+        if (user == null)
         {
             return OperationResult<MessageResponse>.BadRequest("User not found.");
         }
         var tokenResetPassword = _tokenService.GenerateRefreshToken();
         user.PasswordResetToken = tokenResetPassword;
         user.PasswordResetExpiry = DateTime.UtcNow.AddMinutes(30);
+        var encodedPasswordResetToken = Uri.EscapeDataString(user.PasswordResetToken);
+        var encodedEmail = Uri.EscapeDataString(user.Email);
         await _unitOfWork.SaveChangesAsync();
         await _sendEmailService.SendEmail(
             email.Email,
             "Reset Password",
-            $"<p>Click <a href='https://localhost:5173/reset-password?token={user.PasswordResetToken}&email={user.Email}'>here</a> to reset your password.</p>"
+            $"<p>Click <a href='https://localhost:5173/reset-password?token={encodedPasswordResetToken}&email={encodedEmail}'>here</a> to reset your password.</p>"
         );
         return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Reset password email sent." });
     }
@@ -188,7 +191,7 @@ public class AuthenticateService : IAuthenticateService
         var tokenHandler = new JwtSecurityTokenHandler();
         var loginResponse = new TokenResponse
         {
-            AccessToken = tokenHandler.WriteToken(accessToken), 
+            AccessToken = tokenHandler.WriteToken(accessToken),
             RefreshToken = refreshToken,
         };
         return OperationResult<TokenResponse>.Ok(loginResponse);
@@ -215,14 +218,14 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetToken = null;
         user.PasswordResetExpiry = null;
         await _unitOfWork.SaveChangesAsync();
-        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password change successfully"});
+        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password change successfully" });
     }
 
     public async Task<OperationResult<TokenResponse>> RetrieveAccessToken(RefreshRequest refreshTokenRequest)
     {
         var principal = _tokenService.GetPrincipalFromExpiredToken(refreshTokenRequest.AccessToken);
-        var id = principal?.FindFirst("id")?.Value; 
-        if(id == null)
+        var id = principal?.FindFirst("id")?.Value;
+        if (id == null)
         {
             return OperationResult<TokenResponse>.BadRequest("Invalid token.");
         }
