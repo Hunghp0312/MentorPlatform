@@ -1,48 +1,73 @@
-// src/types/registration.ts
-export type Role = "Learner" | "Mentor"; // Keep it strict if these are the only options
-export type CommunicationMethod = "Video Call" | "Audio Call" | "Text Chat";
-export type LearningStyle =
-  | "Visual"
-  | "Auditory"
-  | "Reading/Writing"
-  | "Kinesthetic";
-export type TeachingApproach =
-  | "Hands-on"
-  | "Theory based"
-  | "Project-Led Mentoring"
-  | "Step-by-Step Tutorials";
-export type SessionFrequency =
-  | "Weekly"
-  | "Every two weeks"
-  | "Monthly"
-  | "As needed"; // Matched your options
-export type SessionDuration = "30 minutes" | "1 hour" | "1.5 hours" | "2 hours"; // Matched your options
+export enum Role {
+  Learner = "Learner",
+  Mentor = "Mentor",
+}
+
+export enum CommunicationMethod {
+  VideoCall = "Video Call",
+  AudioCall = "Audio Call",
+  TextChat = "Text Chat",
+}
+
+export enum SessionFrequencyOption {
+  Weekly = "Weekly",
+  Biweekly = "Every two weeks",
+  Monthly = "Monthly",
+  AsNeeded = "As needed",
+}
+
+export enum SessionDurationOption {
+  HalfHour = "30 minutes",
+  OneHour = "1 hour",
+  OneAndHalfHour = "1.5 hours",
+  TwoHours = "2 hours",
+}
+
+export enum LearningStyleOption {
+  Visual = "Visual",
+  Auditory = "Auditory",
+  ReadingWriting = "Reading/Writing",
+  Kinesthetic = "Kinesthetic",
+}
+
+export enum TeachingApproachOption {
+  HandsOn = "Hands-On",
+  TheoryBased = "Theory Based",
+  ProjectLedMentoring = "Project-Led Mentoring",
+  StepByStepTutorials = "StepByStepTutorials",
+}
 
 export interface AccountDetails {
   email: string;
-  // password?: string; // Password is often handled transiently for security
+  password: string;
 }
 
-export interface ProfileDetails {
+export interface SharedProfileDetails {
   fullName: string;
-  role: Role;
   bio: string;
-  phoneNumber?: string; // Optional
-  skills: string[]; // For InputTag, this should be the final array of strings
-  industryExperience: string;
+  profilePictureUrl?: string;
+  profilePictureFile?: File | null;
   expertise: string[];
+  skills?: string[];
+  industryExperience?: string;
   availability: string[];
   preferredCommunication: CommunicationMethod;
-  profilePictureFile?: File | null;
+}
+
+export interface LearnerDetails {
+  learningStyle: LearningStyleOption[];
+}
+
+export interface MentorDetails {
+  industryExperience: string;
+  teachingApproach: TeachingApproachOption[];
 }
 
 export interface UserPreferences {
-  topicsOfInterest: string[];
-  sessionFrequency: SessionFrequency;
-  sessionDuration: SessionDuration;
-  preferredLearningStyles?: LearningStyle[]; // Multi-select, learner only
-  teachingApproaches?: TeachingApproach[]; // Multi-select, mentor only
-  learningGoals?: string; // Added from your PreferenceSetupPanel image
+  interestedTopics: string[];
+  sessionFrequency: SessionFrequencyOption;
+  sessionDuration: SessionDurationOption;
+  goal: string;
   privacySettings: {
     isProfilePrivate: boolean;
     allowMessages: boolean;
@@ -50,40 +75,73 @@ export interface UserPreferences {
   };
 }
 
-export interface UserRegistrationEntity {
+interface BaseUserRegistration {
   account: AccountDetails;
-  profile: ProfileDetails;
+  profile: SharedProfileDetails;
   preferences: UserPreferences;
 }
 
-// Initial Data for the main state
-export const initialUserRegistrationEntity: UserRegistrationEntity = {
-  account: {
-    email: "",
+export type UserRegistrationRequest =
+  | (BaseUserRegistration & {
+      role: Role.Learner;
+      learnerDetails: LearnerDetails;
+    })
+  | (BaseUserRegistration & {
+      role: Role.Mentor;
+      mentorDetails: MentorDetails;
+    });
+
+const baseAccount: AccountDetails = {
+  email: "",
+  password: "",
+};
+
+const baseProfile: SharedProfileDetails = {
+  fullName: "",
+  bio: "",
+  profilePictureFile: null,
+  expertise: [],
+  skills: [],
+  industryExperience: "",
+  availability: [],
+  preferredCommunication: CommunicationMethod.VideoCall,
+};
+
+const basePreferences: UserPreferences = {
+  interestedTopics: [],
+  sessionFrequency: SessionFrequencyOption.Weekly,
+  sessionDuration: SessionDurationOption.OneHour,
+  goal: "",
+  privacySettings: {
+    isProfilePrivate: false,
+    allowMessages: true,
+    receiveNotifications: true,
   },
-  profile: {
-    fullName: "",
-    role: "Learner",
-    bio: "",
-    phoneNumber: "",
-    skills: [],
-    industryExperience: "",
-    expertise: [],
-    availability: [],
-    preferredCommunication: "Video Call",
-    profilePictureFile: null,
-  },
-  preferences: {
-    topicsOfInterest: [],
-    sessionFrequency: "Weekly",
-    sessionDuration: "1 hour",
-    preferredLearningStyles: ["Visual"], // Default if user is Learner
-    // teachingApproaches: [], // Default empty if user is Mentor
-    learningGoals: "",
-    privacySettings: {
-      isProfilePrivate: false,
-      allowMessages: true,
-      receiveNotifications: true,
-    },
-  },
+};
+
+export const createInitialData = (role: Role): UserRegistrationRequest => {
+  const account = { ...baseAccount };
+  const profile = { ...baseProfile };
+  const preferences = { ...basePreferences };
+
+  if (role === Role.Learner) {
+    return {
+      role,
+      account,
+      profile,
+      learnerDetails: { learningStyle: [LearningStyleOption.Visual] },
+      preferences,
+    };
+  } else {
+    return {
+      role,
+      account,
+      profile,
+      mentorDetails: {
+        industryExperience: "",
+        teachingApproach: [TeachingApproachOption.HandsOn],
+      },
+      preferences,
+    };
+  }
 };

@@ -5,14 +5,33 @@ import ListCourse from "../pages/admin/ListCourse";
 import { pathName } from "../constants/pathName";
 import Registration from "../pages/auth/Registration";
 import ListApproval from "../pages/admin/ListApproval";
+import LoginPage from "../pages/auth/Login";
+import ResetPasswordPage from "../pages/auth/ResetPassword";
+import AuthLayout from "../layout/AuthLayout";
+import ForgotPasswordPage from "../pages/auth/ForgotPassword";
+import GitHubCallback from "../components/login/GithubCallback";
+import PrivateRoute from "./PrivateRoute";
 import MentorStatusProfile from "../pages/mentor/MentorStatusProfile";
 
 const AppRouter = () => {
   const routes = useRoutes([
-    { path: pathName.register, element: <Registration /> },
+    {
+      element: <AuthLayout />,
+      children: [
+        { path: pathName.register, element: <Registration /> },
+        { path: pathName.login, element: <LoginPage /> },
+        { path: pathName.resetPassword, element: <ResetPasswordPage /> },
+        { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
+      ],
+    },
+    { path: pathName.githubCallback, element: <GitHubCallback /> },
     {
       path: "/",
-      element: <Layout />,
+      element: (
+        <PrivateRoute>
+          <Layout />
+        </PrivateRoute>
+      ),
       children: [
         { path: pathName.home, element: <div>Home</div> },
         { path: pathName.category, element: <ListCategory /> },
