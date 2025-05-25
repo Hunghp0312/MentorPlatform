@@ -356,6 +356,7 @@ const ListCourse = () => {
             size="md"
             className="font-bold text-white"
             onClick={() => setIsFormOpen(true)}
+            dataTestId="add-course-button"
           >
             Add New Course
           </Button>
@@ -390,6 +391,7 @@ const ListCourse = () => {
                 })) || []
               }
               haveOptionAll
+              dataTestId="course-mentor-filter"
             />
           </div>
 
@@ -402,6 +404,7 @@ const ListCourse = () => {
               options={levelOptions}
               onChange={handleSelect}
               haveOptionAll
+              dataTestId="course-level-filter"
             />
           </div>
 
@@ -419,6 +422,7 @@ const ListCourse = () => {
                 })) || []
               }
               haveOptionAll
+              dataTestId="course-category-filter"
             />
           </div>
         </div>

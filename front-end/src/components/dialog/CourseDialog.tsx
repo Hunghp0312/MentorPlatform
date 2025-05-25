@@ -195,6 +195,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           placeholder="Select a category"
           errorMessage={errors.categoryId}
           isRequired
+          dataTestId="category-selector"
         />
       </div>
 
@@ -211,6 +212,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           }))}
           errorMessage={errors.statusId}
           isRequired
+          dataTestId="status-selector"
         ></Dropdown>
         {/* Level Field */}
         <Dropdown
@@ -224,6 +226,7 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           }))}
           errorMessage={errors.levelId}
           isRequired
+          dataTestId="level-selector"
         ></Dropdown>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -276,10 +279,16 @@ const CategoryAddDialog: React.FC<CourseDialogProps> = ({
           className="px-4 py-2 bg-gray-800 text-gray-300 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-600"
           onClick={onClose}
           disabled={isSubmitting}
+          data-testid="cancel-button"
         >
           Cancel
         </button>
-        <Button variant="primary" size="md" type="submit">
+        <Button
+          variant="primary"
+          size="md"
+          type="submit"
+          dataTestId="submit-button"
+        >
           {isSubmitting ? (
             <>
               <svg
