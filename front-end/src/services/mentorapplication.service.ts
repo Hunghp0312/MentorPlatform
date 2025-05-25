@@ -130,7 +130,29 @@ export const mentorService = {
           );
         }
       });
-
+      // application.mentorWorkExperiences.forEach((work, index) => {
+      //   formData.append(
+      //     `WorkExperienceDetails[${index}].CompanyName`,
+      //     work.companyName
+      //   );
+      //   formData.append(
+      //     `WorkExperienceDetails[${index}].Position`,
+      //     work.position
+      //   );
+      //   const startDate = new Date(work.startDate);
+      //   formData.append(
+      //     `WorkExperienceDetails[${index}].StartDate`,
+      //     startDate.toISOString().split("T")[0] // Format as "yyyy-MM-dd"
+      //   );
+      //   if (work.endDate) {
+      //     const endDate =
+      //       work.endDate === "Present" ? new Date() : new Date(work.endDate);
+      //     formData.append(
+      //       `WorkExperienceDetails[${index}].EndDate`,
+      //       endDate.toISOString().split("T")[0] // Format as "yyyy-MM-dd"
+      //     );
+      //   }
+      // });
       // Append certification details
       application.mentorCertifications.forEach((cert, index) => {
         formData.append(

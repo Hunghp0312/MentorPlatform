@@ -4,7 +4,7 @@ import { CirclePlus, CircleMinus } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import { EnumType } from "../../types/commonType";
 import InputCustom from "../../components/input/InputCustom";
-import { menterService } from "../../services/mentorapplication.service";
+import { mentorService } from "../../services/mentorapplication.service";
 import {
   MentorCertification,
   MentorEducation,
@@ -335,21 +335,73 @@ const MentorStatusProfile = () => {
       return;
     }
 
+    //   const application: MentorCreateApplication = {
+    //     mentorEducations: editedMentor.mentorEducation,
+    //     mentorWorkExperiences: editedMentor.mentorWorkExperience,
+    //     mentorCertifications: editedMentor.certifications,
+    //     menttorDocuments: editedMentor.mentorDocuments,
+    //   };
+
+    //   try {
+    //     setLoading(true);
+    //     await mentorService.submitCompleteApplication(application, selectedFile);
+    //     alert("Đã gửi đơn đăng ký thành công!");
+    //     setIsEditing(true);
+    //     setSelectedFile(null);
+    //   } catch (error) {
+    //     console.error("Error submitting application:", error);
+    //     //console.error("Error submitting mentor application:", error);
+    //     console.error("Response data:", error.response?.data); // Log the server's response
+    //     throw error;
+    //     // setError(
+    //     //   `Lỗi khi gửi đơn đăng ký: ${error.message || "Vui lòng thử lại."}`
+    //     // );
+    //     // setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
+    //   }
+    //   // } finally {
+    //   //   setLoading(false);
+    //   // }
+    // };
     const application: MentorCreateApplication = {
-      mentorEducations: editedMentor.mentorEducation,
-      mentorWorkExperiences: editedMentor.mentorWorkExperience,
-      mentorCertifications: editedMentor.certifications,
+      mentorEducations: [
+        {
+          institutionName: "Test University",
+          fieldOfStudy: "Computer Science",
+          graduationYear: 2020,
+        },
+      ],
+      mentorWorkExperiences: [
+        {
+          companyName: "Test Company",
+          position: "Software Engineer",
+          startDate: "2021-01-01T00:00:00.000Z", // Past date in ISO 8601 format
+          endDate: "2023-01-01T00:00:00.000Z", // Past date in ISO 8601 format
+        },
+      ],
+      mentorCertifications: [
+        {
+          certificationName: "AWS Certified Developer",
+          issuingOrganization: "Amazon",
+        },
+      ],
       menttorDocuments: editedMentor.mentorDocuments,
     };
 
     try {
       setLoading(true);
-      await mentorService.submitMentorApplication(application, selectedFile);
+      await mentorService.submitCompleteApplication(application, selectedFile);
       alert("Đã gửi đơn đăng ký thành công!");
-      setIsEditing(false);
+      setIsEditing(true);
       setSelectedFile(null);
-    } catch (error) {
-      setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
+    } catch (error: any) {
+      console.error(
+        "Error submitting application:",
+        error.response?.data || error.message
+      );
+      setError(
+        error.response?.data?.message ||
+          "Lỗi khi gửi đơn đăng ký. Vui lòng thử lại."
+      );
     } finally {
       setLoading(false);
     }
@@ -710,6 +762,12 @@ const MentorStatusProfile = () => {
               />
             </CustomModal>
           </div>
+          <button
+            onClick={() => handleSubmitApplication()}
+            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors mt-4"
+          >
+            Submit
+          </button>
         </div>
       </div>
     </main>
