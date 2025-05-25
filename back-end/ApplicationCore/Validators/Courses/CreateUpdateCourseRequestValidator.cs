@@ -10,11 +10,11 @@ namespace ApplicationCore.Validators.Courses
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage(ValidationMessages.CourseTitleRequired)
+                .WithMessage(ValidationMessages.CourseNameRequired)
                 .MaximumLength(100)
-                .WithMessage(ValidationMessages.CourseTitleMaxLength)
+                .WithMessage(ValidationMessages.CourseNameMaxLength)
                 .Must(name => !string.IsNullOrWhiteSpace(name))
-                .WithMessage(ValidationMessages.CourseTitleRequired);
+                .WithMessage(ValidationMessages.CourseNameRequired);
 
             RuleFor(x => x.CategoryId)
                 .NotEmpty()

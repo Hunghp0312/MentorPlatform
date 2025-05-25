@@ -1,5 +1,5 @@
-using ApplicationCore.DTOs.Requests.Registration;
 using ApplicationCore.Constants;
+using ApplicationCore.DTOs.Requests.Registration;
 using FluentValidation;
 using System.Linq;
 
@@ -7,50 +7,50 @@ namespace ApplicationCore.Validators
 {
     public class SetPreferenceRequestValidator : AbstractValidator<SetPreferenceRequest>
     {
-        // Assuming you might need to inject IUserRepository or similar to get User's Role for conditional validation.
-        // For simplicity, this example doesn't directly inject it but shows how conditional validation would work.
-        // In a real scenario, you might pass the user's role to the validator or fetch it if the validator has access to a repository.
-
-        public SetPreferenceRequestValidator() // Potentially: IUserRepository userRepository, Guid userId (if passed to validator)
+        public SetPreferenceRequestValidator()
         {
-            RuleFor(x => x.TopicOfInterestIds)
-                .NotEmpty().WithMessage(ValidationMessages.TOPIC_OF_INTEREST_REQUIRED)
-                .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.TOPIC_OF_INTEREST_REQUIRED_ALMENO_UNO);
-
-            RuleFor(x => x.SessionFrequencyId)
-                .NotNull().WithMessage(ValidationMessages.SESSION_FREQUENCY_REQUIRED);
-
-            RuleFor(x => x.SessionDurationId)
-                .NotNull().WithMessage(ValidationMessages.SESSION_DURATION_REQUIRED);
-
-            // Conditional validation for LearningStyleIds (only for Learners)
-            // This requires knowing the user's role. The DTO itself doesn't have Role.
-            // One way is to have a separate validator or pass role to this validator.
-            // For now, let's assume if LearningStyleIds is provided, it should not be empty.
-            // A more robust solution would involve checking the role from the user associated with the request.
-            RuleFor(x => x.LearningStyleIds)
-                .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.LEARNING_STYLE_REQUIRED_ALMENO_UNO)
-                .When(x => x.LearningStyleIds != null); // Only validate if provided. Role-based check would be better.
-                // .WhenAsync(async (req, context, cancellation) => { 
-                //    var user = await userRepository.GetByIdAsync(context.InstanceToValidate.UserId); // Assuming UserId is part of SetPreferenceRequest or context
-                //    return user?.RoleId == 2; // 2 for Learner
-                // });
-
-            // Conditional validation for TeachingApproachIds (only for Mentors)
-            RuleFor(x => x.TeachingApproachIds)
-                .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.TEACHING_APPROACH_REQUIRED_ALMENO_UNO)
-                .When(x => x.TeachingApproachIds != null); // Only validate if provided. Role-based check would be better.
-                // .WhenAsync(async (req, context, cancellation) => { 
-                //    var user = await userRepository.GetByIdAsync(context.InstanceToValidate.UserId); // Assuming UserId is part of SetPreferenceRequest or context
-                //    return user?.RoleId == 3; // 3 for Mentor
-                // });
-
-            // UserGoal is optional in SetPreferenceRequest, but if provided, validate its length.
             RuleFor(x => x.UserGoal)
                 .MaximumLength(500).WithMessage(ValidationMessages.USER_GOAL_MAX_LENGTH)
-                .When(x => !string.IsNullOrEmpty(x.UserGoal));
+                .When(x => !string.IsNullOrEmpty(x.UserGoal)); // Optional field
 
-            // Privacy settings usually don't need complex validation beyond being boolean.
+            RuleFor(x => x.TopicOfInterestIds)
+                .NotEmpty().WithMessage(ValidationMessages.TOPIC_OF_INTEREST_REQUIRED)
+                .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.TOPIC_OF_INTEREST_AT_LEAST_ONE_REQUIRED)
+                .ForEach(rule =>
+                {
+                    rule.Must(id => id > 0).WithMessage("Topic of interest ID must be positive.");
+                })
+                .When(x => x.TopicOfInterestIds != null && x.TopicOfInterestIds.Any()); // Validate only if provided
+
+            RuleFor(x => x.SessionFrequencyId)
+                .NotEmpty().WithMessage(ValidationMessages.SESSION_FREQUENCY_REQUIRED)
+                .GreaterThan(0).WithMessage("Session frequency ID must be positive.")
+                .When(x => x.SessionFrequencyId.HasValue); // Validate only if provided
+
+            RuleFor(x => x.SessionDurationId)
+                .NotEmpty().WithMessage(ValidationMessages.SESSION_DURATION_REQUIRED)
+                .GreaterThan(0).WithMessage("Session duration ID must be positive.")
+                .When(x => x.SessionDurationId.HasValue); // Validate only if provided
+
+            // Validate LearningStyleIds if provided (typically for learners)
+            RuleFor(x => x.LearningStyleIds)
+                .NotEmpty().WithMessage(ValidationMessages.LEARNING_STYLE_AT_LEAST_ONE_REQUIRED)
+                .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.LEARNING_STYLE_AT_LEAST_ONE_REQUIRED)
+                .ForEach(rule =>
+                {
+                    rule.Must(id => id > 0).WithMessage("Learning style ID must be positive.");
+                })
+                .When(x => x.LearningStyleIds != null && x.LearningStyleIds.Any());
+
+            // Validate TeachingApproachIds if provided (typically for mentors)
+            RuleFor(x => x.TeachingApproachIds)
+                .NotEmpty().WithMessage(ValidationMessages.TEACHING_APPROACH_AT_LEAST_ONE_REQUIRED)
+                .Must(ids => ids != null && ids.Any()).WithMessage(ValidationMessages.TEACHING_APPROACH_AT_LEAST_ONE_REQUIRED)
+                .ForEach(rule =>
+                {
+                    rule.Must(id => id > 0).WithMessage("Teaching approach ID must be positive.");
+                })
+                .When(x => x.TeachingApproachIds != null && x.TeachingApproachIds.Any());
         }
     }
 }

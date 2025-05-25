@@ -1,10 +1,6 @@
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.Requests.Registration;
 using Infrastructure.Entities;
-using System; // Added for Guid
-using System.Linq; // Added for Select, FirstOrDefault
-using System.Collections.Generic; // Added for List
-
 
 namespace ApplicationCore.Extensions
 {
@@ -31,7 +27,7 @@ namespace ApplicationCore.Extensions
                 Bio = dto.Bio ?? string.Empty,
                 ProfessionalSkill = dto.ProfessionalSkill, // Always map, not just for Mentor
                 IndustryExperience = dto.IndustryExperience, // Always map, not just for Mentor
-                UserProfileAvailabilities = dto.AvailabilityIds?.Select(id => new UserProfileAvailability { UserId = userId, AvailabilityId = id }).ToList() ?? new List<UserProfileAvailability>(),
+                UserProfileAvailabilities = dto.Availability?.Select(id => new UserProfileAvailability { UserId = userId, AvailabilityId = id }).ToList() ?? new List<UserProfileAvailability>(),
                 CommunicationMethod = dto.CommunicationMethods?.FirstOrDefault() ?? 0,
                 UserGoal = dto.UserGoal,
                 PhotoData = photoData

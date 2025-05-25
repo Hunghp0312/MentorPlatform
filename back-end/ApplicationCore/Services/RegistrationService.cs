@@ -67,7 +67,8 @@ namespace ApplicationCore.Services
                 photoBytes = ms.ToArray();
             }
 
-            int roleId = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? 3 : 2; // 3 for Mentor, 2 for Learner
+            // int roleId = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? 3 : 2; // 3 for Mentor, 2 for Learner
+            int roleId = request.SelectedRole; // SelectedRole is already the ID (2 for Learner, 3 for Mentor as per validator)
 
             var user = new User
             {
@@ -82,11 +83,13 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = request.FullName ?? string.Empty,
                 Bio = request.Bio ?? string.Empty,
-                ProfessionalSkill = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? request.ProfessionalSkill : null,
-                IndustryExperience = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? request.IndustryExperience : null,
+                // ProfessionalSkill = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? request.ProfessionalSkill : null,
+                // IndustryExperience = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? request.IndustryExperience : null,
+                ProfessionalSkill = request.SelectedRole == 3 ? request.ProfessionalSkill : null, // 3 is Mentor ID
+                IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : null, // 3 is Mentor ID
                 PhotoData = photoBytes,
                 UserGoal = request.UserGoal,
-                UserProfileAvailabilities = request.AvailabilityIds?.Select(id => new UserProfileAvailability { AvailabilityId = id, UserId = user.Id }).ToList() ?? new List<UserProfileAvailability>(),
+                UserProfileAvailabilities = request.Availability?.Select(id => new UserProfileAvailability { AvailabilityId = id, UserId = user.Id }).ToList() ?? new List<UserProfileAvailability>(),
                 CommunicationMethod = request.CommunicationMethods?.FirstOrDefault() ?? 0
             };
 
@@ -101,7 +104,8 @@ namespace ApplicationCore.Services
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = userProfile.FullName,
-                Role = request.SelectedRole, // Or map from user.RoleId to role name
+                // Role = request.SelectedRole, // This would be an int ID
+                Role = user.RoleId == 3 ? "Mentor" : (user.RoleId == 2 ? "Learner" : "Unknown"), // Map RoleId to role name
                 Bio = userProfile.Bio,
                 // PhotoUrl = ... // Generate if applicable
                 ExpertiseAreas = new List<string>(), // ExpertiseAreas are no longer stored or returned for the profile

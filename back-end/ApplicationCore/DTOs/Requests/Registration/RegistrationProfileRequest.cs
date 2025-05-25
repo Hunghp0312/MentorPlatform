@@ -12,7 +12,7 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public bool TermsAccepted { get; set; }
         public string? FullName { get; set; }
         public string? Bio { get; set; }
-        public required string SelectedRole { get; set; } // "Learner" hoặc "Mentor"
+        public required int SelectedRole { get; set; } // Changed to int (representing Role Id)
         public IFormFile? PhotoData { get; set; }
         public List<int>? ArenaOfExpertise { get; set; }
 
@@ -20,7 +20,7 @@ namespace ApplicationCore.DTOs.Requests.Registration
 
         public required string IndustryExperience { get; set; }
 
-        public List<int>? AvailabilityIds { get; set; } // Changed from AvalabilityData (List<string>)
+        public List<int>? Availability { get; set; } // Changed from AvailabilityIds
 
         public List<int>? CommunicationMethods { get; set; } // Changed from CommunicationMethod (int)
         public string? UserGoal { get; set; } // Added

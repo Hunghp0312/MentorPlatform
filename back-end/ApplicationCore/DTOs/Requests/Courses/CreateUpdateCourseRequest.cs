@@ -3,8 +3,6 @@ namespace ApplicationCore.DTOs.Requests.Courses
     public class CreateUpdateCourseRequest
     {
         public required string Name { get; set; }
-
-        public string Title { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
         public int StatusId { get; set; }
         public int LevelId { get; set; }

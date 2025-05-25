@@ -2,6 +2,7 @@ using ApplicationCore.DTOs.Requests.Registration;
 using ApplicationCore.Constants;
 using FluentValidation;
 using System.Linq;
+using Infrastructure.Entities; // Added for UserRole enum
 
 namespace ApplicationCore.Validators
 {
@@ -26,8 +27,8 @@ namespace ApplicationCore.Validators
 
             RuleFor(x => x.SelectedRole)
                 .NotEmpty().WithMessage(ValidationMessages.ROLE_REQUIRED)
-                .Must(role => role == "Learner" || role == "Mentor")
-                .WithMessage(ValidationMessages.ROLE_INVALID);
+                .Must(roleId => roleId == 2 || roleId == 3) // 2 for Learner, 3 for Mentor
+                .WithMessage(ValidationMessages.ROLE_INVALID_SELECTION); // Ensure this message exists
 
             RuleFor(x => x.FullName)
                 .NotEmpty().WithMessage(ValidationMessages.FULL_NAME_REQUIRED)
@@ -50,7 +51,7 @@ namespace ApplicationCore.Validators
 
             RuleFor(x => x.CommunicationMethods)
                 .NotEmpty().WithMessage(ValidationMessages.COMMUNICATION_METHODS_REQUIRED)
-                .Must(methods => methods != null && methods.Any()).WithMessage(ValidationMessages.COMMUNICATION_METHODS_REQUIRED_ALMENO_UNO);
+                .Must(methods => methods != null && methods.Any()).WithMessage(ValidationMessages.COMMUNICATION_METHODS_AT_LEAST_ONE_REQUIRED);
 
             RuleFor(x => x.UserGoal)
                 .NotEmpty().WithMessage(ValidationMessages.USER_GOAL_REQUIRED)
