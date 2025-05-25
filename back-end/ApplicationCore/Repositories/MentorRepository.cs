@@ -11,18 +11,9 @@ namespace ApplicationCore.Repositories
         public MentorRepository(AppDbContext context) : base(context)
         {
         }
+        
         public override async Task<MentorApplication?> GetByIdAsync(Guid id)
         {
-            // var query = await _dbSet.Include(m => m.ApplicationStatus)
-            //     .Include(m => m.Applicant).ThenInclude(u => u.UserProfile)
-            //     .Include(m => m.Applicant).ThenInclude(u => u.UserArenaOfExpertises).ThenInclude(uae => uae.ArenaOfExpertise)
-            //     .Include(m => m.AdminReviewer)
-            //     .Include(m => m.SupportingDocuments)
-            //     .Include(m => m.MentorCertifications)
-            //     .Include(m => m.MentorWorkExperiences)
-            //     .Include(m => m.MentorEducations)
-            //     .SingleOrDefaultAsync(m => m.ApplicantId.Equals(id));
-            // return query;
             var query = await _dbSet.Include(a => a.Applicant)
                 .ThenInclude(uae => uae.UserArenaOfExpertises).ThenInclude(uae => uae.ArenaOfExpertise)
                 .Include(a => a.Applicant)
@@ -38,6 +29,20 @@ namespace ApplicationCore.Repositories
 
         }
 
+
+        public async Task<MentorApplication?> GetDetailByIdAsync(Guid id)
+        {
+            var query = await _dbSet.Include(m => m.ApplicationStatus)
+                .Include(m => m.Applicant)
+                    .ThenInclude(u => u.UserProfile)
+                .Include(m => m.SupportingDocuments)
+                    .ThenInclude(s => s.DocumentContent)
+                .Include(m => m.MentorCertifications)
+                .Include(m => m.MentorWorkExperiences)
+                .Include(m => m.MentorEducations)
+                .SingleOrDefaultAsync(m => m.ApplicantId.Equals(id));
+            return query;
+        }
 
         public override async Task<(ICollection<MentorApplication>, int)> GetPagedAsync(
             Func<IQueryable<MentorApplication>, IQueryable<MentorApplication>>? filter,

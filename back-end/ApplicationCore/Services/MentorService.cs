@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.Common;
+using ApplicationCore.Constants;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Mentors;
 using ApplicationCore.DTOs.Requests.SupportingDocuments;
@@ -18,16 +19,24 @@ namespace ApplicationCore.Services
         private readonly IMentorRepository _mentorRepository;
         private readonly IDocumentContentRepository _documentContentRepository;
         private readonly ISupportingDocumentRepository _supportingDocumentRepository;
+        private readonly IMentorEducationRepository _mentorEducationRepository;
+        private readonly IMentorWorkExperienceRepository _mentorWorkExperienceRepository;
+        private readonly IMentorCertificationRepository _mentorCertificationRepository;
+
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISendEmailService _sendEmailService;
 
-        public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IDocumentContentRepository documentContentRepository, ISupportingDocumentRepository supportingDocumentRepository, ISendEmailService sendEmailService)
+        public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IDocumentContentRepository documentContentRepository, ISupportingDocumentRepository supportingDocumentRepository, IMentorEducationRepository mentorEducationRepository, IMentorWorkExperienceRepository mentorWorkExperienceRepository, IMentorCertificationRepository mentorCertificationRepository)
+
         {
             _sendEmailService = sendEmailService;
             _mentorRepository = mentorRepository;
             _unitOfWork = unitOfWork;
             _documentContentRepository = documentContentRepository;
             _supportingDocumentRepository = supportingDocumentRepository;
+            _mentorEducationRepository = mentorEducationRepository;
+            _mentorWorkExperienceRepository = mentorWorkExperienceRepository;
+            _mentorCertificationRepository = mentorCertificationRepository;
         }
 
         public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus, string? searchString = null)
@@ -73,10 +82,9 @@ namespace ApplicationCore.Services
         }
         public async Task<OperationResult<MentorApplicationResponseDto>> SubmitApplicationAsync(
           SubmitMentorApplicationApiRequest apiRequest
-         // , Guid applicantUserId
+          , Guid applicantUserId
          )
         {
-            Guid applicantUserId = Guid.Parse("5c306965-7176-4cce-b192-4a21285794f3");
             var existingApplication = await _mentorRepository.GetByIdAsync(applicantUserId);
             if (existingApplication != null)
             {
@@ -154,7 +162,7 @@ namespace ApplicationCore.Services
 
             return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
         }
-
+        
         public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request)
         {
             if (request.MentorId == Guid.Empty)
@@ -276,6 +284,135 @@ namespace ApplicationCore.Services
                 var emailRecipient = mentorApplication.Applicant.Email;
                 await _sendEmailService.SendEmail(emailRecipient, emailSubject, emailBody);
             }
+           }
+
+        public async Task<OperationResult<MentorApplicationResponseDto>> UpdateMyApplicationAsync(
+         UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId)
+        {
+            var existingApplication = await _mentorRepository.GetByIdAsync(applicantUserId);
+            if (existingApplication == null)
+            {
+                return OperationResult<MentorApplicationResponseDto>.NotFound($"No mentor application found for: ID '{applicantUserId}'.");
+            }
+
+            if (apiRequest.SupportingDocument != null)
+            {
+                int currentFileCount = existingApplication.SupportingDocuments.Count;
+                if (currentFileCount > FileUploadConstants.MaxAllowedFiles)
+                {
+                    return OperationResult<MentorApplicationResponseDto>.BadRequest(
+                        ValidationMessages.MaxFilesExceeded.Replace("{MaxFiles}", FileUploadConstants.MaxAllowedFiles.ToString())
+                    );
+                }
+            }
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                if (!existingApplication.ApplicationStatus.Name.Equals("RequestInfo"))
+                {
+                    return OperationResult<MentorApplicationResponseDto>.BadRequest($"Application in '{existingApplication.ApplicationStatus.Name}' status cannot be updated by the applicant.");
+                }
+                if (apiRequest.EducationDetails != null)
+                {
+                    _mentorEducationRepository.DeleteRange(existingApplication.MentorEducations);
+                    existingApplication.MentorEducations.Clear();
+                    var newEducations = apiRequest.EducationDetails.ToMentorEducationEntityList(existingApplication.ApplicantId);
+                    await _mentorEducationRepository.AddRangeAsync(newEducations);
+                }
+                if (apiRequest.WorkExperienceDetails != null)
+                {
+                    _mentorWorkExperienceRepository.DeleteRange(existingApplication.MentorWorkExperiences);
+                    existingApplication.MentorWorkExperiences.Clear();
+                    var newWorkExperiences = apiRequest.WorkExperienceDetails.ToMentorWorkExperienceEntityList(applicantUserId);
+                    await _mentorWorkExperienceRepository.AddRangeAsync(newWorkExperiences);
+                }
+
+                if (apiRequest.Certifications != null)
+                {
+                    _mentorCertificationRepository.DeleteRange(existingApplication.MentorCertifications);
+                    existingApplication.MentorCertifications.Clear();
+                    var newMentorCertifications = apiRequest.Certifications.ToMentorCertificationEntityList(applicantUserId);
+                    await _mentorCertificationRepository.AddRangeAsync(newMentorCertifications);
+                }
+
+                if (apiRequest.SupportingDocument != null && apiRequest.SupportingDocument.Length > 0)
+                {
+                    var formFile = apiRequest.SupportingDocument;
+                    var memoryStream = new MemoryStream();
+                    await formFile.CopyToAsync(memoryStream);
+                    memoryStream.Position = 0;
+                    var processedFileDetail = new UploadedFileDetail
+                    {
+                        FileName = formFile.FileName,
+                        ContentType = formFile.ContentType,
+                        Length = formFile.Length,
+                        ContentStream = memoryStream
+                    };
+                    byte[] fileBytes;
+                    using (var memoryStreamToRead = new MemoryStream())
+                    {
+                        await processedFileDetail.ContentStream.CopyToAsync(memoryStreamToRead);
+                        fileBytes = memoryStreamToRead.ToArray();
+                    }
+                    await processedFileDetail.ContentStream.DisposeAsync();
+
+                    var documentContentEntity = new DocumentContent
+                    {
+                        Id = Guid.NewGuid(),
+                        FileContent = fileBytes,
+                        FileName = processedFileDetail.FileName,
+                        FileType = processedFileDetail.ContentType
+                    };
+                    await _documentContentRepository.AddAsync(documentContentEntity);
+
+                    var newSupportingDocument = new SupportingDocument
+                    {
+                        Id = Guid.NewGuid(),
+                        MentorApplicationId = existingApplication.ApplicantId,
+                        FileName = processedFileDetail.FileName,
+                        FileType = processedFileDetail.ContentType,
+                        FileSize = processedFileDetail.Length,
+                        UploadedAt = DateTime.UtcNow,
+                        DocumentContentId = documentContentEntity.Id
+                    };
+                    await _supportingDocumentRepository.AddAsync(newSupportingDocument);
+                }
+                existingApplication.LastStatusUpdateDate = DateTime.UtcNow;
+                existingApplication.UpdatedAt = DateTime.UtcNow;
+                existingApplication.ApplicationStatusId = 1;
+                existingApplication.SubmissionDate += $", {DateTime.UtcNow}";
+
+                _mentorRepository.Update(existingApplication);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+            }
+            catch (Exception e)
+            {
+                await _unitOfWork.RollbackAsync();
+
+                return OperationResult<MentorApplicationResponseDto>.Fail($"An unexpected error occurred: {e.Message}");
+            }
+
+            var updatedMentorApplication = await _mentorRepository.GetByIdAsync(existingApplication.ApplicantId); MentorApplicationResponseDto responseDto = null!;
+            if (updatedMentorApplication != null)
+            {
+                responseDto = updatedMentorApplication.ToMentorApplicationResponseDto(updatedMentorApplication.Applicant, updatedMentorApplication.ApplicationStatus);
+            }
+
+            return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
+        }
+
+        public async Task<OperationResult<MentorApplicationDetailResponse>> GetMyApplicationDetailAsync(Guid applicantUserId)
+        {
+            var mentorApplicationEntity = await _mentorRepository.GetDetailByIdAsync(applicantUserId);
+            if (mentorApplicationEntity == null)
+            {
+                return OperationResult<MentorApplicationDetailResponse>.NotFound($"No mentor application found for user ID '{applicantUserId}'.");
+            }
+            var responseDto = mentorApplicationEntity.ToMentorApplicationDetailResponse();
+
+            return OperationResult<MentorApplicationDetailResponse>.Ok(responseDto);
+
         }
     }
 }

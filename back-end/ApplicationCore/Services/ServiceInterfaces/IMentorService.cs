@@ -10,7 +10,12 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus, string? searchString = null);
         Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request);
         Task<OperationResult<MentorApplicationResponseDto>> SubmitApplicationAsync(
-           SubmitMentorApplicationApiRequest apiRequest
+           SubmitMentorApplicationApiRequest apiRequest, Guid applicantUserId
        );
+        Task<OperationResult<MentorApplicationDetailResponse>> GetMyApplicationDetailAsync(Guid applicantUserId);
+
+        Task<OperationResult<MentorApplicationResponseDto>> UpdateMyApplicationAsync(
+          UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId
+      );
     }
 }

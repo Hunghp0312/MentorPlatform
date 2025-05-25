@@ -1,4 +1,5 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Data.Seeding;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -29,6 +30,8 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(u => u.RefreshToken).IsRequired(false);
             builder.Property(u => u.RefreshTokenExpiryTime).IsRequired(false);
+
+            builder.HasData(UserSeeding.SeedUsers());
         }
     }
 

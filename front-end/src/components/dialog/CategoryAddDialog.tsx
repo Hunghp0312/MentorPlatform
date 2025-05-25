@@ -129,6 +129,7 @@ const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({
           className="font-bold text-white"
           onClick={onClose}
           disabled={isSubmitting}
+          dataTestId="cancel-button"
         >
           Cancel
         </Button>
@@ -137,6 +138,7 @@ const CategoryAddDialog: React.FC<CategoryAddDialogProps> = ({
           size="md"
           type="submit"
           disabled={isSubmitting}
+          dataTestId="submit-button"
         >
           {isSubmitting ? (
             <>

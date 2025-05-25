@@ -1,13 +1,13 @@
 ﻿using Infrastructure.Data.Seeding;
-using Infrastructure.Entities;
+using Infrastructure.Entities.Enum;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configuration
 {
-    public class ArenaOfExpertiseConfiguration : IEntityTypeConfiguration<ArenaOfExpertise>
+    public class AreaOfExpertiseConfiguration : IEntityTypeConfiguration<AreaOfExpertise>
     {
-        public void Configure(EntityTypeBuilder<ArenaOfExpertise> builder)
+        public void Configure(EntityTypeBuilder<AreaOfExpertise> builder)
         {
             builder.HasKey(a => a.Id);
             builder.Property(a => a.Name)
@@ -15,7 +15,7 @@ namespace Infrastructure.Data.Configuration
                 .HasMaxLength(200);
             builder.HasIndex(a => a.Name).IsUnique();
 
-            builder.HasData(ArenaOfExpertiseSeeding.SeedArenasOfExpertise());
+            builder.HasData(AreaOfExpertiseSeeding.SeedArenasOfExpertise());
         }
     }
 }

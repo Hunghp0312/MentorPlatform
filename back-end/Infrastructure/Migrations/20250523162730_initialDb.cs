@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class ChangeNullableEntity : Migration
+    public partial class initialDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,15 +27,16 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ArenaOfExpertise",
+                name: "AreaOfExpertise",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArenaOfExpertise", x => x.Id);
+                    table.PrimaryKey("PK_AreaOfExpertise", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -108,7 +109,8 @@ namespace Infrastructure.Migrations
                 name: "Topic",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
@@ -212,7 +214,6 @@ namespace Infrastructure.Migrations
                 {
                     ApplicantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ApplicationStatusId = table.Column<int>(type: "int", nullable: false),
-                    MotivationStatement = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SubmissionDate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastStatusUpdateDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     AdminReviewerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -246,23 +247,23 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserArenaOfExpertise",
+                name: "UserAreaOfExpertise",
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ArenaOfExpertiseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    AreaOfExpertiseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserArenaOfExpertise", x => new { x.UserId, x.ArenaOfExpertiseId });
+                    table.PrimaryKey("PK_UserAreaOfExpertise", x => new { x.UserId, x.AreaOfExpertiseId });
                     table.ForeignKey(
-                        name: "FK_UserArenaOfExpertise_ArenaOfExpertise_ArenaOfExpertiseId",
-                        column: x => x.ArenaOfExpertiseId,
-                        principalTable: "ArenaOfExpertise",
+                        name: "FK_UserAreaOfExpertise_AreaOfExpertise_AreaOfExpertiseId",
+                        column: x => x.AreaOfExpertiseId,
+                        principalTable: "AreaOfExpertise",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserArenaOfExpertise_User_UserId",
+                        name: "FK_UserAreaOfExpertise_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -306,7 +307,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TopicId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    TopicId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -427,7 +428,7 @@ namespace Infrastructure.Migrations
                     FileType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
                     UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
-                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -457,18 +458,18 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "ArenaOfExpertise",
+                table: "AreaOfExpertise",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c1"), "Leadership" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c2"), "Programming" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c3"), "Design" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c4"), "Marketing" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c5"), "Data Science" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c6"), "Business" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c7"), "Project Management" },
-                    { new Guid("e0a0b0c0-d0e0-f0a0-b0c0-d0e0f0a0b0c8"), "Communication" }
+                    { 1, "Leadership" },
+                    { 2, "Programming" },
+                    { 3, "Design" },
+                    { 4, "Marketing" },
+                    { 5, "Data Science" },
+                    { 6, "Business" },
+                    { 7, "Project Management" },
+                    { 8, "Communication" }
                 });
 
             migrationBuilder.InsertData(
@@ -515,14 +516,14 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d1"), "Career Development" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d2"), "Technical Skills" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d3"), "Leadership" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d4"), "Communication" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d5"), "Work-Life Balance" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d6"), "Industry Insights" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d7"), "Networking" },
-                    { new Guid("f0b1c2d3-e4f5-a6b7-c8d9-e0f1a2b3c4d8"), "Entrepreneurship" }
+                    { 1, "Career Development" },
+                    { 2, "Technical Skills" },
+                    { 3, "Leadership" },
+                    { 4, "Communication" },
+                    { 5, "Work-Life Balance" },
+                    { 6, "Industry Insights" },
+                    { 7, "Networking" },
+                    { 8, "Entrepreneurship" }
                 });
 
             migrationBuilder.InsertData(
@@ -530,16 +531,33 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "Description", "Name", "StatusId" },
                 values: new object[,]
                 {
-                    { new Guid("11111111-1111-1111-1111-111111111111"), "Learn backend technologies and server-side programming.", "Backend", 1 },
-                    { new Guid("22222222-2222-2222-2222-222222222222"), "Build apps for iOS and Android platforms.", "Mobile Development", 1 },
-                    { new Guid("33333333-3333-3333-3333-333333333333"), "Explore AWS, Azure, GCP and cloud infrastructure.", "Cloud Computing", 1 },
-                    { new Guid("44444444-4444-4444-4444-444444444444"), "Understand security principles and ethical hacking.", "Cybersecurity", 1 },
-                    { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Courses related to software development and programming languages.", "Programming", 1 },
-                    { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), "Frontend and backend development tutorials and courses.", "Web Development", 1 },
-                    { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), "Learn data analysis, visualization, and machine learning.", "Data Science", 1 },
-                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), "Courses on CI/CD, containers, and infrastructure automation.", "DevOps", 1 },
-                    { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), "Introduction to relational and non-relational databases.", "Databases", 1 },
-                    { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), "Courses on HTML, CSS, JavaScript and modern frameworks.", "Frontend", 1 }
+                    { new Guid("11111111-1111-1111-1111-111111111111"), "Learn backend technologies and server-side programming.", "Backend", 2 },
+                    { new Guid("22222222-2222-2222-2222-222222222222"), "Build apps for iOS and Android platforms.", "Mobile Development", 2 },
+                    { new Guid("33333333-3333-3333-3333-333333333333"), "Explore AWS, Azure, GCP and cloud infrastructure.", "Cloud Computing", 2 },
+                    { new Guid("44444444-4444-4444-4444-444444444444"), "Understand security principles and ethical hacking.", "Cybersecurity", 2 },
+                    { new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Courses related to software development and programming languages.", "Programming", 2 },
+                    { new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), "Frontend and backend development tutorials and courses.", "Web Development", 2 },
+                    { new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), "Learn data analysis, visualization, and machine learning.", "Data Science", 2 },
+                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), "Courses on CI/CD, containers, and infrastructure automation.", "DevOps", 2 },
+                    { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), "Introduction to relational and non-relational databases.", "Databases", 2 },
+                    { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), "Courses on HTML, CSS, JavaScript and modern frameworks.", "Frontend", 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "User",
+                columns: new[] { "Id", "Email", "LastLogin", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiryTime", "RoleId" },
+                values: new object[,]
+                {
+                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "minhchau.admin@gmail.com", null, "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8", null, null, null, null, 1 },
+                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "huynguyen.mentor@gmail.com", null, "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq", null, null, null, null, 3 },
+                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), "dancega713@gmail.com", null, "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw", null, null, null, null, 2 },
+                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "huynguyen.admin@gmail.com", null, "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I", null, null, null, null, 1 },
+                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "huykhuong.admin@gmail.com", null, "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E", null, null, null, null, 1 },
+                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), "minhchau.mentor@gmail.com", null, "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr", null, null, null, null, 3 },
+                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "huykhuong.mentor@gmail.com", null, "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV", null, null, null, null, 3 },
+                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "huynguyen.learner@gmail.com", null, "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu", null, null, null, null, 2 },
+                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "huykhuong.learner@gmail.com", null, "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi", null, null, null, null, 2 },
+                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "minhchau.learner@gmail.com", null, "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT", null, null, null, null, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -560,8 +578,8 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ArenaOfExpertise_Name",
-                table: "ArenaOfExpertise",
+                name: "IX_AreaOfExpertise_Name",
+                table: "AreaOfExpertise",
                 column: "Name",
                 unique: true);
 
@@ -633,8 +651,7 @@ namespace Infrastructure.Migrations
                 name: "IX_SupportingDocument_DocumentContentId",
                 table: "SupportingDocument",
                 column: "DocumentContentId",
-                unique: true,
-                filter: "[DocumentContentId] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SupportingDocument_MentorApplicationId",
@@ -659,9 +676,9 @@ namespace Infrastructure.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserArenaOfExpertise_ArenaOfExpertiseId",
-                table: "UserArenaOfExpertise",
-                column: "ArenaOfExpertiseId");
+                name: "IX_UserAreaOfExpertise_AreaOfExpertiseId",
+                table: "UserAreaOfExpertise",
+                column: "AreaOfExpertiseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTopicOfInterest_TopicId",
@@ -688,7 +705,7 @@ namespace Infrastructure.Migrations
                 name: "SupportingDocument");
 
             migrationBuilder.DropTable(
-                name: "UserArenaOfExpertise");
+                name: "UserAreaOfExpertise");
 
             migrationBuilder.DropTable(
                 name: "UserProfile");
@@ -706,7 +723,7 @@ namespace Infrastructure.Migrations
                 name: "MentorApplication");
 
             migrationBuilder.DropTable(
-                name: "ArenaOfExpertise");
+                name: "AreaOfExpertise");
 
             migrationBuilder.DropTable(
                 name: "Topic");

@@ -18,9 +18,11 @@ type ComboBoxProps = {
   label?: string;
   isRequired?: boolean;
   haveOptionAll?: boolean;
+  dataTestId?: string;
 };
 
 const ComboBox: React.FC<ComboBoxProps> = ({
+  dataTestId,
   options,
   value,
   onChange,
@@ -183,7 +185,7 @@ const ComboBox: React.FC<ComboBoxProps> = ({
     <div className="relative" ref={wrapperRef}>
       {label && (
         <label
-          htmlFor={name}
+          htmlFor={dataTestId}
           className="text-base font-medium text-gray-300 block mb-2"
         >
           {label} {isRequired && <span className="text-red-500">*</span>}
@@ -191,6 +193,7 @@ const ComboBox: React.FC<ComboBoxProps> = ({
       )}
       <div className="relative">
         <input
+          id={dataTestId}
           ref={inputRef}
           type="text"
           name={name}
