@@ -36,6 +36,11 @@ namespace Infrastructure.Data
             return await _context.SaveChangesAsync();
         }
 
+        public int SaveChanges()
+        {
+            return _context.SaveChanges();
+        }
+
         public void Dispose()
         {
             _context.Dispose();
