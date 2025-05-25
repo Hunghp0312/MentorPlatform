@@ -7,9 +7,9 @@ namespace ApplicationCore.Extensions
 {
     public static class MentorMappingExtension
     {
-        public static MetorApplicantResponse ToMetorApplicantResponse(this MentorApplication mentorApplication)
+        public static MentorApplicantResponse ToMetorApplicantResponse(this MentorApplication mentorApplication)
         {
-            return new MetorApplicantResponse
+            return new MentorApplicantResponse
             {
                 ApplicantUserId = mentorApplication.ApplicantId,
                 PhotoData = mentorApplication.Applicant?.UserProfile?.PhotoData != null
@@ -39,7 +39,7 @@ namespace ApplicationCore.Extensions
                 Status = mentorApplication.ApplicationStatus.Name,
             };
         }
-        public static List<MetorApplicantResponse> ToMetorApplicantResponseList(this ICollection<MentorApplication> mentorApplications)
+        public static List<MentorApplicantResponse> ToMetorApplicantResponseList(this ICollection<MentorApplication> mentorApplications)
         {
             return mentorApplications.Select(x => x.ToMetorApplicantResponse()).ToList();
         }

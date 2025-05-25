@@ -3,7 +3,7 @@ using ApplicationCore.DTOs.Responses.SupportingDocuments;
 
 namespace ApplicationCore.DTOs.Responses.Mentors
 {
-    public class MetorApplicantResponse
+    public class MentorApplicantResponse
     {
         public required string PhotoData { get; set; }
         public required string FullName { get; set; }

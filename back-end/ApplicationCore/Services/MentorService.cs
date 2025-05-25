@@ -9,6 +9,8 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using Infrastructure.Services;
+using System.Text;
 
 namespace ApplicationCore.Services
 {
@@ -22,9 +24,12 @@ namespace ApplicationCore.Services
         private readonly IMentorCertificationRepository _mentorCertificationRepository;
 
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ISendEmailService _sendEmailService;
 
         public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IDocumentContentRepository documentContentRepository, ISupportingDocumentRepository supportingDocumentRepository, IMentorEducationRepository mentorEducationRepository, IMentorWorkExperienceRepository mentorWorkExperienceRepository, IMentorCertificationRepository mentorCertificationRepository)
+
         {
+            _sendEmailService = sendEmailService;
             _mentorRepository = mentorRepository;
             _unitOfWork = unitOfWork;
             _documentContentRepository = documentContentRepository;
@@ -34,14 +39,38 @@ namespace ApplicationCore.Services
             _mentorCertificationRepository = mentorCertificationRepository;
         }
 
-        public async Task<OperationResult<PagedResult<MetorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, string applicatioStatus)
+        public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus, string? searchString = null)
         {
+            var filter = (IQueryable<MentorApplication> query) =>
+            {
+                if (applicatioStatus != 0)
+                {
+                    query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicatioStatus);
+                }
+
+                if (!string.IsNullOrEmpty(searchString))
+                {
+                    query = query.Where(x =>
+                        (x.Applicant != null &&
+                        x.Applicant.UserProfile != null &&
+                        !string.IsNullOrEmpty(x.Applicant.UserProfile.FullName) &&
+                        x.Applicant.UserProfile.FullName.Contains(searchString)) ||
+                        (x.Applicant != null &&
+                        !string.IsNullOrEmpty(x.Applicant.Email) &&
+                        x.Applicant.Email.Contains(searchString))
+                    );
+                }
+
+                return query.OrderByDescending(x => x.CreatedAt);
+            };
+
             var (mentors, totalCount) = await _mentorRepository.GetPagedAsync(
-                filter: query => query.Where(x => x.ApplicationStatus.Name == applicatioStatus),
+                filter: filter,
                 pageIndex: paginationParameters.PageIndex,
                 pageSize: paginationParameters.PageSize
             );
-            var pagedResult = new PagedResult<MetorApplicantResponse>
+
+            var pagedResult = new PagedResult<MentorApplicantResponse>
             {
                 TotalItems = totalCount,
                 PageIndex = paginationParameters.PageIndex,
@@ -49,8 +78,7 @@ namespace ApplicationCore.Services
                 Items = mentors.ToMetorApplicantResponseList()
             };
 
-
-            return OperationResult<PagedResult<MetorApplicantResponse>>.Ok(pagedResult);
+            return OperationResult<PagedResult<MentorApplicantResponse>>.Ok(pagedResult);
         }
         public async Task<OperationResult<MentorApplicationResponseDto>> SubmitApplicationAsync(
           SubmitMentorApplicationApiRequest apiRequest
@@ -134,7 +162,129 @@ namespace ApplicationCore.Services
 
             return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
         }
+        
+        public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request)
+        {
+            if (request.MentorId == Guid.Empty)
+            {
+                return OperationResult<MentorApplicantResponse>.BadRequest("Mentor ID cannot be empty");
+            }
 
+            var mentorApplication = await _mentorRepository.GetByIdAsync(request.MentorId);
+            if (mentorApplication == null)
+            {
+                return OperationResult<MentorApplicantResponse>.NotFound("Mentor application not found");
+            }
+
+            var validationResult = ValidateStatusChange(mentorApplication, request);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            UpdateMentorApplicationStatusFields(mentorApplication, request);
+
+            _mentorRepository.Update(mentorApplication);
+            await _unitOfWork.SaveChangesAsync();
+
+            mentorApplication = await _mentorRepository.GetByIdAsync(request.MentorId);
+            if (mentorApplication == null)
+            {
+                return OperationResult<MentorApplicantResponse>.NotFound("Mentor application not found after update");
+            }
+            await SendStatusUpdateEmailIfNeeded(mentorApplication, request);
+            
+
+            var result = mentorApplication.ToMetorApplicantResponse();
+
+            return OperationResult<MentorApplicantResponse>.Ok(result);
+        }
+
+        private static OperationResult<MentorApplicantResponse>? ValidateStatusChange(MentorApplication mentorApplication, MentorUpdateStatusRequest request)
+        {
+            if (mentorApplication.ApplicationStatusId == request.StatusId)
+            {
+                return OperationResult<MentorApplicantResponse>.BadRequest("The application is already in the requested status.");
+            }
+            if (mentorApplication.ApplicationStatusId == 2 || mentorApplication.ApplicationStatusId == 3)
+            {
+                return OperationResult<MentorApplicantResponse>.BadRequest("Cannot change status from Approved and Reject to any other status ");
+            }
+            return null;
+        }
+
+        private static void UpdateMentorApplicationStatusFields(MentorApplication mentorApplication, MentorUpdateStatusRequest request)
+        {
+            mentorApplication.ApplicationStatusId = request.StatusId;
+            mentorApplication.LastStatusUpdateDate = DateTime.UtcNow;
+            mentorApplication.AdminReviewerId = request.AdminReviewerId;
+            if (request.StatusId == 2)
+            {
+                mentorApplication.RejectionReason = request.AdminComments;
+            }
+            if (request.StatusId == 3)
+            {
+                mentorApplication.ApprovalDate = DateTime.UtcNow;
+                mentorApplication.AdminComments = request.AdminComments;
+            }
+            if (request.StatusId == 4)
+            {
+                mentorApplication.AdminComments = request.AdminComments;
+                if (!string.IsNullOrEmpty(mentorApplication.SubmissionDate))
+                {
+                    mentorApplication.SubmissionDate = mentorApplication.SubmissionDate + ", " + DateTime.UtcNow.ToString();
+                }
+                else
+                {
+                    mentorApplication.SubmissionDate = DateTime.UtcNow.ToString();
+                }
+            }
+        }
+
+        private async Task SendStatusUpdateEmailIfNeeded(MentorApplication mentorApplication, MentorUpdateStatusRequest request)
+        {
+            var applicantName = mentorApplication.Applicant.UserProfile?.FullName ?? "Applicant";
+            var platformName = "MentorPlatform";
+            var applicationStatus = mentorApplication.ApplicationStatus?.Name ?? "Updated";
+            var emailSubject = "Mentor Application Status Update";
+
+            if (applicationStatus.Equals("Approved", StringComparison.OrdinalIgnoreCase) ||
+                applicationStatus.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
+            {
+                var bodyBuilder = new StringBuilder();
+                bodyBuilder.AppendLine($"Hi {applicantName},");
+                bodyBuilder.AppendLine($"Thank you for submitting your mentor application to {platformName}.");
+                bodyBuilder.AppendLine($"After reviewing your application, the status has been updated to: {applicationStatus}");
+                bodyBuilder.AppendLine();
+
+                switch (applicationStatus.ToLowerInvariant())
+                {
+                    case "approved":
+                        bodyBuilder.AppendLine("We are excited to welcome you as a mentor on our platform! You will receive further instructions soon on how to get started and set up your profile.");
+                        break;
+                    case "rejected":
+                        bodyBuilder.AppendLine("Unfortunately, your application has been rejected at this time.");
+                        if (!string.IsNullOrWhiteSpace(request.AdminComments))
+                        {
+                            bodyBuilder.AppendLine($"Reason: {request.AdminComments}");
+                        }
+                        bodyBuilder.AppendLine("We encourage you to apply again in the future if circumstances change or you gain additional relevant experience.");
+                        break;
+                    case "request info":
+                        bodyBuilder.AppendLine("We need more information to process your application. Please check your email for further instructions.");
+                        break;
+                }
+
+                bodyBuilder.AppendLine();
+                bodyBuilder.AppendLine("If you have any questions, feel free to reply to this email or reach out to our support team.");
+                bodyBuilder.AppendLine();
+                bodyBuilder.AppendLine($"Best regards,\nThe {platformName} Team");
+
+                var emailBody = bodyBuilder.ToString();
+                var emailRecipient = mentorApplication.Applicant.Email;
+                await _sendEmailService.SendEmail(emailRecipient, emailSubject, emailBody);
+            }
+           }
 
         public async Task<OperationResult<MentorApplicationResponseDto>> UpdateMyApplicationAsync(
          UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId)
@@ -262,6 +412,7 @@ namespace ApplicationCore.Services
             var responseDto = mentorApplicationEntity.ToMentorApplicationDetailResponse();
 
             return OperationResult<MentorApplicationDetailResponse>.Ok(responseDto);
+
         }
     }
 }
