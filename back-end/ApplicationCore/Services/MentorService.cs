@@ -229,13 +229,13 @@ namespace ApplicationCore.Services
             if (request.StatusId == 4)
             {
                 mentorApplication.AdminComments = request.AdminComments;
-                if (!string.IsNullOrEmpty(mentorApplication.SubmissionDate))
+                if (!string.IsNullOrEmpty(mentorApplication.RequestInfoDate))
                 {
-                    mentorApplication.SubmissionDate = mentorApplication.SubmissionDate + ", " + DateTime.UtcNow.ToString();
+                    mentorApplication.RequestInfoDate = mentorApplication.RequestInfoDate + ", " + DateTime.UtcNow.ToString();
                 }
                 else
                 {
-                    mentorApplication.SubmissionDate = DateTime.UtcNow.ToString();
+                    mentorApplication.RequestInfoDate = DateTime.UtcNow.ToString();
                 }
             }
         }
