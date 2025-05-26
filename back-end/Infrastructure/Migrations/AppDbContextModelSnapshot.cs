@@ -376,6 +376,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 3,
                             Name = "Approved"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Request Info"
                         });
                 });
 

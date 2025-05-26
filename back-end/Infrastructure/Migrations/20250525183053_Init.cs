@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialDb : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -454,7 +454,8 @@ namespace Infrastructure.Migrations
                 {
                     { 1, "Pending" },
                     { 2, "Rejected" },
-                    { 3, "Approved" }
+                    { 3, "Approved" },
+                    { 4, "Request Info" }
                 });
 
             migrationBuilder.InsertData(

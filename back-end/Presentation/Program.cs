@@ -119,7 +119,7 @@ var app = builder.Build();
 app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseSwagger();
 app.UseSwaggerUI();
-
+app.Environment.IsDevelopment();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

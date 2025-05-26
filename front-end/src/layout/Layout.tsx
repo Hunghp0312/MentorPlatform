@@ -23,6 +23,11 @@ export default function Layout() {
       label: "Approvals",
       href: "/approval",
     },
+    {
+      icon: <UserCheck size={20} />,
+      label: "Mentor Status",
+      href: "/mentorstatus",
+    },
   ];
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
