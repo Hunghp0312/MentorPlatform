@@ -21,8 +21,6 @@ namespace Infrastructure.Entities
         public int SessionFrequencyId { get; set; }
         public SessionDuration? SessionDuration { get; set; }
         public int SessionDurationId { get; set; }
-        // public LearningStyle? LearningStyle { get; set; } // Keep commented out or remove
-        // public int LearningStyleId { get; set; } // Keep commented out or remove
         public bool PrivacyProfile { get; set; } = true;
         public bool MessagePermission { get; set; } = true;
         public bool NotificationsEnabled { get; set; } = true;
