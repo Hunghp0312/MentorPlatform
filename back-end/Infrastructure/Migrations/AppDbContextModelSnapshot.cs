@@ -376,6 +376,74 @@ namespace Infrastructure.Migrations
                         {
                             Id = 3,
                             Name = "Approved"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Request Info"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.AreaOfExpertise", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("AreaOfExpertise");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Programming"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Design"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Marketing"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Data Science"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Business"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Project Management"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Communication"
                         });
                 });
 
@@ -891,6 +959,69 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Enum.Topic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Topic");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Career Development"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Technical Skills"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Communication"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Work-Life Balance"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Industry Insights"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Networking"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Name = "Entrepreneurship"
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.Property<Guid>("ApplicantId")
@@ -1125,7 +1256,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DocumentContentId")
+                    b.Property<Guid>("DocumentContentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FileName")
@@ -1152,8 +1283,7 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentContentId")
-                        .IsUnique()
-                        .HasFilter("[DocumentContentId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("MentorApplicationId");
 
@@ -1229,6 +1359,7 @@ namespace Infrastructure.Migrations
                             PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
                             RoleId = 1,
                             StatusId = 1
+            
                         },
                         new
                         {
@@ -1236,8 +1367,11 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 1, 17, 14, 20, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.admin@gmail.com",
                             PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
+
                             RoleId = 1,
                             StatusId = 1
+
+
                         },
                         new
                         {
@@ -1245,8 +1379,11 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 2, 10, 9, 5, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.learner@gmail.com",
                             PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
+
                             RoleId = 2,
                             StatusId = 2
+
+
                         },
                         new
                         {
@@ -1254,6 +1391,7 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 2, 12, 16, 30, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.learner@gmail.com",
                             PasswordHash = "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi",
+
                             RoleId = 2,
                             StatusId = 1
                         },
@@ -1263,6 +1401,7 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 2, 18, 17, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.learner@gmail.com",
                             PasswordHash = "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT",
+
                             RoleId = 2,
                             StatusId = 3
                         },
@@ -1274,6 +1413,7 @@ namespace Infrastructure.Migrations
                             PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
                             RoleId = 3,
                             StatusId = 1
+
                         },
                         new
                         {
@@ -1281,6 +1421,7 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 3, 5, 11, 20, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.mentor@gmail.com",
                             PasswordHash = "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV",
+
                             RoleId = 3,
                             StatusId = 2
                         },
@@ -1290,6 +1431,7 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 3, 10, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.mentor@gmail.com",
                             PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
+
                             RoleId = 3,
                             StatusId = 1
                         },
@@ -1420,6 +1562,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid?>("UserProfileId")
                         .HasColumnType("uniqueidentifier");
+
 
                     b.HasKey("UserId", "TopicId");
 
@@ -1575,7 +1718,8 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
                         .WithOne("SupportingDocument")
                         .HasForeignKey("Infrastructure.Entities.SupportingDocument", "DocumentContentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
                         .WithMany("SupportingDocuments")
@@ -1621,6 +1765,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("AreaOfExpertise");
+
 
                     b.Navigation("User");
                 });
@@ -1755,6 +1900,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("UserProfile")
                         .IsRequired();
+
 
                     b.Navigation("UserTopicOfInterests");
                 });

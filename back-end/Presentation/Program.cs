@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using System.Text;
-using ApplicationCore.JsonConverters;
+﻿using ApplicationCore.JsonConverters;
 using ApplicationCore.Repositories;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services;
@@ -18,6 +16,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Presentation.Configurations;
+using System.Security.Claims;
+using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -67,9 +67,12 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthenticateService, AuthenticateService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
-
 builder.Services.AddScoped<IMentorService, MentorService>();
 builder.Services.AddScoped<IMentorRepository, MentorRepository>();
+builder.Services.AddScoped<IMentorWorkExperienceRepository, MentorWorkExperienceRepository>();
+builder.Services.AddScoped<IMentorEducationRepository, MentorEducationRepository>();
+builder.Services.AddScoped<IMentorCertificationRepository, MentorCertificationRepository>();
+
 builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository>();
 builder.Services.AddScoped<
    ISupportingDocumentRepository, SupportingDocumentRepository>();
@@ -120,7 +123,7 @@ var app = builder.Build();
 app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseSwagger();
 app.UseSwaggerUI();
-
+app.Environment.IsDevelopment();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

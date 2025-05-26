@@ -17,6 +17,7 @@ namespace Infrastructure.Entities
         public int StatusId { get; set; }
         public virtual UserStatus Status { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public virtual Role Role { get; set; } = null!;
         public virtual UserProfile UserProfile { get; set; } = default!;
         public virtual ICollection<UserTopicOfInterest> UserTopicOfInterests { get; set; } = new List<UserTopicOfInterest>();
         public virtual MentorApplication SubmittedMentorApplication { get; set; } = null!;

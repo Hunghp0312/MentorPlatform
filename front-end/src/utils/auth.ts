@@ -1,12 +1,11 @@
 export function isTokenValid(): boolean {
-  const token = localStorage.getItem("token");
-  const expiry = localStorage.getItem("tokenExpiry");
-  if (!token || !expiry) return false;
+  const token = localStorage.getItem("accessToken");
+  if (!token) return false;
 
-  return Date.now() < parseInt(expiry, 10);
+  return true;
 }
 
 export function clearAuth() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("tokenExpiry");
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
 }

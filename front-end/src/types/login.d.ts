@@ -26,3 +26,8 @@ export type AppTokenResponse = {
   accessToken: string;
   refreshToken: string;
 };
+
+export type MessageResponse = {
+  message: string;
+}
+

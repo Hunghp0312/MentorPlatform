@@ -30,15 +30,6 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(u => u.RefreshToken).IsRequired(false);
             builder.Property(u => u.RefreshTokenExpiryTime).IsRequired(false);
-
-
-            builder.HasOne(u => u.Status)
-                   .WithMany()
-                   .HasForeignKey(u => u.StatusId)
-                   .IsRequired();
-
-
-
             builder.HasData(UserSeeding.SeedUsers());
         }
     }
