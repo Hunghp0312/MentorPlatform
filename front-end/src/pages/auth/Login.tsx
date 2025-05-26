@@ -8,6 +8,7 @@ import { pathName } from "../../constants/pathName";
 import { authService } from "../../services/login.service";
 import { AxiosError } from "axios";
 import { useAuthContext } from "../../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -80,6 +81,8 @@ const Login: React.FC = () => {
         sessionStorage.setItem("accessToken", response.accessToken);
       }
 
+      toast.dismiss();
+
       navigate(pathName.home);
     } catch (apiError: unknown) {
       if (apiError instanceof AxiosError) {
@@ -96,6 +99,14 @@ const Login: React.FC = () => {
       await authService.githubLogin();
     } catch (error) {
       console.error("GitHub login failed:", error);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await authService.googleLogin();
+    } catch (error) {
+      console.error("Google login failed:", error);
     }
   };
 
@@ -184,9 +195,8 @@ const Login: React.FC = () => {
         <div className="grid grid-cols-3 gap-3">
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500">
-            {" "}
-            {/* Reduced py-2.5 to py-2 */}
+            className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500"
+            onClick={handleGoogleLogin}>
             <FaGoogle size={18} />
             <span className="hidden sm:inline">Google</span>
           </button>

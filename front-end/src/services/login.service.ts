@@ -83,4 +83,15 @@ export const authService = {
       throw error;
     }
   },
+
+  async googleLogin(): Promise<void> {
+    try {
+      window.location.href = `${
+        import.meta.env.VITE_BACKEND_BASE_URL
+      }/Auth/google/login`;
+    } catch (error) {
+      console.error("Error during Google login redirect:", error);
+      throw error;
+    }
+  },
 };
