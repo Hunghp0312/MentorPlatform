@@ -11,13 +11,13 @@ namespace ApplicationCore.Repositories
         public MentorRepository(AppDbContext context) : base(context)
         {
         }
-        
+
         public override async Task<MentorApplication?> GetByIdAsync(Guid id)
         {
             var query = await _dbSet.Include(a => a.Applicant)
                 .ThenInclude(uae => uae.UserArenaOfExpertises).ThenInclude(uae => uae.AreaOfExpertise)
                 .Include(a => a.Applicant)
-                .ThenInclude(uae => uae.UserProfile)
+                    .ThenInclude(uae => uae.UserProfile)
                 .Include(x => x.AdminReviewer)
                 .Include(x => x.SupportingDocuments)
                 .Include(x => x.ApplicationStatus)
@@ -28,7 +28,6 @@ namespace ApplicationCore.Repositories
             return query;
 
         }
-
 
         public async Task<MentorApplication?> GetDetailByIdAsync(Guid id)
         {

@@ -80,7 +80,6 @@ namespace ApplicationCore.Extensions
                 EducationDetails = entity.MentorEducations.Select(e => e.ToEducationDetailDto()).ToList(),
                 WorkExperienceDetails = entity.MentorWorkExperiences.Select(w => w.ToWorkExperienceDetailDto()).ToList(),
                 Certifications = entity.MentorCertifications.Select(c => c.ToCertificationDetailDto()).ToList(),
-                NumberOfSupportingDocuments = entity.SupportingDocuments.Count
             };
         }
 
@@ -152,7 +151,6 @@ namespace ApplicationCore.Extensions
                 EducationDetails = entity.MentorEducations.Select(e => e.ToEducationDetailDto()).ToList(),
                 WorkExperienceDetails = entity.MentorWorkExperiences.Select(w => w.ToWorkExperienceDetailDto()).ToList(),
                 Certifications = entity.MentorCertifications.Select(c => c.ToCertificationDetailDto()).ToList(),
-                NumberOfSupportingDocuments = entity.SupportingDocuments.Count,
                 DocumentsDetails = entity.SupportingDocuments.Select(s => s.DocumentContent.ToDocumentDetailResponseDto()).ToList()
             };
         }

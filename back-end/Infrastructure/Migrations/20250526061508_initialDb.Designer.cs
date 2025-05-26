@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250523162730_initialDb")]
+    [Migration("20250526061508_initialDb")]
     partial class initialDb
     {
         /// <inheritdoc />
@@ -379,6 +379,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 3,
                             Name = "Approved"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "RequestInfo"
                         });
                 });
 

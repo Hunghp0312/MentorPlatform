@@ -454,7 +454,8 @@ namespace Infrastructure.Migrations
                 {
                     { 1, "Pending" },
                     { 2, "Rejected" },
-                    { 3, "Approved" }
+                    { 3, "Approved" },
+                    { 4, "RequestInfo" }
                 });
 
             migrationBuilder.InsertData(
