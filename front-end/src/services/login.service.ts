@@ -7,7 +7,7 @@ import {
   RefreshTokenRequest,
   CodeThirdParty,
   AppTokenResponse,
-  MessageResponse
+  MessageResponse,
 } from "../types/login";
 
 export const authService = {
@@ -21,7 +21,9 @@ export const authService = {
     }
   },
 
-  async forgotPassword(payload: ForgotPasswordRequest): Promise<MessageResponse> {
+  async forgotPassword(
+    payload: ForgotPasswordRequest
+  ): Promise<MessageResponse> {
     try {
       const response = await axiosInstance.post(
         "/Auth/forgot-password",

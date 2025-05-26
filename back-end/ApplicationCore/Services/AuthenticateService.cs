@@ -1,4 +1,6 @@
-﻿using ApplicationCore.Common;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Authenticates;
 using ApplicationCore.DTOs.Responses.Authenticates;
@@ -7,8 +9,6 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 using Infrastructure.Services;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Utilities;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -22,7 +22,14 @@ public class AuthenticateService : IAuthenticateService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISendEmailService _sendEmailService;
     private readonly IConfiguration _configuration;
-    public AuthenticateService(IUserRepository userRepository, ITokenService tokenService, IUnitOfWork unitOfWork, ISendEmailService sendEmailService, IConfiguration configuration)
+
+    public AuthenticateService(
+        IUserRepository userRepository,
+        ITokenService tokenService,
+        IUnitOfWork unitOfWork,
+        ISendEmailService sendEmailService,
+        IConfiguration configuration
+    )
     {
         _userRepository = userRepository;
         _tokenService = tokenService;
@@ -31,7 +38,9 @@ public class AuthenticateService : IAuthenticateService
         _configuration = configuration;
     }
 
-    public async Task<OperationResult<MessageResponse>> ForgotPasswordAsync(ForgotPasswordRequest email)
+    public async Task<OperationResult<MessageResponse>> ForgotPasswordAsync(
+        ForgotPasswordRequest email
+    )
     {
         var user = await _userRepository.GetByEmailAsync(email.Email);
         if (user == null)
@@ -47,9 +56,11 @@ public class AuthenticateService : IAuthenticateService
         await _sendEmailService.SendEmail(
             email.Email,
             "Reset Password",
-            $"<p>Click <a href='https://localhost:5173/reset-password?token={encodedPasswordResetToken}&email={encodedEmail}'>here</a> to reset your password.</p>"
+            $"<p>Click <a href='http://localhost:5173/reset-password?token={encodedPasswordResetToken}&email={encodedEmail}'>here</a> to reset your password.</p>"
         );
-        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Reset password email sent." });
+        return OperationResult<MessageResponse>.Ok(
+            new MessageResponse { Message = "Reset password email sent." }
+        );
     }
 
     public async Task<OperationResult<TokenResponse>> GitHubLoginAsync(string code)
@@ -65,15 +76,20 @@ public class AuthenticateService : IAuthenticateService
 
         // 1. Exchange code for access token
         using var httpClient = new HttpClient();
-        var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
+        var tokenRequest = new HttpRequestMessage(
+            HttpMethod.Post,
+            "https://github.com/login/oauth/access_token"
+        );
         var clientId = _configuration["Github:ClientId"];
         var clientSecret = _configuration["Github:ClientSecret"];
-        tokenRequest.Content = new FormUrlEncodedContent(new Dictionary<string, string>
-        {
-            { "client_id", clientId ?? "" },
-            { "client_secret", clientSecret ?? "" },
-            { "code", code }
-        });
+        tokenRequest.Content = new FormUrlEncodedContent(
+            new Dictionary<string, string>
+            {
+                { "client_id", clientId ?? "" },
+                { "client_secret", clientSecret ?? "" },
+                { "code", code },
+            }
+        );
         tokenRequest.Headers.Add("Accept", "application/json");
         var tokenResponse = await httpClient.SendAsync(tokenRequest);
         if (!tokenResponse.IsSuccessStatusCode)
@@ -93,14 +109,19 @@ public class AuthenticateService : IAuthenticateService
             return OperationResult<TokenResponse>.BadRequest("Failed to get GitHub user info.");
         var userJson = await userResponse.Content.ReadAsStringAsync();
         var userObj = System.Text.Json.JsonDocument.Parse(userJson).RootElement;
-        var githubEmail = userObj.TryGetProperty("email", out var emailProp) && emailProp.ValueKind == System.Text.Json.JsonValueKind.String
-            ? emailProp.GetString()
-            : null;
+        var githubEmail =
+            userObj.TryGetProperty("email", out var emailProp)
+            && emailProp.ValueKind == System.Text.Json.JsonValueKind.String
+                ? emailProp.GetString()
+                : null;
 
         // If email is null, fetch from /user/emails endpoint
         if (string.IsNullOrEmpty(githubEmail))
         {
-            var emailsRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
+            var emailsRequest = new HttpRequestMessage(
+                HttpMethod.Get,
+                "https://api.github.com/user/emails"
+            );
             emailsRequest.Headers.Add("Authorization", $"Bearer {githubAccessToken}");
             emailsRequest.Headers.Add("User-Agent", "YourAppName");
             var emailsResponse = await httpClient.SendAsync(emailsRequest);
@@ -110,7 +131,10 @@ public class AuthenticateService : IAuthenticateService
                 var emailsArr = System.Text.Json.JsonDocument.Parse(emailsJson).RootElement;
                 foreach (var emailEntry in emailsArr.EnumerateArray())
                 {
-                    if (emailEntry.TryGetProperty("primary", out var primaryProp) && primaryProp.GetBoolean())
+                    if (
+                        emailEntry.TryGetProperty("primary", out var primaryProp)
+                        && primaryProp.GetBoolean()
+                    )
                     {
                         githubEmail = emailEntry.GetProperty("email").GetString();
                         break;
@@ -133,7 +157,7 @@ public class AuthenticateService : IAuthenticateService
                 Email = githubEmail,
                 PasswordHash = "", // No password for OAuth users
                 RoleId = 2, // Default role, adjust as needed
-                LastLogin = DateTime.UtcNow
+                LastLogin = DateTime.UtcNow,
             };
             await _userRepository.AddAsync(user);
         }
@@ -161,7 +185,7 @@ public class AuthenticateService : IAuthenticateService
         var response = new TokenResponse
         {
             AccessToken = jwtHandler.WriteToken(accessToken),
-            RefreshToken = refreshToken
+            RefreshToken = refreshToken,
         };
         return OperationResult<TokenResponse>.Ok(response);
     }
@@ -202,14 +226,19 @@ public class AuthenticateService : IAuthenticateService
         throw new NotImplementedException();
     }
 
-    public async Task<OperationResult<MessageResponse>> ResetPasswordAsync(ResetPasswordRequest resetPasswordRequest)
+    public async Task<OperationResult<MessageResponse>> ResetPasswordAsync(
+        ResetPasswordRequest resetPasswordRequest
+    )
     {
         var user = await _userRepository.GetByEmailAsync(resetPasswordRequest.Email);
         if (user == null)
         {
             return OperationResult<MessageResponse>.BadRequest("User with email not found");
         }
-        if (user.PasswordResetToken != resetPasswordRequest.Token || user.PasswordResetExpiry < DateTime.UtcNow)
+        if (
+            user.PasswordResetToken != resetPasswordRequest.Token
+            || user.PasswordResetExpiry < DateTime.UtcNow
+        )
         {
             return OperationResult<MessageResponse>.BadRequest("Token is expired");
         }
@@ -218,10 +247,14 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetToken = null;
         user.PasswordResetExpiry = null;
         await _unitOfWork.SaveChangesAsync();
-        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password change successfully"});
+        return OperationResult<MessageResponse>.Ok(
+            new MessageResponse { Message = "Password change successfully" }
+        );
     }
 
-    public async Task<OperationResult<TokenResponse>> RetrieveAccessToken(RefreshRequest refreshTokenRequest)
+    public async Task<OperationResult<TokenResponse>> RetrieveAccessToken(
+        RefreshRequest refreshTokenRequest
+    )
     {
         var principal = _tokenService.GetPrincipalFromExpiredToken(refreshTokenRequest.AccessToken);
         var id = principal?.FindFirst("id")?.Value;
@@ -234,7 +267,10 @@ public class AuthenticateService : IAuthenticateService
         {
             return OperationResult<TokenResponse>.BadRequest("User not found.");
         }
-        if (user.RefreshToken != refreshTokenRequest.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+        if (
+            user.RefreshToken != refreshTokenRequest.RefreshToken
+            || user.RefreshTokenExpiryTime <= DateTime.UtcNow
+        )
         {
             return OperationResult<TokenResponse>.BadRequest("Invalid refresh token.");
         }
@@ -256,5 +292,4 @@ public class AuthenticateService : IAuthenticateService
         };
         return OperationResult<TokenResponse>.Ok(tokenResponse);
     }
-
 }

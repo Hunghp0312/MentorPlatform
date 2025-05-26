@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom"; // Assuming React Router for navigation
 import InputCustom from "../../components/input/InputCustom"; // Adjust path to your InputCustom component
 import { pathName } from "../../constants/pathName";
+import { authService } from "../../services/login.service";
+import { AxiosError } from "axios";
 
 const ForgotPasswordPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -30,30 +32,19 @@ const ForgotPasswordPage: React.FC = () => {
     }
 
     console.log("Requesting password reset for:", email);
-    // --- SIMULATE API CALL ---
-    // Replace with your actual API call:
-    // try {
-    //   await api.requestPasswordReset(email);
-    //   setSuccessMessage(`If an account exists for ${email}, a reset link has been sent.`);
-    // } catch (apiError: any) {
-    //   // Generic error for security, don't reveal if email exists or not
-    //   setError("Could not process request. Please try again later.");
-    //   console.error("Forgot password error:", apiError);
-    // } finally {
-    //   setLoading(false);
-    // }
-    // --- END SIMULATION ---
-
-    // Simulated response
-    setTimeout(() => {
-      // For security, usually you don't confirm if an email exists or not on this step.
-      // The message is typically generic like "If an account exists..."
-      setSuccessMessage(
-        `If an account with ${email} exists, a password reset link has been sent.`
-      );
-      // setEmail(""); // Optionally clear email field
+    try {
+      const response = await authService.forgotPassword({ email });
+      setSuccessMessage(`${response.message}`);
+    } catch (apiError: unknown) {
+      if (apiError instanceof AxiosError) {
+        setError(apiError.response?.data?.message);
+      } else {
+        setError("An unexpected error occurred.");
+      }
+      console.error("Forgot password error:", apiError);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
