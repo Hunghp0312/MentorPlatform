@@ -9,9 +9,11 @@ namespace Presentation.Controllers;
 public class AuthController : BaseController
 {
     private readonly IAuthenticateService _authService;
-    public AuthController(IAuthenticateService authService)
+    private readonly IConfiguration _config;
+    public AuthController(IAuthenticateService authService, IConfiguration config)
     {
         _authService = authService;
+        _config = config;
     }
 
     [HttpPost("login")]
@@ -41,12 +43,55 @@ public class AuthController : BaseController
         var result = await _authService.RetrieveAccessToken(request);
         return ToActionResult(result);
     }
+    [HttpGet("github/login")]
+    public IActionResult LoginWithGitHub()
+    {
+        var clientId = _config["GitHub:ClientId"];
+        var redirectUri = _config["GitHub:RedirectUri"];
+        var githubUrl = $"https://github.com/login/oauth/authorize?client_id={clientId}&redirect_uri={redirectUri}&scope=user:email";
+        return Redirect(githubUrl);
+    }
 
-    [HttpPost("github/callback")]
+    [HttpGet("github/callback")]
     public async Task<IActionResult> GitHubCallback([FromQuery] string code)
     {
         var result = await _authService.GitHubLoginAsync(code);
-        return ToActionResult(result);
+        if (!result.Success)
+            return BadRequest(result.Message);
 
+        var frontendUrl = _config["FrontendUrl"] ?? "https://localhost:5173";
+        var redirectUrl = $"{frontendUrl}/oauth-callback?accessToken={Uri.EscapeDataString(result.Data.AccessToken)}&refreshToken={Uri.EscapeDataString(result.Data.RefreshToken)}";
+        return Redirect(redirectUrl);
+
+    }
+
+    [HttpGet("google/login")]
+    public IActionResult GoogleLogin()
+    {
+        var clientId = _config["Google:ClientId"];
+        var redirectUri = _config["Google:RedirectUri"];
+        var scope = "openid profile email";
+        var state = Guid.NewGuid().ToString(); 
+
+        var url = $"https://accounts.google.com/o/oauth2/v2/auth" +
+                  $"?response_type=code" +
+                  $"&client_id={clientId}" +
+                  $"&redirect_uri={redirectUri}" +
+                  $"&scope={Uri.EscapeDataString(scope)}" +
+                  $"&state={state}";
+
+        return Redirect(url);
+    }
+
+    [HttpGet("google/callback")]
+    public async Task<IActionResult> GoogleCallback([FromQuery] string code)
+    {
+        var result = await _authService.GoogleLoginAsync(code);
+        if (!result.Success)
+            return BadRequest(result.Message);
+
+        var frontendUrl = _config["FrontendUrl"] ?? "https://localhost:5173";
+        var redirectUrl = $"{frontendUrl}/oauth-callback?accessToken={Uri.EscapeDataString(result.Data.AccessToken)}&refreshToken={Uri.EscapeDataString(result.Data.RefreshToken)}";
+        return Redirect(redirectUrl);
     }
 }
