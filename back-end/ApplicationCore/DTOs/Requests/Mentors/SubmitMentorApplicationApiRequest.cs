@@ -1,4 +1,4 @@
-﻿namespace ApplicationCore.DTOs.Requests.Mentors
+namespace ApplicationCore.DTOs.Requests.Mentors
 {
     public class SubmitMentorApplicationApiRequest : BaseMentorApplicationApiRequest
     {

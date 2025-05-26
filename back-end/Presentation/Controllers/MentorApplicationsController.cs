@@ -44,7 +44,6 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
-
         [HttpPut]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(typeof(MentorApplicationResponseDto), StatusCodes.Status200OK)]
@@ -62,9 +61,9 @@ namespace Presentation.Controllers
         [HttpGet("applications")]
         [ProducesResponseType(typeof(PagedResult<MentorApplicantResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetAllMentorApplications([FromQuery] PaginationParameters paginationParameters, [FromQuery] int applicationStatus = 0, [FromQuery] string? searchString = null)
+        public async Task<IActionResult> GetAllMentorApplications([FromQuery] PaginationParameters paginationParameters, [FromQuery] int applicationStatus = 0)
         {
-            var result = await _mentorService.GetAllMentorApplications(paginationParameters, applicationStatus, searchString);
+            var result = await _mentorService.GetAllMentorApplications(paginationParameters, applicationStatus);
 
             return ToActionResult(result);
         }
@@ -78,6 +77,5 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
-
     }
 }

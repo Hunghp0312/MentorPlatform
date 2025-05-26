@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import InputCustom from "../../components/input/InputCustom";
 import { pathName } from "../../constants/pathName";
+import { authService } from "../../services/login.service";
+import { AxiosError } from "axios";
 
 const ResetPasswordPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -12,7 +14,7 @@ const ResetPasswordPage: React.FC = () => {
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -20,51 +22,76 @@ const ResetPasswordPage: React.FC = () => {
 
   useEffect(() => {
     if (!token) {
-      setError("Password reset token is missing or invalid.");
+      setError({ tokenEmail: "Password reset token is missing or invalid." });
     }
-  }, [token]);
+    if (!email) {
+      setError({ tokenEmail: "Email is missing or invalid." });
+    }
+  }, [token, email]);
 
-  const validatePasswords = (): string | null => {
-    if (!newPassword) return "New password is required.";
-    if (newPassword.length < 8)
-      return "Password must be at least 8 characters.";
-    if (newPassword !== confirmPassword) return "Passwords do not match.";
-    return null;
+  const validatePasswords = () => {
+    const errs: Record<string, string> = {};
+
+    if (!newPassword) {
+      errs.newpassword = "Please fill in this field";
+    } else if (newPassword.length > 100) {
+      errs.newpassword = "Please enter between 8-100 characters.";
+    } else if (
+      newPassword.length < 8 ||
+      !/[A-Za-z]/.test(newPassword) ||
+      !/\d/.test(newPassword) ||
+      !/[!@#$%^&*(),.?":{}|<>]/.test(newPassword)
+    ) {
+      errs.password =
+        "Password must be at least 8 characters with a mix of letters, numbers, and symbols";
+    }
+
+    if (!confirmPassword) {
+      errs.confirmPassword = "Please enter confirm password";
+    } else if (newPassword !== confirmPassword) {
+      errs.confirmPassword = "Confirm password must be the same";
+    }
+
+    setError(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
     setSuccessMessage(null);
 
-    if (!token || !email) {
-      setError("Invalid reset link. Token or email is missing.");
-      return;
-    }
+    if (!validatePasswords()) return;
+    try {
+      if (!email || !token) {
+        setError({ tokenEmail: "Token or email is not exist" });
+        return;
+      }
 
-    const validationError = validatePasswords();
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
+      const response = await authService.resetPassword({
+        email,
+        token,
+        newPassword,
+      });
 
-    setLoading(true);
-
-    setTimeout(() => {
-      if (newPassword === "failpassword") {
-        setError(
-          "Failed to reset password due to a server error. Please try again."
-        );
-      } else {
-        setSuccessMessage(
-          "Your password has been reset successfully! Redirecting to login..."
-        );
+      setTimeout(() => {
+        setSuccessMessage(response.message);
         setNewPassword("");
         setConfirmPassword("");
         setTimeout(() => navigate("/login"), 3000);
+
+        setLoading(false);
+      }, 1500);
+    } catch (apiError: unknown) {
+      if (apiError instanceof AxiosError) {
+        const message =
+          apiError.response?.data?.message ?? "Something went wrong";
+        setError({ api: message }); // store under key 'api'
       }
+      console.error("Forgot password error:", apiError);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
+    setLoading(true);
   };
 
   return (
@@ -73,9 +100,9 @@ const ResetPasswordPage: React.FC = () => {
         Reset Your Password
       </h2>
 
-      {!token ? (
+      {error.tokenEmail ? (
         <>
-          <p className="text-red-400 text-center">{error}</p>
+          <p className="text-red-400 text-center">{error.tokenEmail}</p>
           <button
             onClick={() => navigate(pathName.login)}
             className="mt-6 w-full py-2.5 px-4 text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600">
@@ -93,6 +120,12 @@ const ResetPasswordPage: React.FC = () => {
 
           {!successMessage ? (
             <form className="space-y-6" onSubmit={handleSubmit}>
+              {error.api && (
+                <p id="ApiError" className="text-red-400 text-sm text-center">
+                  {error.api}
+                </p>
+              )}
+
               <InputCustom
                 label="New Password"
                 name="newPassword"
@@ -101,12 +134,7 @@ const ResetPasswordPage: React.FC = () => {
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Enter new password"
                 isRequired
-                errorMessage={
-                  error?.toLowerCase().includes("password") &&
-                  !error.toLowerCase().includes("match")
-                    ? error
-                    : undefined
-                }
+                errorMessage={error.password}
                 showPassword={showPassword}
                 setShowPassword={setShowPassword}
               />
@@ -119,20 +147,10 @@ const ResetPasswordPage: React.FC = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirm password"
                 isRequired
-                errorMessage={
-                  error?.toLowerCase().includes("match") ? error : undefined
-                }
+                errorMessage={error.confirmPassword}
                 showPassword={showConfirmPassword}
                 setShowPassword={setShowConfirmPassword}
               />
-
-              {error &&
-                !error.toLowerCase().includes("password") &&
-                !error.toLowerCase().includes("match") && (
-                  <p className="text-sm text-center text-red-400 bg-red-900 bg-opacity-30 p-2 rounded-md">
-                    {error}
-                  </p>
-                )}
 
               <button
                 type="submit"

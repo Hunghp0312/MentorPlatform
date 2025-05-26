@@ -32,25 +32,25 @@ namespace ApplicationCore.Services
             _mentorCertificationRepository = mentorCertificationRepository;
         }
 
-        public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus, string? searchString = null)
+        public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicationStatus)
         {
             var filter = (IQueryable<MentorApplication> query) =>
             {
-                if (applicatioStatus != 0)
+                if (applicationStatus != 0)
                 {
-                    query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicatioStatus);
+                    query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicationStatus);
                 }
 
-                if (!string.IsNullOrEmpty(searchString))
+                if (!string.IsNullOrEmpty(paginationParameters.Query))
                 {
                     query = query.Where(x =>
                         (x.Applicant != null &&
                         x.Applicant.UserProfile != null &&
                         !string.IsNullOrEmpty(x.Applicant.UserProfile.FullName) &&
-                        x.Applicant.UserProfile.FullName.Contains(searchString)) ||
+                        x.Applicant.UserProfile.FullName.Contains(paginationParameters.Query)) ||
                         (x.Applicant != null &&
                         !string.IsNullOrEmpty(x.Applicant.Email) &&
-                        x.Applicant.Email.Contains(searchString))
+                        x.Applicant.Email.Contains(paginationParameters.Query))
                     );
                 }
 
@@ -176,13 +176,13 @@ namespace ApplicationCore.Services
             if (request.StatusId == 4)
             {
                 mentorApplication.AdminComments = request.AdminComments;
-                if (!string.IsNullOrEmpty(mentorApplication.SubmissionDate))
+                if (!string.IsNullOrEmpty(mentorApplication.RequestInfoDate))
                 {
-                    mentorApplication.SubmissionDate = mentorApplication.SubmissionDate + ", " + DateTime.UtcNow.ToString();
+                    mentorApplication.RequestInfoDate = mentorApplication.RequestInfoDate + ", " + DateTime.UtcNow.ToString();
                 }
                 else
                 {
-                    mentorApplication.SubmissionDate = DateTime.UtcNow.ToString();
+                    mentorApplication.RequestInfoDate = DateTime.UtcNow.ToString();
                 }
             }
         }

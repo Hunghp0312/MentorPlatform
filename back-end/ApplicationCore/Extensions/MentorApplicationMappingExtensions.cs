@@ -119,7 +119,6 @@ namespace ApplicationCore.Extensions
                 IssuingOrganization = entity.IssuingOrganization,
             };
         }
-
         public static DocumentDetailResponse ToDocumentDetailResponseDto(this DocumentContent entity)
         {
             if (entity == null)
