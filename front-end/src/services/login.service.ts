@@ -62,17 +62,24 @@ export const authService = {
   async githubCallback(payload: CodeThirdParty): Promise<AppTokenResponse> {
     try {
       console.log("Send data", payload);
-      const response = await axiosInstance.post(
-        `/Auth/github/callback`,
-        null, // No request body
-        {
-          params: { code: payload.code }, // ✅ send `code` as query param
-        }
-      );
+      const response = await axiosInstance.get(`/Auth/github/callback`, {
+        params: { code: payload.code },
+      });
       console.log(response);
       return response.data;
     } catch (error) {
       console.error("Error during GitHub backend callback:", error);
+      throw error;
+    }
+  },
+
+  async githubLogin(): Promise<void> {
+    try {
+      window.location.href = `${
+        import.meta.env.VITE_BACKEND_BASE_URL
+      }/Auth/github/login`;
+    } catch (error) {
+      console.error("Error during GitHub login redirect:", error);
       throw error;
     }
   },

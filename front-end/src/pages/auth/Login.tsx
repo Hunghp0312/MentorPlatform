@@ -91,22 +91,12 @@ const Login: React.FC = () => {
     }
   };
 
-  const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
-  const GITHUB_REDIRECT_URI = import.meta.env.VITE_GITHUB_REDIRECT_URI;
-
-  const handleGitHubLogin = () => {
-    if (!GITHUB_CLIENT_ID || !GITHUB_REDIRECT_URI) {
-      console.error(
-        "GitHub OAuth environment variables are not set correctly!"
-      );
-      alert("GitHub login is currently unavailable. Please contact support.");
-      return;
+  const handleGitHubLogin = async () => {
+    try {
+      await authService.githubLogin();
+    } catch (error) {
+      console.error("GitHub login failed:", error);
     }
-    const githubOAuthURL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-      GITHUB_REDIRECT_URI
-    )}&scope=user:email`;
-
-    window.location.href = githubOAuthURL;
   };
 
   return (
