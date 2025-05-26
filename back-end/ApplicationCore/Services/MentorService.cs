@@ -1,4 +1,4 @@
-using ApplicationCore.Common;
+﻿using ApplicationCore.Common;
 using ApplicationCore.Constants;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Mentors;
@@ -40,13 +40,13 @@ namespace ApplicationCore.Services
 
         }
 
-        public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus)
+        public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicationStatus)
         {
             var filter = (IQueryable<MentorApplication> query) =>
             {
-                if (applicatioStatus != 0)
+                if (applicationStatus != 0)
                 {
-                    query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicatioStatus);
+                    query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicationStatus);
                 }
 
                 if (!string.IsNullOrEmpty(paginationParameters.Query))
