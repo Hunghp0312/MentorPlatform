@@ -10,6 +10,8 @@ import ResetPasswordPage from "../pages/auth/ResetPassword";
 import AuthLayout from "../layout/AuthLayout";
 import ForgotPasswordPage from "../pages/auth/ForgotPassword";
 import GitHubCallback from "../components/login/GithubCallback";
+import PrivateRoute from "./PrivateRoute";
+import MentorStatusProfile from "../pages/mentor/MentorStatusProfile";
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -25,12 +27,17 @@ const AppRouter = () => {
     { path: pathName.githubCallback, element: <GitHubCallback /> },
     {
       path: "/",
-      element: <Layout />,
+      element: (
+        <PrivateRoute>
+          <Layout />
+        </PrivateRoute>
+      ),
       children: [
         { path: pathName.home, element: <div>Home</div> },
         { path: pathName.category, element: <ListCategory /> },
         { path: pathName.course, element: <ListCourse /> },
         { path: pathName.approval, element: <ListApproval /> },
+        { path: "mentorstatus", element: <MentorStatusProfile /> },
       ],
     },
   ]);

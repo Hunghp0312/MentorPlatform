@@ -2,6 +2,7 @@
 using ApplicationCore.DTOs.Requests.Educations;
 using ApplicationCore.DTOs.Requests.WorkExperiences;
 using ApplicationCore.DTOs.Responses.Mentors;
+using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using Infrastructure.Entities;
 using Infrastructure.Entities.Enum;
 
@@ -117,6 +118,41 @@ namespace ApplicationCore.Extensions
             {
                 CertificationName = entity.CertificationName,
                 IssuingOrganization = entity.IssuingOrganization,
+            };
+        }
+        public static DocumentDetailResponse ToDocumentDetailResponseDto(this DocumentContent entity)
+        {
+            if (entity == null)
+                return null!;
+
+            return new DocumentDetailResponse
+            {
+                Id = entity.Id,
+                FileName = entity.FileName,
+                FileType = entity.FileType,
+                FileContent = entity.FileContent
+            };
+        }
+
+        public static MentorApplicationDetailResponse ToMentorApplicationDetailResponse(
+            this MentorApplication entity)
+        {
+            string submissionDateForResponse = entity.SubmissionDate;
+
+            return new MentorApplicationDetailResponse
+            {
+                Id = entity.ApplicantId,
+                ApplicantUserId = entity.ApplicantId,
+                ApplicantFullName = entity.Applicant.UserProfile.FullName,
+                Status = entity.ApplicationStatus.Name,
+                SubmissionDate = submissionDateForResponse,
+                CreatedAt = entity.CreatedAt,
+                LastStatusUpdateDate = entity.LastStatusUpdateDate,
+                EducationDetails = entity.MentorEducations.Select(e => e.ToEducationDetailDto()).ToList(),
+                WorkExperienceDetails = entity.MentorWorkExperiences.Select(w => w.ToWorkExperienceDetailDto()).ToList(),
+                Certifications = entity.MentorCertifications.Select(c => c.ToCertificationDetailDto()).ToList(),
+                NumberOfSupportingDocuments = entity.SupportingDocuments.Count,
+                DocumentsDetails = entity.SupportingDocuments.Select(s => s.DocumentContent.ToDocumentDetailResponseDto()).ToList()
             };
         }
     }

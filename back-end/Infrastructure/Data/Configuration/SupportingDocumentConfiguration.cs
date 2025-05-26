@@ -10,7 +10,7 @@ namespace Infrastructure.Data.Configuration
         {
             builder.HasKey(sd => sd.Id);
             builder.Property(sd => sd.MentorApplicationId).IsRequired(false);
-            builder.Property(sd => sd.DocumentContentId).IsRequired(false);
+            builder.Property(sd => sd.DocumentContentId).IsRequired();
             builder.Property(sd => sd.FileName).IsRequired().HasMaxLength(255);
             builder.Property(sd => sd.FileType).IsRequired().HasMaxLength(100);
             builder.Property(sd => sd.FileSize).IsRequired();

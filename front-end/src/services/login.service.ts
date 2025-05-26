@@ -7,10 +7,11 @@ import {
   RefreshTokenRequest,
   CodeThirdParty,
   AppTokenResponse,
+  MessageResponse,
 } from "../types/login";
 
 export const authService = {
-  async login(credentials: LoginRequest): Promise<unknown> {
+  async login(credentials: LoginRequest): Promise<AppTokenResponse> {
     try {
       const response = await axiosInstance.post("/Auth/login", credentials);
       return response.data;
@@ -20,7 +21,9 @@ export const authService = {
     }
   },
 
-  async forgotPassword(payload: ForgotPasswordRequest): Promise<unknown> {
+  async forgotPassword(
+    payload: ForgotPasswordRequest
+  ): Promise<MessageResponse> {
     try {
       const response = await axiosInstance.post(
         "/Auth/forgot-password",
@@ -33,7 +36,7 @@ export const authService = {
     }
   },
 
-  async resetPassword(payload: ResetPasswordRequest): Promise<unknown> {
+  async resetPassword(payload: ResetPasswordRequest): Promise<MessageResponse> {
     try {
       const response = await axiosInstance.post(
         "/Auth/reset-password",
@@ -46,7 +49,7 @@ export const authService = {
     }
   },
 
-  async refreshToken(payload: RefreshTokenRequest): Promise<unknown> {
+  async refreshToken(payload: RefreshTokenRequest): Promise<AppTokenResponse> {
     try {
       const response = await axiosInstance.post("/Auth/refresh-token", payload);
       return response.data;
