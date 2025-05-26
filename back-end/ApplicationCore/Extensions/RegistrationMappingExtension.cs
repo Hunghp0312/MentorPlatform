@@ -21,14 +21,18 @@ namespace ApplicationCore.Extensions
             var userProfile = new UserProfile
             {
                 Id = userId,
+                PhotoData = photoData,
                 FullName = dto.FullName ?? string.Empty,
                 Bio = dto.Bio ?? string.Empty,
+                PhoneNumber = dto.PhoneNumber,
                 ProfessionalSkill = dto.ProfessionalSkill,
                 IndustryExperience = dto.IndustryExperience,
-                UserProfileAvailabilities = dto.Availability?.Select(id => new UserProfileAvailability { UserId = userId, AvailabilityId = id }).ToList() ?? new List<UserProfileAvailability>(),
+                UserProfileAvailabilities = dto.Availability?.Select(a => new UserProfileAvailability
+                {
+                    UserId = userId,
+                    AvailabilityId = a
+                }).ToList() ?? new List<UserProfileAvailability>(),
                 CommunicationMethod = dto.CommunicationMethods?.FirstOrDefault() ?? 0,
-                UserGoal = dto.UserGoal,
-                PhotoData = photoData
             };
 
             return userProfile;

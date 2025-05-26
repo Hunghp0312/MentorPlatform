@@ -6,7 +6,7 @@ namespace ApplicationCore.DTOs.Common
         private const int MaxPageSize = 20;
         private int _pageSize = 10;
         private int _pageIndex = 1;
-        public string? OrderBy { get; set; }
+
 
         public int PageIndex
         {

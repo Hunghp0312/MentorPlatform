@@ -1,10 +1,9 @@
 ﻿using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
-using Infrastructure.Entities; // Ensure this using directive is present
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Linq;
 
 namespace ApplicationCore.Repositories;
 
@@ -106,12 +105,13 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return (users, totalCount);
     }
 
-    public async Task<User?> GetUserByIdWithDetailsAsync(Guid userId)
+    public async Task<User?> GetUserByIdsAsync(Guid userId)
     {
         return await _dbSet
                              .Include(u => u.Role)
                              .Include(u => u.Status)
                              .Include(u => u.UserProfile)
+                             .Include(u => u.UserArenaOfExpertises)
                              .FirstOrDefaultAsync(u => u.Id == userId);
     }
 
