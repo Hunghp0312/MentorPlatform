@@ -11,7 +11,8 @@ namespace Infrastructure.Data.Configuration.LookupTypes
             builder.HasData(
               new ApplicationStatus { Id = 1, Name = "Pending" },
               new ApplicationStatus { Id = 2, Name = "Rejected" },
-              new ApplicationStatus { Id = 3, Name = "Approved" }
+              new ApplicationStatus { Id = 3, Name = "Approved" },
+              new ApplicationStatus { Id = 4, Name = "Request Info" }
           );
         }
     }
