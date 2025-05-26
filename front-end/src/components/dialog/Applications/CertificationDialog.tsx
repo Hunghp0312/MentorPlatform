@@ -87,7 +87,7 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
           value={formState.certificationName}
           onChange={handleChange}
           isRequired
-          placeholder="Enter school name"
+          placeholder="Enter certification name"
           errorMessage={errors.certificationName}
         />
       </div>
@@ -100,7 +100,7 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
           value={formState.issuingOrganization}
           onChange={handleChange}
           isRequired
-          placeholder="Enter major"
+          placeholder="Enter organization"
           errorMessage={errors.issuingOrganization}
         />
       </div>
