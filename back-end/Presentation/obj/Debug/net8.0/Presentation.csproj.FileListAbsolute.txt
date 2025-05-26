@@ -15,6 +15,7 @@ D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\FluentValidation.AspNet
 D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
 D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\Humanizer.dll
 D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\MailKit.dll
+D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\Microsoft.Build.Locator.dll
 D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
@@ -180,4 +181,3 @@ D:\CSharp\Project\back-end\Presentation\obj\Debug\net8.0\refint\Presentation.dll
 D:\CSharp\Project\back-end\Presentation\obj\Debug\net8.0\Presentation.pdb
 D:\CSharp\Project\back-end\Presentation\obj\Debug\net8.0\Presentation.genruntimeconfig.cache
 D:\CSharp\Project\back-end\Presentation\obj\Debug\net8.0\ref\Presentation.dll
-D:\CSharp\Project\back-end\Presentation\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
