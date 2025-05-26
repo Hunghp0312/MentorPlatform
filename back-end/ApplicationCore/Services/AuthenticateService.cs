@@ -157,7 +157,7 @@ public class AuthenticateService : IAuthenticateService
         {
             new Claim("id", user.Id.ToString()),
             new Claim(ClaimTypes.Role, user.Role?.Name ?? "Learner"),
-            new Claim("isActive", user.Status.Name)
+            new Claim("isActive", user.StatusId.ToString())
         };
         var accessToken = _tokenService.GenerateAccessToken(claims);
         var refreshToken = _tokenService.GenerateRefreshToken();
@@ -237,7 +237,7 @@ public class AuthenticateService : IAuthenticateService
     {
         new Claim("id", user.Id.ToString()),
         new Claim(ClaimTypes.Role, user.Role?.Name ?? "Learner"),
-        new Claim("isActive", user.Status.Name)
+        new Claim("isActive", user.StatusId.ToString())
     };
         var accessToken = _tokenService.GenerateAccessToken(claims);
         var refreshToken = _tokenService.GenerateRefreshToken();
@@ -270,7 +270,7 @@ public class AuthenticateService : IAuthenticateService
         {
             new Claim("id", user.Id.ToString()),
             new Claim(ClaimTypes.Role, user.Role.Name.ToString()),
-            new Claim("isActive", user.Status.Name)
+            new Claim("isActive", user.StatusId.ToString())
         };
         var accessToken = _tokenService.GenerateAccessToken(claims);
         var refreshToken = _tokenService.GenerateRefreshToken();
@@ -344,7 +344,7 @@ public class AuthenticateService : IAuthenticateService
         {
             new Claim("id", user.Id.ToString()),
             new Claim(ClaimTypes.Role, user.Role.Name),
-            new Claim("isActive", user.Status.Name)
+            new Claim("isActive", user.StatusId.ToString())
         };
         var newAccessToken = _tokenService.GenerateAccessToken(claims);
         var newRefreshToken = _tokenService.GenerateRefreshToken();
