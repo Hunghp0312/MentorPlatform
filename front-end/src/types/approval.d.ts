@@ -23,6 +23,7 @@ export interface MentorApplicationResponse {
   applicationStatus?: ApplicationStatus;
   adminReviewer?: admin;
   submissionDate?: string;
+  requestInfoDate?: string;
   lastStatusUpdateDate?: string; // ISO string for DateTime
   adminComments?: string;
   rejectionReason?: string;

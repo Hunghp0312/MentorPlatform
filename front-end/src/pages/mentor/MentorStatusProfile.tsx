@@ -914,6 +914,7 @@ import CustomModal from "../../components/ui/Modal";
 import EducationAddDialog from "../../components/dialog/Applications/EducationDialog";
 import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkExperienceDialog";
 import CertificationAddDialog from "../../components/dialog/Applications/CertificationDialog";
+import { UserProfile } from "../../types/user";
 
 interface MentorStatusType {
   mentorEducation: MentorEducation[];
@@ -921,7 +922,11 @@ interface MentorStatusType {
   certifications: MentorCertification[];
   mentorDocuments: SupportingDocument | null;
   submissionDate?: string;
+  approvalDate?: string;
+  rejectedDate?: string;
+  adminComment?: string;
   status?: string;
+  userApplicationDetais?: UserProfile;
 }
 
 const MentorStatusProfile = () => {
