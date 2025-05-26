@@ -38,7 +38,7 @@ namespace ApplicationCore.Services
             _mentorCertificationRepository = mentorCertificationRepository;
         }
 
-        public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus, string? searchString = null)
+        public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus)
         {
             var filter = (IQueryable<MentorApplication> query) =>
             {
@@ -47,16 +47,16 @@ namespace ApplicationCore.Services
                     query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicatioStatus);
                 }
 
-                if (!string.IsNullOrEmpty(searchString))
+                if (!string.IsNullOrEmpty(paginationParameters.Query))
                 {
                     query = query.Where(x =>
                         (x.Applicant != null &&
                         x.Applicant.UserProfile != null &&
                         !string.IsNullOrEmpty(x.Applicant.UserProfile.FullName) &&
-                        x.Applicant.UserProfile.FullName.Contains(searchString)) ||
+                        x.Applicant.UserProfile.FullName.Contains(paginationParameters.Query)) ||
                         (x.Applicant != null &&
                         !string.IsNullOrEmpty(x.Applicant.Email) &&
-                        x.Applicant.Email.Contains(searchString))
+                        x.Applicant.Email.Contains(paginationParameters.Query))
                     );
                 }
 
