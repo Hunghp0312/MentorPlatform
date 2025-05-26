@@ -1,4 +1,5 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Data.Seeding;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,6 +15,7 @@ namespace Infrastructure.Data.Configuration
                 .WithMany(up => up.UserArenaOfExpertises)
                 .HasForeignKey(uae => uae.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.HasData(UserAreaOfExpertiseSeeding.SeedUserAreasOfExpertise());
         }
     }
 }

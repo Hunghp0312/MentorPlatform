@@ -15,5 +15,6 @@ namespace ApplicationCore.DTOs.Responses.Users
         public string? IndustryExperience { get; set; }
         public string? ProfessionalSkills { get; set; }
         public List<string>? AreaOfExpertise { get; set; }
+        public bool HasMentorApplication { get; set; }
     }
 }

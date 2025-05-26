@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.QueryParameters;
+using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -39,12 +40,14 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("current-user")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetUserById(Guid userId)
+        public async Task<IActionResult> GetCurentUser()
         {
-            var result = await _userService.GetUserByIdAsync(userId);
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _userService.GetUserbyIdAsync(userId);
             return ToActionResult(result);
         }
     }

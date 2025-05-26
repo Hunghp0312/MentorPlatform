@@ -8,6 +8,7 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using Microsoft.AspNetCore.Http;
 
 
 namespace ApplicationCore.Services
@@ -140,7 +141,7 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
-        public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
+        public async Task<OperationResult<UserResponseDto>> GetUserbyIdAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdsAsync(userId);
             if (user == null)
@@ -162,7 +163,8 @@ namespace ApplicationCore.Services
                 AreaOfExpertise = user.UserArenaOfExpertises
                     .Select(a => a.AreaOfExpertise?.Name ?? string.Empty)
                     .Where(a => !string.IsNullOrEmpty(a))
-                    .ToList()
+                    .ToList(),
+                HasMentorApplication = user.SubmittedMentorApplication != null
             };
 
             return OperationResult<UserResponseDto>.Ok(userResponseDto);

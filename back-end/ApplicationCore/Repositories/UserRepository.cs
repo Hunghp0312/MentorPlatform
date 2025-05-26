@@ -112,6 +112,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
                              .Include(u => u.Status)
                              .Include(u => u.UserProfile)
                              .Include(u => u.UserArenaOfExpertises)
+                                .ThenInclude(ua => ua.AreaOfExpertise)
                              .FirstOrDefaultAsync(u => u.Id == userId);
     }
 
