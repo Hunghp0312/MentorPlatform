@@ -27,7 +27,6 @@ namespace ApplicationCore.Services
         private readonly ISendEmailService _sendEmailService;
 
         public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IDocumentContentRepository documentContentRepository, ISupportingDocumentRepository supportingDocumentRepository, IMentorEducationRepository mentorEducationRepository, IMentorWorkExperienceRepository mentorWorkExperienceRepository, IMentorCertificationRepository mentorCertificationRepository, ISendEmailService sendEmailService)
-
         {
             _sendEmailService = sendEmailService;
             _mentorRepository = mentorRepository;
@@ -37,7 +36,6 @@ namespace ApplicationCore.Services
             _mentorEducationRepository = mentorEducationRepository;
             _mentorWorkExperienceRepository = mentorWorkExperienceRepository;
             _mentorCertificationRepository = mentorCertificationRepository;
-
         }
 
         public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus, string? searchString = null)
@@ -414,88 +412,6 @@ namespace ApplicationCore.Services
 
             return OperationResult<MentorApplicationDetailResponse>.Ok(responseDto);
 
-        }
-        public async Task<OperationResult<MentorApplicationResponseDto>> SubmitApplicationAsync(
-          SubmitMentorApplicationApiRequest apiRequest
-          , Guid applicantUserId
-         )
-        {
-            var existingApplication = await _mentorRepository.GetByIdAsync(applicantUserId);
-            if (existingApplication != null)
-            {
-                return OperationResult<MentorApplicationResponseDto>.BadRequest($"User already has an existing application with status: {existingApplication.ApplicationStatus.Name}.");
-            }
-
-            UploadedFileDetail processedFileDetail = null!;
-            if (apiRequest.SupportingDocument.Length > 0)
-            {
-                var formFile = apiRequest.SupportingDocument;
-                var memoryStream = new MemoryStream();
-                await formFile.CopyToAsync(memoryStream);
-                memoryStream.Position = 0;
-
-                processedFileDetail = new UploadedFileDetail
-                {
-                    FileName = formFile.FileName,
-                    ContentType = formFile.ContentType,
-                    Length = formFile.Length,
-                    ContentStream = memoryStream
-                };
-            }
-            var mentorApplicationEntity = new MentorApplication
-            {
-                ApplicantId = applicantUserId,
-                ApplicationStatusId = 1,
-                SubmissionDate = DateTime.UtcNow.ToString(),
-                CreatedAt = DateTime.UtcNow,
-                LastStatusUpdateDate = DateTime.UtcNow
-            };
-
-
-            mentorApplicationEntity.MentorEducations = apiRequest.EducationDetails.ToMentorEducationEntityList(applicantUserId);
-            mentorApplicationEntity.MentorWorkExperiences = apiRequest.WorkExperienceDetails.ToMentorWorkExperienceEntityList(applicantUserId);
-            mentorApplicationEntity.MentorCertifications = apiRequest.Certifications.ToMentorCertificationEntityList(applicantUserId);
-
-            await _mentorRepository.AddAsync(mentorApplicationEntity);
-
-            byte[] fileBytes;
-            using (var memoryStreamToRead = new MemoryStream())
-            {
-                await processedFileDetail.ContentStream.CopyToAsync(memoryStreamToRead);
-                fileBytes = memoryStreamToRead.ToArray();
-            }
-            await processedFileDetail.ContentStream.DisposeAsync();
-
-            var documentContentEntity = new DocumentContent
-            {
-                Id = Guid.NewGuid(),
-                FileContent = fileBytes,
-                FileName = processedFileDetail.FileName,
-                FileType = processedFileDetail.ContentType
-            };
-            await _documentContentRepository.AddAsync(documentContentEntity);
-
-            var supportingDocumentEntity = new SupportingDocument
-            {
-                Id = Guid.NewGuid(),
-                MentorApplicationId = mentorApplicationEntity.ApplicantId,
-                FileName = processedFileDetail.FileName,
-                FileType = processedFileDetail.ContentType,
-                FileSize = processedFileDetail.Length,
-                UploadedAt = DateTime.UtcNow,
-                DocumentContentId = documentContentEntity.Id
-            };
-
-            await _supportingDocumentRepository.AddAsync(supportingDocumentEntity);
-            await _unitOfWork.SaveChangesAsync();
-
-            var createdMentorApplication = await _mentorRepository.GetByIdAsync(mentorApplicationEntity.ApplicantId); MentorApplicationResponseDto responseDto = null!;
-            if (createdMentorApplication != null)
-            {
-                responseDto = createdMentorApplication.ToMentorApplicationResponseDto(createdMentorApplication.Applicant, createdMentorApplication.ApplicationStatus);
-            }
-
-            return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
         }
     }
 }

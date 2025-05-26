@@ -105,12 +105,13 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return (users, totalCount);
     }
 
-    public async Task<User?> GetUserByIdWithDetailsAsync(Guid userId)
+    public async Task<User?> GetUserByIdsAsync(Guid userId)
     {
         return await _dbSet
                              .Include(u => u.Role)
                              .Include(u => u.Status)
                              .Include(u => u.UserProfile)
+                             .Include(u => u.UserArenaOfExpertises)
                              .FirstOrDefaultAsync(u => u.Id == userId);
     }
 

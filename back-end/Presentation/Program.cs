@@ -67,9 +67,11 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthenticateService, AuthenticateService>();
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
-
 builder.Services.AddScoped<IMentorService, MentorService>();
 builder.Services.AddScoped<IMentorRepository, MentorRepository>();
+builder.Services.AddScoped<IMentorWorkExperienceRepository, MentorWorkExperienceRepository>();
+builder.Services.AddScoped<IMentorEducationRepository, MentorEducationRepository>();
+builder.Services.AddScoped<IMentorCertificationRepository, MentorCertificationRepository>();
 builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository>();
 builder.Services.AddScoped<
    ISupportingDocumentRepository, SupportingDocumentRepository>();

@@ -103,7 +103,7 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<UserResponseDto>> UpdateUserRoleAsync(Guid userId, UpdateUserRoleRequestDto requestDto)
         {
-            var user = await _userRepository.GetUserByIdWithDetailsAsync(userId);
+            var user = await _userRepository.GetUserByIdsAsync(userId);
             if (user == null)
             {
                 return OperationResult<UserResponseDto>.NotFound($"User with ID {userId} not found.");
@@ -120,7 +120,7 @@ namespace ApplicationCore.Services
             await _unitOfWork.SaveChangesAsync();
 
 
-            var updatedUser = await _userRepository.GetUserByIdWithDetailsAsync(userId);
+            var updatedUser = await _userRepository.GetUserByIdsAsync(userId);
             if (updatedUser == null)
             {
                 return OperationResult<UserResponseDto>.NotFound("Failed to retrieve updated user.");
@@ -142,7 +142,7 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
         {
-            var user = await _userRepository.GetUserByIdWithDetailsAsync(userId);
+            var user = await _userRepository.GetUserByIdsAsync(userId);
             if (user == null)
             {
                 return OperationResult<UserResponseDto>.NotFound($"User with ID {userId} not found.");
@@ -156,7 +156,13 @@ namespace ApplicationCore.Services
                 Role = user.Role?.Name ?? string.Empty,
                 Status = user.Status?.Name ?? string.Empty,
                 JoinDate = user.CreatedAt,
-                LastActiveDate = user.LastLogin
+                LastActiveDate = user.LastLogin,
+                IndustryExperience = user.UserProfile?.IndustryExperience,
+                ProfessionalSkills = user.UserProfile?.ProfessionalSkill,
+                AreaOfExpertise = user.UserArenaOfExpertises
+                    .Select(a => a.AreaOfExpertise?.Name ?? string.Empty)
+                    .Where(a => !string.IsNullOrEmpty(a))
+                    .ToList()
             };
 
             return OperationResult<UserResponseDto>.Ok(userResponseDto);

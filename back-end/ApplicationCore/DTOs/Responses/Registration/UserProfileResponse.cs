@@ -9,7 +9,8 @@ namespace ApplicationCore.DTOs.Responses.Registration
         public required string FullName { get; set; }
         public required Role Role { get; set; }
         public string? Bio { get; set; }
-        public string? PhotoUrl { get; set; }
+        public byte[]? PhotoData { get; set; }
+        public string? PhoneNumber { get; set; }
         public List<string>? ExpertiseAreas { get; set; }
         public string? ProfessionalSkills { get; set; }
         public string? IndustryExperience { get; set; }

@@ -79,10 +79,6 @@ namespace ApplicationCore.Services
                 ProfessionalSkill = request.SelectedRole == 3 ? request.ProfessionalSkill : null,
                 IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : null,
                 PhotoData = photoBytes,
-                UserGoal = request.UserGoal,
-                UserProfileAvailabilities = request.Availability?.Select(id => new UserProfileAvailability { AvailabilityId = id, UserId = user.Id }).ToList() ?? new List<UserProfileAvailability>(),
-                CommunicationMethod = request.CommunicationMethods?.FirstOrDefault() ?? 0,
-                SessionFrequencyId = request.SessionFrequencyId ?? 1,
             };
 
 
