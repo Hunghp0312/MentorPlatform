@@ -848,6 +848,53 @@ namespace Infrastructure.Migrations
                     { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72849"), new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Containerize and deploy apps with Docker.", "3 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 3, new Guid("10000000-0000-0000-0000-000000000010"), "Docker for Developers", 1, "Docker,containers,devops,deployment", null }
                 });
 
+            migrationBuilder.InsertData(
+                table: "UserProfile",
+                columns: new[] { "Id", "Bio", "CommunicationMethod", "FullName", "IndustryExperience", "MessagePermission", "NotificationsEnabled", "PhotoData", "PrivacyProfile", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
+                values: new object[] { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "Senior administrator overseeing platform development and technical operations.", 1, "Minh Chau Admin", null, true, true, null, true, "Project management, System architecture, Team leadership", 3, 4, null });
+
+            migrationBuilder.InsertData(
+                table: "UserProfile",
+                columns: new[] { "Id", "Bio", "CommunicationMethod", "FullName", "IndustryExperience", "MessagePermission", "NotificationsEnabled", "PhotoData", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
+                values: new object[,]
+                {
+                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "Senior software engineer with 8+ years of experience in full-stack development.", 1, "Huy Nguyen Mentor", "Fintech, E-commerce, Enterprise applications", true, true, null, "Java, Spring, React, AWS, DevOps", 4, 2, null },
+                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), "Full-stack developer with interest in blockchain and distributed systems.", 2, "Dan Cega", null, true, true, null, null, 5, 1, "To build scalable decentralized applications and smart contracts." }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserProfile",
+                columns: new[] { "Id", "Bio", "CommunicationMethod", "FullName", "IndustryExperience", "MessagePermission", "NotificationsEnabled", "PhotoData", "PrivacyProfile", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
+                values: new object[,]
+                {
+                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "Experienced tech administrator with background in education platforms.", 1, "Huy Nguyen Admin", null, true, true, null, true, "System administration, DevOps, Cloud infrastructure", 3, 4, null },
+                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "Platform administrator with focus on user experience and system reliability.", 1, "Huy Khuong Admin", null, true, true, null, true, "User management, Technical support, Data analytics", 3, 4, null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserProfile",
+                columns: new[] { "Id", "Bio", "CommunicationMethod", "FullName", "IndustryExperience", "MessagePermission", "PhotoData", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
+                values: new object[] { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), "Frontend specialist with expertise in modern JavaScript frameworks and UI/UX principles.", 3, "Minh Chau Mentor", "SaaS products, E-learning platforms, Creative agencies", true, null, "React, Vue.js, Angular, SCSS, Accessibility", 2, 4, null });
+
+            migrationBuilder.InsertData(
+                table: "UserProfile",
+                columns: new[] { "Id", "Bio", "CommunicationMethod", "FullName", "IndustryExperience", "MessagePermission", "NotificationsEnabled", "PhotoData", "PrivacyProfile", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
+                values: new object[,]
+                {
+                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "Data scientist specializing in predictive analytics and natural language processing.", 2, "Huy Khuong Mentor", "Healthcare, Research, Marketing analytics", true, true, null, true, "Python, TensorFlow, PyTorch, NLP, Big Data", 3, 1, null },
+                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "Aspiring software developer interested in web technologies and cloud computing.", 2, "Huy Nguyen Learner", null, true, true, null, true, null, 2, 1, "To master modern web development frameworks and secure a developer position." }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserProfile",
+                columns: new[] { "Id", "Bio", "CommunicationMethod", "FullName", "IndustryExperience", "MessagePermission", "NotificationsEnabled", "PhotoData", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
+                values: new object[] { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Data science enthusiast with background in statistics and mathematics.", 1, "Huy Khuong Learner", null, true, true, null, null, 3, 2, "To develop expertise in machine learning algorithms and data visualization." });
+
+            migrationBuilder.InsertData(
+                table: "UserProfile",
+                columns: new[] { "Id", "Bio", "CommunicationMethod", "FullName", "IndustryExperience", "PhotoData", "PrivacyProfile", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
+                values: new object[] { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "UX/UI designer looking to expand skills in frontend development.", 3, "Minh Chau Learner", null, null, true, null, 1, 3, "To combine design expertise with technical implementation skills." });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AreaOfExpertise_Name",
                 table: "AreaOfExpertise",
