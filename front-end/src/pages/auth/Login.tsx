@@ -6,11 +6,14 @@ import InputCheckbox from "../../components/input/InputCheckbox";
 import { FaGoogle, FaGithub, FaLinkedin } from "react-icons/fa";
 import { pathName } from "../../constants/pathName";
 import { authService } from "../../services/login.service";
+import { AxiosError } from "axios";
+import { useAuthContext } from "../../contexts/AuthContext";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const { setIsAuthenticated } = useAuthContext();
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [error, setError] = useState<Record<string, string>>({});
   const [loading] = useState(false);
@@ -58,7 +61,6 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    e.preventDefault();
     if (!validate()) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
     console.log("Login attempt:", { email, password, rememberMe });
@@ -67,12 +69,19 @@ const Login: React.FC = () => {
       const response = await authService.login({ email, password });
 
       console.log(response);
+
+      setIsAuthenticated(true);
       localStorage.setItem("refreshToken", response.refreshToken);
       localStorage.setItem("accessToken", response.accessToken);
 
       navigate(pathName.home);
-    } catch {
-      console.error("Failed to get data");
+    } catch (apiError: unknown) {
+      if (apiError instanceof AxiosError) {
+        const message =
+          apiError.response?.data?.message ?? "Something went wrong";
+        setError({ api: message }); // store under key 'api'
+      }
+      console.error("Forgot password error:", apiError);
     }
   };
 
@@ -87,14 +96,10 @@ const Login: React.FC = () => {
       alert("GitHub login is currently unavailable. Please contact support.");
       return;
     }
-
-    // Construct the GitHub authorization URL
-    // scope=user:email requests permission to read the user's primary email
     const githubOAuthURL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(
       GITHUB_REDIRECT_URI
     )}&scope=user:email`;
 
-    // Redirect the user to GitHub
     window.location.href = githubOAuthURL;
   };
 
@@ -112,6 +117,11 @@ const Login: React.FC = () => {
         </p>
         {/* Reduced space between form elements (space-y-4) */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error.api && (
+            <p id="ApiError" className="text-red-400 text-sm text-center">
+              {error.api}
+            </p>
+          )}
           <InputCustom
             label="Email Address"
             name="email"
@@ -135,6 +145,7 @@ const Login: React.FC = () => {
               showPassword={showPasswordInput}
               setShowPassword={setShowPasswordInput}
             />
+
             <div className="text-right mt-1">
               <Link
                 to={pathName.forgotPassword}

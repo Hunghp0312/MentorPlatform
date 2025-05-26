@@ -1,5 +1,6 @@
 using ApplicationCore.DTOs.Requests.Courses;
 using FluentValidation;
+using ApplicationCore.Constants;
 
 namespace ApplicationCore.Validators.Courses
 {
@@ -9,49 +10,49 @@ namespace ApplicationCore.Validators.Courses
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Please fill out this field")
+                .WithMessage(ValidationMessages.CourseNameRequired)
                 .MaximumLength(100)
-                .WithMessage("Name should be 1 - 100 characters")
+                .WithMessage(ValidationMessages.CourseNameMaxLength)
                 .Must(name => !string.IsNullOrWhiteSpace(name))
-                .WithMessage("Please fill out this field");
+                .WithMessage(ValidationMessages.CourseNameRequired);
 
             RuleFor(x => x.CategoryId)
                 .NotEmpty()
-                .WithMessage("Please select an item in the list")
+                .WithMessage(ValidationMessages.CourseCategoryInvalid)
                 .NotEqual(Guid.Empty)
-                .WithMessage("Please select an item in the list");
+                .WithMessage(ValidationMessages.CourseCategoryInvalid);
 
-            RuleFor(x => x.StatusId).InclusiveBetween(1, 3).WithMessage("Invalid status value");
+            RuleFor(x => x.StatusId).InclusiveBetween(1, 3).WithMessage(ValidationMessages.CourseStatusInvalid);
 
-            RuleFor(x => x.LevelId).InclusiveBetween(1, 3).WithMessage("Invalid difficulty value");
+            RuleFor(x => x.LevelId).InclusiveBetween(1, 3).WithMessage(ValidationMessages.CourseLevelInvalid);
 
             RuleFor(x => x.Duration)
                 .NotEmpty()
-                .WithMessage("Please fill out this field")
+                .WithMessage(ValidationMessages.CourseDurationRequired)
                 .MinimumLength(6)
-                .WithMessage("Duration should be 6-100 characters")
+                .WithMessage(ValidationMessages.CourseDurationMinLength)
                 .MaximumLength(100)
-                .WithMessage("Duration should be 6-100 characters")
+                .WithMessage(ValidationMessages.CourseDurationMaxLength)
                 .Must(duration => !string.IsNullOrWhiteSpace(duration))
-                .WithMessage("Please fill out this field");
+                .WithMessage(ValidationMessages.CourseDurationRequired);
 
             RuleForEach(x => x.Tags)
                 .MaximumLength(50)
-                .WithMessage("Tag should be 1-50 characters")
+                .WithMessage(ValidationMessages.CourseTagMaxLength)
                 .Must(tag => !string.IsNullOrWhiteSpace(tag))
-                .WithMessage("Tag cannot be empty");
+                .WithMessage(ValidationMessages.CourseTagRequired);
 
             RuleFor(x => x.Tags)
                 .Must(tags => tags.Distinct(StringComparer.OrdinalIgnoreCase).Count() == tags.Count)
-                .WithMessage("Tag already exists");
+                .WithMessage(ValidationMessages.CourseTagDuplicate);
 
             RuleFor(x => x.Description)
                 .NotEmpty()
-                .WithMessage("Please fill out this field")
+                .WithMessage(ValidationMessages.CourseDescriptionRequired)
                 .MaximumLength(1000)
-                .WithMessage("Description should be 1-1000 characters")
+                .WithMessage(ValidationMessages.CourseDescriptionMaxLength)
                 .Must(description => !string.IsNullOrWhiteSpace(description))
-                .WithMessage("Please fill out this field");
+                .WithMessage(ValidationMessages.CourseDescriptionRequired);
         }
     }
 }

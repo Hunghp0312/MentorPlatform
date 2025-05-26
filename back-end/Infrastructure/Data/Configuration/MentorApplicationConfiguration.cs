@@ -20,6 +20,7 @@ namespace Infrastructure.Data.Configuration
             builder.Property(ma => ma.AdminComments).IsRequired(false);
             builder.Property(ma => ma.RejectionReason).IsRequired(false);
             builder.Property(ma => ma.ApprovalDate).IsRequired(false);
+            builder.Property(ma => ma.RequestInfoDate).IsRequired(false);
 
             builder.Property(ma => ma.CreatedAt)
                 .IsRequired()
