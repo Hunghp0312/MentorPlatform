@@ -1,4 +1,5 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Data.Seeding;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -33,6 +34,8 @@ namespace Infrastructure.Data.Configuration
             builder.Property(up => up.PrivacyProfile).IsRequired().HasDefaultValue(true);
             builder.Property(up => up.MessagePermission).IsRequired().HasDefaultValue(true);
             builder.Property(up => up.NotificationsEnabled).IsRequired().HasDefaultValue(true);
+
+            builder.HasData(UserProfileSeeding.SeedUserProfiles());
         }
     }
 }

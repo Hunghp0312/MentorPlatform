@@ -13,4 +13,5 @@ public interface IAuthenticateService
     Task<OperationResult<MessageResponse>> ForgotPasswordAsync(ForgotPasswordRequest email);
     Task<OperationResult<MessageResponse>> ResetPasswordAsync(ResetPasswordRequest resetPasswordRequest);
     Task<OperationResult<TokenResponse>> GitHubLoginAsync(string code);
+    Task<OperationResult<TokenResponse>> GoogleLoginAsync(string code);
 }

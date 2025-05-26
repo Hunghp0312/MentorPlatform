@@ -64,9 +64,9 @@ namespace Presentation.Controllers
         [HttpGet("applications")]
         [ProducesResponseType(typeof(PagedResult<MentorApplicantResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetAllMentorApplications([FromQuery] PaginationParameters paginationParameters, [FromQuery] int applicationStatus = 0, [FromQuery] string? searchString = null)
+        public async Task<IActionResult> GetAllMentorApplications([FromQuery] PaginationParameters paginationParameters, [FromQuery] int applicationStatus = 0)
         {
-            var result = await _mentorService.GetAllMentorApplications(paginationParameters, applicationStatus, searchString);
+            var result = await _mentorService.GetAllMentorApplications(paginationParameters, applicationStatus);
 
             return ToActionResult(result);
         }

@@ -28,6 +28,7 @@ namespace ApplicationCore.Extensions
                 ApproverName = mentorApplication.AdminReviewer?.UserProfile?.FullName ?? string.Empty,
                 AdminComments = mentorApplication.AdminComments,
                 RejectionReason = mentorApplication.RejectionReason,
+                RequestInfoDate = mentorApplication.RequestInfoDate,    
                 ApprovalDate = mentorApplication.ApprovalDate,
                 CreatedAt = mentorApplication.CreatedAt,
                 UpdatedAt = mentorApplication.UpdatedAt,
