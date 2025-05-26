@@ -244,7 +244,7 @@ namespace ApplicationCore.Services
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                if (!existingApplication.ApplicationStatus.Name.Equals("RequestInfo"))
+                if (!existingApplication.ApplicationStatus.Name.Equals("Request Info"))
                 {
                     return OperationResult<MentorApplicationResponseDto>.BadRequest($"Application in '{existingApplication.ApplicationStatus.Name}' status cannot be updated by the applicant.");
                 }
