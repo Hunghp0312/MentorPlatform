@@ -49,7 +49,7 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        // GET: api/Courses/{id}
+
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -61,7 +61,7 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        // PUT: api/Courses/{id}
+
         [HttpPut("{id:guid}")]
         [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -77,7 +77,7 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        // DELETE: api/Courses/{id}
+
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
