@@ -11,7 +11,6 @@ using Infrastructure.Entities;
 using Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Utilities;
-
 namespace ApplicationCore.Services;
 
 public class AuthenticateService : IAuthenticateService

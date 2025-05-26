@@ -5,7 +5,6 @@
 
         public const string MaxLengthExceeded = "{PropertyName} must not exceed {MaxLength} characters.";
         public const string MaxFilesExceeded = "You can upload a maximum of {MaxFiles} files.";
-        public const string MaxLengthExceeded = "{PropertyName} must not exceed {MaxLength} characters.";
         public const string FileCannotBeEmpty = "Uploaded file cannot be empty.";
         public const string FieldRequired = "{PropertyName} is required and cannot be empty.";
         public const string CategoryNameRequired = "Category name is required and cannot be empty.";
@@ -26,9 +25,6 @@
         public const string CourseCategoryInvalid = "Invalid course category.";
         public const string CourseStatusInvalid = "Invalid course status.";
         public const string CourseLevelInvalid = "Invalid course level.";
-        public const string EducationDetailsRequired = "Education details are required.";
-        public const string WorkExperienceDetailsRequired = "Work experience details are required.";
-        public const string CertificationsRequired = "Certifications are required.";
         public const string EducationDetailsRequired = "Education details are required.";
         public const string WorkExperienceDetailsRequired = "Work experience details are required.";
         public const string CertificationsRequired = "Certifications are required.";
@@ -81,8 +77,5 @@
         public const string SESSION_DURATION_REQUIRED = "Session duration is required.";
         public const string LEARNING_STYLE_AT_LEAST_ONE_REQUIRED = "At least one learning style must be selected for learners.";
         public const string TEACHING_APPROACH_AT_LEAST_ONE_REQUIRED = "At least one teaching approach must be selected for mentors.";
-        public const string CertificationNameRequired = "Certification name is required.";
-        public const string IssuingOrganizationRequired = "Issuing organization is required.";
-        public const string CredentialUrlInvalid = "Credential URL is not a valid URL.";
     }
 }
