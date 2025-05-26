@@ -16,7 +16,7 @@ namespace Infrastructure.Data.Configuration
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(uls => uls.LearningStyle)
-                .WithMany() // Assuming LearningStyle doesn't have a direct navigation collection back to UserLearningStyle
+                .WithMany()
                 .HasForeignKey(uls => uls.LearningStyleId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

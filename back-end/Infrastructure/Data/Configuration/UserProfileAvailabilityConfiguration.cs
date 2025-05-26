@@ -8,10 +8,10 @@ namespace Infrastructure.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<UserProfileAvailability> builder)
         {
-            // Composite primary key
+
             builder.HasKey(upa => new { upa.UserId, upa.AvailabilityId });
 
-            // Relationships
+
             builder.HasOne(upa => upa.UserProfile)
                    .WithMany(up => up.UserProfileAvailabilities)
                    .HasForeignKey(upa => upa.UserId)

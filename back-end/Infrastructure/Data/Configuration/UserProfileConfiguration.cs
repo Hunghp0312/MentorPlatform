@@ -26,7 +26,7 @@ namespace Infrastructure.Data.Configuration
             builder.Property(up => up.ProfessionalSkill).HasMaxLength(1000).IsRequired(false);
             builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false); builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
 
-            // Ignore navigation properties for enums - we use the Id properties instead
+
             builder.Property(up => up.SessionFrequencyId).IsRequired();
             builder.Property(up => up.SessionDurationId).IsRequired();
 

@@ -29,18 +29,6 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        /* Optional: Keep GetAllUsers if a non-paginated version is still needed for some reason, 
-           otherwise it can be removed or refactored if GetUsersAsync covers all needs.
-        [HttpGet("all")] // Example: different route if keeping both
-        [ProducesResponseType(typeof(IEnumerable<UserResponseDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetAllUsersLegacy([FromQuery] string? role)
-        {
-            var result = await _userService.GetAllUsersAsync(role);
-            return ToActionResult(result);
-        }
-        */
-
         [HttpPut("{userId}/role")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]

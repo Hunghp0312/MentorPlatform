@@ -1,6 +1,5 @@
-// filepath: d:\CSharp\Project\back-end\Infrastructure\Entities\UserLearningStyle.cs
-using System;
-using Infrastructure.Entities.Enum; // Added this using statement
+
+using Infrastructure.Entities.Enum;
 
 namespace Infrastructure.Entities
 {
