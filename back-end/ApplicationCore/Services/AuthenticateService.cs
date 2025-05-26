@@ -9,8 +9,6 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 using Infrastructure.Services;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Utilities;
 namespace ApplicationCore.Services;
