@@ -37,6 +37,7 @@ namespace Presentation.Controllers
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(MentorApplicationResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+
         public async Task<IActionResult> SubmitCompleteApplication([FromForm] SubmitMentorApplicationApiRequest apiRequest)
         {
             var userIdString = User.FindFirstValue("id")!;
@@ -45,7 +46,6 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
-
         [HttpPut]
         [Authorize(Roles = "Mentor")]
         [Consumes("multipart/form-data")]
@@ -80,6 +80,5 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
-
     }
 }

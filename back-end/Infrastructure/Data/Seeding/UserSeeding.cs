@@ -13,6 +13,9 @@ public static class UserSeeding
                     Email = "huynguyen.admin@gmail.com",
                     PasswordHash = "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I",
                     RoleId = 1,
+                    StatusId = 1, 
+                    CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0, DateTimeKind.Utc)
+
                 },
                 new User
                 {
@@ -20,6 +23,10 @@ public static class UserSeeding
                     Email = "huykhuong.admin@gmail.com",
                     PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
                     RoleId = 1,
+
+                    StatusId = 1, 
+                    CreatedAt = new DateTime(2024, 1, 16, 11, 0, 0, DateTimeKind.Utc)
+
                 },
                 new User
                 {
@@ -27,6 +34,9 @@ public static class UserSeeding
                     Email = "minhchau.admin@gmail.com",
                     PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
                     RoleId = 1,
+                    StatusId = 1, 
+                    CreatedAt = new DateTime(2024, 1, 17, 14, 20, 0, DateTimeKind.Utc)
+
                 },
                 new User
                 {
@@ -34,36 +44,49 @@ public static class UserSeeding
                     Email = "huynguyen.learner@gmail.com",
                     PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
                     RoleId = 2,
+                    StatusId = 2,
+                    CreatedAt = new DateTime(2024, 2, 10, 9, 5, 0, DateTimeKind.Utc)
+
                 }, new User
                 {
                     Id = Guid.Parse("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                     Email = "huykhuong.learner@gmail.com",
                     PasswordHash = "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi",
                     RoleId = 2,
+                    StatusId = 1, // Active
+                    CreatedAt = new DateTime(2024, 2, 12, 16, 30, 0, DateTimeKind.Utc)
                 }, new User
                 {
                     Id = Guid.Parse("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
                     Email = "minhchau.learner@gmail.com",
                     PasswordHash = "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT",
                     RoleId = 2,
+                    StatusId = 3, // Deactivated
+                    CreatedAt = new DateTime(2024, 2, 18, 17, 0, 0, DateTimeKind.Utc)
                 }, new User
                 {
                     Id = Guid.Parse("03ea823d-d625-448d-901d-411c5028b769"),
                     Email = "huynguyen.mentor@gmail.com",
                     PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
                     RoleId = 3,
+                    StatusId = 1, // Active
+                    CreatedAt = new DateTime(2024, 3, 1, 10, 0, 0, DateTimeKind.Utc)
                 }, new User
                 {
                     Id = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                     Email = "huykhuong.mentor@gmail.com",
                     PasswordHash = "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV",
                     RoleId = 3,
+                    StatusId = 2, // Pending
+                    CreatedAt = new DateTime(2024, 3, 5, 11, 20, 0, DateTimeKind.Utc)
                 }, new User
                 {
                     Id = Guid.Parse("862b702e-2c59-46f7-8c06-5349d769e237"),
                     Email = "minhchau.mentor@gmail.com",
                     PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
                     RoleId = 3,
+                    StatusId = 1, // Active
+                    CreatedAt = new DateTime(2024, 3, 10, 12, 0, 0, DateTimeKind.Utc)
 
                 }, new User
                 {
@@ -71,6 +94,8 @@ public static class UserSeeding
                     Email = "dancega713@gmail.com",
                     PasswordHash = "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw",
                     RoleId = 2,
+                    StatusId = 1, // Active
+                    CreatedAt = new DateTime(2024, 3, 15, 14, 45, 0, DateTimeKind.Utc)
                 }
         };
     }

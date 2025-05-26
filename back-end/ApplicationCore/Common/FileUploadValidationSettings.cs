@@ -12,5 +12,6 @@
         public static long MaxFileSizeInMB => MaxFileSizeInBytes / 1024 / 1024;
         public const int MaxFileNameLength = 255;
         public const int MaxAllowedFiles = 5;
+
     }
 }
