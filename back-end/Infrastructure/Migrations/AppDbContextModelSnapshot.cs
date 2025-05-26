@@ -1371,6 +1371,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<byte[]>("PhotoData")
                         .HasColumnType("varbinary(max)");
 

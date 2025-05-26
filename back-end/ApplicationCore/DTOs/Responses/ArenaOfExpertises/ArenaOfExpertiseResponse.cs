@@ -1,4 +1,3 @@
-
 namespace ApplicationCore.DTOs.Responses.ArenaOfExpertises
 {
     public class ArenaOfExpertiseResponse
