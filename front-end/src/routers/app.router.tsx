@@ -22,9 +22,9 @@ const AppRouter = () => {
         { path: pathName.login, element: <LoginPage /> },
         { path: pathName.resetPassword, element: <ResetPasswordPage /> },
         { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
+        { path: pathName.githubCallback, element: <GitHubCallback /> },
       ],
     },
-    { path: pathName.githubCallback, element: <GitHubCallback /> },
     {
       path: "/",
       element: (

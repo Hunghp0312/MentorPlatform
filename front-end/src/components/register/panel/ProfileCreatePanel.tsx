@@ -60,6 +60,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
   const [expertiseError, setExpertiseError] = useState("");
   const [skillsError, setSkillsError] = useState("");
   const [industryExperienceError, setIndustryExperienceError] = useState("");
+  const [contactError, setContactError] = useState("");
   const [availabilityError, setAvailabilityError] = useState("");
 
   const [profilePicturePreview, setProfilePicturePreview] = useState<
@@ -145,6 +146,18 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setBioError("");
     }
 
+    if (profile.contact.trim()) {
+      const phoneRegex = /^\+?\d{7,15}$/;
+      if (!phoneRegex.test(profile.contact.trim())) {
+        setContactError(
+          "Invalid phone number. Phone number must be all digit and 7-15 number"
+        );
+        isValid = false;
+      } else {
+        setContactError("");
+      }
+    }
+
     if (profile.expertise.length === 0) {
       setExpertiseError("Select at least one expertise area.");
       focusTargetId ??= "profileExpertiseGroup";
@@ -204,12 +217,17 @@ const ProfileCreatePanel: React.FC<Props> = ({
     setBioError("");
     setExpertiseError("");
     setSkillsError("");
+    setContactError("");
     setIndustryExperienceError("");
     setAvailabilityError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (validateAndSetFocusTarget()) {
       onNext();
     }
+  };
+
+  const handleDeletePicture = () => {
+    setProfilePicturePreview(null);
   };
 
   return (
@@ -219,6 +237,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
           <ProfilePictureUpload
             picturePreview={profilePicturePreview}
             onPictureChange={handleProfilePictureChange}
+            onDeletePicture={handleDeletePicture}
             inputId="profilePictureActualInput"
           />
           {profilePictureError && (
@@ -249,6 +268,16 @@ const ProfileCreatePanel: React.FC<Props> = ({
             isRequired
             errorMessage={bioError}
             className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
+          />
+          <InputCustom
+            label="Contact"
+            name="contact"
+            type="text"
+            value={profile.contact}
+            onChange={(e) => handleFieldChange("contact", e.target.value)}
+            placeholder="Phone number"
+            errorMessage={contactError}
+            className="bg-gray-800 border-gray-700"
           />
         </div>
       </div>

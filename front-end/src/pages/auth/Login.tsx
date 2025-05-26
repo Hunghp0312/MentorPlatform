@@ -71,8 +71,14 @@ const Login: React.FC = () => {
       console.log(response);
 
       setIsAuthenticated(true);
-      localStorage.setItem("refreshToken", response.refreshToken);
-      localStorage.setItem("accessToken", response.accessToken);
+
+      if (rememberMe) {
+        localStorage.setItem("refreshToken", response.refreshToken);
+        localStorage.setItem("accessToken", response.accessToken);
+      } else {
+        sessionStorage.setItem("refreshToken", response.refreshToken);
+        sessionStorage.setItem("accessToken", response.accessToken);
+      }
 
       navigate(pathName.home);
     } catch (apiError: unknown) {

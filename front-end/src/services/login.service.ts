@@ -63,8 +63,11 @@ export const authService = {
     try {
       console.log("Send data", payload);
       const response = await axiosInstance.post(
-        "/Auth/github/callback",
-        payload
+        `/Auth/github/callback`,
+        null, // No request body
+        {
+          params: { code: payload.code }, // ✅ send `code` as query param
+        }
       );
       console.log(response);
       return response.data;

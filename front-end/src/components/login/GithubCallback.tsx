@@ -1,35 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // Assuming you use React Router
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { authService } from "../../services/login.service";
 import { AppTokenResponse } from "../../types/login";
+import { pathName } from "../../constants/pathName";
 
 const GitHubCallback: React.FC = () => {
-  const location = useLocation(); // Gets information about the current URL
-  const navigate = useNavigate(); // For redirecting the user after login
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    const code = searchParams.get("code"); // Get the 'code' from ?code=xxxx in the URL
-
+    const code = searchParams.get("code");
     if (code) {
-      // We have a code, now send it to our backend
       authService
         .githubCallback({ code })
         .then((data: AppTokenResponse) => {
           console.log("Successfully logged in with GitHub!", data);
 
-          // TODO: Store the tokens securely
-          // For example, in localStorage (consider security implications) or a state management solution
           localStorage.setItem("accessToken", data.accessToken);
           localStorage.setItem("refreshToken", data.refreshToken);
 
-          // TODO: Update your global authentication state (e.g., using React Context or Redux)
-          // authContext.login(data.accessToken, data.refreshToken);
-
           setIsLoading(false);
-          navigate("/dashboard"); // Or any other page you want to redirect to after login
+          navigate(pathName.home);
         })
         .catch((err) => {
           console.error("Backend GitHub login failed:", err);
@@ -39,11 +33,8 @@ const GitHubCallback: React.FC = () => {
             "Login with GitHub failed. Please try again.";
           setError(errorMessage);
           setIsLoading(false);
-          // Optionally navigate to login page with error:
-          // navigate('/login', { state: { error: errorMessage } });
         });
     } else {
-      // No code found in URL, or GitHub returned an error
       const errorDescription =
         searchParams.get("error_description") ||
         "GitHub authorization failed or was cancelled.";
@@ -61,12 +52,15 @@ const GitHubCallback: React.FC = () => {
       <div>
         <h2>Login Error</h2>
         <p style={{ color: "red" }}>{error}</p>
-        <button onClick={() => navigate("/login")}>Try Login Again</button>
+        <Link
+          to={pathName.login}
+          className="font-medium text-orange-400 hover:underline">
+          Try to login again
+        </Link>
       </div>
     );
   }
 
-  // This should ideally not be visible for long as navigation should occur
   return <div>Login successful, redirecting...</div>;
 };
 

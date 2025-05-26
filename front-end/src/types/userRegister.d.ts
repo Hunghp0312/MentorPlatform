@@ -45,6 +45,7 @@ export interface AccountDetails {
 export interface SharedProfileDetails {
   fullName: string;
   bio: string;
+  contact: string;
   profilePictureUrl?: string;
   profilePictureFile?: File | null;
   expertise: string[];
@@ -99,6 +100,7 @@ const baseAccount: AccountDetails = {
 const baseProfile: SharedProfileDetails = {
   fullName: "",
   bio: "",
+  contact: "",
   profilePictureFile: null,
   expertise: [],
   skills: [],
