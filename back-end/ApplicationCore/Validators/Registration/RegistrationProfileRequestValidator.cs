@@ -26,8 +26,8 @@ namespace ApplicationCore.Validators
 
             RuleFor(x => x.SelectedRole)
                 .NotEmpty().WithMessage(ValidationMessages.ROLE_REQUIRED)
-                .Must(roleId => roleId == 2 || roleId == 3) // 2 for Learner, 3 for Mentor
-                .WithMessage(ValidationMessages.ROLE_INVALID_SELECTION); // Ensure this message exists
+                .Must(roleId => roleId == 2 || roleId == 3)
+                .WithMessage(ValidationMessages.ROLE_INVALID_SELECTION);
 
             RuleFor(x => x.FullName)
                 .NotEmpty().WithMessage(ValidationMessages.FULL_NAME_REQUIRED)

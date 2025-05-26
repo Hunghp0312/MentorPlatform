@@ -9,7 +9,6 @@ using Infrastructure.Data;
 using ApplicationCore.Common;
 using Infrastructure.Entities;
 
-
 namespace ApplicationCore.Services
 {
     public class RegistrationService : IRegistrationService
@@ -60,8 +59,8 @@ namespace ApplicationCore.Services
                 photoBytes = ms.ToArray();
             }
 
-            // int roleId = request.SelectedRole.Equals("Mentor", StringComparison.OrdinalIgnoreCase) ? 3 : 2; // 3 for Mentor, 2 for Learner
-            int roleId = request.SelectedRole; // SelectedRole is already the ID (2 for Learner, 3 for Mentor as per validator)
+
+            int roleId = request.SelectedRole;
 
             var user = new User
             {
@@ -69,7 +68,7 @@ namespace ApplicationCore.Services
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 RoleId = roleId,
-                StatusId = 2 // Default to "Pending" status
+                StatusId = 2
             };
 
             var userProfile = new UserProfile
@@ -83,8 +82,7 @@ namespace ApplicationCore.Services
                 UserGoal = request.UserGoal,
                 UserProfileAvailabilities = request.Availability?.Select(id => new UserProfileAvailability { AvailabilityId = id, UserId = user.Id }).ToList() ?? new List<UserProfileAvailability>(),
                 CommunicationMethod = request.CommunicationMethods?.FirstOrDefault() ?? 0,
-                SessionFrequencyId = request.SessionFrequencyId ?? 1, // Use provided value or default to 1
-                SessionDurationId = request.SessionDurationId ?? 1   // Use provided value or default to 1
+                SessionFrequencyId = request.SessionFrequencyId ?? 1,
             };
 
 
@@ -101,8 +99,8 @@ namespace ApplicationCore.Services
                 Bio = userProfile.Bio,
                 ExpertiseAreas = new List<string>(),
                 IndustryExperience = userProfile.IndustryExperience,
-                Availability = userProfile.UserProfileAvailabilities?.Select(ua => ua.AvailabilityId).ToList() ?? new List<int>(), // Ensure Availability is initialized
-                CommunicationMethods = userProfile.CommunicationMethod != 0 ? new List<int> { userProfile.CommunicationMethod } : new List<int>(), // Ensure CommunicationMethods is initialized
+                Availability = userProfile.UserProfileAvailabilities?.Select(ua => ua.AvailabilityId).ToList() ?? new List<int>(),
+                CommunicationMethods = userProfile.CommunicationMethod != 0 ? new List<int> { userProfile.CommunicationMethod } : new List<int>(),
                 UserGoals = userProfile.UserGoal
             };
             return OperationResult<UserProfileResponse>.Ok(response);

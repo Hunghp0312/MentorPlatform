@@ -1,4 +1,3 @@
-
 namespace ApplicationCore.DTOs.Responses.Users
 {
     public class UserResponseDto

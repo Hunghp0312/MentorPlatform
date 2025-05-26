@@ -2,7 +2,6 @@
 using Infrastructure.Entities;
 using System.Linq.Expressions;
 
-
 namespace ApplicationCore.Repositories.RepositoryInterfaces;
 
 public interface IUserRepository : IBaseRepository<User>

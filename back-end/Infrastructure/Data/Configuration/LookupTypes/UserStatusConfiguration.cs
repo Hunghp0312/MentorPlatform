@@ -1,4 +1,3 @@
-
 using Infrastructure.Entities.Enum;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

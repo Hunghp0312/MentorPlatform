@@ -8,7 +8,7 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
-using System.Net;
+
 
 namespace ApplicationCore.Services
 {
@@ -119,11 +119,11 @@ namespace ApplicationCore.Services
             await _userRepository.UpdateUserAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
-            // Re-fetch the user to ensure all navigation properties, especially the new Role, are loaded for the response.
+
             var updatedUser = await _userRepository.GetUserByIdWithDetailsAsync(userId);
             if (updatedUser == null)
             {
-                return OperationResult<UserResponseDto>.NotFound("Failed to retrieve updated user."); // Corrected to use NotFound or another appropriate Fail method
+                return OperationResult<UserResponseDto>.NotFound("Failed to retrieve updated user.");
             }
 
             var updatedUserDto = new UserResponseDto
@@ -131,13 +131,13 @@ namespace ApplicationCore.Services
                 Id = updatedUser.Id,
                 FullName = updatedUser.UserProfile?.FullName ?? string.Empty,
                 Email = updatedUser.Email,
-                Role = updatedUser.Role?.Name ?? string.Empty, // Now this should reflect the new role name
+                Role = updatedUser.Role?.Name ?? string.Empty,
                 Status = updatedUser.Status?.Name ?? string.Empty,
                 JoinDate = updatedUser.CreatedAt,
                 LastActiveDate = updatedUser.LastLogin
             };
 
-            return OperationResult<UserResponseDto>.Ok(updatedUserDto); // Corrected to use Ok
+            return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
         public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
@@ -159,7 +159,7 @@ namespace ApplicationCore.Services
                 LastActiveDate = user.LastLogin
             };
 
-            return OperationResult<UserResponseDto>.Ok(userResponseDto); // Corrected to use Ok
+            return OperationResult<UserResponseDto>.Ok(userResponseDto);
         }
     }
 }

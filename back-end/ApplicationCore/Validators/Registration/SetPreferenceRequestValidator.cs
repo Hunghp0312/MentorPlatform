@@ -16,7 +16,7 @@ namespace ApplicationCore.Validators
                 {
                     rule.Must(id => id > 0).WithMessage("Topic of interest ID must be positive.");
                 })
-                .When(x => x.TopicOfInterestIds != null && x.TopicOfInterestIds.Any()); // Validate only if provided
+                .When(x => x.TopicOfInterestIds != null && x.TopicOfInterestIds.Any());
 
             RuleFor(x => x.SessionFrequencyId)
                 .NotEmpty().WithMessage(ValidationMessages.SESSION_FREQUENCY_REQUIRED)

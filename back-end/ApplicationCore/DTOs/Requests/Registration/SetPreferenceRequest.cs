@@ -1,4 +1,3 @@
-
 namespace ApplicationCore.DTOs.Requests.Registration
 {
     public class SetPreferenceRequest

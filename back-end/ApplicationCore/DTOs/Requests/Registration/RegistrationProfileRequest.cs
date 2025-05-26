@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 
-
 namespace ApplicationCore.DTOs.Requests.Registration
 {
     public class RegistrationProfileRequest
@@ -23,7 +22,7 @@ namespace ApplicationCore.DTOs.Requests.Registration
 
         public List<int>? CommunicationMethods { get; set; }
         public string? UserGoal { get; set; }
-        public int? SessionFrequencyId { get; set; } // Added
-        public int? SessionDurationId { get; set; }  // Added
+        public int? SessionFrequencyId { get; set; }
+        public int? SessionDurationId { get; set; }
     }
 }

@@ -1,10 +1,9 @@
 ﻿using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
-using Infrastructure.Entities; // Ensure this using directive is present
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Linq;
 
 namespace ApplicationCore.Repositories;
 

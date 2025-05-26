@@ -1,4 +1,3 @@
-using ApplicationCore.DTOs.Common;
 using Infrastructure.Entities;
 
 namespace ApplicationCore.DTOs.Responses.Registration
