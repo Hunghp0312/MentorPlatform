@@ -30,7 +30,6 @@ namespace Infrastructure.Data.Configuration
 
             builder.Property(u => u.RefreshToken).IsRequired(false);
             builder.Property(u => u.RefreshTokenExpiryTime).IsRequired(false);
-
             builder.HasData(UserSeeding.SeedUsers());
         }
     }

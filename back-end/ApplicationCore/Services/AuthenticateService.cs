@@ -21,7 +21,6 @@ public class AuthenticateService : IAuthenticateService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISendEmailService _sendEmailService;
     private readonly IConfiguration _configuration;
-
     public AuthenticateService(
         IUserRepository userRepository,
         ITokenService tokenService,
@@ -29,6 +28,7 @@ public class AuthenticateService : IAuthenticateService
         ISendEmailService sendEmailService,
         IConfiguration configuration
     )
+
     {
         _userRepository = userRepository;
         _tokenService = tokenService;
@@ -80,6 +80,7 @@ public class AuthenticateService : IAuthenticateService
                 { "code", code },
             }
         );
+
         tokenRequest.Headers.Add("Accept", "application/json");
         var tokenResponse = await httpClient.SendAsync(tokenRequest);
         if (!tokenResponse.IsSuccessStatusCode)
@@ -307,6 +308,7 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetToken = null;
         user.PasswordResetExpiry = null;
         await _unitOfWork.SaveChangesAsync();
+
         return OperationResult<MessageResponse>.Ok(
             new MessageResponse { Message = "Password change successfully" }
         );
