@@ -1,6 +1,4 @@
 ﻿using Infrastructure.Entities.Enum;
-using System.Collections.Generic; // Required for ICollection
-using System; // Required for Guid
 
 namespace Infrastructure.Entities
 {
@@ -15,7 +13,7 @@ namespace Infrastructure.Entities
         public virtual ICollection<MentorTeachingApproach> TeachingApproaches { get; set; } = new List<MentorTeachingApproach>();
         public virtual ICollection<UserProfileAvailability> UserProfileAvailabilities { get; set; } = new List<UserProfileAvailability>();
         public virtual ICollection<UserTopicOfInterest> UserTopicOfInterests { get; set; } = new List<UserTopicOfInterest>();
-        public virtual ICollection<UserLearningStyle> UserLearningStyles { get; set; } = new List<UserLearningStyle>(); // Ensure this line is present
+        public virtual ICollection<UserLearningStyle> UserLearningStyles { get; set; } = new List<UserLearningStyle>();
         public string? UserGoal { get; set; }
         public SessionFrequency? SessionFrequency { get; set; }
         public int SessionFrequencyId { get; set; }

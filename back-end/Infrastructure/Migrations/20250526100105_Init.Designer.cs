@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250526093608_Init")]
+    [Migration("20250526100105_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -927,6 +927,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("RejectionReason")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("RequestInfoDate")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SubmissionDate")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -1400,6 +1403,141 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SessionFrequencyId");
 
                     b.ToTable("UserProfile");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
+                            Bio = "Experienced tech administrator with background in education platforms.",
+                            CommunicationMethod = 1,
+                            FullName = "Huy Nguyen Admin",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            ProfessionalSkill = "System administration, DevOps, Cloud infrastructure",
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
+                            Bio = "Platform administrator with focus on user experience and system reliability.",
+                            CommunicationMethod = 1,
+                            FullName = "Huy Khuong Admin",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            ProfessionalSkill = "User management, Technical support, Data analytics",
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
+                            Bio = "Senior administrator overseeing platform development and technical operations.",
+                            CommunicationMethod = 1,
+                            FullName = "Minh Chau Admin",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            ProfessionalSkill = "Project management, System architecture, Team leadership",
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            Bio = "Aspiring software developer interested in web technologies and cloud computing.",
+                            CommunicationMethod = 2,
+                            FullName = "Huy Nguyen Learner",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            SessionDurationId = 2,
+                            SessionFrequencyId = 1,
+                            UserGoal = "To master modern web development frameworks and secure a developer position."
+                        },
+                        new
+                        {
+                            Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
+                            Bio = "Data science enthusiast with background in statistics and mathematics.",
+                            CommunicationMethod = 1,
+                            FullName = "Huy Khuong Learner",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = false,
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 2,
+                            UserGoal = "To develop expertise in machine learning algorithms and data visualization."
+                        },
+                        new
+                        {
+                            Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
+                            Bio = "UX/UI designer looking to expand skills in frontend development.",
+                            CommunicationMethod = 3,
+                            FullName = "Minh Chau Learner",
+                            MessagePermission = false,
+                            NotificationsEnabled = false,
+                            PrivacyProfile = true,
+                            SessionDurationId = 1,
+                            SessionFrequencyId = 3,
+                            UserGoal = "To combine design expertise with technical implementation skills."
+                        },
+                        new
+                        {
+                            Id = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
+                            Bio = "Full-stack developer with interest in blockchain and distributed systems.",
+                            CommunicationMethod = 2,
+                            FullName = "Dan Cega",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = false,
+                            SessionDurationId = 5,
+                            SessionFrequencyId = 1,
+                            UserGoal = "To build scalable decentralized applications and smart contracts."
+                        },
+                        new
+                        {
+                            Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            Bio = "Senior software engineer with 8+ years of experience in full-stack development.",
+                            CommunicationMethod = 1,
+                            FullName = "Huy Nguyen Mentor",
+                            IndustryExperience = "Fintech, E-commerce, Enterprise applications",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = false,
+                            ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
+                            SessionDurationId = 4,
+                            SessionFrequencyId = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            Bio = "Data scientist specializing in predictive analytics and natural language processing.",
+                            CommunicationMethod = 2,
+                            FullName = "Huy Khuong Mentor",
+                            IndustryExperience = "Healthcare, Research, Marketing analytics",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            ProfessionalSkill = "Python, TensorFlow, PyTorch, NLP, Big Data",
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            Bio = "Frontend specialist with expertise in modern JavaScript frameworks and UI/UX principles.",
+                            CommunicationMethod = 3,
+                            FullName = "Minh Chau Mentor",
+                            IndustryExperience = "SaaS products, E-learning platforms, Creative agencies",
+                            MessagePermission = true,
+                            NotificationsEnabled = false,
+                            PrivacyProfile = false,
+                            ProfessionalSkill = "React, Vue.js, Angular, SCSS, Accessibility",
+                            SessionDurationId = 2,
+                            SessionFrequencyId = 4
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfileAvailability", b =>
