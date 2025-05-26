@@ -10,6 +10,7 @@ namespace ApplicationCore.Services.ServiceInterfaces
     {
         Task<OperationResult<PagedResult<UserResponseDto>>> GetUsersAsync(UserQueryParameters queryParameters); // Changed
         Task<OperationResult<IEnumerable<UserResponseDto>>> GetAllUsersAsync();
-        Task<OperationResult<UserResponseDto>> UpdateUserRoleAsync(Guid userId, UpdateUserRoleRequestDto request);
+        Task<OperationResult<UserResponseDto>> UpdateUserRoleAsync(Guid userId, UpdateUserRoleRequestDto requestDto);
+        Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId); // Added new method
     }
 }

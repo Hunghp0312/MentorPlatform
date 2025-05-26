@@ -119,10 +119,11 @@ namespace ApplicationCore.Services
             await _userRepository.UpdateUserAsync(user);
             await _unitOfWork.SaveChangesAsync();
 
+            // Re-fetch the user to ensure all navigation properties, especially the new Role, are loaded for the response.
             var updatedUser = await _userRepository.GetUserByIdWithDetailsAsync(userId);
             if (updatedUser == null)
             {
-                return OperationResult<UserResponseDto>.Fail("Failed to retrieve updated user after update.", HttpStatusCode.InternalServerError);
+                return OperationResult<UserResponseDto>.NotFound("Failed to retrieve updated user."); // Corrected to use NotFound or another appropriate Fail method
             }
 
             var updatedUserDto = new UserResponseDto
@@ -130,13 +131,35 @@ namespace ApplicationCore.Services
                 Id = updatedUser.Id,
                 FullName = updatedUser.UserProfile?.FullName ?? string.Empty,
                 Email = updatedUser.Email,
-                Role = updatedUser.Role?.Name ?? string.Empty,
+                Role = updatedUser.Role?.Name ?? string.Empty, // Now this should reflect the new role name
                 Status = updatedUser.Status?.Name ?? string.Empty,
                 JoinDate = updatedUser.CreatedAt,
                 LastActiveDate = updatedUser.LastLogin
             };
 
-            return OperationResult<UserResponseDto>.Ok(updatedUserDto);
+            return OperationResult<UserResponseDto>.Ok(updatedUserDto); // Corrected to use Ok
+        }
+
+        public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdWithDetailsAsync(userId);
+            if (user == null)
+            {
+                return OperationResult<UserResponseDto>.NotFound($"User with ID {userId} not found.");
+            }
+
+            var userResponseDto = new UserResponseDto
+            {
+                Id = user.Id,
+                FullName = user.UserProfile?.FullName ?? string.Empty,
+                Email = user.Email,
+                Role = user.Role?.Name ?? string.Empty,
+                Status = user.Status?.Name ?? string.Empty,
+                JoinDate = user.CreatedAt,
+                LastActiveDate = user.LastLogin
+            };
+
+            return OperationResult<UserResponseDto>.Ok(userResponseDto); // Corrected to use Ok
         }
     }
 }

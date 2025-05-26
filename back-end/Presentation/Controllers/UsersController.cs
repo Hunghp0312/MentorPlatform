@@ -21,11 +21,11 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)] // Updated response type
+        [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters queryParameters) // Changed parameter
+        public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters queryParameters)
         {
-            var result = await _userService.GetUsersAsync(queryParameters); // Changed method call
+            var result = await _userService.GetUsersAsync(queryParameters);
             return ToActionResult(result);
         }
 
@@ -48,6 +48,15 @@ namespace Presentation.Controllers
         public async Task<IActionResult> UpdateUserRole(Guid userId, [FromBody] UpdateUserRoleRequestDto request)
         {
             var result = await _userService.UpdateUserRoleAsync(userId, request);
+            return ToActionResult(result);
+        }
+
+        [HttpGet("{userId}")]
+        [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetUserById(Guid userId)
+        {
+            var result = await _userService.GetUserByIdAsync(userId);
             return ToActionResult(result);
         }
     }
