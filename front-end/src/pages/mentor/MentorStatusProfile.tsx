@@ -442,6 +442,7 @@ const MentorStatusProfile = () => {
           Education
           {isEditing && (
             <button
+              id="open-education-dialog-icon"
               onClick={() => setOpenEducationDialog(true)}
               className="ml-1"
             >
@@ -471,7 +472,10 @@ const MentorStatusProfile = () => {
                       {education.graduationYear ?? "N/A"}
                     </span>
                     {isEditing && (
-                      <button onClick={() => handleRemoveEducation(index)}>
+                      <button
+                        id={`remove-education-icon-${index}`}
+                        onClick={() => handleRemoveEducation(index)}
+                      >
                         <CircleMinus
                           size={20}
                           className="text-red-500 hover:text-red-600"
@@ -492,6 +496,7 @@ const MentorStatusProfile = () => {
           Work Experience
           {isEditing && (
             <button
+              id="open-work-experience-dialog-icon"
               onClick={() => setOpenWorkExperienceDialog(true)}
               className="ml-1"
             >
@@ -524,7 +529,10 @@ const MentorStatusProfile = () => {
                         : "Present"}
                     </span>
                     {isEditing && (
-                      <button onClick={() => handleRemoveWorkExperience(index)}>
+                      <button
+                        id={`remove-workexperience-icon-${index}`}
+                        onClick={() => handleRemoveWorkExperience(index)}
+                      >
                         <CircleMinus
                           size={20}
                           className="text-red-500 hover:text-red-600"
@@ -547,6 +555,7 @@ const MentorStatusProfile = () => {
           Certifications
           {isEditing && (
             <button
+              id="open-certification-dialog-icon"
               onClick={() => setOpenCertificationDialog(true)}
               className="ml-1"
             >
@@ -575,7 +584,10 @@ const MentorStatusProfile = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     {isEditing && (
-                      <button onClick={() => handleRemoveCertification(index)}>
+                      <button
+                        id={`remove-certification-icon-${index}`}
+                        onClick={() => handleRemoveCertification(index)}
+                      >
                         <CircleMinus
                           size={20}
                           className="text-red-500 hover:text-red-600"
@@ -595,7 +607,11 @@ const MentorStatusProfile = () => {
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Document
           {isEditing && (
-            <button onClick={() => handleOpenFileExplorer()} className="ml-1">
+            <button
+              id="open-file-explorer-icon"
+              onClick={() => handleOpenFileExplorer()}
+              className="ml-1"
+            >
               <CirclePlus
                 size={20}
                 className="text-green-500 hover:text-green-600"
@@ -622,6 +638,7 @@ const MentorStatusProfile = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <button
+                  id="view-document-icon"
                   onClick={() =>
                     handleViewDocument(
                       mentorData.mentorDocuments!.documentContent
@@ -665,6 +682,7 @@ const MentorStatusProfile = () => {
               Your Application
             </h1>
             <button
+              id="edit-application-button"
               onClick={() => setIsEditing(true)}
               className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
             >
@@ -837,12 +855,14 @@ const MentorStatusProfile = () => {
             {isEditing ? (
               <>
                 <button
+                  id="save-button"
                   onClick={handleSave}
                   className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
                 >
                   Save
                 </button>
                 <button
+                  id="cancel-button"
                   onClick={handleCancel}
                   className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors"
                 >
@@ -851,6 +871,7 @@ const MentorStatusProfile = () => {
               </>
             ) : (
               <button
+                id="submit-application-button"
                 onClick={() => handleSubmitApplication()}
                 className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
               >

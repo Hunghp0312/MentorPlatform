@@ -92,7 +92,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
         {/* School Name Field */}
         <InputCustom
           label="Institution Name"
-          name="institutionName"
+          name="input-field-institutionName"
           type="text"
           value={formState.institutionName}
           onChange={handleChange}
@@ -105,7 +105,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
         {/* Major Field */}
         <InputCustom
           label="Field Of Study"
-          name="fieldOfStudy"
+          name="input-field-fieldOfStudy"
           type="text"
           value={formState.fieldOfStudy}
           onChange={handleChange}
@@ -131,6 +131,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
       {/* Form Actions */}
       <div className="flex justify-end space-x-4 pt-4">
         <Button
+          id="cancel-education-dialog-button"
           variant="secondary"
           size="md"
           className="font-bold text-white"
@@ -140,6 +141,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
           Cancel
         </Button>
         <Button
+          id="submit-education-dialog-button"
           variant="primary"
           size="md"
           type="submit"

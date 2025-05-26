@@ -4,7 +4,7 @@ import {
   MentorUpdateStatusRequest,
 } from "../types/approval";
 
-export const mentorService = {
+export const approvalService = {
   async updateMentorApplicationStatus(request: MentorUpdateStatusRequest) {
     try {
       const response = await axiosInstance.put<MentorApplicationResponse>(

@@ -20,7 +20,9 @@ export interface ApprovalType {
 }
 export interface MentorApplicationResponse {
   applicantId: string;
-  applicationStatus?: ApplicationStatus;
+  status: string;
+  email: string;
+  fullName: string;
   adminReviewer?: admin;
   submissionDate?: string;
   requestInfoDate?: string;

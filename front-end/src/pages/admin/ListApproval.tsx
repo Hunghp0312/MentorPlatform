@@ -5,117 +5,47 @@ import DataTable, { DataColumn } from "../../components/table/CustomTable";
 import InputCustom from "../../components/input/InputCustom";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import useDebounce from "../../hooks/usedebounce";
-
+import { approvalService } from "../../services/approval.service";
+import { handleAxiosError } from "../../utils/handlerError";
+import { AxiosError } from "axios";
 // Updated ApprovalType interface
 interface ApprovalType {
-  id: string;
-  name: string;
+  applicantUserId: string;
+  fullName: string;
   email: string;
-  expertiseAreas: string[];
-  status: "pending" | "approved" | "rejected" | "request-info";
-  submittedDate: string;
-  profileImage: string;
-  experience: string;
-  documents: { type: string; name: string; url: string }[];
-  actionHistory?: { action: string; timestamp: string }[];
+  photoData: string;
+  submissionDate: string;
+  lastStatusUpdateDate: string | null;
+  approverName: string;
+  adminComments: string | null;
+  rejectionReason: string | null;
+  approvalDate: string | null;
+  requestInfoDate: string | null;
+  createdAt: string;
+  updatedAt: string | null;
+  expertiseAreas: ExpertiseArea[];
+  professionExperience: string;
+  applicationTimeline: string;
+  documents: Document[];
+  status: "Pending" | "Approved" | "Rejected" | "RequestInfo";
+}
+interface ApprovalFilterType {
+  status: string;
+}
+interface ExpertiseArea {
+  name: string;
 }
 
-// Mock data with actionHistory
-const mockApprovals: ApprovalType[] = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah.j@example.com",
-    expertiseAreas: ["Data Science", "Machine Learning", "Python"],
-    status: "pending",
-    submittedDate: "2023-09-10",
-    profileImage: "https://randomuser.me/api/portraits/women/32.jpg",
-    experience: "5 years at Tech Corp, 3 years teaching",
-    documents: [
-      { type: "PDF", name: "Resume.pdf", url: "#" },
-      { type: "JPG", name: "Certification.jpg", url: "#" },
-    ],
-    actionHistory: [{ action: "Submitted", timestamp: "2023-09-10" }],
-  },
-  {
-    id: "2",
-    name: "Michael Chen",
-    email: "michael.c@example.com",
-    expertiseAreas: ["UX Design", "UI Prototyping", "User Research"],
-    status: "pending",
-    submittedDate: "2023-09-12",
-    profileImage: "https://randomuser.me/api/portraits/men/42.jpg",
-    experience: "4 years at Design Studio",
-    documents: [{ type: "PDF", name: "Portfolio.pdf", url: "#" }],
-    actionHistory: [{ action: "Submitted", timestamp: "2023-09-12" }],
-  },
-  {
-    id: "3",
-    name: "Alex Rodriguez",
-    email: "alex.stabler.r@example.com",
-    expertiseAreas: ["Leadership", "Business Strategy", "Marketing"],
-    status: "pending",
-    submittedDate: "2023-09-14",
-    profileImage: "https://randomuser.me/api/portraits/men/67.jpg",
-    experience: "10 years in corporate leadership",
-    documents: [{ type: "PDF", name: "CV.pdf", url: "#" }],
-    actionHistory: [{ action: "Submitted", timestamp: "2023-09-14" }],
-  },
-  {
-    id: "4",
-    name: "Emily Davis",
-    email: "emily.d@example.com",
-    expertiseAreas: ["Web Development", "React", "Node.js"],
-    status: "approved",
-    submittedDate: "2023-09-08",
-    profileImage: "https://randomuser.me/api/portraits/women/45.jpg",
-    experience: "6 years as full-stack developer",
-    documents: [{ type: "PDF", name: "Resume.pdf", url: "#" }],
-    actionHistory: [
-      { action: "Submitted", timestamp: "2023-09-08" },
-      { action: "Approved", timestamp: "2023-09-09" },
-    ],
-  },
-  {
-    id: "5",
-    name: "James Wilson",
-    email: "james.w@example.com",
-    expertiseAreas: ["Cybersecurity", "Network Security"],
-    status: "rejected",
-    submittedDate: "2023-09-07",
-    profileImage: "https://randomuser.me/api/portraits/men/23.jpg",
-    experience: "3 years in IT security",
-    documents: [{ type: "PDF", name: "Certifications.pdf", url: "#" }],
-    actionHistory: [
-      { action: "Submitted", timestamp: "2023-09-07" },
-      { action: "Rejected: Insufficient experience", timestamp: "2023-09-08" },
-    ],
-  },
-  {
-    id: "6",
-    name: "James Oswel",
-    email: "james.w@examples.com",
-    expertiseAreas: ["Cybersecurity", "Network Security"],
-    status: "rejected",
-    submittedDate: "2023-09-07",
-    profileImage: "https://randomuser.me/api/portraits/men/22.jpg",
-    experience: "3 years in IT security",
-    documents: [{ type: "PDF", name: "Certifications.pdf", url: "#" }],
-    actionHistory: [
-      { action: "Submitted", timestamp: "2023-09-07" },
-      { action: "Rejected: Incomplete documentation", timestamp: "2023-09-08" },
-    ],
-  },
-];
-
 const ListApproval = () => {
-  const [approvals, setApprovals] = useState<ApprovalType[]>(mockApprovals);
+  const [approvals, setApprovals] = useState<ApprovalType[]>();
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
   );
+
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [filter, setFilter] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -133,25 +63,31 @@ const ListApproval = () => {
     { value: "request-info", label: "Request Info" },
   ];
 
-  // Mock data fetching
   useEffect(() => {
-    setLoading(true);
-    const filtered = mockApprovals.filter((approval) => {
-      const matchesSearch = approval.name
-        .toLowerCase()
-        .includes(searchDebounced.toLowerCase());
-      const matchesStatus = statusFilter
-        ? approval.status === statusFilter
-        : true;
-      return matchesSearch && matchesStatus;
-    });
-    const start = (pageIndex - 1) * pageSize;
-    const paginated = filtered.slice(start, start + pageSize);
-    setApprovals(paginated);
-    setTotalItems(filtered.length);
-    setLoading(false);
-  }, [searchDebounced, statusFilter, pageIndex, pageSize]);
-
+    fetchApplications();
+  }, [pageIndex, pageSize, searchDebounced, filter]);
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      const res = await approvalService.getAllMentorApplications(
+        searchDebounced,
+        filter,
+        pageIndex,
+        pageSize
+      );
+      setTotalItems(res.totalItems);
+      setApprovals(res.items);
+      console.log("Data:", res.items);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        handleAxiosError(error);
+      } else {
+        console.error("Error fetching applications:", error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   // Define columns for CustomTable
   const columns: DataColumn<ApprovalType>[] = [
     {
@@ -159,25 +95,25 @@ const ListApproval = () => {
       accessor: (row) => (
         <div className="flex items-center space-x-4">
           <img
-            src={row.profileImage}
-            alt={row.name}
+            src={row.photoData}
+            alt={row.fullName}
             className="w-12 h-12 rounded-full object-cover"
           />
           <div className="flex-1 min-w-0">
-            <p className="font-medium truncate text-white">{row.name}</p>
+            <p className="font-medium truncate text-white">{row.fullName}</p>
             <p className="text-sm text-gray-400 truncate pt-0.5">
-              {row.expertiseAreas.join(", ")}
+              {row.expertiseAreas.map((area) => area.name).join(", ")}
             </p>
             <div className="flex items-center mt-1">
               <span
                 className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                  row.status === "pending"
+                  row.status === "Pending"
                     ? "bg-yellow-500"
-                    : row.status === "approved"
+                    : row.status === "Approved"
                     ? "bg-green-500"
-                    : row.status === "rejected"
+                    : row.status === "Rejected"
                     ? "bg-red-500"
-                    : row.status === "request-info"
+                    : row.status === "RequestInfo"
                     ? "bg-blue-500"
                     : ""
                 }`}
@@ -187,7 +123,7 @@ const ListApproval = () => {
               </span>
               <span className="mx-2 text-gray-500">•</span>
               <span className="text-xs text-gray-400">
-                Submitted: {row.submittedDate}
+                Submitted: {row.submissionDate}
               </span>
             </div>
           </div>
@@ -198,26 +134,43 @@ const ListApproval = () => {
   ];
 
   // Get current timestamp
-  const getCurrentTimestamp = () => new Date().toISOString().split("T")[0];
+  //const getCurrentTimestamp = () => new Date().toISOString().split("T")[0];
 
   // Approve handler
-  const handleApprove = (approval: ApprovalType) => {
-    if (window.confirm(`Approve application for "${approval.name}"?`)) {
-      const updatedApproval = {
-        ...approval,
-        status: "approved" as const,
-        actionHistory: [
-          ...(approval.actionHistory || []),
-          { action: "Approved", timestamp: getCurrentTimestamp() },
-        ],
-      };
-      setApprovals((prev) =>
-        prev.map((item) => (item.id === approval.id ? updatedApproval : item))
-      );
-      setTotalItems(mockApprovals.length);
-      toast.success(`Application for ${approval.name} approved`);
-      if (selectedApproval?.id === approval.id) {
-        setSelectedApproval(updatedApproval);
+  const handleApprove = async (approval: ApprovalType) => {
+    if (window.confirm(`Approve application for "${approval.fullName}"?`)) {
+      try {
+        const request = {
+          MentorId: approval.applicantUserId,
+          StatusId: 3, // Approved
+          AdminReviewerId: adminReviewerId,
+          AdminComments: null, // No comments for Approve
+        };
+        const response = await approvalService.updateMentorApplicationStatus(
+          request
+        );
+        setApprovals((prev) =>
+          prev.map((item) =>
+            item.applicantUserId === approval.applicantUserId
+              ? {
+                  ...item,
+                  status: "Approved",
+                  approvalDate: new Date().toISOString().split("T")[0],
+                }
+              : item
+          )
+        );
+        setTotalItems((prev) => prev); // Maintain total items
+        toast.success(`Application for ${approval.fullName} approved`);
+        if (selectedApproval?.applicantUserId === approval.applicantUserId) {
+          setSelectedApproval({
+            ...selectedApproval,
+            status: "Approved",
+            approvalDate: new Date().toISOString(),
+          });
+        }
+      } catch (error) {
+        toast.error("Failed to approve application");
       }
     }
   };
@@ -229,63 +182,88 @@ const ListApproval = () => {
   };
 
   // Confirm rejection with comment
-  const confirmReject = () => {
+  const confirmReject = async () => {
     if (selectedApproval) {
-      const updatedApproval = {
-        ...selectedApproval,
-        status: "rejected" as const,
-        actionHistory: [
-          ...(selectedApproval.actionHistory || []),
-          {
-            action: `Rejected: ${rejectionComment}`,
-            timestamp: getCurrentTimestamp(),
-          },
-        ],
-      };
-      setApprovals((prev) =>
-        prev.map((item) =>
-          item.id === selectedApproval.id ? updatedApproval : item
-        )
-      );
-      setTotalItems(mockApprovals.length);
-      toast.success(
-        `Application for ${selectedApproval.name} rejected. Comment: ${rejectionComment}`
-      );
-      setSelectedApproval(updatedApproval);
-      setRejectionComment("");
-      setIsRejectModalOpen(false);
+      try {
+        const request = {
+          MentorId: selectedApproval.applicantUserId,
+          StatusId: 2, // Rejected
+          AdminReviewerId: adminReviewerId,
+          AdminComments: rejectionComment.trim() || null,
+        };
+        const response = await approvalService.updateMentorApplicationStatus(
+          request
+        );
+        setApprovals((prev) =>
+          prev.map((item) =>
+            item.applicantUserId === selectedApproval.applicantUserId
+              ? {
+                  ...item,
+                  status: "Rejected",
+                  rejectionReason: rejectionComment.trim() || null,
+                  lastStatusUpdateDate: new Date().toISOString(),
+                }
+              : item
+          )
+        );
+        setTotalItems((prev) => prev); // Maintain total items
+        toast.success(`Application for ${selectedApproval.fullName} rejected`);
+        setSelectedApproval({
+          ...selectedApproval,
+          status: "Rejected",
+          rejectionReason: rejectionComment.trim() || null,
+          lastStatusUpdateDate: new Date().toISOString(),
+        });
+        setRejectionComment("");
+        setIsRejectModalOpen(false);
+      } catch (error) {
+        toast.error("Failed to reject application");
+      }
     }
   };
 
   // Request Info handler
-  const handleRequestInfo = () => {
+  const handleRequestInfo = async () => {
     if (
       selectedApproval &&
-      window.confirm(`Request additional info for "${selectedApproval.name}"?`)
+      window.confirm(
+        `Request additional info for "${selectedApproval.fullName}"?`
+      )
     ) {
-      const reason = adminNotes.trim() || "No reason provided";
-      const updatedApproval = {
-        ...selectedApproval,
-        status: "request-info" as const,
-        actionHistory: [
-          ...(selectedApproval.actionHistory || []),
-          {
-            action: `Request Info: ${reason}`,
-            timestamp: getCurrentTimestamp(),
-          },
-        ],
-      };
-      setApprovals((prev) =>
-        prev.map((item) =>
-          item.id === selectedApproval.id ? updatedApproval : item
-        )
-      );
-      setTotalItems(mockApprovals.length);
-      toast.success(
-        `Info requested for ${selectedApproval.name}. Reason: ${reason}`
-      );
-      setSelectedApproval(updatedApproval);
-      setAdminNotes(""); // Clear admin notes after request
+      try {
+        const request = {
+          MentorId: selectedApproval.applicantUserId,
+          StatusId: 4, // Request Info
+          AdminReviewerId: adminReviewerId,
+          AdminComments: adminNotes.trim() || null,
+        };
+        const response = await approvalService.updateMentorApplicationStatus(
+          request
+        );
+        setApprovals((prev) =>
+          prev.map((item) =>
+            item.applicantUserId === selectedApproval.applicantUserId
+              ? {
+                  ...item,
+                  status: "RequestInfo",
+                  requestInfoDate: new Date().toISOString(),
+                  adminComments: adminNotes.trim() || null,
+                }
+              : item
+          )
+        );
+        setTotalItems((prev) => prev); // Maintain total items
+        toast.success(`Info requested for ${selectedApproval.fullName}`);
+        setSelectedApproval({
+          ...selectedApproval,
+          status: "RequestInfo",
+          requestInfoDate: new Date().toISOString(),
+          adminComments: adminNotes.trim() || null,
+        });
+        setAdminNotes("");
+      } catch (error) {
+        toast.error("Failed to request additional info");
+      }
     }
   };
 
@@ -383,20 +361,23 @@ const ListApproval = () => {
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center space-x-4">
                       <img
-                        src={selectedApproval.profileImage}
-                        alt={selectedApproval.name}
+                        src={
+                          selectedApproval.photoData ||
+                          "https://via.placeholder.com/48"
+                        }
+                        alt={selectedApproval.fullName}
                         className="w-12 h-12 rounded-full object-cover"
                       />
                       <div>
                         <h3 className="font-medium text-white">
-                          {selectedApproval.name}
+                          {selectedApproval.fullName}
                         </h3>
                         <p className="text-sm text-gray-400">
                           {selectedApproval.email}
                         </p>
                       </div>
                     </div>
-                    {["pending", "request-info"].includes(
+                    {["Pending", "RequestInfo"].includes(
                       selectedApproval.status
                     ) && (
                       <div>
@@ -427,21 +408,60 @@ const ListApproval = () => {
                         Expertise Areas
                       </h4>
                       <p className="text-sm">
-                        {selectedApproval.expertiseAreas.join(", ")}
+                        {selectedApproval.expertiseAreas
+                          .map((area) => area.name)
+                          .join(", ")}
                       </p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-400">
                         Professional Experience
                       </h4>
-                      <p className="text-sm">{selectedApproval.experience}</p>
+                      <p className="text-sm">
+                        {selectedApproval.professionExperience}
+                      </p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-400">
                         Application Timeline
                       </h4>
                       <div className="space-y-2">
-                        {selectedApproval.actionHistory?.map((entry, index) => (
+                        {[
+                          ...(selectedApproval.applicationTimeline
+                            ? [
+                                {
+                                  action: "Submitted",
+                                  timestamp:
+                                    selectedApproval.applicationTimeline,
+                                },
+                              ]
+                            : []),
+                          ...(selectedApproval.approvalDate
+                            ? [
+                                {
+                                  action: "Approved",
+                                  timestamp: selectedApproval.approvalDate,
+                                },
+                              ]
+                            : []),
+                          ...(selectedApproval.rejectionReason
+                            ? [
+                                {
+                                  action: `Rejected: ${selectedApproval.rejectionReason}`,
+                                  timestamp:
+                                    selectedApproval.lastStatusUpdateDate,
+                                },
+                              ]
+                            : []),
+                          ...(selectedApproval.requestInfoDate
+                            ? [
+                                {
+                                  action: "Request Info",
+                                  timestamp: selectedApproval.requestInfoDate,
+                                },
+                              ]
+                            : []),
+                        ].map((entry, index) => (
                           <div
                             key={index}
                             className="flex items-center space-x-2 text-sm"
@@ -472,14 +492,16 @@ const ListApproval = () => {
                           >
                             <FileText size={16} className="text-gray-300" />
                             <span className="text-sm text-gray-300">
-                              {doc.type}: {doc.name}
+                              PDF: {doc.fileName}
                             </span>
-                            <a
-                              href={doc.url}
+                            {/* <a
+                              href={`/api/files/${doc.fileId}`}
                               className="text-blue-400 hover:underline text-sm"
+                              target="_blank"
+                              rel="noopener noreferrer"
                             >
                               View
-                            </a>
+                            </a> */}
                           </div>
                         ))}
                       </div>
@@ -522,7 +544,7 @@ const ListApproval = () => {
             </h3>
             <p className="text-gray-300 mb-4">
               Are you sure you want to reject the application for{" "}
-              <strong>{selectedApproval?.name}</strong>?
+              <strong>{selectedApproval?.fullName}</strong>?
             </p>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-400 mb-1">

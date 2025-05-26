@@ -124,7 +124,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
           label="Company Name"
-          name="companyName"
+          name="input-field-companyName"
           type="text"
           value={formState.companyName}
           onChange={handleChange}
@@ -136,7 +136,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
           label="Position"
-          name="position"
+          name="input-field-position"
           type="text"
           value={formState.position}
           onChange={handleChange}
@@ -148,7 +148,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
           label="Year Start"
-          name="startDate"
+          name="input-field-startDate"
           type="text"
           value={formState.startDate}
           onChange={handleChange}
@@ -160,7 +160,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
           label="Year End"
-          name="endDate"
+          name="input-field-endDate"
           type="text"
           value={formState.endDate || ""}
           onChange={handleChange}
@@ -170,6 +170,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       </div>
       <div className="flex justify-end space-x-4 pt-4">
         <Button
+          id="cancel-workexperience-dialog-button"
           variant="secondary"
           size="md"
           className="font-bold text-white"
@@ -179,6 +180,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
           Cancel
         </Button>
         <Button
+          id="submit-workexperience-dialog-button"
           variant="primary"
           size="md"
           type="submit"
