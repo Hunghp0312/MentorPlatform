@@ -1,4 +1,4 @@
-﻿using ApplicationCore.Common;
+using ApplicationCore.Common;
 using ApplicationCore.Constants;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Mentors;
@@ -27,6 +27,7 @@ namespace ApplicationCore.Services
         private readonly ISendEmailService _sendEmailService;
 
         public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IDocumentContentRepository documentContentRepository, ISupportingDocumentRepository supportingDocumentRepository, IMentorEducationRepository mentorEducationRepository, IMentorWorkExperienceRepository mentorWorkExperienceRepository, IMentorCertificationRepository mentorCertificationRepository, ISendEmailService sendEmailService)
+
         {
             _sendEmailService = sendEmailService;
             _mentorRepository = mentorRepository;
@@ -36,6 +37,7 @@ namespace ApplicationCore.Services
             _mentorEducationRepository = mentorEducationRepository;
             _mentorWorkExperienceRepository = mentorWorkExperienceRepository;
             _mentorCertificationRepository = mentorCertificationRepository;
+
         }
 
         public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicatioStatus, string? searchString = null)
