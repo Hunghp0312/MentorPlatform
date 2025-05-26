@@ -10,11 +10,12 @@ import {
   MentorCreateApplication,
   SupportingDocument,
 } from "../../types/mentorapplication";
-import { User } from "../../types/user";
+import { User, UserApplication } from "../../types/user";
 import CustomModal from "../../components/ui/Modal";
 import EducationAddDialog from "../../components/dialog/Applications/EducationDialog";
 import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkExperienceDialog";
 import CertificationAddDialog from "../../components/dialog/Applications/CertificationDialog";
+import { EnumType } from "../../types/commonType";
 
 interface MentorStatusType {
   mentorEducation: MentorEducation[];
@@ -26,13 +27,13 @@ interface MentorStatusType {
   rejectedDate?: string;
   adminComment?: string;
   status?: string;
-  userApplicationDetais?: User;
+  userApplicationDetails?: User;
 }
 
 const MentorStatusProfile = () => {
   const [loading, setLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [mentorData, setMentorData] = useState<MentorStatusType>({
     mentorEducation: [],
     mentorWorkExperience: [],
@@ -64,6 +65,7 @@ const MentorStatusProfile = () => {
   const [openWorkExperienceDialog, setOpenWorkExperienceDialog] =
     useState(false);
   const [openCertificationDialog, setOpenCertificationDialog] = useState(false);
+  const [role, setRole] = useState<EnumType | undefined>(undefined);
   const [openDocumentViewer, setOpenDocumentViewer] = useState(false);
   const [documentData, setDocumentData] = useState<{
     fileContent: string;
@@ -72,14 +74,34 @@ const MentorStatusProfile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const fetchUserData = async (): Promise<User | null> => {
+    const fetchUserData = async (): Promise<UserApplication | null> => {
       try {
         const response = await userService.getCurrentUser();
         console.log("User Data:", response);
-        return response; // Return the User type
+        const mappedUserData: UserApplication = {
+          id: response.id,
+          email: response.email,
+          role: response.role,
+          hasMentorApplication: response.hasMentorApplication,
+          profile: {
+            id: response.id,
+            photoData: response.avatar || undefined,
+            fullName: response.fullName,
+            professionalSkill: response.professionalSkills,
+            industryExperience: response.industryExperience,
+          },
+          userArenaOfExpertises:
+            response.areaOfExpertise?.map((expertise: string) => ({
+              userId: response.id,
+              arenaOfExpertise: { name: expertise },
+            })) || [],
+        };
+        setRole(mappedUserData.role);
+        console.log("Mapped User Data:", mappedUserData.role);
+        return mappedUserData;
       } catch (error) {
         console.error("Error fetching user data:", error);
-        return null; // Return null on error
+        return null;
       }
     };
 
@@ -107,7 +129,7 @@ const MentorStatusProfile = () => {
           };
         }
 
-        const mappedData: MentorStatusType = {
+        const mappedData: Partial<MentorStatusType> = {
           mentorEducation: response.educationDetails || [],
           mentorWorkExperience: response.workExperienceDetails || [],
           certifications: response.certifications || [],
@@ -115,9 +137,15 @@ const MentorStatusProfile = () => {
           status: response.status,
         };
 
-        setMentorData(mappedData);
-        setEditedMentor({ ...mappedData });
-      } catch (error) {
+        setMentorData((prev) => ({
+          ...prev,
+          ...mappedData,
+        }));
+        setEditedMentor((prev) => ({
+          ...prev,
+          ...mappedData,
+        }));
+      } catch {
         setError("Failed to load application data");
       } finally {
         setLoading(false);
@@ -125,12 +153,20 @@ const MentorStatusProfile = () => {
     };
 
     const fetchData = async () => {
-      const userData = await fetchUserData(); // Get user data first
-      // Check if MyApplication exists using userApplication
-      if (userData?.profile?.userApplication) {
-        await loadMyApplication(); // Only call if MyApplication exists
+      const userData = await fetchUserData();
+      if (userData) {
+        setMentorData((prev) => ({
+          ...prev,
+          userApplicationDetails: userData,
+        }));
+        console.log("User Data:", userData.hasMentorApplication);
+        if (userData.hasMentorApplication) {
+          await loadMyApplication();
+        } else {
+          setLoading(false);
+        }
       } else {
-        setLoading(false); // Reset loading state if no application
+        setLoading(false);
       }
     };
 
@@ -237,7 +273,6 @@ const MentorStatusProfile = () => {
         setError("Không thể mở tài liệu: Dữ liệu Base64 không hợp lệ.");
         return;
       }
-      // Set document data and open modal
       setDocumentData({ fileContent, fileType });
       setOpenDocumentViewer(true);
     } catch (error) {
@@ -345,7 +380,7 @@ const MentorStatusProfile = () => {
       mentorEducations: editedMentor.mentorEducation,
       mentorWorkExperiences: editedMentor.mentorWorkExperience,
       mentorCertifications: editedMentor.certifications,
-      menttorDocuments: editedMentor.mentorDocuments,
+      mentorDocuments: editedMentor.mentorDocuments,
     };
 
     try {
@@ -363,6 +398,7 @@ const MentorStatusProfile = () => {
         mentorWorkExperience: response.mentorWorkExperiences || [],
         certifications: response.mentorCertifications || [],
         mentorDocuments: response.supportingDocument || null,
+        status: response.status,
       };
 
       setMentorData(mappedData);
@@ -417,7 +453,7 @@ const MentorStatusProfile = () => {
           )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData && mentorData.mentorEducation?.length > 0 ? (
+          {mentorData?.mentorEducation?.length > 0 ? (
             mentorData.mentorEducation.map((education, index) => (
               <div
                 key={index}
@@ -467,7 +503,7 @@ const MentorStatusProfile = () => {
           )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData && mentorData.mentorWorkExperience?.length > 0 ? (
+          {mentorData?.mentorWorkExperience?.length > 0 ? (
             mentorData.mentorWorkExperience.map((experience, index) => (
               <div
                 key={index}
@@ -522,28 +558,31 @@ const MentorStatusProfile = () => {
           )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData && mentorData.certifications?.length > 0 ? (
+          {mentorData?.certifications?.length > 0 ? (
             mentorData.certifications.map((certificate, index) => (
               <div
                 key={index}
                 className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
               >
-                <h5 className="font-medium">
-                  {certificate.certificationName}
-                  <p className="text-[12px] text-gray-400">
-                    {certificate.issuingOrganization}
-                  </p>
-                </h5>
-
-                <div className="flex items-center space-x-2">
-                  {isEditing && (
-                    <button onClick={() => handleRemoveCertification(index)}>
-                      <CircleMinus
-                        size={20}
-                        className="text-red-500 hover:text-red-600"
-                      />
-                    </button>
-                  )}
+                <div className="flex w-full justify-between items-start">
+                  <div className="flex flex-col">
+                    <h5 className="font-medium">
+                      {certificate.certificationName}
+                    </h5>
+                    <p className="text-[12px] text-gray-400">
+                      {certificate.issuingOrganization}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {isEditing && (
+                      <button onClick={() => handleRemoveCertification(index)}>
+                        <CircleMinus
+                          size={20}
+                          className="text-red-500 hover:text-red-600"
+                        />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
@@ -615,7 +654,7 @@ const MentorStatusProfile = () => {
   );
 
   if (loading) return <div>Loading...</div>;
-  if (!editedMentor) return <div>No data available</div>;
+  if (!mentorData) return <div>No data available</div>;
 
   return (
     <main className="container mx-auto py-8 px-4">
@@ -635,12 +674,28 @@ const MentorStatusProfile = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
               <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
-                <span className="text-gray-400 text-4xl"></span>
+                {mentorData.userApplicationDetails?.profile?.photoData ? (
+                  <img
+                    src={mentorData.userApplicationDetails.profile.photoData}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-400 text-4xl">
+                    {mentorData.userApplicationDetails?.profile?.fullName?.charAt(
+                      0
+                    ) || ""}
+                  </span>
+                )}
               </div>
               <div>
+                <h2 className="text-xl font-medium text-gray-200">
+                  {mentorData.userApplicationDetails?.profile?.fullName ||
+                    "N/A"}
+                </h2>
                 <div className="mt-1 flex items-center">
                   <span className="bg-orange-500 text-xs text-white px-2.5 py-1 rounded-full capitalize">
-                    mentor
+                    {role?.name}
                   </span>
                   <span className="pr-1"></span>
                   <span
@@ -662,22 +717,39 @@ const MentorStatusProfile = () => {
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">
+              <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Areas of expertise
               </h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.userArenaOfExpertises
+                  ?.map((expertise) => expertise.arenaOfExpertise?.name)
+                  .join(", ") || "No expertise provided"}
+              </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Professional skills
               </h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.profile
+                  ?.professionalSkill || "No skills provided"}
+              </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Industry experience
               </h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.profile
+                  ?.industryExperience || "No experience provided"}
+              </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">Email</h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.email ||
+                  "No email provided"}
+              </p>
             </div>
             <ExpandProfileSettings
               additionalSettings={additionalSettingsContent}
@@ -743,7 +815,6 @@ const MentorStatusProfile = () => {
                 isSubmitting={false}
               />
             </CustomModal>
-            {/* New Modal for Document Viewer */}
             <CustomModal
               isOpen={openDocumentViewer}
               onClose={handleCloseDocumentViewer}

@@ -3,7 +3,6 @@ import {
   MentorApplicationResponse,
   MentorUpdateStatusRequest,
 } from "../types/approval";
-import { User, UserProfile } from "../types/user";
 
 export const mentorService = {
   async updateMentorApplicationStatus(request: MentorUpdateStatusRequest) {

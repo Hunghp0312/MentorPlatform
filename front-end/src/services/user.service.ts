@@ -1,8 +1,8 @@
 import axiosInstance from "../configs/axiosInstance";
-import { User } from "../types/user";
+import { UserApplication } from "../types/user";
 
 export const userService = {
-  async getCurrentUser(): Promise<User> {
+  async getCurrentUser(): Promise<UserApplication> {
     const response = await axiosInstance.get(`/Users/current-user`);
     const data = response.data;
 

@@ -70,7 +70,7 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
-                Role = user.Role?.Name ?? string.Empty,
+                Role = user.Role,
                 Status = user.Status?.Name ?? string.Empty,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin
@@ -94,7 +94,7 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
-                Role = user.Role?.Name ?? string.Empty,
+                Role = user.Role,
                 Status = user.Status?.Name ?? string.Empty,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin
@@ -132,7 +132,7 @@ namespace ApplicationCore.Services
                 Id = updatedUser.Id,
                 FullName = updatedUser.UserProfile?.FullName ?? string.Empty,
                 Email = updatedUser.Email,
-                Role = updatedUser.Role?.Name ?? string.Empty,
+                Role = updatedUser.Role,
                 Status = updatedUser.Status?.Name ?? string.Empty,
                 JoinDate = updatedUser.CreatedAt,
                 LastActiveDate = updatedUser.LastLogin
@@ -154,7 +154,7 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
-                Role = user.Role?.Name ?? string.Empty,
+                Role = user.Role,
                 Status = user.Status?.Name ?? string.Empty,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,
