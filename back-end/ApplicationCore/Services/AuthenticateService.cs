@@ -11,7 +11,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Utilities;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ApplicationCore.Services;
 
@@ -43,27 +42,18 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetExpiry = DateTime.UtcNow.AddMinutes(30);
         var encodedPasswordResetToken = Uri.EscapeDataString(user.PasswordResetToken);
         var encodedEmail = Uri.EscapeDataString(user.Email);
+        var frontendUrl = _configuration["FrontendUrl"] ?? "https://localhost:5173";
         await _unitOfWork.SaveChangesAsync();
         await _sendEmailService.SendEmail(
             email.Email,
             "Reset Password",
-            $"<p>Click <a href='https://localhost:5173/reset-password?token={encodedPasswordResetToken}&email={encodedEmail}'>here</a> to reset your password.</p>"
+            $"<p>Click <a href='{frontendUrl}/reset-password?token={encodedPasswordResetToken}&email={encodedEmail}'>here</a> to reset your password.</p>"
         );
         return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Reset password email sent." });
     }
 
     public async Task<OperationResult<TokenResponse>> GitHubLoginAsync(string code)
     {
-        // Pseudocode:
-        // 1. Exchange the code for an access token from GitHub.
-        // 2. Use the access token to get user info from GitHub.
-        // 3. Check if a user with the GitHub email exists in the database.
-        // 4. If not, create a new user with the GitHub info.
-        // 5. Generate JWT access and refresh tokens.
-        // 6. Save refresh token and expiry to user, save changes.
-        // 7. Return tokens.
-
-        // 1. Exchange code for access token
         using var httpClient = new HttpClient();
         var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
         var clientId = _configuration["Github:ClientId"];
@@ -84,7 +74,6 @@ public class AuthenticateService : IAuthenticateService
         if (string.IsNullOrEmpty(githubAccessToken))
             return OperationResult<TokenResponse>.BadRequest("GitHub access token missing.");
 
-        // 2. Get user info from GitHub
         var userRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user");
         userRequest.Headers.Add("Authorization", $"Bearer {githubAccessToken}");
         userRequest.Headers.Add("User-Agent", "YourAppName");
@@ -97,7 +86,6 @@ public class AuthenticateService : IAuthenticateService
             ? emailProp.GetString()
             : null;
 
-        // If email is null, fetch from /user/emails endpoint
         if (string.IsNullOrEmpty(githubEmail))
         {
             var emailsRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
@@ -122,17 +110,15 @@ public class AuthenticateService : IAuthenticateService
         if (string.IsNullOrEmpty(githubEmail))
             return OperationResult<TokenResponse>.BadRequest("GitHub email not found.");
 
-        // 3. Check if user exists
         var user = await _userRepository.GetByEmailAsync(githubEmail);
         if (user == null)
         {
-            // 4. Create new user
             user = new User
             {
                 Id = Guid.NewGuid(),
                 Email = githubEmail,
-                PasswordHash = "", // No password for OAuth users
-                RoleId = 2, // Default role, adjust as needed
+                PasswordHash = "", 
+                RoleId = 2, 
                 LastLogin = DateTime.UtcNow
             };
             await _userRepository.AddAsync(user);
@@ -142,7 +128,6 @@ public class AuthenticateService : IAuthenticateService
             user.LastLogin = DateTime.UtcNow;
         }
 
-        // 5. Generate tokens
         var claims = new List<Claim>
         {
             new Claim("id", user.Id.ToString()),
@@ -153,10 +138,8 @@ public class AuthenticateService : IAuthenticateService
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
-        // 6. Save changes
         await _unitOfWork.SaveChangesAsync();
 
-        // 7. Return tokens
         var jwtHandler = new JwtSecurityTokenHandler();
         var response = new TokenResponse
         {
@@ -165,7 +148,84 @@ public class AuthenticateService : IAuthenticateService
         };
         return OperationResult<TokenResponse>.Ok(response);
     }
+    public async Task<OperationResult<TokenResponse>> GoogleLoginAsync(string code)
+    {
+        using var httpClient = new HttpClient();
+        var clientId = _configuration["Google:ClientId"];
+        var clientSecret = _configuration["Google:ClientSecret"];
+        var redirectUri = _configuration["Google:RedirectUri"];
+        var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token")
+        {
+            Content = new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            { "code", code },
+            { "client_id", clientId ?? "" },
+            { "client_secret", clientSecret ?? "" },
+            { "redirect_uri", redirectUri ?? "" },
+            { "grant_type", "authorization_code" }
+        })
+        };
+        var tokenResponse = await httpClient.SendAsync(tokenRequest);
+        if (!tokenResponse.IsSuccessStatusCode)
+            return OperationResult<TokenResponse>.BadRequest("Failed to get Google access token.");
+        var tokenJson = await tokenResponse.Content.ReadAsStringAsync();
+        var tokenObj = System.Text.Json.JsonDocument.Parse(tokenJson).RootElement;
+        var googleAccessToken = tokenObj.GetProperty("access_token").GetString();
+        if (string.IsNullOrEmpty(googleAccessToken))
+            return OperationResult<TokenResponse>.BadRequest("Google access token missing.");
 
+        
+        var userRequest = new HttpRequestMessage(HttpMethod.Get, "https://www.googleapis.com/oauth2/v2/userinfo");
+        userRequest.Headers.Add("Authorization", $"Bearer {googleAccessToken}");
+        var userResponse = await httpClient.SendAsync(userRequest);
+        if (!userResponse.IsSuccessStatusCode)
+            return OperationResult<TokenResponse>.BadRequest("Failed to get Google user info.");
+        var userJson = await userResponse.Content.ReadAsStringAsync();
+        var userObj = System.Text.Json.JsonDocument.Parse(userJson).RootElement;
+        var googleEmail = userObj.GetProperty("email").GetString();
+        if (string.IsNullOrEmpty(googleEmail))
+            return OperationResult<TokenResponse>.BadRequest("Google email not found.");
+
+        
+        var user = await _userRepository.GetByEmailAsync(googleEmail);
+        if (user == null)
+        {
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                Email = googleEmail,
+                PasswordHash = "",
+                RoleId = 2,
+                LastLogin = DateTime.UtcNow
+            };
+            await _userRepository.AddAsync(user);
+        }
+        else
+        {
+            user.LastLogin = DateTime.UtcNow;
+        }
+
+        
+        var claims = new List<Claim>
+    {
+        new Claim("id", user.Id.ToString()),
+        new Claim(ClaimTypes.Role, user.Role?.Name ?? "Learner"),
+    };
+        var accessToken = _tokenService.GenerateAccessToken(claims);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+        await _unitOfWork.SaveChangesAsync();
+
+        var jwtHandler = new JwtSecurityTokenHandler();
+        var response = new TokenResponse
+        {
+            AccessToken = jwtHandler.WriteToken(accessToken),
+            RefreshToken = refreshToken
+        };
+        return OperationResult<TokenResponse>.Ok(response);
+    }
     public async Task<OperationResult<TokenResponse>> LoginAsync(LoginRequest loginRequest)
     {
         var user = await _userRepository.GetByEmailAsync(loginRequest.Email);
@@ -218,7 +278,7 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetToken = null;
         user.PasswordResetExpiry = null;
         await _unitOfWork.SaveChangesAsync();
-        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password change successfully"});
+        return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Password change successfully" });
     }
 
     public async Task<OperationResult<TokenResponse>> RetrieveAccessToken(RefreshRequest refreshTokenRequest)
