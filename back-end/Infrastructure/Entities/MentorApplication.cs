@@ -12,6 +12,7 @@ namespace Infrastructure.Entities
         public string? AdminComments { get; set; }
         public string? RejectionReason { get; set; }
         public DateTime? ApprovalDate { get; set; }
+        public string? RequestInfoDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public virtual User Applicant { get; set; } = null!;

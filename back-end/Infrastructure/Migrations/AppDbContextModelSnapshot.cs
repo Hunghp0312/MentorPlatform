@@ -447,69 +447,6 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Enum.AreaOfExpertise", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("AreaOfExpertise");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Leadership"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Programming"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Design"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Marketing"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Data Science"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Business"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Project Management"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Communication"
-                        });
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.Enum.Availability", b =>
                 {
                     b.Property<int>("Id")
@@ -959,69 +896,6 @@ namespace Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Enum.Topic", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Topic");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Career Development"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Technical Skills"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Leadership"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Communication"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Work-Life Balance"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Industry Insights"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Networking"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Entrepreneurship"
-                        });
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.Property<Guid>("ApplicantId")
@@ -1048,6 +922,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestInfoDate")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SubmissionDate")
@@ -1359,7 +1236,6 @@ namespace Infrastructure.Migrations
                             PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
                             RoleId = 1,
                             StatusId = 1
-            
                         },
                         new
                         {
@@ -1367,11 +1243,8 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 1, 17, 14, 20, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.admin@gmail.com",
                             PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
-
                             RoleId = 1,
                             StatusId = 1
-
-
                         },
                         new
                         {
@@ -1379,11 +1252,8 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 2, 10, 9, 5, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.learner@gmail.com",
                             PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
-
                             RoleId = 2,
                             StatusId = 2
-
-
                         },
                         new
                         {
@@ -1391,7 +1261,6 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 2, 12, 16, 30, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.learner@gmail.com",
                             PasswordHash = "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi",
-
                             RoleId = 2,
                             StatusId = 1
                         },
@@ -1401,7 +1270,6 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 2, 18, 17, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.learner@gmail.com",
                             PasswordHash = "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT",
-
                             RoleId = 2,
                             StatusId = 3
                         },
@@ -1413,7 +1281,6 @@ namespace Infrastructure.Migrations
                             PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
                             RoleId = 3,
                             StatusId = 1
-
                         },
                         new
                         {
@@ -1421,7 +1288,6 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 3, 5, 11, 20, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.mentor@gmail.com",
                             PasswordHash = "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV",
-
                             RoleId = 3,
                             StatusId = 2
                         },
@@ -1431,7 +1297,6 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2024, 3, 10, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.mentor@gmail.com",
                             PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
-
                             RoleId = 3,
                             StatusId = 1
                         },
@@ -1535,6 +1400,141 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SessionFrequencyId");
 
                     b.ToTable("UserProfile");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
+                            Bio = "Experienced tech administrator with background in education platforms.",
+                            CommunicationMethod = 1,
+                            FullName = "Huy Nguyen Admin",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            ProfessionalSkill = "System administration, DevOps, Cloud infrastructure",
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
+                            Bio = "Platform administrator with focus on user experience and system reliability.",
+                            CommunicationMethod = 1,
+                            FullName = "Huy Khuong Admin",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            ProfessionalSkill = "User management, Technical support, Data analytics",
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
+                            Bio = "Senior administrator overseeing platform development and technical operations.",
+                            CommunicationMethod = 1,
+                            FullName = "Minh Chau Admin",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            ProfessionalSkill = "Project management, System architecture, Team leadership",
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            Bio = "Aspiring software developer interested in web technologies and cloud computing.",
+                            CommunicationMethod = 2,
+                            FullName = "Huy Nguyen Learner",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            SessionDurationId = 2,
+                            SessionFrequencyId = 1,
+                            UserGoal = "To master modern web development frameworks and secure a developer position."
+                        },
+                        new
+                        {
+                            Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
+                            Bio = "Data science enthusiast with background in statistics and mathematics.",
+                            CommunicationMethod = 1,
+                            FullName = "Huy Khuong Learner",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = false,
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 2,
+                            UserGoal = "To develop expertise in machine learning algorithms and data visualization."
+                        },
+                        new
+                        {
+                            Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
+                            Bio = "UX/UI designer looking to expand skills in frontend development.",
+                            CommunicationMethod = 3,
+                            FullName = "Minh Chau Learner",
+                            MessagePermission = false,
+                            NotificationsEnabled = false,
+                            PrivacyProfile = true,
+                            SessionDurationId = 1,
+                            SessionFrequencyId = 3,
+                            UserGoal = "To combine design expertise with technical implementation skills."
+                        },
+                        new
+                        {
+                            Id = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
+                            Bio = "Full-stack developer with interest in blockchain and distributed systems.",
+                            CommunicationMethod = 2,
+                            FullName = "Dan Cega",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = false,
+                            SessionDurationId = 5,
+                            SessionFrequencyId = 1,
+                            UserGoal = "To build scalable decentralized applications and smart contracts."
+                        },
+                        new
+                        {
+                            Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            Bio = "Senior software engineer with 8+ years of experience in full-stack development.",
+                            CommunicationMethod = 1,
+                            FullName = "Huy Nguyen Mentor",
+                            IndustryExperience = "Fintech, E-commerce, Enterprise applications",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = false,
+                            ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
+                            SessionDurationId = 4,
+                            SessionFrequencyId = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            Bio = "Data scientist specializing in predictive analytics and natural language processing.",
+                            CommunicationMethod = 2,
+                            FullName = "Huy Khuong Mentor",
+                            IndustryExperience = "Healthcare, Research, Marketing analytics",
+                            MessagePermission = true,
+                            NotificationsEnabled = true,
+                            PrivacyProfile = true,
+                            ProfessionalSkill = "Python, TensorFlow, PyTorch, NLP, Big Data",
+                            SessionDurationId = 3,
+                            SessionFrequencyId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            Bio = "Frontend specialist with expertise in modern JavaScript frameworks and UI/UX principles.",
+                            CommunicationMethod = 3,
+                            FullName = "Minh Chau Mentor",
+                            IndustryExperience = "SaaS products, E-learning platforms, Creative agencies",
+                            MessagePermission = true,
+                            NotificationsEnabled = false,
+                            PrivacyProfile = false,
+                            ProfessionalSkill = "React, Vue.js, Angular, SCSS, Accessibility",
+                            SessionDurationId = 2,
+                            SessionFrequencyId = 4
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfileAvailability", b =>
@@ -1562,7 +1562,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid?>("UserProfileId")
                         .HasColumnType("uniqueidentifier");
-
 
                     b.HasKey("UserId", "TopicId");
 
@@ -1766,7 +1765,6 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("AreaOfExpertise");
 
-
                     b.Navigation("User");
                 });
 
@@ -1900,7 +1898,6 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("UserProfile")
                         .IsRequired();
-
 
                     b.Navigation("UserTopicOfInterests");
                 });
