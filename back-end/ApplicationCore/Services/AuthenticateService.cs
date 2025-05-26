@@ -1,6 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using ApplicationCore.Common;
+﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Authenticates;
 using ApplicationCore.DTOs.Responses.Authenticates;
@@ -22,7 +20,6 @@ public class AuthenticateService : IAuthenticateService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ISendEmailService _sendEmailService;
     private readonly IConfiguration _configuration;
-
     public AuthenticateService(
         IUserRepository userRepository,
         ITokenService tokenService,
@@ -30,6 +27,7 @@ public class AuthenticateService : IAuthenticateService
         ISendEmailService sendEmailService,
         IConfiguration configuration
     )
+
     {
         _userRepository = userRepository;
         _tokenService = tokenService;
@@ -65,16 +63,7 @@ public class AuthenticateService : IAuthenticateService
 
     public async Task<OperationResult<TokenResponse>> GitHubLoginAsync(string code)
     {
-        // Pseudocode:
-        // 1. Exchange the code for an access token from GitHub.
-        // 2. Use the access token to get user info from GitHub.
-        // 3. Check if a user with the GitHub email exists in the database.
-        // 4. If not, create a new user with the GitHub info.
-        // 5. Generate JWT access and refresh tokens.
-        // 6. Save refresh token and expiry to user, save changes.
-        // 7. Return tokens.
 
-        // 1. Exchange code for access token
         using var httpClient = new HttpClient();
         var tokenRequest = new HttpRequestMessage(
             HttpMethod.Post,
@@ -90,6 +79,7 @@ public class AuthenticateService : IAuthenticateService
                 { "code", code },
             }
         );
+
         tokenRequest.Headers.Add("Accept", "application/json");
         var tokenResponse = await httpClient.SendAsync(tokenRequest);
         if (!tokenResponse.IsSuccessStatusCode)
@@ -158,6 +148,7 @@ public class AuthenticateService : IAuthenticateService
                 PasswordHash = "", // No password for OAuth users
                 RoleId = 2, // Default role, adjust as needed
                 LastLogin = DateTime.UtcNow,
+
             };
             await _userRepository.AddAsync(user);
         }
@@ -247,6 +238,7 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetToken = null;
         user.PasswordResetExpiry = null;
         await _unitOfWork.SaveChangesAsync();
+
         return OperationResult<MessageResponse>.Ok(
             new MessageResponse { Message = "Password change successfully" }
         );
