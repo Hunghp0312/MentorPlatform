@@ -9,14 +9,16 @@ import {
 } from "../../services/registration.service";
 import {
   UserRegistrationRequest,
-  AccountDetails,
   SharedProfileDetails,
   UserPreferences,
-  Role,
   createInitialData,
+} from "../../types/userRegister.d";
+import {
+  AccountDetails,
+  RoleEnum,
   LearningStyleOption,
   TeachingApproachOption,
-} from "../../types/userRegister.d";
+} from "../../types/commonType";
 import { useNavigate } from "react-router-dom";
 import { pathName } from "../../constants/pathName";
 
@@ -24,7 +26,7 @@ const Registration = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
   const [formData, setFormData] = useState<UserRegistrationRequest>(
-    createInitialData(Role.Learner)
+    createInitialData(RoleEnum.Learner)
   );
   const [userId, setUserId] = useState<string>("");
 
@@ -43,15 +45,22 @@ const Registration = () => {
     setFormData((prev) => {
       const newProfileData = { ...prev.profile, ...updates };
       if (
-        prev.role === Role.Mentor &&
+        prev.role === RoleEnum.Mentor &&
         updates.industryExperience !== undefined
       ) {
-        const currentMentorData = prev;
+        let currentMentorDetails = {};
+        if (
+          prev.role === RoleEnum.Mentor &&
+          "mentorDetails" in prev &&
+          prev.mentorDetails
+        ) {
+          currentMentorDetails = prev.mentorDetails;
+        }
         return {
           ...prev,
           profile: newProfileData,
           mentorDetails: {
-            ...currentMentorData.mentorDetails,
+            ...currentMentorDetails,
             industryExperience: updates.industryExperience,
           },
         } as UserRegistrationRequest;
@@ -60,9 +69,9 @@ const Registration = () => {
     });
   };
 
-  const handleRoleChange = (newRole: Role) => {
+  const handleRoleEnumChange = (newRoleEnum: RoleEnum) => {
     setFormData((prev) => {
-      const newStructure = createInitialData(newRole);
+      const newStructure = createInitialData(newRoleEnum);
       const preservedProfileData: Partial<SharedProfileDetails> = {
         fullName: prev.profile.fullName,
         bio: prev.profile.bio,
@@ -74,7 +83,7 @@ const Registration = () => {
         industryExperience: prev.profile.industryExperience || "",
       };
 
-      if (newRole === Role.Learner) {
+      if (newRoleEnum === RoleEnum.Learner) {
         return {
           ...newStructure,
           account: prev.account,
@@ -82,12 +91,14 @@ const Registration = () => {
           preferences: prev.preferences,
         } as UserRegistrationRequest;
       } else {
-        const currentMentorDetails = (
-          newStructure as Extract<
-            UserRegistrationRequest,
-            { role: Role.Mentor }
-          >
-        ).mentorDetails;
+        let currentMentorDetails = {};
+        if (
+          prev.role === RoleEnum.Mentor &&
+          "mentorDetails" in prev &&
+          prev.mentorDetails
+        ) {
+          currentMentorDetails = prev.mentorDetails;
+        }
         return {
           ...newStructure,
           account: prev.account,
@@ -115,7 +126,7 @@ const Registration = () => {
     console.log(response);
   };
 
-  const handlePreferencesAndRoleSpecificDetailsUpdate = (
+  const handlePreferencesAndRoleEnumSpecificDetailsUpdate = (
     updates: Partial<
       UserPreferences & {
         learningStyle?: LearningStyleOption[];
@@ -131,22 +142,41 @@ const Registration = () => {
       };
 
       if (
-        updatedFormData.role === Role.Learner &&
+        updatedFormData.role === RoleEnum.Learner &&
         learningStyle !== undefined
       ) {
-        updatedFormData.learnerDetails = {
-          ...updatedFormData.learnerDetails,
+        let currentLearnerDetails = {};
+        if (
+          prev.role === RoleEnum.Learner &&
+          "learnerDetails" in prev &&
+          prev.learnerDetails
+        ) {
+          currentLearnerDetails = prev.learnerDetails;
+        }
+        (
+          updatedFormData as UserRegistrationRequest & {
+            RoleEnum: RoleEnum.Learner;
+            learnerDetails: typeof currentLearnerDetails;
+          }
+        ).learnerDetails = {
+          ...currentLearnerDetails,
           learningStyle: learningStyle,
         };
       }
       if (
-        updatedFormData.role === Role.Mentor &&
+        updatedFormData.role === RoleEnum.Mentor &&
         teachingApproach !== undefined
       ) {
-        updatedFormData.mentorDetails = {
-          ...updatedFormData.mentorDetails,
-          teachingApproach: teachingApproach,
-        };
+        // Type guard to ensure mentorDetails exists
+        if (
+          "mentorDetails" in updatedFormData &&
+          updatedFormData.mentorDetails
+        ) {
+          updatedFormData.mentorDetails = {
+            ...updatedFormData.mentorDetails,
+            teachingApproach: teachingApproach,
+          };
+        }
       }
       return updatedFormData as UserRegistrationRequest;
     });
@@ -164,7 +194,7 @@ const Registration = () => {
       );
 
       alert("Registration complete!");
-      setFormData(createInitialData(Role.Learner));
+      setFormData(createInitialData(RoleEnum.Learner));
       await setPreferences();
       setStep(1);
       navigation(pathName.home);
@@ -191,7 +221,7 @@ const Registration = () => {
           <ProfileCreatePanel
             currentUserData={formData}
             onUpdateProfile={handleSharedProfileUpdate}
-            onRoleChange={handleRoleChange}
+            onRoleChange={handleRoleEnumChange}
             onNext={nextStep}
             onBack={prevStep}
             onTest={createProfile}
@@ -202,15 +232,17 @@ const Registration = () => {
           <PreferenceSetupPanel
             currentPreferences={formData.preferences}
             currentLearnerDetails={
-              formData.role === Role.Learner
+              formData.role === RoleEnum.Learner && "learnerDetails" in formData
                 ? formData.learnerDetails
                 : undefined
             }
             currentMentorDetails={
-              formData.role === Role.Mentor ? formData.mentorDetails : undefined
+              formData.role === RoleEnum.Mentor && "mentorDetails" in formData
+                ? formData.mentorDetails
+                : undefined
             }
-            onUpdate={handlePreferencesAndRoleSpecificDetailsUpdate}
-            userRole={formData.role}
+            onUpdate={handlePreferencesAndRoleEnumSpecificDetailsUpdate}
+            userRoleEnum={formData.role}
             onSubmit={handleFinalSubmit}
             onBack={prevStep}
           />

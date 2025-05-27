@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import InputCustom from "../../input/InputCustom";
 import InputCheckbox from "../../input/InputCheckbox";
-import { AccountDetails } from "../../../types/userRegister";
+import { AccountDetails } from "../../../types/commonType";
 import { pathName } from "../../../constants/pathName";
 import { Link } from "react-router-dom";
 

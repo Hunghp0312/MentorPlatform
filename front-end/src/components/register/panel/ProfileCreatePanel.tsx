@@ -7,24 +7,26 @@ import { Video, Headphones, MessageCircle } from "lucide-react";
 import {
   UserRegistrationRequest,
   SharedProfileDetails,
-  Role,
+} from "../../../types/userRegister.d"; // Ensure this path is correct
+import {
+  RoleEnum,
   CommunicationMethod,
   ArenaOfExpertise, // Added
   Availability, // Added
-} from "../../../types/userRegister.d"; // Ensure this path is correct
+} from "../../../types/commonType"; // Ensure this path is correct
 
 interface Props {
   currentUserData: UserRegistrationRequest;
   onUpdateProfile: (updates: Partial<SharedProfileDetails>) => void;
-  onRoleChange: (newRole: Role) => void;
+  onRoleChange: (newRole: RoleEnum) => void;
   onNext: () => void;
   onBack: () => void;
   onTest: () => void; // Assuming this is for debugging or other purposes
 }
 
 const rolesData = [
-  { name: Role.Learner, subtext: "I want to find mentors", icon: "👨‍🎓" },
-  { name: Role.Mentor, subtext: "I want to mentor others", icon: "👨‍🏫" },
+  { name: RoleEnum.Learner, subtext: "I want to find mentors", icon: "👨‍🎓" },
+  { name: RoleEnum.Mentor, subtext: "I want to mentor others", icon: "👨‍🏫" },
 ];
 
 // Mappings for ArenaOfExpertise
@@ -240,7 +242,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
     }
 
     if (
-      role === Role.Mentor &&
+      role === RoleEnum.Mentor &&
       (!profile.skills || profile.skills.trim().length === 0)
     ) {
       setSkillsError("Skills are required for Mentors.");
@@ -250,7 +252,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setSkillsError("");
     }
 
-    if (role === Role.Mentor && !profile.industryExperience?.trim()) {
+    if (role === RoleEnum.Mentor && !profile.industryExperience?.trim()) {
       setIndustryExperienceError(
         "Industry experience is required for Mentors."
       );
@@ -418,7 +420,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         placeholder="Add skills (e.g., JavaScript, Python, Agile)"
         errorMessage={skillsError}
         className="bg-gray-800 border-gray-700"
-        isRequired={role === Role.Mentor}
+        isRequired={role === RoleEnum.Mentor}
         name="skills"
         type="text" // Or a tag input component if skills are multiple
         value={profile.skills || ""}
@@ -435,7 +437,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
           handleFieldChange("industryExperience", e.target.value)
         }
         placeholder="e.g., 5 years in Software Development"
-        isRequired={role === Role.Mentor}
+        isRequired={role === RoleEnum.Mentor}
         errorMessage={industryExperienceError}
         className="bg-gray-800 border-gray-700"
       />
