@@ -17,9 +17,9 @@ namespace Infrastructure.Entities
         public virtual ICollection<UserLearningStyle> UserLearningStyles { get; set; } = new List<UserLearningStyle>();
         public string? UserGoal { get; set; }
         public SessionFrequency? SessionFrequency { get; set; }
-        public int SessionFrequencyId { get; set; }
+        public int? SessionFrequencyId { get; set; }
         public SessionDuration? SessionDuration { get; set; }
-        public int SessionDurationId { get; set; }
+        public int? SessionDurationId { get; set; }
         public bool PrivacyProfile { get; set; } = true;
         public bool MessagePermission { get; set; } = true;
         public bool NotificationsEnabled { get; set; } = true;

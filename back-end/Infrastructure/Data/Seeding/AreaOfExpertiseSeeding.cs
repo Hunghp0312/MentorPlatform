@@ -4,7 +4,7 @@ namespace Infrastructure.Data.Seeding
 {
     public static class AreaOfExpertiseSeeding
     {
-        public static List<AreaOfExpertise> SeedArenasOfExpertise()
+        public static List<AreaOfExpertise> SeedAreasOfExpertise()
         {
             return new List<AreaOfExpertise>
             {

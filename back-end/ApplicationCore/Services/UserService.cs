@@ -71,7 +71,7 @@ namespace ApplicationCore.Services
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
-                Status = user.Status?.Name ?? string.Empty,
+                Status = user.Status,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin
             }).ToList();
@@ -95,7 +95,7 @@ namespace ApplicationCore.Services
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
-                Status = user.Status?.Name ?? string.Empty,
+                Status = user.Status,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin
             }).ToList();
@@ -133,7 +133,7 @@ namespace ApplicationCore.Services
                 FullName = updatedUser.UserProfile?.FullName ?? string.Empty,
                 Email = updatedUser.Email,
                 Role = updatedUser.Role,
-                Status = updatedUser.Status?.Name ?? string.Empty,
+                Status = updatedUser.Status,
                 JoinDate = updatedUser.CreatedAt,
                 LastActiveDate = updatedUser.LastLogin
             };
@@ -155,12 +155,12 @@ namespace ApplicationCore.Services
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
-                Status = user.Status?.Name ?? string.Empty,
+                Status = user.Status,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,
                 IndustryExperience = user.UserProfile?.IndustryExperience,
                 ProfessionalSkills = user.UserProfile?.ProfessionalSkill,
-                AreaOfExpertise = user.UserArenaOfExpertises
+                AreaOfExpertise = user.UserAreaOfExpertises
                     .Select(a => a.AreaOfExpertise?.Name ?? string.Empty)
                     .Where(a => !string.IsNullOrEmpty(a))
                     .ToList(),

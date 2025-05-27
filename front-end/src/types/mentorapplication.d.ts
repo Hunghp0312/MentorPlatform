@@ -1,3 +1,6 @@
+// import { CourseType } from "./course";
+import { UserAreaOfExpertise } from "./user";
+
 export interface MentorCertification {
   certificationName: string;
   issuingOrganization: string;
@@ -36,7 +39,11 @@ export interface DocumentContent {
   fileType: string;
   supportingDocument?: SupportingDocument;
 }
-
+export interface AreaOfExpertise {
+  id: string;
+  name: string;
+  userAreaOfExpertises?: UserAreaOfExpertise[];
+}
 export interface ApplicationStatus {
   id: number;
   name: string;

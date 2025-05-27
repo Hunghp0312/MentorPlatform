@@ -10,7 +10,7 @@ namespace ApplicationCore.DTOs.Responses.Users
         public string Email { get; set; } = null!;
         public string? Avatar { get; set; }
         public Role Role { get; set; } = null!;
-        public string? Status { get; set; }
+        public UserStatus Status { get; set; } = null!;
         public DateTime? JoinDate { get; set; }
         public DateTime? LastActiveDate { get; set; }
         public string? IndustryExperience { get; set; }

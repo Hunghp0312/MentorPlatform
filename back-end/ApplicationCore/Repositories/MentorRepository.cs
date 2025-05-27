@@ -10,11 +10,11 @@ namespace ApplicationCore.Repositories
     {
         public MentorRepository(AppDbContext context) : base(context)
         {
-        }       
+        }
         public override async Task<MentorApplication?> GetByIdAsync(Guid id)
         {
             var query = await _dbSet.Include(a => a.Applicant)
-                .ThenInclude(uae => uae.UserArenaOfExpertises).ThenInclude(uae => uae.AreaOfExpertise)
+                .ThenInclude(uae => uae.UserAreaOfExpertises).ThenInclude(uae => uae.AreaOfExpertise)
                 .Include(a => a.Applicant)
                 .ThenInclude(uae => uae.UserProfile)
                 .Include(x => x.AdminReviewer)
@@ -52,7 +52,7 @@ namespace ApplicationCore.Repositories
         {
             var queryable = _dbSet
                 .Include(a => a.Applicant)
-                .ThenInclude(uae => uae.UserArenaOfExpertises).ThenInclude(uae => uae.AreaOfExpertise)
+                .ThenInclude(uae => uae.UserAreaOfExpertises).ThenInclude(uae => uae.AreaOfExpertise)
                 .Include(a => a.Applicant)
                 .ThenInclude(uae => uae.UserProfile)
                 .Include(x => x.AdminReviewer)

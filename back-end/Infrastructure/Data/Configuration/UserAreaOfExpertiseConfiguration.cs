@@ -12,7 +12,7 @@ namespace Infrastructure.Data.Configuration
             builder.HasKey(uae => new { uae.UserId, uae.AreaOfExpertiseId });
 
             builder.HasOne(uae => uae.User)
-                .WithMany(up => up.UserArenaOfExpertises)
+                .WithMany(up => up.UserAreaOfExpertises)
                 .HasForeignKey(uae => uae.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.HasData(UserAreaOfExpertiseSeeding.SeedUserAreasOfExpertise());

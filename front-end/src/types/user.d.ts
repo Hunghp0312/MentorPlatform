@@ -1,13 +1,19 @@
 import { MentorApplicationResponse } from "./approval";
 import { EnumType } from "./commonType";
-import { ArenaOfExpertise } from "./mentorapplication";
+import { AreaOfExpertise } from "./mentorapplication";
+import { MentorApplication } from "./approval";
 
 export interface User {
   id: string;
   email: string;
   role?: EnumType;
-  profile?: UserProfile;
-  userArenaOfExpertises?: UserArenaOfExpertise[];
+  userProfile?: UserProfile;
+  //   userTopicOfInterests?: UserTopicOfInterest[];
+  mentorApplications?: MentorApplication;
+  submittedMentorApplication?: MentorApplication;
+  reviewedMentorApplication?: MentorApplication;
+  //   mentoredCourses?: Course[];
+  userAreaOfExpertises?: UserAreaOfExpertise[];
 }
 export interface UserApplication {
   id: string;
@@ -30,12 +36,29 @@ export interface UserProfile {
   bio?: string;
   professionalSkill?: string;
   industryExperience?: string;
-  userApplication?: MentorApplicationResponse;
+  availabilityData?: EnumType[];
+  //   userGoal?: string;
+  //   sessionFrequency?: number;
+  //   sessionDuration?: number;
+  //   learningStyle?: number;
+  //   teachingApproach?: number;
+  //   privacyProfile: boolean;
+  //   messagePermission: boolean;
+  //   notificationsEnabled: boolean;
+  communicationMethod?: EnumType;
+  user?: User;
 }
-
-export interface UserArenaOfExpertise {
+// export interface UserTopicOfInterest {
+//   //   userId: string;
+//   //   topicId: string;
+//   user?: User;
+//   topic?: Topic;
+// }
+export interface UserAreaOfExpertise {
   userId: string;
-  arenaOfExpertise?: ArenaOfExpertise;
+  //   AreaOfExpertiseId: string;
+  //user?: User;
+  AreaOfExpertise?: AreaOfExpertise;
 }
 
 export interface ArenaOfExpertise {

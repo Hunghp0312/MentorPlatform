@@ -1,4 +1,4 @@
-using ApplicationCore.DTOs.Responses.ArenaOfExpertises;
+using ApplicationCore.DTOs.Responses.AreaOfExpertises;
 using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using Infrastructure.Entities;
@@ -17,10 +17,10 @@ namespace ApplicationCore.Extensions
                     : string.Empty,
                 FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
                 Email = mentorApplication.Applicant?.Email ?? string.Empty,
-                ExpertiseAreas = mentorApplication.Applicant?.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
+                ExpertiseAreas = mentorApplication.Applicant?.UserAreaOfExpertises.Select(x => new AreaOfExpertiseResponse
                 {
                     Name = x.AreaOfExpertise.Name,
-                }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
+                }).ToList() ?? new List<AreaOfExpertiseResponse>(),
                 ProfessionExperience = mentorApplication.Applicant?.UserProfile?.IndustryExperience ?? string.Empty,
                 ApplicationTimeline = mentorApplication.SubmissionDate,
                 SubmissionDate = mentorApplication.SubmissionDate,
@@ -28,7 +28,7 @@ namespace ApplicationCore.Extensions
                 ApproverName = mentorApplication.AdminReviewer?.UserProfile?.FullName ?? string.Empty,
                 AdminComments = mentorApplication.AdminComments,
                 RejectionReason = mentorApplication.RejectionReason,
-                RequestInfoDate = mentorApplication.RequestInfoDate,    
+                RequestInfoDate = mentorApplication.RequestInfoDate,
                 ApprovalDate = mentorApplication.ApprovalDate,
                 CreatedAt = mentorApplication.CreatedAt,
                 UpdatedAt = mentorApplication.UpdatedAt,

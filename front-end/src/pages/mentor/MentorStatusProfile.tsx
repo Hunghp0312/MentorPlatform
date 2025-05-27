@@ -72,7 +72,31 @@ const MentorStatusProfile = () => {
     fileType: string;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  // useEffect(() => {
+  //   setLoading(true);
+  //   const initialMentor: MentorStatusType = {
+  //     id: mockUser1.id ?? "", // Fallback to empty string if id is undefined
+  //     name: mockUser1.userProfile?.fullName ?? "Unknown Name", // Fallback for name
+  //     email: mockUser1.email ?? "", // Fallback for email
+  //     expertiseAreas:
+  //       mockUser1.userAreaOfExpertises
+  //         ?.map((expertise) => expertise.AreaOfExpertise?.name ?? "")
+  //         .filter((name) => name !== "") ?? [], // Filter out empty strings, fallback to empty array
+  //     status:
+  //       mockUser1.mentorApplications?.applicationStatus?.name ?? "unknown", // Fallback for status
+  //     profileImage: mockUser1.userProfile?.photoData ?? "", // Fallback for profileImage
+  //     professionalSkill: mockUser1.userProfile?.professionalSkill ?? "", // Fallback for professionalSkill
+  //     industryExperience: mockUser1.userProfile?.industryExperience ?? "", // Fallback for industryExperience
+  //     mentorEducation: mockUser1.mentorApplications?.mentorEducations ?? [], // Fallback for mentorEducation
+  //     mentorWorkExperience:
+  //       mockUser1.mentorApplications?.mentorWorkExperiences ?? [], // Fallback for mentorWorkExperience
+  //     certifications: mockUser1.mentorApplications?.mentorCertifications ?? [], // Fallback for certifications
+  //   };
+  //   setMentorData(initialMentor);
+  //   setEditedMentor({ ...initialMentor });
+  //   setLoading(false);
+  // }, []);
+  // Khởi tạo dữ liệu ban đầu (có thể để rỗng vì không dùng mockUser1)
   useEffect(() => {
     const fetchUserData = async (): Promise<UserApplication | null> => {
       try {

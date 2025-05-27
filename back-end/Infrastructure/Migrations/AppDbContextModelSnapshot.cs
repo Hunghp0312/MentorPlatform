@@ -1834,7 +1834,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.User", "User")
-                        .WithMany("UserArenaOfExpertises")
+                        .WithMany("UserAreaOfExpertises")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1970,7 +1970,7 @@ namespace Infrastructure.Migrations
                     b.Navigation("SubmittedMentorApplication")
                         .IsRequired();
 
-                    b.Navigation("UserArenaOfExpertises");
+                    b.Navigation("UserAreaOfExpertises");
 
                     b.Navigation("UserProfile")
                         .IsRequired();

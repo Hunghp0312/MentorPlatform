@@ -12,7 +12,7 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public string? Bio { get; set; }
         public required int SelectedRole { get; set; }
         public IFormFile? PhotoData { get; set; }
-        public List<int>? ArenaOfExpertise { get; set; }
+        public List<int>? AreaOfExpertise { get; set; }
         public required string ProfessionalSkill { get; set; }
         public required string IndustryExperience { get; set; }
         public List<int>? Availability { get; set; }
