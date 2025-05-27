@@ -3,6 +3,7 @@ using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
 using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
+using Infrastructure.Entities.Enum;
 
 namespace ApplicationCore.Repositories
 {
@@ -38,6 +39,46 @@ namespace ApplicationCore.Repositories
         {
             _context.Set<UserProfile>().Update(userProfile);
             await Task.CompletedTask;
+        }
+
+        public async Task<Role?> GetRoleByIdAsync(int id)
+        {
+            return await _context.Set<Role>().FindAsync(id);
+        }
+
+        public async Task<AreaOfExpertise?> GetAreaOfExpertiseByIdAsync(int id)
+        {
+            return await _context.Set<AreaOfExpertise>().FindAsync(id);
+        }
+        public async Task<IEnumerable<AreaOfExpertise>> GetAreaOfExpertisesByIdsAsync(IEnumerable<int> areaIds)
+        {
+            if (areaIds == null || !areaIds.Any())
+            {
+                return Enumerable.Empty<AreaOfExpertise>();
+            }
+            return await _context.Set<AreaOfExpertise>()
+                                 .Where(aoe => areaIds.Contains(aoe.Id))
+                                 .ToListAsync();
+        }
+        public async Task<Availability?> GetAvailabilityByIdAsync(int availabilityId)
+        {
+            return await _context.Set<Availability>().FindAsync(availabilityId);
+        }
+
+        public async Task<IEnumerable<Availability>> GetAvailabilitiesByIdsAsync(IEnumerable<int> availabilityIds)
+        {
+            if (availabilityIds == null || !availabilityIds.Any())
+            {
+                return Enumerable.Empty<Availability>();
+            }
+            return await _context.Set<Availability>()
+                                 .Where(a => availabilityIds.Contains(a.Id))
+                                 .ToListAsync();
+        }
+
+        public async Task<CommunicationMethod?> GetCommunicationMethodByIdAsync(int methodId)
+        {
+            return await _context.Set<CommunicationMethod>().FindAsync(methodId);
         }
     }
 }

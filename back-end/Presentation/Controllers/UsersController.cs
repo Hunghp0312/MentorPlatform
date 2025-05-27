@@ -40,14 +40,12 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpGet("current-user")]
+        [HttpGet("{userId}")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetCurentUser()
+        public async Task<IActionResult> GetUserById(Guid userId)
         {
-            var userIdString = User.FindFirstValue("id")!;
-            Guid userId = Guid.Parse(userIdString);
-            var result = await _userService.GetUserbyIdAsync(userId);
+            var result = await _userService.GetUserByIdsAsync(userId);
             return ToActionResult(result);
         }
     }

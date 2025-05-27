@@ -59,7 +59,6 @@ namespace ApplicationCore.Services
                 photoBytes = ms.ToArray();
             }
 
-
             int roleId = request.SelectedRole;
 
             var user = new User
@@ -67,7 +66,7 @@ namespace ApplicationCore.Services
                 Id = Guid.NewGuid(),
                 Email = request.Email,
                 PasswordHash = passwordHash,
-                RoleId = roleId,
+                RoleId = request.SelectedRole,
                 StatusId = 2
             };
 
@@ -76,28 +75,82 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = request.FullName ?? string.Empty,
                 Bio = request.Bio ?? string.Empty,
-                ProfessionalSkill = request.SelectedRole == 3 ? request.ProfessionalSkill : null,
-                IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : null,
+                ProfessionalSkill = request.SelectedRole == 3 ? request.ProfessionalSkill : request.SelectedRole == 2 ? request.ProfessionalSkill : null,
+                IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : request.SelectedRole == 2 ? request.IndustryExperience : null,
                 PhotoData = photoBytes,
+                PhoneNumber = request.PhoneNumber,
+                CommunicationMethod = request.CommunicationMethod ?? 0,
+                UserProfileAvailabilities = request.Availability?.Select(a => new UserProfileAvailability
+                {
+                    UserId = user.Id,
+                    AvailabilityId = a
+                }).ToList() ?? new List<UserProfileAvailability>(),
+                User = user
             };
-
 
             await _registrationRepository.AddUserAsync(user);
             await _registrationRepository.AddUserProfileAsync(userProfile);
             await _unitOfWork.SaveChangesAsync();
+
+            string Role = string.Empty;
+            if (user.RoleId > 0)
+            {
+                var roleEntity = await _registrationRepository.GetRoleByIdAsync(user.RoleId);
+                if (roleEntity != null)
+                {
+                    Role = roleEntity.Name;
+                }
+                else
+                {
+                    Role = "Unknown Role";
+                }
+            }
+            var expertiseAreaNames = new List<string>();
+            if (request.AreaOfExpertise != null && request.AreaOfExpertise.Any())
+            {
+                var expertiseIds = request.AreaOfExpertise
+                                          .Where(id => id > 0)
+                                          .Distinct()
+                                          .ToList();
+                if (expertiseIds.Any())
+                {
+
+                    var expertiseEntities = await _registrationRepository.GetAreaOfExpertisesByIdsAsync(expertiseIds);
+                    expertiseAreaNames = expertiseEntities.Select(e => e.Name).ToList();
+                }
+            }
+            var availabilityNames = new List<string>();
+            if (request.Availability != null && request.Availability.Any())
+            {
+                var availabilityIds = request.Availability.Distinct().ToList();
+                if (availabilityIds.Any())
+                {
+                    var availabilityEntities = await _registrationRepository.GetAvailabilitiesByIdsAsync(availabilityIds);
+                    availabilityNames = availabilityEntities.Select(a => a.Name).ToList();
+                }
+            }
+            string? communicationMethodName = null;
+            if (request.CommunicationMethod.HasValue && request.CommunicationMethod.Value > 0)
+            {
+                var methodEntity = await _registrationRepository.GetCommunicationMethodByIdAsync(request.CommunicationMethod.Value);
+                communicationMethodName = methodEntity?.Name;
+            }
+
 
             var response = new UserProfileResponse
             {
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = userProfile.FullName,
-                Role = new Role { Id = user.RoleId, Name = user.RoleId == 1 ? "Admin" : user.RoleId == 2 ? "Learner" : user.RoleId == 3 ? "Mentor" : "Unknown" },
+                Role = Role,
                 Bio = userProfile.Bio,
-                ExpertiseAreas = new List<string>(),
+                PhotoData = userProfile.PhotoData,
+                PhoneNumber = userProfile.PhoneNumber,
+                ExpertiseAreas = expertiseAreaNames,
+                ProfessionalSkills = userProfile.ProfessionalSkill,
                 IndustryExperience = userProfile.IndustryExperience,
-                Availability = userProfile.UserProfileAvailabilities?.Select(ua => ua.AvailabilityId).ToList() ?? new List<int>(),
-                CommunicationMethods = userProfile.CommunicationMethod != 0 ? new List<int> { userProfile.CommunicationMethod } : new List<int>(),
-                UserGoals = userProfile.UserGoal
+                Availability = availabilityNames,
+                CommunicationMethod = communicationMethodName
             };
             return OperationResult<UserProfileResponse>.Ok(response);
         }

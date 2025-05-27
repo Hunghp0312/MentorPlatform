@@ -141,7 +141,7 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
-        public async Task<OperationResult<UserResponseDto>> GetUserbyIdAsync(Guid userId)
+        public async Task<OperationResult<UserResponseDto>> GetUserByIdsAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdsAsync(userId);
             if (user == null)

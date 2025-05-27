@@ -32,7 +32,7 @@ namespace ApplicationCore.Extensions
                     UserId = userId,
                     AvailabilityId = a
                 }).ToList() ?? new List<UserProfileAvailability>(),
-                CommunicationMethod = dto.CommunicationMethods?.FirstOrDefault() ?? 0,
+                CommunicationMethod = dto.CommunicationMethod,
             };
 
             return userProfile;
