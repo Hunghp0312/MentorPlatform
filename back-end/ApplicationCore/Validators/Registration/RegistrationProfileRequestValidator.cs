@@ -26,8 +26,8 @@ namespace ApplicationCore.Validators
 
             RuleFor(x => x.SelectedRole)
                 .NotEmpty().WithMessage(ValidationMessages.ROLE_REQUIRED)
-                .Must(roleId => roleId == 2 || roleId == 3) // 2 for Learner, 3 for Mentor
-                .WithMessage(ValidationMessages.ROLE_INVALID_SELECTION); // Ensure this message exists
+                .Must(roleId => roleId == 2 || roleId == 3)
+                .WithMessage(ValidationMessages.ROLE_INVALID_SELECTION);
 
             RuleFor(x => x.FullName)
                 .NotEmpty().WithMessage(ValidationMessages.FULL_NAME_REQUIRED)
@@ -47,14 +47,6 @@ namespace ApplicationCore.Validators
             RuleFor(x => x.IndustryExperience)
                 .NotEmpty().WithMessage(ValidationMessages.INDUSTRY_EXPERIENCE_REQUIRED)
                 .MaximumLength(200).WithMessage(ValidationMessages.INDUSTRY_EXPERIENCE_MAX_LENGTH);
-
-            RuleFor(x => x.CommunicationMethods)
-                .NotEmpty().WithMessage(ValidationMessages.COMMUNICATION_METHODS_REQUIRED)
-                .Must(methods => methods != null && methods.Any()).WithMessage(ValidationMessages.COMMUNICATION_METHODS_AT_LEAST_ONE_REQUIRED);
-
-            RuleFor(x => x.UserGoal)
-                .NotEmpty().WithMessage(ValidationMessages.USER_GOAL_REQUIRED)
-                .MaximumLength(500).WithMessage(ValidationMessages.USER_GOAL_MAX_LENGTH);
         }
     }
 }

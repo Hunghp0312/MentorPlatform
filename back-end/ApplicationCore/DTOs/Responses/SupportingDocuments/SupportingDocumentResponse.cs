@@ -1,4 +1,3 @@
-
 namespace ApplicationCore.DTOs.Responses.SupportingDocuments
 {
     public class SupportingDocumentResponse
