@@ -169,6 +169,8 @@ const Registration = () => {
       setStep(1);
       navigation(pathName.home);
     } catch (error) {
+      setStep(1);
+      window.location.reload();
       console.error("Registration submission failed:", error);
       alert("Registration failed. Please try again.");
     }
