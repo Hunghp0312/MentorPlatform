@@ -1,6 +1,8 @@
 export function isTokenValid(): boolean {
-  const token = localStorage.getItem("accessToken");
-  if (!token) return false;
+  const localToken = localStorage.getItem("accessToken");
+  const sessionToken = sessionStorage.getItem("accessToken");
+
+  if (!localToken && !sessionToken) return false;
 
   return true;
 }
@@ -8,4 +10,7 @@ export function isTokenValid(): boolean {
 export function clearAuth() {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
+
+  sessionStorage.removeItem("accessToken");
+  sessionStorage.removeItem("refreshToken");
 }

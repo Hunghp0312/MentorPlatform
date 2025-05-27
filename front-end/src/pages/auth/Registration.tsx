@@ -3,7 +3,10 @@ import StepProgressBar from "../../components/progress/StepProgressBar";
 import RegistrationPanel from "../../components/register/panel/RegistrationPanel";
 import ProfileCreatePanel from "../../components/register/panel/ProfileCreatePanel";
 import PreferenceSetupPanel from "../../components/register/panel/PreferenceSetupPanel";
-import { submitRegistration } from "../../services/registration.service";
+import {
+  registrionService,
+  submitRegistration,
+} from "../../services/registration.service";
 import {
   UserRegistrationRequest,
   AccountDetails,
@@ -23,10 +26,11 @@ const Registration = () => {
   const [formData, setFormData] = useState<UserRegistrationRequest>(
     createInitialData(Role.Learner)
   );
+  const [userId, setUserId] = useState<string>("");
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
-  const navigation = useNavigate()
+  const navigation = useNavigate();
 
   const handleAccountSubmit = (accountDetails: AccountDetails) => {
     setFormData((prev) => ({ ...prev, account: accountDetails }));
@@ -66,7 +70,7 @@ const Registration = () => {
         expertise: prev.profile.expertise,
         availability: prev.profile.availability,
         preferredCommunication: prev.profile.preferredCommunication,
-        skills: prev.profile.skills || [],
+        skills: prev.profile.skills || "",
         industryExperience: prev.profile.industryExperience || "",
       };
 
@@ -96,6 +100,19 @@ const Registration = () => {
         } as UserRegistrationRequest;
       }
     });
+  };
+
+  const createProfile = async () => {
+    console.log(formData);
+
+    const response = await registrionService.createProfile(formData);
+    setUserId(response.userId);
+  };
+
+  const setPreferences = async () => {
+    const response = await registrionService.setPreference(formData, userId);
+
+    console.log(response);
   };
 
   const handlePreferencesAndRoleSpecificDetailsUpdate = (
@@ -145,11 +162,15 @@ const Registration = () => {
         JSON.stringify(profile),
         JSON.stringify(preferences)
       );
+
       alert("Registration complete!");
       setFormData(createInitialData(Role.Learner));
+      await setPreferences();
       setStep(1);
-      navigation(pathName.home)
+      navigation(pathName.home);
     } catch (error) {
+      setStep(1);
+      window.location.reload();
       console.error("Registration submission failed:", error);
       alert("Registration failed. Please try again.");
     }
@@ -173,6 +194,7 @@ const Registration = () => {
             onRoleChange={handleRoleChange}
             onNext={nextStep}
             onBack={prevStep}
+            onTest={createProfile}
           />
         );
       case 3:
