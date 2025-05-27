@@ -233,7 +233,7 @@ namespace ApplicationCore.Services
         }
 
         public async Task<OperationResult<MentorApplicationResponseDto>> UpdateMyApplicationAsync(
-         UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId, bool containFile)
+         UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId)
         {
             var existingApplication = await _mentorRepository.GetByIdAsync(applicantUserId);
             if (existingApplication == null)
@@ -272,7 +272,7 @@ namespace ApplicationCore.Services
                 }
                 existingApplication.LastStatusUpdateDate = DateTime.UtcNow;
                 existingApplication.UpdatedAt = DateTime.UtcNow;
-                existingApplication.ApplicationStatusId = containFile ? 4 : 1;
+                existingApplication.ApplicationStatusId = 1;
                 existingApplication.SubmissionDate += $", {DateTime.UtcNow}";
 
                 _mentorRepository.Update(existingApplication);
