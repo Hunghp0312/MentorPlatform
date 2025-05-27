@@ -3,9 +3,9 @@ namespace Infrastructure.Entities
 {
     public class MentorTeachingApproach
     {
-        public Guid UserId { get; set; }
+        public Guid UserProfileId { get; set; }
         public int TeachingApproachId { get; set; }
-        public virtual User User { get; set; } = null!;
+        public virtual UserProfile UserProfile { get; set; } = null!;
         public virtual TeachingApproach TeachingApproach { get; set; } = null!;
 
     }

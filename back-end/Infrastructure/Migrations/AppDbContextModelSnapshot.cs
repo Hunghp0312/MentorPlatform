@@ -1002,20 +1002,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.MentorTeachingApproach", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("UserProfileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TeachingApproachId")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("UserProfileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "TeachingApproachId");
+                    b.HasKey("UserProfileId", "TeachingApproachId");
 
                     b.HasIndex("TeachingApproachId");
-
-                    b.HasIndex("UserProfileId");
 
                     b.ToTable("MentorTeachingApproach");
                 });
@@ -1326,6 +1321,21 @@ namespace Infrastructure.Migrations
                     b.ToTable("UserAreaOfExpertise");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.UserCommunicationMethod", b =>
+                {
+                    b.Property<Guid>("UseProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CommunicationMethodId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UseProfileId", "CommunicationMethodId");
+
+                    b.HasIndex("CommunicationMethodId");
+
+                    b.ToTable("UserCommunicationMethod");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.UserLearningStyle", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -1350,9 +1360,6 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int>("CommunicationMethod")
-                        .HasColumnType("int");
-
                     b.Property<string>("FullName")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -1361,15 +1368,11 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<bool>("MessagePermission")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                    b.Property<bool?>("MessagePermission")
+                        .HasColumnType("bit");
 
-                    b.Property<bool>("NotificationsEnabled")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                    b.Property<bool?>("NotificationsEnabled")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -1377,19 +1380,17 @@ namespace Infrastructure.Migrations
                     b.Property<byte[]>("PhotoData")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<bool>("PrivacyProfile")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                    b.Property<bool?>("PrivacyProfile")
+                        .HasColumnType("bit");
 
                     b.Property<string>("ProfessionalSkill")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int>("SessionDurationId")
+                    b.Property<int?>("SessionDurationId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SessionFrequencyId")
+                    b.Property<int?>("SessionFrequencyId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserGoal")
@@ -1409,7 +1410,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
                             Bio = "Experienced tech administrator with background in education platforms.",
-                            CommunicationMethod = 1,
                             FullName = "Huy Nguyen Admin",
                             MessagePermission = true,
                             NotificationsEnabled = true,
@@ -1422,7 +1422,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
                             Bio = "Platform administrator with focus on user experience and system reliability.",
-                            CommunicationMethod = 1,
                             FullName = "Huy Khuong Admin",
                             MessagePermission = true,
                             NotificationsEnabled = true,
@@ -1435,7 +1434,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
                             Bio = "Senior administrator overseeing platform development and technical operations.",
-                            CommunicationMethod = 1,
                             FullName = "Minh Chau Admin",
                             MessagePermission = true,
                             NotificationsEnabled = true,
@@ -1448,7 +1446,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
                             Bio = "Aspiring software developer interested in web technologies and cloud computing.",
-                            CommunicationMethod = 2,
                             FullName = "Huy Nguyen Learner",
                             MessagePermission = true,
                             NotificationsEnabled = true,
@@ -1461,7 +1458,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             Bio = "Data science enthusiast with background in statistics and mathematics.",
-                            CommunicationMethod = 1,
                             FullName = "Huy Khuong Learner",
                             MessagePermission = true,
                             NotificationsEnabled = true,
@@ -1474,7 +1470,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
                             Bio = "UX/UI designer looking to expand skills in frontend development.",
-                            CommunicationMethod = 3,
                             FullName = "Minh Chau Learner",
                             MessagePermission = false,
                             NotificationsEnabled = false,
@@ -1487,7 +1482,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
                             Bio = "Full-stack developer with interest in blockchain and distributed systems.",
-                            CommunicationMethod = 2,
                             FullName = "Dan Cega",
                             MessagePermission = true,
                             NotificationsEnabled = true,
@@ -1500,7 +1494,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             Bio = "Senior software engineer with 8+ years of experience in full-stack development.",
-                            CommunicationMethod = 1,
                             FullName = "Huy Nguyen Mentor",
                             IndustryExperience = "Fintech, E-commerce, Enterprise applications",
                             MessagePermission = true,
@@ -1514,7 +1507,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Bio = "Data scientist specializing in predictive analytics and natural language processing.",
-                            CommunicationMethod = 2,
                             FullName = "Huy Khuong Mentor",
                             IndustryExperience = "Healthcare, Research, Marketing analytics",
                             MessagePermission = true,
@@ -1528,7 +1520,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
                             Bio = "Frontend specialist with expertise in modern JavaScript frameworks and UI/UX principles.",
-                            CommunicationMethod = 3,
                             FullName = "Minh Chau Mentor",
                             IndustryExperience = "SaaS products, E-learning platforms, Creative agencies",
                             MessagePermission = true,
@@ -1557,20 +1548,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.UserTopicOfInterest", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("UserProfileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TopicId")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("UserProfileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "TopicId");
+                    b.HasKey("UserProfileId", "TopicId");
 
                     b.HasIndex("TopicId");
-
-                    b.HasIndex("UserProfileId");
 
                     b.ToTable("UserTopicOfInterest");
                 });
@@ -1673,19 +1659,15 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
+                        .WithMany("TeachingApproaches")
+                        .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.UserProfile", null)
-                        .WithMany("TeachingApproaches")
-                        .HasForeignKey("UserProfileId");
-
                     b.Navigation("TeachingApproach");
 
-                    b.Navigation("User");
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
@@ -1771,6 +1753,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.UserCommunicationMethod", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Enum.CommunicationMethod", "CommunicationMethod")
+                        .WithMany()
+                        .HasForeignKey("CommunicationMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
+                        .WithMany("UserCommunicationMethods")
+                        .HasForeignKey("UseProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CommunicationMethod");
+
+                    b.Navigation("UserProfile");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.UserLearningStyle", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Enum.LearningStyle", "LearningStyle")
@@ -1800,15 +1801,11 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("Infrastructure.Entities.Enum.SessionDuration", "SessionDuration")
                         .WithMany()
-                        .HasForeignKey("SessionDurationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SessionDurationId");
 
                     b.HasOne("Infrastructure.Entities.Enum.SessionFrequency", "SessionFrequency")
                         .WithMany()
-                        .HasForeignKey("SessionFrequencyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SessionFrequencyId");
 
                     b.Navigation("SessionDuration");
 
@@ -1844,19 +1841,15 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.User", "User")
+                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
                         .WithMany("UserTopicOfInterests")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.UserProfile", null)
-                        .WithMany("UserTopicOfInterests")
-                        .HasForeignKey("UserProfileId");
-
                     b.Navigation("Topic");
 
-                    b.Navigation("User");
+                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
@@ -1901,13 +1894,13 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("UserProfile")
                         .IsRequired();
-
-                    b.Navigation("UserTopicOfInterests");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
                 {
                     b.Navigation("TeachingApproaches");
+
+                    b.Navigation("UserCommunicationMethods");
 
                     b.Navigation("UserLearningStyles");
 

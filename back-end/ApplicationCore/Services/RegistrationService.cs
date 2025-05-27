@@ -1,13 +1,13 @@
+using ApplicationCore.Common;
 using ApplicationCore.DTOs.Requests.Registration;
 using ApplicationCore.DTOs.Responses.Registration;
-using ApplicationCore.Services.ServiceInterfaces;
-using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Extensions;
+using ApplicationCore.Repositories.RepositoryInterfaces;
+using ApplicationCore.Services.ServiceInterfaces;
 using FluentValidation;
-using Utilities;
 using Infrastructure.Data;
-using ApplicationCore.Common;
 using Infrastructure.Entities;
+using Utilities;
 
 namespace ApplicationCore.Services
 {
@@ -96,7 +96,7 @@ namespace ApplicationCore.Services
                 ExpertiseAreas = new List<string>(),
                 IndustryExperience = userProfile.IndustryExperience,
                 Availability = userProfile.UserProfileAvailabilities?.Select(ua => ua.AvailabilityId).ToList() ?? new List<int>(),
-                CommunicationMethods = userProfile.CommunicationMethod != 0 ? new List<int> { userProfile.CommunicationMethod } : new List<int>(),
+                //CommunicationMethods = userProfile.CommunicationMethod != 0 ? new List<int> { userProfile.CommunicationMethod } : new List<int>(),
                 UserGoals = userProfile.UserGoal
             };
             return OperationResult<UserProfileResponse>.Ok(response);
