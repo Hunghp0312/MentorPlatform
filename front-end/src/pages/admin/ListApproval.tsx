@@ -8,6 +8,8 @@ import useDebounce from "../../hooks/usedebounce";
 import { approvalService } from "../../services/approval.service";
 import { handleAxiosError } from "../../utils/handlerError";
 import { AxiosError } from "axios";
+import { MentorUpdateStatusRequest } from "../../types/approval";
+import { userService } from "../../services/user.service";
 // Updated ApprovalType interface
 interface ApprovalType {
   applicantUserId: string;
@@ -64,8 +66,20 @@ const ListApproval = () => {
   ];
 
   useEffect(() => {
+    // Map statusFilter to filter number
+    const statusToFilter: { [key: string]: number } = {
+      "": 0, // All
+      pending: 1,
+      approved: 3,
+      rejected: 2,
+      "request-info": 4,
+    };
+    setFilter(statusToFilter[statusFilter] || 0);
+  }, [statusFilter]);
+
+  useEffect(() => {
     fetchApplications();
-  }, [pageIndex, pageSize, searchDebounced, filter]);
+  }, [pageIndex, pageSize, searchDebounced, statusFilter]);
   const fetchApplications = async () => {
     try {
       setLoading(true);
@@ -140,16 +154,14 @@ const ListApproval = () => {
   const handleApprove = async (approval: ApprovalType) => {
     if (window.confirm(`Approve application for "${approval.fullName}"?`)) {
       try {
-        const request = {
-          MentorId: approval.applicantUserId,
-          StatusId: 3, // Approved
-          AdminReviewerId: adminReviewerId,
-          AdminComments: null, // No comments for Approve
+        const request: MentorUpdateStatusRequest = {
+          mentorId: approval.applicantUserId,
+          statusId: 3, // Approved
+          adminReviewerId: "adminReviewerId", // Replace with actual admin ID if available
+          adminComments: undefined, // No comments for Approve
         };
-        const response = await approvalService.updateMentorApplicationStatus(
-          request
-        );
-        setApprovals((prev) =>
+        await approvalService.updateMentorApplicationStatus(request);
+        setApprovals((prev = []) =>
           prev.map((item) =>
             item.applicantUserId === approval.applicantUserId
               ? {
@@ -160,7 +172,6 @@ const ListApproval = () => {
               : item
           )
         );
-        setTotalItems((prev) => prev); // Maintain total items
         toast.success(`Application for ${approval.fullName} approved`);
         if (selectedApproval?.applicantUserId === approval.applicantUserId) {
           setSelectedApproval({
@@ -185,16 +196,14 @@ const ListApproval = () => {
   const confirmReject = async () => {
     if (selectedApproval) {
       try {
-        const request = {
-          MentorId: selectedApproval.applicantUserId,
-          StatusId: 2, // Rejected
-          AdminReviewerId: adminReviewerId,
-          AdminComments: rejectionComment.trim() || null,
+        const request: MentorUpdateStatusRequest = {
+          mentorId: selectedApproval.applicantUserId,
+          statusId: 2, // Rejected
+          adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID
+          adminComments: rejectionComment.trim() || undefined,
         };
-        const response = await approvalService.updateMentorApplicationStatus(
-          request
-        );
-        setApprovals((prev) =>
+        await approvalService.updateMentorApplicationStatus(request);
+        setApprovals((prev = []) =>
           prev.map((item) =>
             item.applicantUserId === selectedApproval.applicantUserId
               ? {
@@ -206,7 +215,6 @@ const ListApproval = () => {
               : item
           )
         );
-        setTotalItems((prev) => prev); // Maintain total items
         toast.success(`Application for ${selectedApproval.fullName} rejected`);
         setSelectedApproval({
           ...selectedApproval,
@@ -231,16 +239,14 @@ const ListApproval = () => {
       )
     ) {
       try {
-        const request = {
-          MentorId: selectedApproval.applicantUserId,
-          StatusId: 4, // Request Info
-          AdminReviewerId: adminReviewerId,
-          AdminComments: adminNotes.trim() || null,
+        const request: MentorUpdateStatusRequest = {
+          mentorId: selectedApproval.applicantUserId,
+          statusId: 4, // Request Info
+          adminReviewerId: "adminReviewerId", // Replace with actual admin ID
+          adminComments: adminNotes.trim() || undefined,
         };
-        const response = await approvalService.updateMentorApplicationStatus(
-          request
-        );
-        setApprovals((prev) =>
+        await approvalService.updateMentorApplicationStatus(request);
+        setApprovals((prev = []) =>
           prev.map((item) =>
             item.applicantUserId === selectedApproval.applicantUserId
               ? {
@@ -252,7 +258,6 @@ const ListApproval = () => {
               : item
           )
         );
-        setTotalItems((prev) => prev); // Maintain total items
         toast.success(`Info requested for ${selectedApproval.fullName}`);
         setSelectedApproval({
           ...selectedApproval,
@@ -337,7 +342,7 @@ const ListApproval = () => {
                   <DataTable
                     data={approvals}
                     columns={columns}
-                    keyField="id"
+                    keyField="applicantUserId"
                     className="bg-gray-700"
                     rowClassName="p-4 hover:bg-gray-600 cursor-pointer transition duration-150 border-b border-gray-600 last:border-b-0"
                     cellClassName="p-0"
@@ -382,18 +387,21 @@ const ListApproval = () => {
                     ) && (
                       <div>
                         <button
+                          id="approve-application-button"
                           onClick={() => handleApprove(selectedApproval)}
                           className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2"
                         >
                           Approve
                         </button>
                         <button
+                          id="reject-application-button"
                           onClick={() => handleReject(selectedApproval)}
                           className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md mr-2"
                         >
                           Reject
                         </button>
                         <button
+                          id="requestinfo-application-button"
                           onClick={handleRequestInfo}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
                         >
@@ -511,6 +519,7 @@ const ListApproval = () => {
                         Admin Notes
                       </h4>
                       <textarea
+                        id="input-field-admin-notes"
                         className="w-full bg-gray-600 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                         placeholder="Add notes about this application..."
                         rows={3}
@@ -551,6 +560,7 @@ const ListApproval = () => {
                 Rejection Comment
               </label>
               <textarea
+                id="input-field-rejection-comment"
                 className="w-full bg-gray-600 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Enter reason for rejection..."
                 rows={4}

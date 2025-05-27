@@ -1,6 +1,5 @@
 import { admin } from "./admin";
 import { User } from "./user";
-import { ApplicationStatus } from "./mentorapplication";
 import {
   MentorEducation,
   MentorWorkExperience,
