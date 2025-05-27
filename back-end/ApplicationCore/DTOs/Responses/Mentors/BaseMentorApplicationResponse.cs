@@ -14,7 +14,6 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public List<EducationDetailDto> EducationDetails { get; set; } = new List<EducationDetailDto>();
         public List<WorkExperienceDetailDto> WorkExperienceDetails { get; set; } = new List<WorkExperienceDetailDto>();
         public List<CertificationDetailDto> Certifications { get; set; } = new List<CertificationDetailDto>();
-        public int NumberOfSupportingDocuments { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastStatusUpdateDate { get; set; }
     }

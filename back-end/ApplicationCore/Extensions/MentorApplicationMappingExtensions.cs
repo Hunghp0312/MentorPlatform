@@ -80,7 +80,6 @@ namespace ApplicationCore.Extensions
                 EducationDetails = entity.MentorEducations.Select(e => e.ToEducationDetailDto()).ToList(),
                 WorkExperienceDetails = entity.MentorWorkExperiences.Select(w => w.ToWorkExperienceDetailDto()).ToList(),
                 Certifications = entity.MentorCertifications.Select(c => c.ToCertificationDetailDto()).ToList(),
-                NumberOfSupportingDocuments = entity.SupportingDocuments.Count
             };
         }
 
@@ -148,10 +147,14 @@ namespace ApplicationCore.Extensions
                 SubmissionDate = submissionDateForResponse,
                 CreatedAt = entity.CreatedAt,
                 LastStatusUpdateDate = entity.LastStatusUpdateDate,
+                RequestInfoDate = entity.RequestInfoDate,
+                AdminComments = entity.AdminComments,
+                RejectionReason = entity.RejectionReason,
+                ApproverDate = entity.ApprovalDate,
+                ApproverName = entity.AdminReviewer != null ? entity.AdminReviewer.UserProfile.FullName : "Anonymous",
                 EducationDetails = entity.MentorEducations.Select(e => e.ToEducationDetailDto()).ToList(),
                 WorkExperienceDetails = entity.MentorWorkExperiences.Select(w => w.ToWorkExperienceDetailDto()).ToList(),
                 Certifications = entity.MentorCertifications.Select(c => c.ToCertificationDetailDto()).ToList(),
-                NumberOfSupportingDocuments = entity.SupportingDocuments.Count,
                 DocumentsDetails = entity.SupportingDocuments.Select(s => s.DocumentContent.ToDocumentDetailResponseDto()).ToList()
             };
         }
