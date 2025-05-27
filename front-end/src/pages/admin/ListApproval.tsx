@@ -10,8 +10,14 @@ import { handleAxiosError } from "../../utils/handlerError";
 import { AxiosError } from "axios";
 import { MentorUpdateStatusRequest } from "../../types/approval";
 import { userService } from "../../services/user.service";
-import { SupportingDocument } from "../../types/mentorapplication";
+import {
+  MentorCertification,
+  MentorEducation,
+  MentorWorkExperience,
+  SupportingDocument,
+} from "../../types/mentorapplication";
 import CustomModal from "../../components/ui/Modal";
+import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 // Updated ApprovalType interface
 interface ApprovalType {
   applicantUserId: string;
@@ -28,6 +34,9 @@ interface ApprovalType {
   createdAt: string;
   updatedAt: string | null;
   expertiseAreas: ExpertiseArea[];
+  workExperienceDetails: MentorWorkExperience[];
+  certifications: MentorCertification[];
+  educationDetails: MentorEducation[];
   professionExperience: string;
   applicationTimeline: string;
   documents: SupportingDocument;
@@ -44,6 +53,7 @@ const ListApproval = () => {
   );
 
   const [loading, setLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [filter, setFilter] = useState(0);
@@ -186,7 +196,31 @@ const ListApproval = () => {
               </span>
               <span className="mx-2 text-gray-500">•</span>
               <span className="text-xs text-gray-400">
-                Submitted: {row.submissionDate}
+                {row.status === "RequestInfo" && row.requestInfoDate
+                  ? `Request Info: ${
+                      row.requestInfoDate
+                        .split(",")
+                        .filter((date) => date.trim())
+                        .sort(
+                          (a, b) =>
+                            new Date(b).getTime() - new Date(a).getTime()
+                        )[0]
+                    }`
+                  : row.status === "Pending" && row.submissionDate
+                  ? `Submission Date: ${
+                      row.submissionDate
+                        .split(",")
+                        .filter((date) => date.trim())
+                        .sort(
+                          (a, b) =>
+                            new Date(b).getTime() - new Date(a).getTime()
+                        )[0]
+                    }`
+                  : row.status === "Approved" && row.approvalDate
+                  ? `Approval Date: ${row.approvalDate}`
+                  : row.status === "Rejected" && row.approvalDate
+                  ? `Rejection Date: ${row.approvalDate}`
+                  : ""}
               </span>
             </div>
           </div>
@@ -206,7 +240,7 @@ const ListApproval = () => {
         const request: MentorUpdateStatusRequest = {
           mentorId: approval.applicantUserId,
           statusId: 3, // Approved
-          adminReviewerId: "adminReviewerId", // Replace with actual admin ID if available
+          adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID if available
           adminComments: undefined, // No comments for Approve
         };
         await approvalService.updateMentorApplicationStatus(request);
@@ -291,7 +325,7 @@ const ListApproval = () => {
         const request: MentorUpdateStatusRequest = {
           mentorId: selectedApproval.applicantUserId,
           statusId: 4, // Request Info
-          adminReviewerId: "adminReviewerId", // Replace with actual admin ID
+          adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID
           adminComments: adminNotes.trim() || undefined,
         };
         await approvalService.updateMentorApplicationStatus(request);
@@ -348,6 +382,102 @@ const ListApproval = () => {
   if (loading) {
     return <LoadingOverlay />;
   }
+  const additionalSettingsContent = (
+    <div>
+      <div>
+        <h4 className="text-sm font-medium text-gray-400">Education(s)</h4>
+        <div className="bg-gray-700 p-1 rounded-lg">
+          {selectedApproval?.educationDetails.length != 0 ? (
+            selectedApproval?.educationDetails.map((education, index) => (
+              <div
+                key={index}
+                className="flex justify-between py-1 border-b-1 border-gray-500 last:border-b-0"
+              >
+                <div className="flex w-full justify-between items-start">
+                  <div className="flex flex-col">
+                    <h5 className="font-normal">{education.fieldOfStudy}</h5>
+                    <p className="text-[12px] text-gray-400">
+                      {education.institutionName}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-400">
+                      {education.graduationYear ?? "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-200">No education provided.</p>
+          )}
+        </div>
+      </div>
+      <div>
+        <h4 className="text-sm font-medium text-gray-400">
+          Work Experience(s)
+        </h4>
+        <div className="bg-gray-700 p-1 rounded-lg">
+          {selectedApproval?.workExperienceDetails.length != 0 ? (
+            selectedApproval?.workExperienceDetails.map((experience, index) => (
+              <div
+                key={index}
+                className="flex justify-between py-1 border-b-1 border-gray-500 last:border-b-0"
+              >
+                <div className="flex w-full justify-between items-start">
+                  <div className="flex flex-col">
+                    <h5 className="font-normal">{experience.position}</h5>
+                    <p className="text-[12px] text-gray-400">
+                      {experience.companyName}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-400">
+                      {new Date(experience.startDate).getFullYear()}–
+                      {experience.endDate
+                        ? new Date(experience.endDate).getFullYear()
+                        : "Present"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-200">
+              No work experience provided.
+            </p>
+          )}
+        </div>
+      </div>
+      <div>
+        <h3 className="text-sm font-medium text-gray-400">Certification(s)</h3>
+        <div className="bg-gray-700 p-1 rounded-lg">
+          {selectedApproval?.certifications?.length != 0 ? (
+            selectedApproval?.certifications.map((certificate, index) => (
+              <div
+                key={index}
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+              >
+                <div className="flex w-full justify-between items-start">
+                  <div className="flex flex-col">
+                    <h5 className="font-normal">
+                      {certificate.certificationName}
+                    </h5>
+                    <p className="text-[12px] text-gray-400">
+                      {certificate.issuingOrganization}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2"></div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-gray-200">No certifications provided.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <main className="p-4 container mx-auto">
@@ -461,7 +591,7 @@ const ListApproval = () => {
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <h4 className="text-sm font-medium text-gray-400">
+                      <h4 className="text-sm font-medium text-gray-400 pb-0.5">
                         Expertise Areas
                       </h4>
                       <p className="text-sm">
@@ -471,7 +601,7 @@ const ListApproval = () => {
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-400">
+                      <h4 className="text-sm font-medium text-gray-400 pb-0.5">
                         Professional Experience
                       </h4>
                       <p className="text-sm">
@@ -479,21 +609,21 @@ const ListApproval = () => {
                       </p>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-400">
+                      <h4 className="text-sm font-medium text-gray-400 pb-1">
                         Application Timeline
                       </h4>
                       <div>
                         <div className="space-y-2">
                           {[
-                            ...(selectedApproval.applicationTimeline
-                              ? [
-                                  {
+                            ...(selectedApproval?.submissionDate
+                              ? selectedApproval.submissionDate
+                                  .split(",")
+                                  .filter((date) => date.trim())
+                                  .map((timestamp) => ({
                                     action: "Submitted",
-                                    timestamp:
-                                      selectedApproval.applicationTimeline,
-                                    content: null, // Explicitly set to null
-                                  },
-                                ]
+                                    timestamp,
+                                    content: null,
+                                  }))
                               : []),
                             ...(selectedApproval.approvalDate
                               ? [
@@ -508,61 +638,73 @@ const ListApproval = () => {
                               ? [
                                   {
                                     action: `Rejected: ${selectedApproval.rejectionReason}`,
-                                    timestamp:
-                                      selectedApproval.lastStatusUpdateDate,
+                                    timestamp: selectedApproval.approvalDate,
                                     content: selectedApproval.rejectionReason,
                                   },
                                 ]
                               : []),
-                            ...(selectedApproval.requestInfoDate
-                              ? [
-                                  {
+                            ...(selectedApproval?.requestInfoDate
+                              ? selectedApproval.requestInfoDate
+                                  .split(",")
+                                  .filter((date) => date.trim())
+                                  .map((timestamp) => ({
                                     action: "Request Info",
-                                    timestamp: selectedApproval.requestInfoDate,
+                                    timestamp,
                                     content: selectedApproval.adminComments,
-                                  },
-                                ]
+                                  }))
                               : []),
-                          ].map((entry, index) => (
-                            <div
-                              key={index}
-                              className="flex items-center space-x-2 text-sm"
-                            >
-                              <span
-                                className={`flex items-center justify-center w-5 h-5 rounded-full ${getActionColor(
-                                  entry.action
-                                )} text-white text-xs font-medium`}
+                          ]
+                            .sort(
+                              (a, b) =>
+                                new Date(a.timestamp).getTime() -
+                                new Date(b.timestamp).getTime()
+                            )
+                            .map((entry, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center space-x-2 text-sm pt-1"
                               >
-                                {index + 1}
-                              </span>
-                              {entry.action.includes("Rejected") ||
-                              entry.action === "Request Info" ? (
-                                <button
-                                  type="button"
-                                  className="text-blue-400 hover:underline bg-transparent border-none p-0 text-sm text-left"
-                                  onClick={() =>
-                                    handleShowDetails(
-                                      entry.action,
-                                      entry.content
-                                    )
-                                  }
-                                  aria-label={
-                                    entry.action.includes("Rejected")
-                                      ? "View rejection reason"
-                                      : "View admin notes"
-                                  }
+                                <span
+                                  className={`flex items-center justify-center w-5 h-5 rounded-full ${getActionColor(
+                                    entry.action
+                                  )} text-white text-xs font-medium`}
                                 >
-                                  {entry.action} on {entry.timestamp}
-                                </button>
-                              ) : (
-                                <span className="text-sm">
-                                  {entry.action} on {entry.timestamp}
+                                  {index + 1}
                                 </span>
-                              )}
-                            </div>
-                          ))}
+                                {entry.action.includes("Rejected") ||
+                                entry.action === "Request Info" ? (
+                                  <button
+                                    type="button"
+                                    className="text-blue-400 hover:underline bg-transparent border-none p-0 text-sm text-left"
+                                    onClick={() =>
+                                      handleShowDetails(
+                                        entry.action,
+                                        entry.content
+                                      )
+                                    }
+                                    aria-label={
+                                      entry.action.includes("Rejected")
+                                        ? "View rejection reason"
+                                        : "View admin notes"
+                                    }
+                                  >
+                                    {entry.action} on {entry.timestamp}
+                                  </button>
+                                ) : (
+                                  <span className="text-sm">
+                                    {entry.action} on {entry.timestamp}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
                         </div>
                       </div>
+                      <ExpandProfileSettings
+                        title="Additional Profile"
+                        additionalSettings={additionalSettingsContent}
+                        isExpanded={isExpanded}
+                        onToggle={() => setIsExpanded((prev) => !prev)}
+                      />
                       <div className="mt-4">
                         <h4 className="text-sm font-medium text-gray-400">
                           Uploaded Documents

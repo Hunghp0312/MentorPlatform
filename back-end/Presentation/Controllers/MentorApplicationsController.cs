@@ -62,6 +62,7 @@ namespace Presentation.Controllers
         [HttpGet("applications")]
         [ProducesResponseType(typeof(PagedResult<MentorApplicantResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [Authorize]
         public async Task<IActionResult> GetAllMentorApplications([FromQuery] PaginationParameters paginationParameters, [FromQuery] int applicationStatus = 0)
         {
             var result = await _mentorService.GetAllMentorApplications(paginationParameters, applicationStatus);
@@ -72,6 +73,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(MentorApplicantResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> UpdateMentorApplicationStatus([FromBody] MentorUpdateStatusRequest request)
         {
             var result = await _mentorService.UpdateMentorApplicationStatus(request);

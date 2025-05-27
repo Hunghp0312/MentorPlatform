@@ -82,7 +82,7 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
         {/* School Name Field */}
         <InputCustom
           label="Certification Name"
-          name="input-field-certificationName"
+          name="certificationName"
           type="text"
           value={formState.certificationName}
           onChange={handleChange}
@@ -95,7 +95,7 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
         {/* Major Field */}
         <InputCustom
           label="Organization"
-          name="input-field-issuingOrganization"
+          name="issuingOrganization"
           type="text"
           value={formState.issuingOrganization}
           onChange={handleChange}

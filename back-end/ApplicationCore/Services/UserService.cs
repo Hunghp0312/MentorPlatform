@@ -141,7 +141,7 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
-        public async Task<OperationResult<UserResponseDto>> GetUserbyIdAsync(Guid userId)
+        public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdsAsync(userId);
             if (user == null)
@@ -155,7 +155,7 @@ namespace ApplicationCore.Services
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
-                Status = user.Status?.Name ?? string.Empty,
+                Status = user.SubmittedMentorApplication?.ApplicationStatus?.Name ?? string.Empty,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,
                 IndustryExperience = user.UserProfile?.IndustryExperience,

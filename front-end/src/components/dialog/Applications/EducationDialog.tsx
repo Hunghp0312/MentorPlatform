@@ -92,7 +92,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
         {/* School Name Field */}
         <InputCustom
           label="Institution Name"
-          name="input-field-institutionName"
+          name="institutionName"
           type="text"
           value={formState.institutionName}
           onChange={handleChange}
@@ -105,7 +105,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
         {/* Major Field */}
         <InputCustom
           label="Field Of Study"
-          name="input-field-fieldOfStudy"
+          name="fieldOfStudy"
           type="text"
           value={formState.fieldOfStudy}
           onChange={handleChange}

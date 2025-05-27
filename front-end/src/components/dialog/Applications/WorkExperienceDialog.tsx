@@ -82,16 +82,11 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       isValid = false;
     }
 
-    if (
-      formState.endDate &&
-      formState.endDate !== "Present" &&
-      !/^\d{4}$/.test(formState.endDate)
-    ) {
+    if (formState.endDate && !/^\d{4}$/.test(formState.endDate)) {
       newErrors.endDate = "End year must be a valid 4-digit number.";
       isValid = false;
     } else if (
       formState.endDate &&
-      formState.endDate !== "Present" &&
       Number(formState.endDate) < Number(formState.startDate)
     ) {
       newErrors.endDate = "End year cannot be earlier than start year.";
@@ -110,10 +105,9 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
     const updatedFormState = {
       ...formState,
       startDate: `${formState.startDate}-01-01T00:00:00.000Z`,
-      endDate:
-        formState.endDate?.trim() === ""
-          ? "Present"
-          : `${formState.endDate}-01-01T00:00:00.000Z`,
+      endDate: formState.endDate?.trim()
+        ? `${formState.endDate}-01-01T00:00:00.000Z`
+        : null,
     };
     onSubmit(updatedFormState);
     onClose();
@@ -124,7 +118,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
           label="Company Name"
-          name="input-field-companyName"
+          name="companyName"
           type="text"
           value={formState.companyName}
           onChange={handleChange}
@@ -136,7 +130,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
           label="Position"
-          name="input-field-position"
+          name="position"
           type="text"
           value={formState.position}
           onChange={handleChange}
@@ -148,7 +142,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
           label="Year Start"
-          name="input-field-startDate"
+          name="startDate"
           type="text"
           value={formState.startDate}
           onChange={handleChange}
@@ -160,7 +154,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
           label="Year End"
-          name="input-field-endDate"
+          name="endDate"
           type="text"
           value={formState.endDate || ""}
           onChange={handleChange}

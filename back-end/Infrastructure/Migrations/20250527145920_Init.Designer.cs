@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250526141346_initialDb")]
-    partial class initialDb
+    [Migration("20250527145920_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1256,7 +1256,7 @@ namespace Infrastructure.Migrations
                             Email = "huynguyen.learner@gmail.com",
                             PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
                             RoleId = 2,
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
@@ -1283,7 +1283,7 @@ namespace Infrastructure.Migrations
                             Email = "huynguyen.mentor@gmail.com",
                             PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
                             RoleId = 3,
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
@@ -1301,7 +1301,7 @@ namespace Infrastructure.Migrations
                             Email = "minhchau.mentor@gmail.com",
                             PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
                             RoleId = 3,
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
@@ -1327,6 +1327,68 @@ namespace Infrastructure.Migrations
                     b.HasIndex("AreaOfExpertiseId");
 
                     b.ToTable("UserAreaOfExpertise");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            AreaOfExpertiseId = 2
+                        },
+                        new
+                        {
+                            UserId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            AreaOfExpertiseId = 5
+                        },
+                        new
+                        {
+                            UserId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
+                            AreaOfExpertiseId = 3
+                        },
+                        new
+                        {
+                            UserId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
+                            AreaOfExpertiseId = 4
+                        },
+                        new
+                        {
+                            UserId = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
+                            AreaOfExpertiseId = 5
+                        },
+                        new
+                        {
+                            UserId = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
+                            AreaOfExpertiseId = 2
+                        },
+                        new
+                        {
+                            UserId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            AreaOfExpertiseId = 1
+                        },
+                        new
+                        {
+                            UserId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            AreaOfExpertiseId = 7
+                        },
+                        new
+                        {
+                            UserId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            AreaOfExpertiseId = 2
+                        },
+                        new
+                        {
+                            UserId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            AreaOfExpertiseId = 8
+                        },
+                        new
+                        {
+                            UserId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            AreaOfExpertiseId = 3
+                        },
+                        new
+                        {
+                            UserId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            AreaOfExpertiseId = 6
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserLearningStyle", b =>
@@ -1414,6 +1476,7 @@ namespace Infrastructure.Migrations
                             Bio = "Experienced tech administrator with background in education platforms.",
                             CommunicationMethod = 1,
                             FullName = "Huy Nguyen Admin",
+                            IndustryExperience = "Experienced in education platforms, with expertise in system administration, DevOps, and cloud infrastructure.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = true,
@@ -1427,6 +1490,7 @@ namespace Infrastructure.Migrations
                             Bio = "Platform administrator with focus on user experience and system reliability.",
                             CommunicationMethod = 1,
                             FullName = "Huy Khuong Admin",
+                            IndustryExperience = "Experienced in user experience and system reliability, with expertise in user management, technical support, and data analytics.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = true,
@@ -1440,6 +1504,7 @@ namespace Infrastructure.Migrations
                             Bio = "Senior administrator overseeing platform development and technical operations.",
                             CommunicationMethod = 1,
                             FullName = "Minh Chau Admin",
+                            IndustryExperience = "Experienced in project management, system architecture, and team leadership, with expertise in platform development and technical operations.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = true,
@@ -1453,9 +1518,11 @@ namespace Infrastructure.Migrations
                             Bio = "Aspiring software developer interested in web technologies and cloud computing.",
                             CommunicationMethod = 2,
                             FullName = "Huy Nguyen Learner",
+                            IndustryExperience = "Aspiring software developer interested in web technologies and cloud computing, with expertise in web development, cloud computing, and problem-solving.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = true,
+                            ProfessionalSkill = "Web development, Cloud computing, Problem-solving",
                             SessionDurationId = 2,
                             SessionFrequencyId = 1,
                             UserGoal = "To master modern web development frameworks and secure a developer position."
@@ -1466,9 +1533,11 @@ namespace Infrastructure.Migrations
                             Bio = "Data science enthusiast with background in statistics and mathematics.",
                             CommunicationMethod = 1,
                             FullName = "Huy Khuong Learner",
+                            IndustryExperience = "Data science enthusiast with background in statistics and mathematics, with expertise in machine learning algorithms and data visualization.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = false,
+                            ProfessionalSkill = "Statistics, Mathematics, Machine learning",
                             SessionDurationId = 3,
                             SessionFrequencyId = 2,
                             UserGoal = "To develop expertise in machine learning algorithms and data visualization."
@@ -1479,9 +1548,11 @@ namespace Infrastructure.Migrations
                             Bio = "UX/UI designer looking to expand skills in frontend development.",
                             CommunicationMethod = 3,
                             FullName = "Minh Chau Learner",
+                            IndustryExperience = "UX/UI designer looking to expand skills in frontend development, with expertise in UX/UI design, frontend development, and problem-solving.",
                             MessagePermission = false,
                             NotificationsEnabled = false,
                             PrivacyProfile = true,
+                            ProfessionalSkill = "UX/UI design, Frontend development, Problem-solving",
                             SessionDurationId = 1,
                             SessionFrequencyId = 3,
                             UserGoal = "To combine design expertise with technical implementation skills."
@@ -1492,9 +1563,11 @@ namespace Infrastructure.Migrations
                             Bio = "Full-stack developer with interest in blockchain and distributed systems.",
                             CommunicationMethod = 2,
                             FullName = "Dan Cega",
+                            IndustryExperience = "Full-stack developer with interest in blockchain and distributed systems, with expertise in blockchain, distributed systems, and problem-solving.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = false,
+                            ProfessionalSkill = "Blockchain, Distributed systems, Problem-solving",
                             SessionDurationId = 5,
                             SessionFrequencyId = 1,
                             UserGoal = "To build scalable decentralized applications and smart contracts."

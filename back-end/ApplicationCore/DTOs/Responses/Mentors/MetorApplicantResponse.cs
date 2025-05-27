@@ -1,3 +1,6 @@
+using ApplicationCore.DTOs.Requests.Certifications;
+using ApplicationCore.DTOs.Requests.Educations;
+using ApplicationCore.DTOs.Requests.WorkExperiences;
 using ApplicationCore.DTOs.Responses.ArenaOfExpertises;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
 
@@ -19,6 +22,9 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public ICollection<ArenaOfExpertiseResponse> ExpertiseAreas { get; set; } = [];
+        public List<EducationDetailDto> EducationDetails { get; set; } = new List<EducationDetailDto>();
+        public List<WorkExperienceDetailDto> WorkExperienceDetails { get; set; } = new List<WorkExperienceDetailDto>();
+        public List<CertificationDetailDto> Certifications { get; set; } = new List<CertificationDetailDto>();
         public required string ProfessionExperience { get; set; }
         public required string ApplicationTimeline { get; set; }
         public List<SupportingDocumentResponse>? Documents { get; set; }

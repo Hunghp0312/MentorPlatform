@@ -7,7 +7,7 @@ export interface MentorWorkExperience {
   companyName: string;
   position: string;
   startDate: string; // ISO string for DateTime
-  endDate?: string; // ISO string for DateTime
+  endDate: string | null; // ISO string for DateTime
 }
 
 export interface MentorEducation {
@@ -20,21 +20,28 @@ export interface MentorCreateApplication {
   mentorEducations: MentorEducation[];
   mentorWorkExperiences: MentorWorkExperience[];
   mentorCertifications: MentorCertification[];
-  mentorDocuments: SupportingDocument;
+  //mentorDocuments: SupportingDocument[];
 }
 export interface SupportingDocument {
+  id?: string; // Thêm id để lưu fileId (GUID từ BE)
   fileName: string;
   fileType: string;
   fileSize: number;
-  uploadedAt: string; // ISO string for DateTime
-  documentContent?: DocumentContent;
+  uploadedAt: string;
+  documentContent: {
+    fileName: string;
+    fileType: string;
+    fileContent: string;
+  };
 }
 
 export interface DocumentContent {
-  fileContent: string; // Base64 string for binary data
+  id: string;
   fileName: string;
   fileType: string;
-  supportingDocument?: SupportingDocument;
+  fileSize?: number;
+  uploadedAt?: string;
+  fileContent: string;
 }
 
 export interface ApplicationStatus {

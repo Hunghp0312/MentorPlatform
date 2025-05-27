@@ -21,6 +21,9 @@ namespace ApplicationCore.Extensions
                 {
                     Name = x.AreaOfExpertise.Name,
                 }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
+                EducationDetails = mentorApplication.MentorEducations.Select(e => e.ToEducationDetailDto()).ToList(),
+                WorkExperienceDetails = mentorApplication.MentorWorkExperiences.Select(w => w.ToWorkExperienceDetailDto()).ToList(),
+                Certifications = mentorApplication.MentorCertifications.Select(c => c.ToCertificationDetailDto()).ToList(),
                 ProfessionExperience = mentorApplication.Applicant?.UserProfile?.IndustryExperience ?? string.Empty,
                 ApplicationTimeline = mentorApplication.SubmissionDate,
                 SubmissionDate = mentorApplication.SubmissionDate,
@@ -28,7 +31,7 @@ namespace ApplicationCore.Extensions
                 ApproverName = mentorApplication.AdminReviewer?.UserProfile?.FullName ?? string.Empty,
                 AdminComments = mentorApplication.AdminComments,
                 RejectionReason = mentorApplication.RejectionReason,
-                RequestInfoDate = mentorApplication.RequestInfoDate,    
+                RequestInfoDate = mentorApplication.RequestInfoDate,
                 ApprovalDate = mentorApplication.ApprovalDate,
                 CreatedAt = mentorApplication.CreatedAt,
                 UpdatedAt = mentorApplication.UpdatedAt,

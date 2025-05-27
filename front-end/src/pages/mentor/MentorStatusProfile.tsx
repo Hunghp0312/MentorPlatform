@@ -9,6 +9,7 @@ import {
   MentorWorkExperience,
   MentorCreateApplication,
   SupportingDocument,
+  DocumentContent,
 } from "../../types/mentorapplication";
 import { User, UserApplication } from "../../types/user";
 import CustomModal from "../../components/ui/Modal";
@@ -21,7 +22,7 @@ interface MentorStatusType {
   mentorEducation: MentorEducation[];
   mentorWorkExperience: MentorWorkExperience[];
   certifications: MentorCertification[];
-  mentorDocuments: SupportingDocument | null;
+  mentorDocuments: SupportingDocument[];
   submissionDate?: string;
   approvalDate?: string;
   rejectedDate?: string;
@@ -38,7 +39,7 @@ const MentorStatusProfile = () => {
     mentorEducation: [],
     mentorWorkExperience: [],
     certifications: [],
-    mentorDocuments: null,
+    mentorDocuments: [],
     submissionDate: "",
     status: "",
   });
@@ -46,12 +47,12 @@ const MentorStatusProfile = () => {
     mentorEducation: [],
     mentorWorkExperience: [],
     certifications: [],
-    mentorDocuments: null,
+    mentorDocuments: [],
     submissionDate: "",
     status: "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [newEducation, setNewEducation] = useState<Partial<MentorEducation>>(
     {}
   );
@@ -113,10 +114,9 @@ const MentorStatusProfile = () => {
         const response = await mentorService.getMyApplication();
         console.log("My Application Data:", response);
 
-        let mappedDocument = null;
-        if (response.documentsDetails?.[0]) {
-          const doc = response.documentsDetails[0];
-          mappedDocument = {
+        const mappedDocuments: SupportingDocument[] =
+          response.documentsDetails?.map((doc: DocumentContent) => ({
+            id: doc.id, // Lấy id từ BE
             fileName: doc.fileName,
             fileType: doc.fileType,
             fileSize: doc.fileSize || 0,
@@ -126,14 +126,13 @@ const MentorStatusProfile = () => {
               fileType: doc.fileType,
               fileContent: doc.fileContent,
             },
-          };
-        }
+          })) || [];
 
         const mappedData: Partial<MentorStatusType> = {
           mentorEducation: response.educationDetails || [],
           mentorWorkExperience: response.workExperienceDetails || [],
           certifications: response.certifications || [],
-          mentorDocuments: mappedDocument,
+          mentorDocuments: mappedDocuments,
           status: response.status,
         };
 
@@ -176,7 +175,19 @@ const MentorStatusProfile = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      setSelectedFile(file);
+      const allowedFileTypes = ["application/pdf", "image/jpeg", "image/png"];
+
+      if (!allowedFileTypes.includes(file.type)) {
+        setError("Chỉ hỗ trợ các định dạng PDF, JPEG, hoặc PNG.");
+        alert("Error: Only support PDF, JPEG or PNG.");
+        return;
+      }
+      // Kiểm tra giới hạn 5 file
+      if (mentorData.mentorDocuments.length >= 5) {
+        setError("Bạn chỉ có thể upload tối đa 5 file.");
+        return;
+      }
+
       const newDocument: SupportingDocument = {
         fileName: file.name,
         fileType: file.type,
@@ -185,16 +196,18 @@ const MentorStatusProfile = () => {
         documentContent: {
           fileName: file.name,
           fileType: file.type,
-          fileContent: "",
+          fileContent: "", // Sẽ được cập nhật khi gọi API
         },
       };
+
+      setSelectedFiles((prev) => [...prev, file]);
       setEditedMentor((prev) => ({
         ...prev,
-        mentorDocuments: newDocument,
+        mentorDocuments: [...prev.mentorDocuments, newDocument],
       }));
       setMentorData((prev) => ({
         ...prev,
-        mentorDocuments: newDocument,
+        mentorDocuments: [...prev.mentorDocuments, newDocument],
       }));
     }
   };
@@ -205,16 +218,44 @@ const MentorStatusProfile = () => {
     }
   };
 
-  const handleRemoveDocument = () => {
-    setEditedMentor((prev) => ({
-      ...prev,
-      mentorDocuments: null,
-    }));
-    setMentorData((prev) => ({
-      ...prev,
-      mentorDocuments: null,
-    }));
-    setSelectedFile(null);
+  const handleRemoveDocument = async (index: number) => {
+    const document = mentorData.mentorDocuments[index];
+
+    if (
+      (mentorData.status === "Request Info" ||
+        mentorData.status === "Pending") &&
+      document.id
+    ) {
+      try {
+        await mentorService.deleteFile(document.id);
+        setEditedMentor((prev) => ({
+          ...prev,
+          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        }));
+        setMentorData((prev) => ({
+          ...prev,
+          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        }));
+        setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+      } catch (error) {
+        console.error("Error deleting file:", error);
+        setError("Lỗi khi xóa tài liệu. Vui lòng thử lại.");
+      }
+    } else {
+      setEditedMentor((prev) => ({
+        ...prev,
+        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+      }));
+      setMentorData((prev) => ({
+        ...prev,
+        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+      }));
+      setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    }
+
+    if (mentorData.mentorDocuments.length <= 1) {
+      setSelectedFiles([]);
+    }
   };
 
   const handleAddNewEducation = async (newEducation: MentorEducation) => {
@@ -371,8 +412,16 @@ const MentorStatusProfile = () => {
   };
 
   const handleSubmitApplication = async () => {
-    if (!editedMentor || !selectedFile || !editedMentor.mentorDocuments) {
-      setError("Vui lòng chọn một tài liệu.");
+    if (!editedMentor || editedMentor.mentorDocuments.length === 0) {
+      setError("Vui lòng chọn ít nhất một tài liệu.");
+      return;
+    }
+
+    // Hiển thị popup xác nhận
+    const confirmed = window.confirm(
+      "Bạn có chắc chắn muốn gửi đơn đăng ký không?"
+    );
+    if (!confirmed) {
       return;
     }
 
@@ -380,47 +429,149 @@ const MentorStatusProfile = () => {
       mentorEducations: editedMentor.mentorEducation,
       mentorWorkExperiences: editedMentor.mentorWorkExperience,
       mentorCertifications: editedMentor.certifications,
-      mentorDocuments: editedMentor.mentorDocuments,
     };
 
     try {
-      setLoading(true);
-      await mentorService.submitCompleteApplication(application, selectedFile);
-      alert("Đã gửi đơn đăng ký thành công!");
-      setIsEditing(false);
-      setSelectedFile(null);
+      if (mentorData.status === "") {
+        // Gọi submitCompleteApplication
+        await mentorService.submitCompleteApplication(application);
 
-      const response = await mentorService.getMyApplication();
-      console.log("Updated Application Data:", response);
+        // Upload tất cả file
+        for (const file of selectedFiles) {
+          await mentorService.uploadFile(file);
+        }
 
-      const mappedData: MentorStatusType = {
-        mentorEducation: response.mentorEducations || [],
-        mentorWorkExperience: response.mentorWorkExperiences || [],
-        certifications: response.mentorCertifications || [],
-        mentorDocuments: response.supportingDocument || null,
-        status: response.status,
-      };
+        alert("Đã gửi đơn đăng ký thành công!");
+        setIsEditing(false);
+        setSelectedFiles([]);
 
-      setMentorData(mappedData);
-      setEditedMentor({ ...mappedData });
+        // Cập nhật dữ liệu sau khi submit
+        const response = await mentorService.getMyApplication();
+        const mappedDocuments: SupportingDocument[] =
+          response.documentsDetails?.map((doc: DocumentContent) => ({
+            id: doc.id,
+            fileName: doc.fileName,
+            fileType: doc.fileType,
+            fileSize: doc.fileSize || 0,
+            uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            documentContent: {
+              fileName: doc.fileName,
+              fileType: doc.fileType,
+              fileContent: doc.fileContent,
+            },
+          })) || [];
+
+        const mappedData: MentorStatusType = {
+          mentorEducation: response.educationDetails || [],
+          mentorWorkExperience: response.workExperienceDetails || [],
+          certifications: response.certifications || [],
+          mentorDocuments: mappedDocuments,
+          status: response.status,
+          userApplicationDetails: mentorData.userApplicationDetails, // Preserve user data
+        };
+
+        setMentorData(mappedData);
+        setEditedMentor({ ...mappedData });
+      } else if (mentorData.status === "Pending") {
+        // Chỉ upload các file mới (không có id)
+        const newFiles = selectedFiles.filter(
+          (_, index) => !mentorData.mentorDocuments[index]?.id
+        );
+        for (const file of newFiles) {
+          await mentorService.uploadFile(file);
+        }
+
+        alert("Đã cập nhật tài liệu thành công!");
+        setIsEditing(false);
+        setSelectedFiles([]);
+
+        // Cập nhật dữ liệu sau khi upload
+        const response = await mentorService.getMyApplication();
+        const mappedDocuments: SupportingDocument[] =
+          response.documentsDetails?.map((doc: DocumentContent) => ({
+            id: doc.id,
+            fileName: doc.fileName,
+            fileType: doc.fileType,
+            fileSize: doc.fileSize || 0,
+            uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            documentContent: {
+              fileName: doc.fileName,
+              fileType: doc.fileType,
+              fileContent: doc.fileContent,
+            },
+          })) || [];
+
+        const mappedData: MentorStatusType = {
+          mentorEducation: response.educationDetails || [],
+          mentorWorkExperience: response.workExperienceDetails || [],
+          certifications: response.certifications || [],
+          mentorDocuments: mappedDocuments,
+          status: response.status,
+          userApplicationDetails: mentorData.userApplicationDetails, // Preserve user data
+        };
+
+        setMentorData(mappedData);
+        setEditedMentor({ ...mappedData });
+      } else if (mentorData.status === "Request Info") {
+        // Gọi updateMyApplication
+        await mentorService.updateMyApplication(application);
+
+        // Chỉ upload các file mới (không có id)
+        const newFiles = selectedFiles.filter(
+          (_, index) => !mentorData.mentorDocuments[index]?.id
+        );
+        for (const file of newFiles) {
+          await mentorService.uploadFile(file);
+        }
+
+        alert("Đã cập nhật đơn đăng ký thành công!");
+        setIsEditing(false);
+        setSelectedFiles([]);
+
+        // Cập nhật dữ liệu sau khi update
+        const response = await mentorService.getMyApplication();
+        const mappedDocuments: SupportingDocument[] =
+          response.documentsDetails?.map((doc: DocumentContent) => ({
+            id: doc.id,
+            fileName: doc.fileName,
+            fileType: doc.fileType,
+            fileSize: doc.fileSize || 0,
+            uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            documentContent: {
+              fileName: doc.fileName,
+              fileType: doc.fileType,
+              fileContent: doc.fileContent,
+            },
+          })) || [];
+
+        const mappedData: MentorStatusType = {
+          mentorEducation: response.educationDetails || [],
+          mentorWorkExperience: response.workExperienceDetails || [],
+          certifications: response.certifications || [],
+          mentorDocuments: mappedDocuments,
+          status: response.status,
+          userApplicationDetails: mentorData.userApplicationDetails, // Preserve user data
+        };
+
+        setMentorData(mappedData);
+        setEditedMentor({ ...mappedData });
+      }
     } catch (error) {
       console.error("Error submitting application:", error);
       setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSave = () => {
     if (editedMentor) {
-      setLoading(true);
-      setTimeout(() => {
-        setMentorData(editedMentor);
-        setIsEditing(false);
-        setLoading(false);
-        setError(null);
-      }, 1000);
+      setMentorData((prev) => ({
+        ...prev,
+        ...editedMentor,
+        userApplicationDetails: prev.userApplicationDetails, // Preserve user data
+      }));
+      setIsEditing(false);
+      setError(null);
     }
   };
 
@@ -524,7 +675,7 @@ const MentorStatusProfile = () => {
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">
                       {new Date(experience.startDate).getFullYear()}–
-                      {experience.endDate && experience.endDate !== "Present"
+                      {experience.endDate
                         ? new Date(experience.endDate).getFullYear()
                         : "Present"}
                     </span>
@@ -605,8 +756,8 @@ const MentorStatusProfile = () => {
       </div>
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
-          Document
-          {isEditing && (
+          Documents
+          {mentorData.mentorDocuments.length < 5 && (
             <button
               id="open-file-explorer-icon"
               onClick={() => handleOpenFileExplorer()}
@@ -622,48 +773,54 @@ const MentorStatusProfile = () => {
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
+            accept=".pdf,image/jpeg,image/png"
             style={{ display: "none" }}
           />
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData.mentorDocuments ? (
-            <div className="flex justify-between py-2 border-b-1 border-gray-500">
-              <div className="flex flex-col">
-                <h5 className="font-medium">
-                  {mentorData.mentorDocuments.fileName}
-                </h5>
-                <p className="text-[12px] text-gray-400">
-                  {mentorData.mentorDocuments.fileType}
-                </p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  id="view-document-icon"
-                  onClick={() =>
-                    handleViewDocument(
-                      mentorData.mentorDocuments!.documentContent
-                        ?.fileContent || "",
-                      mentorData.mentorDocuments!.fileType
-                    )
-                  }
-                >
-                  <Eye
-                    size={20}
-                    className="text-blue-500 hover:text-blue-600"
-                  />
-                </button>
-                {isEditing && (
-                  <button onClick={handleRemoveDocument}>
-                    <CircleMinus
+          {mentorData.mentorDocuments.length > 0 ? (
+            mentorData.mentorDocuments.map((document, index) => (
+              <div
+                key={index}
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+              >
+                <div className="flex flex-col">
+                  <h5 className="font-medium">{document.fileName}</h5>
+                  <p className="text-[12px] text-gray-400">
+                    {document.fileType}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    id={`view-document-icon-${index}`}
+                    onClick={() =>
+                      handleViewDocument(
+                        document.documentContent?.fileContent || "",
+                        document.fileType
+                      )
+                    }
+                  >
+                    <Eye
                       size={20}
-                      className="text-red-500 hover:text-red-600"
+                      className="text-blue-500 hover:text-blue-600"
                     />
                   </button>
-                )}
+                  {isEditing && (
+                    <button
+                      id={`remove-document-icon-${index}`}
+                      onClick={() => handleRemoveDocument(index)}
+                    >
+                      <CircleMinus
+                        size={20}
+                        className="text-red-500 hover:text-red-600"
+                      />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
+            ))
           ) : (
-            <p className="text-sm text-gray-200">No document provided.</p>
+            <p className="text-sm text-gray-200">No documents provided.</p>
           )}
         </div>
       </div>
@@ -770,6 +927,7 @@ const MentorStatusProfile = () => {
               </p>
             </div>
             <ExpandProfileSettings
+              title="Additional Profile"
               additionalSettings={additionalSettingsContent}
               isExpanded={isExpanded}
               onToggle={() => setIsExpanded((prev) => !prev)}
@@ -873,7 +1031,16 @@ const MentorStatusProfile = () => {
               <button
                 id="submit-application-button"
                 onClick={() => handleSubmitApplication()}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  mentorData.status === "Approved" ||
+                  mentorData.status === "Rejected"
+                    ? "bg-orange-700 text-gray-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600 text-white"
+                }`}
+                disabled={
+                  mentorData.status === "Approved" ||
+                  mentorData.status === "Rejected"
+                }
               >
                 Submit
               </button>

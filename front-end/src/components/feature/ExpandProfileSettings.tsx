@@ -1,10 +1,12 @@
 interface ExpandProfileSettingsProps {
+  title: string;
   additionalSettings?: React.ReactNode;
   isExpanded: boolean; // Added to control expanded state
   onToggle: () => void; // Added to handle toggle action
 }
 
 const ExpandProfileSettings: React.FC<ExpandProfileSettingsProps> = ({
+  title,
   additionalSettings,
   isExpanded,
   onToggle,
@@ -16,9 +18,7 @@ const ExpandProfileSettings: React.FC<ExpandProfileSettingsProps> = ({
         className="text-orange-500 hover:text-orange-400 text-sm flex items-center"
       >
         <span>
-          {isExpanded
-            ? "Hide Additional Profile Settings"
-            : "View Additional Profile Settings"}
+          {isExpanded ? `Hide ${title} Settings` : `View ${title} Settings`}
         </span>
         <svg
           className={`w-4 h-4 ml-1 transform ${isExpanded ? "rotate-90" : ""}`}
