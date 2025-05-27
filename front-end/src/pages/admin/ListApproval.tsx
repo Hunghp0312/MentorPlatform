@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Search, ClipboardList, FileText } from "lucide-react";
+import { Search, ClipboardList, FileText, Eye } from "lucide-react";
 import { toast } from "react-toastify";
 import DataTable, { DataColumn } from "../../components/table/CustomTable";
 import InputCustom from "../../components/input/InputCustom";
@@ -10,6 +10,8 @@ import { handleAxiosError } from "../../utils/handlerError";
 import { AxiosError } from "axios";
 import { MentorUpdateStatusRequest } from "../../types/approval";
 import { userService } from "../../services/user.service";
+import { SupportingDocument } from "../../types/mentorapplication";
+import CustomModal from "../../components/ui/Modal";
 // Updated ApprovalType interface
 interface ApprovalType {
   applicantUserId: string;
@@ -28,18 +30,15 @@ interface ApprovalType {
   expertiseAreas: ExpertiseArea[];
   professionExperience: string;
   applicationTimeline: string;
-  documents: Document[];
+  documents: SupportingDocument;
   status: "Pending" | "Approved" | "Rejected" | "RequestInfo";
-}
-interface ApprovalFilterType {
-  status: string;
 }
 interface ExpertiseArea {
   name: string;
 }
 
 const ListApproval = () => {
-  const [approvals, setApprovals] = useState<ApprovalType[]>();
+  const [approvals, setApprovals] = useState<ApprovalType[]>([]);
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
   );
@@ -56,6 +55,19 @@ const ListApproval = () => {
   const [adminNotes, setAdminNotes] = useState(""); // New state for admin notes
 
   const searchDebounced = useDebounce(searchTerm, 500);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [detailsContent, setDetailsContent] = useState<{
+    title: string;
+    content: string | null;
+  }>({
+    title: "",
+    content: null,
+  });
+  const [openDocumentViewer, setOpenDocumentViewer] = useState(false);
+  const [documentData, setDocumentData] = useState<{
+    fileContent: string;
+    fileType: string;
+  } | null>(null);
 
   const statusOptions = [
     { value: "", label: "All" },
@@ -102,6 +114,42 @@ const ListApproval = () => {
       setLoading(false);
     }
   };
+  const handleViewDocument = (
+    fileContent: string | undefined,
+    fileType: string
+  ) => {
+    if (!fileContent) {
+      toast.error("Không thể mở tài liệu: Không có nội dung tài liệu.");
+      return;
+    }
+    if (!fileType) {
+      toast.error("Không thể mở tài liệu: Thiếu loại tệp.");
+      return;
+    }
+    try {
+      const isValidBase64 = /^[A-Za-z0-9+/=]+$/.test(fileContent);
+      if (!isValidBase64) {
+        toast.error("Không thể mở tài liệu: Dữ liệu Base64 không hợp lệ.");
+        return;
+      }
+      setDocumentData({ fileContent, fileType });
+      setOpenDocumentViewer(true);
+    } catch {
+      toast.error("Lỗi khi mở tài liệu: Vui lòng thử lại.");
+    }
+  };
+
+  const handleCloseDocumentViewer = () => {
+    setOpenDocumentViewer(false);
+    setDocumentData(null);
+  };
+  const handleShowDetails = (action: string, content: string | null) => {
+    setDetailsContent({
+      title: action.includes("Rejected") ? "Rejection Reason" : "Admin Notes",
+      content,
+    });
+    setIsDetailsModalOpen(true);
+  };
   // Define columns for CustomTable
   const columns: DataColumn<ApprovalType>[] = [
     {
@@ -109,7 +157,8 @@ const ListApproval = () => {
       accessor: (row) => (
         <div className="flex items-center space-x-4">
           <img
-            src={row.photoData}
+            // src={row.photoData}
+            src="https://via.placeholder.com/48"
             alt={row.fullName}
             className="w-12 h-12 rounded-full object-cover"
           />
@@ -180,7 +229,7 @@ const ListApproval = () => {
             approvalDate: new Date().toISOString(),
           });
         }
-      } catch (error) {
+      } catch {
         toast.error("Failed to approve application");
       }
     }
@@ -224,7 +273,7 @@ const ListApproval = () => {
         });
         setRejectionComment("");
         setIsRejectModalOpen(false);
-      } catch (error) {
+      } catch {
         toast.error("Failed to reject application");
       }
     }
@@ -266,7 +315,7 @@ const ListApproval = () => {
           adminComments: adminNotes.trim() || null,
         });
         setAdminNotes("");
-      } catch (error) {
+      } catch {
         toast.error("Failed to request additional info");
       }
     }
@@ -433,85 +482,128 @@ const ListApproval = () => {
                       <h4 className="text-sm font-medium text-gray-400">
                         Application Timeline
                       </h4>
-                      <div className="space-y-2">
-                        {[
-                          ...(selectedApproval.applicationTimeline
-                            ? [
-                                {
-                                  action: "Submitted",
-                                  timestamp:
-                                    selectedApproval.applicationTimeline,
-                                },
-                              ]
-                            : []),
-                          ...(selectedApproval.approvalDate
-                            ? [
-                                {
-                                  action: "Approved",
-                                  timestamp: selectedApproval.approvalDate,
-                                },
-                              ]
-                            : []),
-                          ...(selectedApproval.rejectionReason
-                            ? [
-                                {
-                                  action: `Rejected: ${selectedApproval.rejectionReason}`,
-                                  timestamp:
-                                    selectedApproval.lastStatusUpdateDate,
-                                },
-                              ]
-                            : []),
-                          ...(selectedApproval.requestInfoDate
-                            ? [
-                                {
-                                  action: "Request Info",
-                                  timestamp: selectedApproval.requestInfoDate,
-                                },
-                              ]
-                            : []),
-                        ].map((entry, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center space-x-2 text-sm"
-                          >
-                            <span
-                              className={`flex items-center justify-center w-5 h-5 rounded-full ${getActionColor(
-                                entry.action
-                              )} text-white text-xs font-medium`}
+                      <div>
+                        <div className="space-y-2">
+                          {[
+                            ...(selectedApproval.applicationTimeline
+                              ? [
+                                  {
+                                    action: "Submitted",
+                                    timestamp:
+                                      selectedApproval.applicationTimeline,
+                                    content: null, // Explicitly set to null
+                                  },
+                                ]
+                              : []),
+                            ...(selectedApproval.approvalDate
+                              ? [
+                                  {
+                                    action: "Approved",
+                                    timestamp: selectedApproval.approvalDate,
+                                    content: null, // Explicitly set to null
+                                  },
+                                ]
+                              : []),
+                            ...(selectedApproval.rejectionReason
+                              ? [
+                                  {
+                                    action: `Rejected: ${selectedApproval.rejectionReason}`,
+                                    timestamp:
+                                      selectedApproval.lastStatusUpdateDate,
+                                    content: selectedApproval.rejectionReason,
+                                  },
+                                ]
+                              : []),
+                            ...(selectedApproval.requestInfoDate
+                              ? [
+                                  {
+                                    action: "Request Info",
+                                    timestamp: selectedApproval.requestInfoDate,
+                                    content: selectedApproval.adminComments,
+                                  },
+                                ]
+                              : []),
+                          ].map((entry, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center space-x-2 text-sm"
                             >
-                              {index + 1}
-                            </span>
-                            <span>
-                              {entry.action} on {entry.timestamp}
-                            </span>
-                          </div>
-                        ))}
+                              <span
+                                className={`flex items-center justify-center w-5 h-5 rounded-full ${getActionColor(
+                                  entry.action
+                                )} text-white text-xs font-medium`}
+                              >
+                                {index + 1}
+                              </span>
+                              {entry.action.includes("Rejected") ||
+                              entry.action === "Request Info" ? (
+                                <button
+                                  type="button"
+                                  className="text-blue-400 hover:underline bg-transparent border-none p-0 text-sm text-left"
+                                  onClick={() =>
+                                    handleShowDetails(
+                                      entry.action,
+                                      entry.content
+                                    )
+                                  }
+                                  aria-label={
+                                    entry.action.includes("Rejected")
+                                      ? "View rejection reason"
+                                      : "View admin notes"
+                                  }
+                                >
+                                  {entry.action} on {entry.timestamp}
+                                </button>
+                              ) : (
+                                <span className="text-sm">
+                                  {entry.action} on {entry.timestamp}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-400">
-                        Uploaded Documents
-                      </h4>
-                      <div className="space-y-2">
-                        {selectedApproval.documents.map((doc, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center space-x-2 bg-gray-600 p-2 rounded-md hover:bg-gray-500 transition duration-150"
-                          >
-                            <FileText size={16} className="text-gray-300" />
-                            <span className="text-sm text-gray-300">
-                              PDF: {doc.fileName}
-                            </span>
-                            {/* <a
-                              href={`/api/files/${doc.fileId}`}
-                              className="text-blue-400 hover:underline text-sm"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              View
-                            </a> */}
-                          </div>
-                        ))}
+                      <div className="mt-4">
+                        <h4 className="text-sm font-medium text-gray-400">
+                          Uploaded Documents
+                        </h4>
+                        <div className="space-y-2">
+                          {selectedApproval.documents?.length > 0 ? (
+                            selectedApproval.documents.map((doc, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between space-x-2 bg-gray-600 p-2 rounded-md hover:bg-gray-500 transition duration-150"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <FileText
+                                    size={16}
+                                    className="text-gray-300"
+                                  />
+                                  <span className="text-sm text-gray-300">
+                                    PDF: {doc.fileName}
+                                  </span>
+                                </div>
+                                <button
+                                  id={`view-document-icon-${index}`}
+                                  onClick={() =>
+                                    handleViewDocument(
+                                      doc.fileContent,
+                                      doc.fileType
+                                    )
+                                  }
+                                  className="text-blue-400 hover:text-blue-500"
+                                  aria-label={`View document ${doc.fileName}`}
+                                >
+                                  <Eye size={20} />
+                                </button>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-sm text-gray-300">
+                              No documents provided.
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -543,7 +635,44 @@ const ListApproval = () => {
           </div>
         </div>
       </div>
-
+      <CustomModal
+        isOpen={openDocumentViewer}
+        onClose={handleCloseDocumentViewer}
+        title="View Document"
+        size="xl"
+      >
+        {documentData && (
+          <div className="w-full h-[70vh]">
+            <embed
+              src={`data:${documentData.fileType};base64,${documentData.fileContent}`}
+              type={documentData.fileType}
+              width="100%"
+              height="100%"
+            />
+          </div>
+        )}
+      </CustomModal>
+      {isDetailsModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              {detailsContent.title}
+            </h3>
+            <p className="text-gray-300 mb-4">
+              {detailsContent.content || "No details provided."}
+            </p>
+            <div className="flex justify-end">
+              <button
+                id="close-details-modal-button"
+                onClick={() => setIsDetailsModalOpen(false)}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Rejection Modal */}
       {isRejectModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
