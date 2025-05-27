@@ -20,10 +20,10 @@ namespace Infrastructure.Entities
         public int? SessionFrequencyId { get; set; }
         public SessionDuration? SessionDuration { get; set; }
         public int? SessionDurationId { get; set; }
-        public bool PrivacyProfile { get; set; } = true;
-        public bool MessagePermission { get; set; } = true;
-        public bool NotificationsEnabled { get; set; } = true;
-        public int? CommunicationMethod { get; set; }
+        public bool? PrivacyProfile { get; set; }
+        public bool? MessagePermission { get; set; } = true;
+        public bool? NotificationsEnabled { get; set; } = true;
+        public virtual ICollection<UserCommunicationMethod> UserCommunicationMethods { get; set; } = new List<UserCommunicationMethod>();
         public virtual User User { get; set; } = null!;
     }
 }

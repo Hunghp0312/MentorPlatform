@@ -8,11 +8,11 @@ namespace Infrastructure.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<MentorTeachingApproach> builder)
         {
-            builder.HasKey(mta => new { mta.UserId, mta.TeachingApproachId });
+            builder.HasKey(mta => new { mta.UserProfileId, mta.TeachingApproachId });
 
-            builder.HasOne(mta => mta.User)
-                .WithMany()
-                .HasForeignKey(mta => mta.UserId)
+            builder.HasOne(mta => mta.UserProfile)
+                .WithMany(up => up.TeachingApproaches)
+                .HasForeignKey(mta => mta.UserProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(mta => mta.TeachingApproach)

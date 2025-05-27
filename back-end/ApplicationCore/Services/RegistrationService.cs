@@ -1,13 +1,13 @@
+using ApplicationCore.Common;
 using ApplicationCore.DTOs.Requests.Registration;
 using ApplicationCore.DTOs.Responses.Registration;
-using ApplicationCore.Services.ServiceInterfaces;
-using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Extensions;
+using ApplicationCore.Repositories.RepositoryInterfaces;
+using ApplicationCore.Services.ServiceInterfaces;
 using FluentValidation;
-using Utilities;
 using Infrastructure.Data;
-using ApplicationCore.Common;
 using Infrastructure.Entities;
+using Utilities;
 
 namespace ApplicationCore.Services
 {

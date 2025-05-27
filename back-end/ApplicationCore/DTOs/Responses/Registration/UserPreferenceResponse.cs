@@ -11,9 +11,9 @@ namespace ApplicationCore.DTOs.Responses.Registration
         public PrivacySettingsDto PrivacySettings { get; set; } = new PrivacySettingsDto();
         public class PrivacySettingsDto
         {
-            public bool Profile { get; set; }
-            public bool Messages { get; set; }
-            public bool Notifications { get; set; }
+            public bool? Profile { get; set; }
+            public bool? Messages { get; set; }
+            public bool? Notifications { get; set; }
         }
     }
 }
