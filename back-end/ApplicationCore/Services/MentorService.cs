@@ -227,6 +227,7 @@ namespace ApplicationCore.Services
             {
                 mentorApplication.ApprovalDate = DateTime.UtcNow;
                 mentorApplication.AdminComments = request.AdminComments;
+                mentorApplication.Applicant.StatusId = 1;
             }
             if (request.StatusId == 4)
             {

@@ -8,7 +8,7 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
-using System.Net;
+
 
 namespace ApplicationCore.Services
 {
@@ -160,6 +160,11 @@ namespace ApplicationCore.Services
             };
 
             return OperationResult<UserResponseDto>.Ok(userResponseDto); // Corrected to use Ok
+        }
+
+        public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto)
+        {
+            var UserProfile = 
         }
     }
 }

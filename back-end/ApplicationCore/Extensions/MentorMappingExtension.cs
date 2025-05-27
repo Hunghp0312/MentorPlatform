@@ -36,6 +36,7 @@ namespace ApplicationCore.Extensions
                 {
                     FileName = x.FileName,
                     FileId = x.Id,
+                    FileContent = x.DocumentContent.FileContent ?? Array.Empty<byte>()
                 }).ToList(),
                 Status = mentorApplication.ApplicationStatus.Name,
             };
