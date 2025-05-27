@@ -167,5 +167,10 @@ namespace ApplicationCore.Services
 
             return OperationResult<UserResponseDto>.Ok(userResponseDto);
         }
+
+        public Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
