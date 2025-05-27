@@ -542,7 +542,34 @@ const ListApproval = () => {
             <div className="w-1/2">
               {selectedApproval ? (
                 <div className="bg-gray-700 rounded-lg p-4 text-gray-300">
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="mb-4">
+                    {["Pending", "RequestInfo"].includes(
+                      selectedApproval.status
+                    ) && (
+                      <div className="flex justify-end space-x-2 mb-4">
+                        <button
+                          id="approve-application-button"
+                          onClick={() => handleApprove(selectedApproval)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          id="reject-application-button"
+                          onClick={() => handleReject(selectedApproval)}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
+                        >
+                          Reject
+                        </button>
+                        <button
+                          id="requestinfo-application-button"
+                          onClick={() => handleRequestInfo}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
+                        >
+                          Request Info
+                        </button>
+                      </div>
+                    )}
                     <div className="flex items-center space-x-4">
                       <img
                         src={
@@ -561,33 +588,6 @@ const ListApproval = () => {
                         </p>
                       </div>
                     </div>
-                    {["Pending", "RequestInfo"].includes(
-                      selectedApproval.status
-                    ) && (
-                      <div>
-                        <button
-                          id="approve-application-button"
-                          onClick={() => handleApprove(selectedApproval)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md mr-2"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          id="reject-application-button"
-                          onClick={() => handleReject(selectedApproval)}
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md mr-2"
-                        >
-                          Reject
-                        </button>
-                        <button
-                          id="requestinfo-application-button"
-                          onClick={handleRequestInfo}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
-                        >
-                          Request Info
-                        </button>
-                      </div>
-                    )}
                   </div>
                   <div className="space-y-4">
                     <div>
