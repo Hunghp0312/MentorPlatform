@@ -15,6 +15,6 @@ namespace ApplicationCore.DTOs.Responses.Registration
         public List<string>? Availability { get; set; }
         public string? ProfessionalSkills { get; set; }
         public string? IndustryExperience { get; set; }
-        public string? CommunicationMethod { get; set; }
+        public List<string>? CommunicationMethod { get; set; }
     }
 }

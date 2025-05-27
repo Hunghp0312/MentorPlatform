@@ -79,7 +79,13 @@ namespace ApplicationCore.Services
                 IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : request.SelectedRole == 2 ? request.IndustryExperience : null,
                 PhotoData = photoBytes,
                 PhoneNumber = request.PhoneNumber,
-                CommunicationMethod = request.CommunicationMethod ?? 0,
+                UserCommunicationMethods = request.CommunicationMethod?
+                .Where(cmId => cmId > 0)
+                    .Select(cmId => new UserCommunicationMethod
+                    {
+                        UserProfileId = user.Id,
+                        CommunicationMethodId = cmId
+                    }).ToList() ?? new List<UserCommunicationMethod>(),
                 UserProfileAvailabilities = request.Availability?.Select(a => new UserProfileAvailability
                 {
                     UserId = user.Id,
@@ -130,10 +136,16 @@ namespace ApplicationCore.Services
                 }
             }
             string? communicationMethodName = null;
-            if (request.CommunicationMethod.HasValue && request.CommunicationMethod.Value > 0)
+            List<string> communicationMethodNames = new List<string>();
+            if (request.CommunicationMethod != null && request.CommunicationMethod.Any())
             {
-                var methodEntity = await _registrationRepository.GetCommunicationMethodByIdAsync(request.CommunicationMethod.Value);
-                communicationMethodName = methodEntity?.Name;
+                var validMethodIds = request.CommunicationMethod.Where(id => id > 0).Distinct().ToList();
+                if (validMethodIds.Any())
+                {
+                    var methodEntities = await _registrationRepository.GetCommunicationMethodsByIdsAsync(validMethodIds);
+                    communicationMethodNames = methodEntities.Select(m => m.Name).ToList();
+                    communicationMethodName = communicationMethodNames.FirstOrDefault();
+                }
             }
 
 
@@ -150,7 +162,7 @@ namespace ApplicationCore.Services
                 ProfessionalSkills = userProfile.ProfessionalSkill,
                 IndustryExperience = userProfile.IndustryExperience,
                 Availability = availabilityNames,
-                CommunicationMethod = communicationMethodName
+                CommunicationMethod = communicationMethodNames
             };
             return OperationResult<UserProfileResponse>.Ok(response);
         }

@@ -76,9 +76,15 @@ namespace ApplicationCore.Repositories
                                  .ToListAsync();
         }
 
-        public async Task<CommunicationMethod?> GetCommunicationMethodByIdAsync(int methodId)
+        public async Task<IEnumerable<CommunicationMethod>> GetCommunicationMethodsByIdsAsync(IEnumerable<int> ids)
         {
-            return await _context.Set<CommunicationMethod>().FindAsync(methodId);
+            if (ids == null || !ids.Any())
+            {
+                return Enumerable.Empty<CommunicationMethod>();
+            }
+            return await _context.Set<CommunicationMethod>()
+                                 .Where(cm => ids.Contains(cm.Id))
+                                 .ToListAsync(); // ToListAsync returns List<T> which implements IEnumerable<T>
         }
     }
 }

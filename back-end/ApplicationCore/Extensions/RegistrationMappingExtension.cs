@@ -32,8 +32,15 @@ namespace ApplicationCore.Extensions
                     UserId = userId,
                     AvailabilityId = a
                 }).ToList() ?? new List<UserProfileAvailability>(),
-                CommunicationMethod = dto.CommunicationMethod,
+                UserCommunicationMethods = dto.CommunicationMethod?
+                    .Where(cmId => cmId > 0)
+                    .Select(cmId => new UserCommunicationMethod
+                    {
+                        UserProfileId = userId,
+                        CommunicationMethodId = cmId
+                    }).ToList() ?? new List<UserCommunicationMethod>()
             };
+
 
             return userProfile;
         }

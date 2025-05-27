@@ -8,12 +8,17 @@ namespace Infrastructure.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<UserCommunicationMethod> builder)
         {
-            builder.HasKey(uae => new { uae.UseProfileId, uae.CommunicationMethodId });
+            builder.HasKey(uae => new { uae.UserProfileId, uae.CommunicationMethodId });
 
             builder.HasOne(uae => uae.UserProfile)
                 .WithMany(up => up.UserCommunicationMethods)
-                .HasForeignKey(uae => uae.UseProfileId)
+                .HasForeignKey(uae => uae.UserProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(uae => uae.CommunicationMethod)
+                .WithMany()
+                .HasForeignKey(uae => uae.CommunicationMethodId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

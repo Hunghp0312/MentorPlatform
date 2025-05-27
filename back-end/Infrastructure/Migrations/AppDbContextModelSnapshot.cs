@@ -1385,13 +1385,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.UserCommunicationMethod", b =>
                 {
-                    b.Property<Guid>("UseProfileId")
+                    b.Property<Guid>("UserProfileId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CommunicationMethodId")
                         .HasColumnType("int");
 
-                    b.HasKey("UseProfileId", "CommunicationMethodId");
+                    b.HasKey("UserProfileId", "CommunicationMethodId");
 
                     b.HasIndex("CommunicationMethodId");
 
@@ -1430,11 +1430,15 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<bool?>("MessagePermission")
-                        .HasColumnType("bit");
+                    b.Property<bool>("MessagePermission")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
-                    b.Property<bool?>("NotificationsEnabled")
-                        .HasColumnType("bit");
+                    b.Property<bool>("NotificationsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -1442,8 +1446,10 @@ namespace Infrastructure.Migrations
                     b.Property<byte[]>("PhotoData")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<bool?>("PrivacyProfile")
-                        .HasColumnType("bit");
+                    b.Property<bool>("PrivacyProfile")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("ProfessionalSkill")
                         .HasMaxLength(1000)
@@ -1831,12 +1837,12 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Entities.Enum.CommunicationMethod", "CommunicationMethod")
                         .WithMany()
                         .HasForeignKey("CommunicationMethodId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
                         .WithMany("UserCommunicationMethods")
-                        .HasForeignKey("UseProfileId")
+                        .HasForeignKey("UserProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

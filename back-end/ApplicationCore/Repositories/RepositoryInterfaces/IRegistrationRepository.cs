@@ -16,6 +16,6 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
         Task<IEnumerable<AreaOfExpertise>> GetAreaOfExpertisesByIdsAsync(IEnumerable<int> id);
         Task<Availability?> GetAvailabilityByIdAsync(int availabilityId);
         Task<IEnumerable<Availability>> GetAvailabilitiesByIdsAsync(IEnumerable<int> availabilityIds);
-        Task<CommunicationMethod?> GetCommunicationMethodByIdAsync(int methodId);
+        Task<IEnumerable<CommunicationMethod>> GetCommunicationMethodsByIdsAsync(IEnumerable<int> ids);
     }
 }

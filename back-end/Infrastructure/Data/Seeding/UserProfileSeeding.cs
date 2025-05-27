@@ -11,7 +11,6 @@ namespace Infrastructure.Data.Seeding
                 new UserProfile
                 {
                     Id = Guid.Parse("148b5a81-90d6-476d-9fee-747b834011ee"),
-                    Id = Guid.Parse("148b5a81-90d6-476d-9fee-747b834011ee"),
                     FullName = "Huy Nguyen Admin",
                     Bio = "Experienced tech administrator with background in education platforms.",
                     ProfessionalSkill = "System administration, DevOps, Cloud infrastructure",
@@ -19,13 +18,11 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = true,
                     MessagePermission = true,
                     NotificationsEnabled = true,
-                    CommunicationMethod = 1,
                     SessionFrequencyId = 4,
                     SessionDurationId = 3
                 },
                 new UserProfile
                 {
-                    Id = Guid.Parse("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
                     Id = Guid.Parse("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
                     FullName = "Huy Khuong Admin",
                     Bio = "Platform administrator with focus on user experience and system reliability.",
@@ -34,13 +31,11 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = true,
                     MessagePermission = true,
                     NotificationsEnabled = true,
-                    CommunicationMethod = 1,
                     SessionFrequencyId = 4,
                     SessionDurationId = 3
                 },
                 new UserProfile
                 {
-                    Id = Guid.Parse("00a063ca-1414-4425-bf4e-6d48abf2474a"),
                     Id = Guid.Parse("00a063ca-1414-4425-bf4e-6d48abf2474a"),
                     FullName = "Minh Chau Admin",
                     Bio = "Senior administrator overseeing platform development and technical operations.",
@@ -49,13 +44,11 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = true,
                     MessagePermission = true,
                     NotificationsEnabled = true,
-                    CommunicationMethod = 1,
                     SessionFrequencyId = 4,
                     SessionDurationId = 3
                 },
                 new UserProfile
                 {
-                    Id = Guid.Parse("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
                     Id = Guid.Parse("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
                     FullName = "Huy Nguyen Learner",
                     Bio = "Aspiring software developer interested in web technologies and cloud computing.",
@@ -65,13 +58,11 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = true,
                     MessagePermission = true,
                     NotificationsEnabled = true,
-                    CommunicationMethod = 2,
                     SessionFrequencyId = 1,
                     SessionDurationId = 2
                 },
                 new UserProfile
                 {
-                    Id = Guid.Parse("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                     Id = Guid.Parse("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                     FullName = "Huy Khuong Learner",
                     Bio = "Data science enthusiast with background in statistics and mathematics.",
@@ -81,14 +72,13 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = false,
                     MessagePermission = true,
                     NotificationsEnabled = true,
-                    CommunicationMethod = 1,
                     SessionFrequencyId = 2,
                     SessionDurationId = 3
                 },
                 new UserProfile
                 {
                     Id = Guid.Parse("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
-                    Id = Guid.Parse("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
+
                     FullName = "Minh Chau Learner",
                     Bio = "UX/UI designer looking to expand skills in frontend development.",
                     UserGoal = "To combine design expertise with technical implementation skills.",
@@ -97,14 +87,13 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = true,
                     MessagePermission = false,
                     NotificationsEnabled = false,
-                    CommunicationMethod = 3,
                     SessionFrequencyId = 3,
                     SessionDurationId = 1
                 },
                 new UserProfile
                 {
                     Id = Guid.Parse("0dd85da0-9214-419e-aa02-adefac68c264"),
-                    Id = Guid.Parse("0dd85da0-9214-419e-aa02-adefac68c264"),
+
                     FullName = "Dan Cega",
                     Bio = "Full-stack developer with interest in blockchain and distributed systems.",
                     UserGoal = "To build scalable decentralized applications and smart contracts.",
@@ -113,7 +102,6 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = false,
                     MessagePermission = true,
                     NotificationsEnabled = true,
-                    CommunicationMethod = 2,
                     SessionFrequencyId = 1,
                     SessionDurationId = 5
                 },
@@ -128,13 +116,11 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = false,
                     MessagePermission = true,
                     NotificationsEnabled = true,
-                    CommunicationMethod = 1,
                     SessionFrequencyId = 2,
                     SessionDurationId = 4
                 },
                 new UserProfile
                 {
-                    Id = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                     Id = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                     FullName = "Huy Khuong Mentor",
                     Bio = "Data scientist specializing in predictive analytics and natural language processing.",
@@ -143,7 +129,6 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = true,
                     MessagePermission = true,
                     NotificationsEnabled = true,
-                    CommunicationMethod = 2,
                     SessionFrequencyId = 1,
                     SessionDurationId = 3
                 },
@@ -157,7 +142,6 @@ namespace Infrastructure.Data.Seeding
                     PrivacyProfile = false,
                     MessagePermission = true,
                     NotificationsEnabled = false,
-                    CommunicationMethod = 3,
                     SessionFrequencyId = 4,
                     SessionDurationId = 2
                 }
