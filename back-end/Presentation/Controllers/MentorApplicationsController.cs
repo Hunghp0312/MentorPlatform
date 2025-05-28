@@ -44,16 +44,17 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
+
         [HttpPut]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(typeof(MentorApplicationResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateMyApplication([FromBody] UpdateMyApplicationApiRequest apiRequest, bool containFile)
+        public async Task<IActionResult> UpdateMyApplication([FromBody] UpdateMyApplicationApiRequest apiRequest)
         {
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
-            var result = await _mentorService.UpdateMyApplicationAsync(apiRequest, userId, containFile);
+            var result = await _mentorService.UpdateMyApplicationAsync(apiRequest, userId);
 
             return ToActionResult(result);
         }

@@ -15,7 +15,7 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<MentorApplicationDetailResponse>> GetMyApplicationDetailAsync(Guid applicantUserId);
 
         Task<OperationResult<MentorApplicationResponseDto>> UpdateMyApplicationAsync(
-          UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId, bool containFile
+          UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId
       );
     }
 }

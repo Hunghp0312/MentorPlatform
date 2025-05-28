@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Dropdown from "../../input/Dropdown";
-import InputCheckbox from "../../input/InputCheckbox";
-import InputCustom from "../../input/InputCustom";
-import MultiSelectButtons from "../child/MultiSelectButtons";
+import Dropdown from "../../input/Dropdown"; // Assume path is correct
+import InputCheckbox from "../../input/InputCheckbox"; // Assume path is correct
+import InputCustom from "../../input/InputCustom"; // Assume path is correct
+import MultiSelectButtons from "../child/MultiSelectButtons"; // Assume path is correct
 import {
   UserPreferences,
   LearnerDetails,
@@ -12,7 +12,8 @@ import {
   SessionDurationOption,
   LearningStyleOption,
   TeachingApproachOption,
-} from "../../../types/userRegister.d";
+  TopicOfInterest, // Import TopicOfInterest
+} from "../../../types/userRegister.d"; // Assume path is correct
 
 interface Props {
   currentPreferences: UserPreferences;
@@ -31,24 +32,61 @@ interface Props {
   onBack: () => void;
 }
 
-const topicsOptionsData = [
-  "Career Development",
-  "Technical Skills",
-  "Leadership",
-  "Communication",
-  "Work-Life Balance",
-  "Industry Insights",
-  "Networking",
-  "Entrepreneurship",
+// Mappings for Enums to Labels
+const topicOptionMappings = [
+  { value: TopicOfInterest.CareerDevelopment, label: "Career Development" },
+  { value: TopicOfInterest.TechnicalSkills, label: "Technical Skills" },
+  { value: TopicOfInterest.Leadership, label: "Leadership" },
+  { value: TopicOfInterest.Communication, label: "Communication" },
+  { value: TopicOfInterest.WorkLifeBalance, label: "Work-Life Balance" },
+  { value: TopicOfInterest.IndustryInsights, label: "Industry Insights" },
+  { value: TopicOfInterest.Networking, label: "Networking" },
+  { value: TopicOfInterest.Entrepreneurship, label: "Entrepreneurship" },
 ];
-const frequencyOptionsData = Object.values(SessionFrequencyOption).map(
-  (value) => ({ value, label: value })
-);
-const durationOptionsData = Object.values(SessionDurationOption).map(
-  (value) => ({ value, label: value })
-);
-const learningStyleOptionsData = Object.values(LearningStyleOption);
-const teachingApproachOptionsData = Object.values(TeachingApproachOption);
+
+const frequencyOptionMappings = [
+  { value: SessionFrequencyOption.Weekly.toString(), label: "Weekly" },
+  {
+    value: SessionFrequencyOption.Biweekly.toString(),
+    label: "Bi-weekly (Every 2 weeks)",
+  },
+  { value: SessionFrequencyOption.Monthly.toString(), label: "Monthly" },
+  { value: SessionFrequencyOption.AsNeeded.toString(), label: "As Needed" },
+];
+
+const durationOptionMappings = [
+  { value: SessionDurationOption.HalfHour.toString(), label: "30 Minutes" },
+  {
+    value: SessionDurationOption.FortyFiveMinutes.toString(),
+    label: "45 Minutes",
+  },
+  { value: SessionDurationOption.OneHour.toString(), label: "1 Hour" },
+  {
+    value: SessionDurationOption.OneAndHalfHour.toString(),
+    label: "1.5 Hours",
+  },
+  { value: SessionDurationOption.TwoHours.toString(), label: "2 Hours" },
+];
+
+const learningStyleOptionMappings = [
+  { value: LearningStyleOption.Visual, label: "Visual (seeing)" },
+  { value: LearningStyleOption.Auditory, label: "Auditory (hearing)" },
+  { value: LearningStyleOption.ReadingWriting, label: "Reading/Writing" },
+  { value: LearningStyleOption.Kinesthetic, label: "Kinesthetic (doing)" },
+];
+
+const teachingApproachOptionMappings = [
+  { value: TeachingApproachOption.HandsOn, label: "Hands-On Practice" },
+  { value: TeachingApproachOption.TheoryBased, label: "Theory-Based" },
+  {
+    value: TeachingApproachOption.ProjectLedMentoring,
+    label: "Project-Led Mentoring",
+  },
+  {
+    value: TeachingApproachOption.StepByStepTutorials,
+    label: "Step-by-Step Tutorials",
+  },
+];
 
 const PreferenceSetupPanel: React.FC<Props> = ({
   currentPreferences,
@@ -67,18 +105,43 @@ const PreferenceSetupPanel: React.FC<Props> = ({
     null
   );
 
-  const handleMultiSelectToggle = (
-    option: string,
-    currentSelection: string[] | undefined,
+  // Generic type for mapping arrays
+  type EnumMapping<E> = { value: E; label: string };
+
+  const handleMultiSelectToggle = <
+    E extends TopicOfInterest | LearningStyleOption | TeachingApproachOption
+  >(
+    selectedLabel: string,
+    currentEnumSelection: E[] | undefined,
     fieldKey: "interestedTopics" | "learningStyle" | "teachingApproach",
+    optionMappings: ReadonlyArray<EnumMapping<E>>,
     errorSetter?: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    const safeCurrentSelection = currentSelection || [];
-    const newSelection = safeCurrentSelection.includes(option)
-      ? safeCurrentSelection.filter((item) => item !== option)
-      : [...safeCurrentSelection, option];
+    const selectedMapping = optionMappings.find(
+      (m) => m.label === selectedLabel
+    );
+    if (!selectedMapping) {
+      console.error("Invalid label selected in multi-select:", selectedLabel);
+      return;
+    }
 
-    onUpdate({ [fieldKey]: newSelection } as Partial<UserPreferences>);
+    const selectedEnumValue = selectedMapping.value;
+    const safeCurrentEnumSelection = currentEnumSelection || [];
+
+    const newSelection = safeCurrentEnumSelection.includes(selectedEnumValue)
+      ? safeCurrentEnumSelection.filter((item) => item !== selectedEnumValue)
+      : [...safeCurrentEnumSelection, selectedEnumValue];
+
+    // Type assertion is needed because fieldKey is a string literal union,
+    // and TS can't directly infer the specific type of newSelection for `onUpdate`.
+    if (fieldKey === "interestedTopics") {
+      onUpdate({ [fieldKey]: newSelection as TopicOfInterest[] });
+    } else if (fieldKey === "learningStyle") {
+      onUpdate({ [fieldKey]: newSelection as LearningStyleOption[] });
+    } else if (fieldKey === "teachingApproach") {
+      onUpdate({ [fieldKey]: newSelection as TeachingApproachOption[] });
+    }
+
     errorSetter?.("");
   };
 
@@ -88,7 +151,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
   ) => {
     onUpdate({
       privacySettings: {
-        ...(currentPreferences.privacySettings ?? {}),
+        ...currentPreferences.privacySettings, // No need for nullish coalescing, it's not optional
         [privacyField]: value,
       },
     });
@@ -97,23 +160,27 @@ const PreferenceSetupPanel: React.FC<Props> = ({
   const validateAndSetFocusTarget = () => {
     let isValid = true;
     let focusTargetId: string | null = null;
+    const setFocus = (id: string) => {
+      if (!focusTargetId) focusTargetId = id;
+    };
+
     const { interestedTopics, goal } = currentPreferences;
 
     if (interestedTopics.length === 0) {
       setTopicsError("Select at least one topic.");
-      focusTargetId ??= "topicsOfInterestGroup";
+      setFocus("topicsOfInterestGroup");
       isValid = false;
     } else {
       setTopicsError("");
     }
 
     if (!goal.trim()) {
-      setGoalError("Goal is required.");
-      focusTargetId ??= "preferencesGoalInput";
+      setGoalError("Your goal is required.");
+      setFocus("preferencesGoalInput");
       isValid = false;
     } else if (goal.trim().length > 1000) {
-      setGoalError("Max 1000 characters.");
-      focusTargetId ??= "preferencesGoalInput";
+      setGoalError("Max 1000 characters for goal.");
+      setFocus("preferencesGoalInput");
       isValid = false;
     } else {
       setGoalError("");
@@ -125,7 +192,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         currentLearnerDetails.learningStyle.length === 0
       ) {
         setLearningStyleError("Select at least one learning style.");
-        focusTargetId ??= "learnerLearningStyleGroup";
+        setFocus("learnerLearningStyleGroup");
         isValid = false;
       } else {
         setLearningStyleError("");
@@ -136,7 +203,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         currentMentorDetails.teachingApproach.length === 0
       ) {
         setTeachingApproachError("Select at least one teaching approach.");
-        focusTargetId ??= "mentorTeachingApproachGroup";
+        setFocus("mentorTeachingApproachGroup");
         isValid = false;
       } else {
         setTeachingApproachError("");
@@ -154,7 +221,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         elementToFocus.focus({ preventScroll: true });
         elementToFocus.scrollIntoView({ behavior: "smooth", block: "center" });
       }
-      setFirstErrorFieldId(null);
+      setFirstErrorFieldId(null); // Reset after focusing
     }
   }, [firstErrorFieldId]);
 
@@ -170,18 +237,33 @@ const PreferenceSetupPanel: React.FC<Props> = ({
     }
   };
 
+  // Helper to get labels from enum values for MultiSelectButtons
+  const getSelectedLabels = <E,>(
+    enumArray: E[] | undefined,
+    mappings: ReadonlyArray<EnumMapping<E>>
+  ): string[] => {
+    if (!enumArray) return [];
+    return enumArray
+      .map((val) => mappings.find((m) => m.value === val)?.label)
+      .filter((label): label is string => !!label);
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 text-white">
+    <form onSubmit={handleSubmit} className="space-y-8 text-white pb-8">
       <div id="topicsOfInterestGroup">
         <MultiSelectButtons
           label="Topics you're interested in learning about"
-          options={topicsOptionsData}
-          selectedOptions={currentPreferences.interestedTopics}
-          onToggleSelect={(option) =>
+          options={topicOptionMappings.map((m) => m.label)}
+          selectedOptions={getSelectedLabels(
+            currentPreferences.interestedTopics,
+            topicOptionMappings
+          )}
+          onToggleSelect={(label) =>
             handleMultiSelectToggle(
-              option,
+              label,
               currentPreferences.interestedTopics,
               "interestedTopics",
+              topicOptionMappings,
               setTopicsError
             )
           }
@@ -197,25 +279,33 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <Dropdown
           label="Preferred session frequency"
           name="sessionFrequency"
-          options={frequencyOptionsData}
-          value={currentPreferences.sessionFrequency}
-          onChange={(value) =>
-            onUpdate({ sessionFrequency: value as SessionFrequencyOption })
+          options={frequencyOptionMappings} // Pass the mapping array directly
+          value={currentPreferences.sessionFrequency.toString()}
+          onChange={(
+            value // Assuming Dropdown passes back the 'value' part of the option
+          ) =>
+            onUpdate({
+              sessionFrequency: value as unknown as SessionFrequencyOption,
+            })
           }
-          inputPadding="px-4 py-2.5"
-          className="bg-gray-700 border-gray-600"
+          inputPadding="px-4 py-2.5" // Example, adjust as per your Dropdown component
+          className="bg-gray-700 border-gray-600" // Example
           isRequired
         />
         <Dropdown
           label="Preferred session duration"
           name="sessionDuration"
-          options={durationOptionsData}
-          value={currentPreferences.sessionDuration}
-          onChange={(value) =>
-            onUpdate({ sessionDuration: value as SessionDurationOption })
+          options={durationOptionMappings} // Pass the mapping array directly
+          value={currentPreferences.sessionDuration.toString()}
+          onChange={(
+            value // Assuming Dropdown passes back the 'value' part of the option
+          ) =>
+            onUpdate({
+              sessionDuration: value as unknown as SessionDurationOption,
+            })
           }
-          inputPadding="px-4 py-2.5"
-          className="bg-gray-700 border-gray-600"
+          inputPadding="px-4 py-2.5" // Example
+          className="bg-gray-700 border-gray-600" // Example
           isRequired
         />
       </div>
@@ -226,7 +316,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         type="textarea"
         value={currentPreferences.goal}
         onChange={(e) => onUpdate({ goal: e.target.value })}
-        placeholder="Describe your main goal..."
+        placeholder="Describe your main learning or mentoring goal for using this platform..."
         isRequired
         errorMessage={goalError}
         className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
@@ -236,13 +326,17 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <div id="learnerLearningStyleGroup">
           <MultiSelectButtons
             label="Your Preferred Learning Style(s)"
-            options={learningStyleOptionsData}
-            selectedOptions={currentLearnerDetails.learningStyle}
-            onToggleSelect={(option) =>
+            options={learningStyleOptionMappings.map((m) => m.label)}
+            selectedOptions={getSelectedLabels(
+              currentLearnerDetails.learningStyle,
+              learningStyleOptionMappings
+            )}
+            onToggleSelect={(label) =>
               handleMultiSelectToggle(
-                option,
+                label,
                 currentLearnerDetails.learningStyle,
                 "learningStyle",
+                learningStyleOptionMappings,
                 setLearningStyleError
               )
             }
@@ -258,13 +352,17 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <div id="mentorTeachingApproachGroup">
           <MultiSelectButtons
             label="Your Preferred Teaching Approach(es)"
-            options={teachingApproachOptionsData}
-            selectedOptions={currentMentorDetails.teachingApproach}
-            onToggleSelect={(option) =>
+            options={teachingApproachOptionMappings.map((m) => m.label)}
+            selectedOptions={getSelectedLabels(
+              currentMentorDetails.teachingApproach,
+              teachingApproachOptionMappings
+            )}
+            onToggleSelect={(label) =>
               handleMultiSelectToggle(
-                option,
+                label,
                 currentMentorDetails.teachingApproach,
                 "teachingApproach",
+                teachingApproachOptionMappings,
                 setTeachingApproachError
               )
             }
