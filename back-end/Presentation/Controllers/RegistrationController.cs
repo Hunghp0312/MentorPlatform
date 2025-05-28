@@ -1,10 +1,7 @@
-using ApplicationCore.Common;
 using ApplicationCore.DTOs.Requests.Registration;
 using ApplicationCore.DTOs.Responses.Registration;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 
 namespace Presentation.Controllers
 {
