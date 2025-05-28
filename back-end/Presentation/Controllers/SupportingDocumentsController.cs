@@ -31,5 +31,19 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
+
+        [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Mentor")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteFile(Guid id)
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _supportingDocumentService.DeleteFileAsync(userId, id);
+
+            return ToActionResult(result);
+        }
     }
 }

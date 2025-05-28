@@ -20,6 +20,7 @@ namespace ApplicationCore.Repositories
                     .ThenInclude(uae => uae.UserProfile)
                 .Include(x => x.AdminReviewer)
                 .Include(x => x.SupportingDocuments)
+                .ThenInclude(sd => sd.DocumentContent)
                 .Include(x => x.ApplicationStatus)
                 .Include(m => m.MentorCertifications)
                 .Include(m => m.MentorWorkExperiences)
@@ -37,7 +38,6 @@ namespace ApplicationCore.Repositories
                     .ThenInclude(u => u.UserProfile)
                 .Include(m => m.SupportingDocuments)
                     .ThenInclude(s => s.DocumentContent)
-
                 .Include(m => m.MentorCertifications)
                 .Include(m => m.MentorWorkExperiences)
                 .Include(m => m.MentorEducations)
@@ -57,6 +57,7 @@ namespace ApplicationCore.Repositories
                 .ThenInclude(uae => uae.UserProfile)
                 .Include(x => x.AdminReviewer)
                 .Include(x => x.SupportingDocuments)
+                .ThenInclude(s => s.DocumentContent)
                 .Include(x => x.ApplicationStatus)
                 .Include(m => m.MentorCertifications)
                 .Include(m => m.MentorWorkExperiences)

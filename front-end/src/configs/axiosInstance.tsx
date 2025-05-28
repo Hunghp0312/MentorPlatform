@@ -13,11 +13,12 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const localToken = localStorage.getItem("accessToken");
+  const sessionsToken = sessionStorage.getItem("accessToken");
+  if (localToken || sessionsToken) {
+    config.headers.Authorization = `Bearer ${localToken ?? sessionsToken}`;
   } else {
-    console.warn("No access token found in localStorage");
+    console.warn("No access token found in localStorage or sessionStorage.");
   }
 
   return config;

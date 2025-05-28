@@ -36,10 +36,6 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<SupportingDocumentResponse>.NoContent();
             }
-            if (existingApplication.SupportingDocuments.Any() && existingApplication.ApplicationStatusId != 4)
-            {
-                return OperationResult<SupportingDocumentResponse>.BadRequest($"Application in '{existingApplication.ApplicationStatus.Name}' status cannot be updated by the applicant.");
-            }
 
             int currentFileCount = existingApplication.SupportingDocuments.Count;
             if (currentFileCount >= FileUploadConstants.MaxAllowedFiles)
@@ -49,7 +45,6 @@ namespace ApplicationCore.Services
                 );
             }
 
-            existingApplication.ApplicationStatusId = 1;
             UploadedFileDetail processedFileDetail = null!;
             if (file.Length > 0)
             {
@@ -99,6 +94,31 @@ namespace ApplicationCore.Services
             var response = supportingDocumentEntity.ToSupportingDocumentResponse();
 
             return OperationResult<SupportingDocumentResponse>.Created(response);
+        }
+
+
+        public async Task<OperationResult<SupportingDocumentResponse>> DeleteFileAsync(Guid applicantId, Guid fileId)
+        {
+            var existingApplication = await _mentorRepository.GetByIdAsync(applicantId);
+            if (existingApplication == null)
+            {
+                return OperationResult<SupportingDocumentResponse>.NotFound("There is no application found for this user");
+            }
+            if (fileId == Guid.Empty)
+            {
+                return OperationResult<SupportingDocumentResponse>.BadRequest("File id can not be empty");
+            }
+
+            var existingFile = await _documentContentRepository.GetByIdAsync(fileId);
+            if (existingFile == null)
+            {
+                return OperationResult<SupportingDocumentResponse>.NotFound("File is not found");
+            }
+
+            await _documentContentRepository.DeleteById(fileId);
+            await _unitOfWork.SaveChangesAsync();
+
+            return OperationResult<SupportingDocumentResponse>.NoContent();
         }
     }
 }
