@@ -4,190 +4,72 @@ import {
   Search,
   UserCog,
   XCircle,
-  Edit3, // Added for edit icon in actions
 } from "lucide-react";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-// Components
 import DataTable, { DataColumn } from "../../components/table/CustomTable";
 import InputCustom from "../../components/input/InputCustom";
 import CustomModal from "../../components/ui/Modal";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
-import Button from "../../components/ui/Button"; // Assuming you have a Button component
+import Button from "../../components/ui/Button";
 
-// Services & Hooks
 import useDebounce from "../../hooks/usedebounce";
 import userService from "../../services/userRole.service";
-import {
-  UserType,
-  UserStatusName,
-  UserRoleName,
-  UserFilterType,
-  UserSortConfigType,
-  UserUpdateType,
-} from "../../types/userRole.d";
 
-// Placeholder for UserEditDialog - you'll need to create this component
-const UserEditDialog = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  initialData,
-  isSubmitting,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: UserUpdateType) => Promise<void>;
-  initialData?: UserType;
-  isSubmitting: boolean;
-}) => {
-  const [fullName, setFullName] = useState(initialData?.fullName || "");
-  const [email, setEmail] = useState(initialData?.email || "");
-  // Assuming role IDs are 101 (Mentor), 102 (Learner), 103 (Admin) as per your service
-  const [roleId, setRoleId] = useState<number | undefined>(
-    initialData?.role.id
-  );
+import { userType, userPaginationRequest } from "../../types/userRole.d";
 
-  useEffect(() => {
-    setFullName(initialData?.fullName || "");
-    setEmail(initialData?.email || "");
-    setRoleId(initialData?.role.id);
-  }, [initialData]);
-
-  const handleSubmitForm = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({
-      fullName: fullName !== initialData?.fullName ? fullName : undefined,
-      email: email !== initialData?.email ? email : undefined,
-      roleId: roleId !== initialData?.role.id ? roleId : undefined,
-    });
-  };
-
-  // This is a very basic form. You'd want more robust form handling.
-  return (
-    <CustomModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Edit User"
-      size="md"
-      // Remove onConfirm if the dialog has its own submit button
-    >
-      <form onSubmit={handleSubmitForm} className="space-y-4 p-4">
-        <div>
-          <label
-            htmlFor="fullName"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Full Name
-          </label>
-          <InputCustom
-            name="fullName"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            className="mt-1 block w-full"
-            type={""} // Assuming InputCustom handles type correctly or "" is a valid default
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Email
-          </label>
-          <InputCustom
-            name="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="role"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Role
-          </label>
-          <select
-            id="role"
-            name="role"
-            value={roleId || ""}
-            onChange={(e) => setRoleId(Number(e.target.value))}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-100 dark:bg-gray-700 dark:text-white dark:border-gray-600">
-            <option value="" disabled>
-              Select a role
-            </option>
-            <option value={101}>{UserRoleName.MENTOR}</option>
-            <option value={102}>{UserRoleName.LEARNER}</option>
-            <option value={103}>{UserRoleName.ADMIN}</option>
-          </select>
-        </div>
-        <div className="flex justify-end gap-2 mt-6">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" variant="primary" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
-      </form>
-    </CustomModal>
-  );
-};
+import { RoleEnum, Status as StatusEnum } from "../../types/commonType";
 
 const ListUser = () => {
   const navigate = useNavigate();
 
-  const [users, setUsers] = useState<UserType[]>([]);
+  const [users, setUsers] = useState<userType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false); // For form submissions
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<UserRoleName | "">("");
+  const [roleFilter, setRoleFilter] = useState<RoleEnum | "">("");
 
-  // Deactivation Modal State
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
   const [selectedUserForDeactivation, setSelectedUserForDeactivation] =
-    useState<UserType | null>(null);
+    useState<userType | null>(null);
 
-  // Edit User Modal State
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [initialDataForEdit, setInitialDataForEdit] = useState<
-    UserType | undefined
-  >(undefined);
-
-  // Pagination state
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [totalItems, setTotalItems] = useState(0);
 
   const debouncedSearch = useDebounce(search, 500);
 
+  const getRoleName = (roleEnumVal: RoleEnum | ""): string => {
+    if (roleEnumVal === "") return "All Roles";
+    return RoleEnum[roleEnumVal];
+  };
+
   const roleOptions = [
     { value: "", label: "All Roles" },
-    { value: UserRoleName.MENTOR, label: UserRoleName.MENTOR },
-    { value: UserRoleName.LEARNER, label: UserRoleName.LEARNER },
-    { value: UserRoleName.ADMIN, label: UserRoleName.ADMIN },
+    { value: RoleEnum.Mentor, label: getRoleName(RoleEnum.Mentor) },
+    { value: RoleEnum.Learner, label: getRoleName(RoleEnum.Learner) },
+    { value: RoleEnum.Admin, label: getRoleName(RoleEnum.Admin) },
   ];
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const filter: UserFilterType = { roleName: roleFilter || undefined };
-      const sortConfig: UserSortConfigType | null = null; // Default sort
+      const payload: userPaginationRequest = {
+        Query: debouncedSearch === "" ? null : debouncedSearch,
+        RoleId: roleFilter === "" ? null : roleFilter,
+        PageIndex: pageIndex,
+        PageSize: pageSize,
+      };
 
-      const response = await userService.getPaginatedUsers(
-        debouncedSearch,
-        filter,
-        sortConfig,
-        pageIndex,
-        pageSize
-      );
-      setUsers(response.items);
-      setTotalItems(response.totalItems);
+      const response = await userService.GetPaginatedUser(payload);
+      setUsers(response.items || []);
+      setTotalItems(response.totalItems || 0);
     } catch (error) {
       const err = error as Error;
       toast.error(err.message || "Failed to load users");
+      setUsers([]);
+      setTotalItems(0);
     } finally {
       setLoading(false);
     }
@@ -199,16 +81,16 @@ const ListUser = () => {
 
   const handleActivate = useCallback(
     async (userId: string) => {
-      setLoading(true);
       try {
-        await userService.updateUserStatus(userId, UserStatusName.ACTIVE);
+        await userService.UpdateStatus({
+          UserId: userId,
+          StatusId: StatusEnum.Active,
+        });
         toast.success("User activated successfully");
         fetchUsers();
       } catch (error) {
         const err = error as Error;
         toast.error(err.message || "Failed to activate user");
-      } finally {
-        setLoading(false);
       }
     },
     [fetchUsers]
@@ -216,16 +98,16 @@ const ListUser = () => {
 
   const handleDeactivate = useCallback(
     async (userId: string) => {
-      setLoading(true);
       try {
-        await userService.updateUserStatus(userId, UserStatusName.DEACTIVATED);
+        await userService.UpdateStatus({
+          UserId: userId,
+          StatusId: StatusEnum.Deactive,
+        });
         toast.success("User deactivated successfully");
         fetchUsers();
       } catch (error) {
         const err = error as Error;
         toast.error(err.message || "Failed to deactivate user");
-      } finally {
-        setLoading(false);
       }
     },
     [fetchUsers]
@@ -239,33 +121,6 @@ const ListUser = () => {
     }
   };
 
-  const handleEditUser = (user: UserType) => {
-    setInitialDataForEdit(user);
-    setEditModalOpen(true);
-  };
-
-  const handleCloseEditModal = () => {
-    setEditModalOpen(false);
-    setInitialDataForEdit(undefined);
-  };
-
-  const handleSubmitEditUser = async (userData: UserUpdateType) => {
-    if (!initialDataForEdit) return;
-    setIsSubmitting(true);
-    try {
-      await userService.updateUserInfo(initialDataForEdit.id, userData);
-      toast.success("User updated successfully");
-      handleCloseEditModal();
-      fetchUsers();
-    } catch (error) {
-      const err = error as Error;
-      toast.error(err.message || "Failed to update user");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Helper function to get initials from full name
   const getInitials = (name: string) => {
     if (!name) return "";
     const words = name.split(" ");
@@ -278,17 +133,17 @@ const ListUser = () => {
       .toUpperCase();
   };
 
-  const columns: DataColumn<UserType>[] = useMemo(
+  const columns: DataColumn<userType>[] = useMemo(
     () => [
       {
         header: "Full Name",
-        accessor: (row: UserType) => (
+        accessor: (row: userType) => (
           <div className="flex items-center">
             {row.avatar ? (
               <img
                 src={row.avatar}
                 alt={row.fullName}
-                className="w-8 h-8 rounded-full mr-3 object-cover" // Added object-cover
+                className="w-8 h-8 rounded-full mr-3 object-cover"
               />
             ) : (
               <div className="w-8 h-8 rounded-full mr-3 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-semibold text-gray-700 dark:text-gray-200">
@@ -298,67 +153,49 @@ const ListUser = () => {
             <span>{row.fullName}</span>
           </div>
         ),
-        sortable: true,
-        id: "fullName", // For sorting key (still sorts by the string name)
       },
       {
         header: "Email",
         accessor: "email",
-        sortable: true,
-        id: "email",
       },
       {
         header: "Role",
-        accessor: (row: UserType) => row.role.name,
-        sortable: true,
-        id: "role.name",
+        accessor: (row: userType) => row.role.name,
       },
       {
         header: "Status",
-        accessor: (row: UserType) => {
-          if (row.status.name === UserStatusName.ACTIVE) {
+        accessor: (row: userType) => {
+          const statusName = row.status.name.toLowerCase();
+          if (statusName === "active") {
             return (
               <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-full dark:bg-green-700 dark:text-green-200">
-                Active
+                {row.status.name}
               </span>
             );
           }
-          if (row.status.name === UserStatusName.PENDING) {
+          if (statusName === "pending") {
             return (
               <span className="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-full dark:bg-yellow-700 dark:text-yellow-200">
-                Pending
+                {row.status.name}
               </span>
             );
           }
           return (
             <span className="px-2 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded-full dark:bg-red-700 dark:text-red-200">
-              Deactivated
+              {row.status.name}
             </span>
           );
         },
-        sortable: true,
-        id: "status.name",
       },
       {
         header: "Joined",
-        accessor: (row: UserType) =>
+        accessor: (row: userType) =>
           new Date(row.joinDate).toLocaleDateString(),
-        sortable: true,
-        id: "joinDate",
       },
       {
         header: "Actions",
-        accessor: (row: UserType) => (
+        accessor: (row: userType) => (
           <div className="flex gap-2 items-center">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEditUser(row);
-              }}
-              title="Edit User"
-              className="text-blue-500 hover:text-blue-700">
-              <Edit3 className="w-4 h-4" />
-            </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -377,8 +214,8 @@ const ListUser = () => {
               className="text-purple-500 hover:text-purple-700">
               <MessageSquare className="w-4 h-4" />
             </button>
-            {row.status.name === UserStatusName.ACTIVE ||
-            row.status.name === UserStatusName.PENDING ? (
+            {row.status.id === StatusEnum.Active ||
+            row.status.id === StatusEnum.Pending ? (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -404,16 +241,16 @@ const ListUser = () => {
         ),
       },
     ],
-    [navigate, handleActivate, handleDeactivate, handleEditUser] // Added handleEditUser dependency
+    [navigate, handleActivate]
   );
 
   return (
     <main className="p-4 container mx-auto">
-      {loading && !isSubmitting && <LoadingOverlay />}{" "}
+      {loading && <LoadingOverlay />}
       <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-            User Management
+            User Role Management
           </h1>
         </div>
 
@@ -431,7 +268,7 @@ const ListUser = () => {
               }
               onChange={(e) => {
                 setSearch(e.target.value);
-                setPageIndex(1); // Reset to first page on search
+                setPageIndex(1);
               }}
               placeholder="Search users by name or email..."
               className="w-full"
@@ -441,11 +278,12 @@ const ListUser = () => {
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             value={roleFilter}
             onChange={(e) => {
-              setRoleFilter(e.target.value as UserRoleName | "");
-              setPageIndex(1); // Reset to first page on filter change
+              const value = e.target.value;
+              setRoleFilter(value === "" ? "" : (Number(value) as RoleEnum));
+              setPageIndex(1);
             }}>
             {roleOptions.map((option) => (
-              <option key={option.value} value={option.value}>
+              <option key={option.value.toString()} value={option.value}>
                 {option.label}
               </option>
             ))}
@@ -462,11 +300,10 @@ const ListUser = () => {
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           totalItems={totalItems}
-          isLoading={loading && !isSubmitting}
-          // onRowClick={(row) => navigate(`/admin/users/${row.id}`)} // Example of onRowClick
+          isLoading={loading}
         />
       </div>
-      {/* Deactivation Confirmation Modal */}
+
       <CustomModal
         isOpen={deactivateModalOpen}
         onClose={() => {
@@ -492,16 +329,6 @@ const ListUser = () => {
           </Button>
         </div>
       </CustomModal>
-      {/* Edit User Modal */}
-      {editModalOpen && initialDataForEdit && (
-        <UserEditDialog
-          isOpen={editModalOpen}
-          onClose={handleCloseEditModal}
-          onSubmit={handleSubmitEditUser}
-          initialData={initialDataForEdit}
-          isSubmitting={isSubmitting}
-        />
-      )}
     </main>
   );
 };

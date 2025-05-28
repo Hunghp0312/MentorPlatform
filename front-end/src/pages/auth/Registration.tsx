@@ -12,9 +12,9 @@ import {
   SharedProfileDetails,
   UserPreferences,
   createInitialData,
+  AccountDetails,
 } from "../../types/userRegister.d";
 import {
-  AccountDetails,
   RoleEnum,
   LearningStyleOption,
   TeachingApproachOption,

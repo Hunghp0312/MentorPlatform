@@ -467,8 +467,7 @@ const MentorStatusProfile = () => {
           {isEditing && (
             <button
               onClick={() => setOpenEducationDialog(true)}
-              className="ml-1"
-            >
+              className="ml-1">
               <CirclePlus
                 size={20}
                 className="text-green-500 hover:text-green-600"
@@ -481,8 +480,7 @@ const MentorStatusProfile = () => {
             mentorData.mentorEducation.map((education, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
-              >
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0">
                 <div className="flex w-full justify-between items-start">
                   <div className="flex flex-col">
                     <h5 className="font-medium">{education.fieldOfStudy}</h5>
@@ -517,8 +515,7 @@ const MentorStatusProfile = () => {
           {isEditing && (
             <button
               onClick={() => setOpenWorkExperienceDialog(true)}
-              className="ml-1"
-            >
+              className="ml-1">
               <CirclePlus
                 size={20}
                 className="text-green-500 hover:text-green-600"
@@ -531,8 +528,7 @@ const MentorStatusProfile = () => {
             mentorData.mentorWorkExperience.map((experience, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
-              >
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0">
                 <div className="flex w-full justify-between items-start">
                   <div className="flex flex-col">
                     <h5 className="font-medium">{experience.position}</h5>
@@ -572,8 +568,7 @@ const MentorStatusProfile = () => {
           {isEditing && (
             <button
               onClick={() => setOpenCertificationDialog(true)}
-              className="ml-1"
-            >
+              className="ml-1">
               <CirclePlus
                 size={20}
                 className="text-green-500 hover:text-green-600"
@@ -586,8 +581,7 @@ const MentorStatusProfile = () => {
             mentorData.certifications.map((certificate, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
-              >
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0">
                 <div className="flex w-full justify-between items-start">
                   <div className="flex flex-col">
                     <h5 className="font-medium">
@@ -652,8 +646,7 @@ const MentorStatusProfile = () => {
                         ?.fileContent || "",
                       mentorData.mentorDocuments!.fileType
                     )
-                  }
-                >
+                  }>
                   <Eye
                     size={20}
                     className="text-blue-500 hover:text-blue-600"
@@ -690,8 +683,7 @@ const MentorStatusProfile = () => {
             </h1>
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
-            >
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors">
               Edit Application
             </button>
           </div>
@@ -733,8 +725,7 @@ const MentorStatusProfile = () => {
                         : mentorData.status === "Request Info"
                         ? "bg-blue-500"
                         : ""
-                    }`}
-                  >
+                    }`}>
                     {mentorData.status}
                   </span>
                 </div>
@@ -784,8 +775,7 @@ const MentorStatusProfile = () => {
               isOpen={openEducationDialog}
               onClose={handleOnEducationClose}
               title="Add Education"
-              size="md"
-            >
+              size="md">
               <EducationAddDialog
                 onClose={handleOnEducationClose}
                 onSubmit={handleAddNewEducation}
@@ -804,8 +794,7 @@ const MentorStatusProfile = () => {
               isOpen={openCertificationDialog}
               onClose={handleOnCertificationClose}
               title="Add Certification"
-              size="md"
-            >
+              size="md">
               <CertificationAddDialog
                 onClose={handleOnCertificationClose}
                 onSubmit={handleAddCertification}
@@ -823,8 +812,7 @@ const MentorStatusProfile = () => {
               isOpen={openWorkExperienceDialog}
               onClose={handleOnWorkExperienceClose}
               title="Add Work Experience"
-              size="md"
-            >
+              size="md">
               <WorkExperienceAddDialog
                 onClose={handleOnWorkExperienceClose}
                 onSubmit={handleAddWorkExperience}
@@ -843,8 +831,7 @@ const MentorStatusProfile = () => {
               isOpen={openDocumentViewer}
               onClose={handleCloseDocumentViewer}
               title="View Document"
-              size="xl"
-            >
+              size="xl">
               {documentData && (
                 <div className="w-full h-[70vh]">
                   <embed
@@ -862,22 +849,19 @@ const MentorStatusProfile = () => {
               <>
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
-                >
+                  className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors">
                   Save
                 </button>
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors"
-                >
+                  className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors">
                   Cancel
                 </button>
               </>
             ) : (
               <button
                 onClick={() => handleSubmitApplication()}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
-              >
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors">
                 Submit
               </button>
             )}

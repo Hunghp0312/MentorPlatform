@@ -108,7 +108,7 @@ export const createInitialData = (role: Role): UserRegistrationRequest => {
   const profile = { ...baseProfile };
   const preferences = { ...basePreferences };
 
-  if (role === common.Role.Learner) {
+  if (role === common.RoleEnum.Learner) {
     return {
       role,
       account,

@@ -84,3 +84,9 @@ export enum TopicOfInterest {
   Networking = 7,
   Entrepreneurship = 8,
 }
+
+export enum Status {
+  Active = 1,
+  Pending = 2,
+  Deactive = 3,
+}
