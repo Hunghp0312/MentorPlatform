@@ -17,15 +17,18 @@ namespace ApplicationCore.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserProfileRepository _userProfileRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         private const int StatusIdActive = 1;
         private const int StatusIdPending = 2;
         private const int StatusIdDeactivated = 3;
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IUserProfileRepository userProfileRepository)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _userProfileRepository = userProfileRepository;
         }
 
         public async Task<OperationResult<PagedResult<UserResponseDto>>> GetUsersAsync(UserQueryParameters queryParameters)
@@ -101,9 +104,9 @@ namespace ApplicationCore.Services
             return OperationResult<IEnumerable<UserResponseDto>>.Ok(userDtos);
         }
 
-        public async Task<OperationResult<UserResponseDto>> UpdateUserStatusAsync(Guid userId, UpdateUserStatusRequestDto requestDto) // requestDto hiện tại không được sử dụng cho logic nghiệp vụ
+        public async Task<OperationResult<UserResponseDto>> UpdateUserStatusAsync(Guid userId)
         {
-            var user = await _userRepository.GetUserByIdAsync(userId); // Đảm bảo phương thức này load Status
+            var user = await _userRepository.GetUserByIdAsync(userId);
 
             if (user == null)
             {
@@ -111,7 +114,7 @@ namespace ApplicationCore.Services
             }
 
             int currentStatusId = user.StatusId;
-            int nextStatusId = -1; // Giá trị mặc định cho trạng thái không hợp lệ hoặc không thay đổi
+            int nextStatusId = -1;
 
             string currentStatusName = user.Status?.Name ?? $"ID ({currentStatusId})";
 
@@ -215,9 +218,33 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(userResponseDto);
         }
 
-        public Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto)
+        public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var userProfile = await _userProfileRepository.GetByIdAsync(userProfileId);
+                if (userProfile == null)
+                {
+                    return OperationResult<UserProfileResponseDto>.NotFound($"User profile with ID {userProfileId} not found.");
+                }
+                await userProfile.UpdateFromDtoAsync(requestDto, userProfile.User);
+                _userProfileRepository.Update(userProfile);
+                await _unitOfWork.SaveChangesAsync();
+                var updatedUserProfile = await _userProfileRepository.GetByIdAsync(userProfileId);
+                if (updatedUserProfile == null)
+                {
+                    return OperationResult<UserProfileResponseDto>.NotFound("Failed to retrieve updated user profile.");
+                }
+
+                var res = updatedUserProfile.ToUserProfileResponseDto();
+
+                return OperationResult<UserProfileResponseDto>.Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<UserProfileResponseDto>.Fail($"An error occurred while updating the user profile: {ex.Message}");
+            }
+
         }
     }
 }
