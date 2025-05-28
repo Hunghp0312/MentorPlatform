@@ -44,7 +44,7 @@ namespace ApplicationCore.Validators
 
             RuleFor(x => x.Bio).MaximumLength(500).WithMessage(ValidationMessages.BIO_MAX_LENGTH);
 
-            RuleFor(x => x.ArenaOfExpertise)
+            RuleFor(x => x.AreaOfExpertise)
                 .Must(areas => areas == null || !areas.Any() || areas.All(areaId => areaId > 0))
                 .WithMessage(ValidationMessages.EXPERTISE_AREAS_INVALID_FORMAT);
 

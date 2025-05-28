@@ -111,7 +111,9 @@ public class UserRepository : BaseRepository<User>, IUserRepository
                              .Include(u => u.Role)
                              .Include(u => u.Status)
                              .Include(u => u.UserProfile)
-                             .Include(u => u.UserArenaOfExpertises)
+                             .Include(u => u.UserAreaOfExpertises)
+                             .ThenInclude(ua => ua.AreaOfExpertise)
+                             .Include(u => u.SubmittedMentorApplication)
                              .FirstOrDefaultAsync(u => u.Id == userId);
     }
 

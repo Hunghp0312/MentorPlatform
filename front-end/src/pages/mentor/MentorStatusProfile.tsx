@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { CirclePlus, CircleMinus } from "lucide-react";
+import { CirclePlus, CircleMinus, Eye } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import { mentorService } from "../../services/mentorapplication.service";
+import { userService } from "../../services/user.service";
 import {
   MentorCertification,
   MentorEducation,
@@ -9,24 +10,24 @@ import {
   MentorCreateApplication,
   SupportingDocument,
 } from "../../types/mentorapplication";
+import { User, UserApplication } from "../../types/user";
 import CustomModal from "../../components/ui/Modal";
 import EducationAddDialog from "../../components/dialog/Applications/EducationDialog";
 import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkExperienceDialog";
 import CertificationAddDialog from "../../components/dialog/Applications/CertificationDialog";
+import { EnumType } from "../../types/commonType";
+
 interface MentorStatusType {
-  // id: string;
-  // name: string;
-  // email: string;
-  // expertiseAreas: string[];
-  // profileImage: string;
-  // professionalSkill: string;
-  // industryExperience: string;
   mentorEducation: MentorEducation[];
   mentorWorkExperience: MentorWorkExperience[];
   certifications: MentorCertification[];
   mentorDocuments: SupportingDocument | null;
-  //submissionDate?: string; // Add submissionDate
-  //status?: string; // Add status
+  submissionDate?: string;
+  approvalDate?: string;
+  rejectedDate?: string;
+  adminComment?: string;
+  status?: string;
+  userApplicationDetails?: User;
 }
 
 const MentorStatusProfile = () => {
@@ -38,16 +39,16 @@ const MentorStatusProfile = () => {
     mentorWorkExperience: [],
     certifications: [],
     mentorDocuments: null,
-    // submissionDate: "", // Initialize
-    // status: "", // Initialize
+    submissionDate: "",
+    status: "",
   });
   const [editedMentor, setEditedMentor] = useState<MentorStatusType>({
     mentorEducation: [],
     mentorWorkExperience: [],
     certifications: [],
     mentorDocuments: null,
-    // submissionDate: "", // Initialize
-    // status: "", // Initialize
+    submissionDate: "",
+    status: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -61,8 +62,15 @@ const MentorStatusProfile = () => {
     Partial<MentorCertification>
   >({});
   const [openEducationDialog, setOpenEducationDialog] = useState(false);
-  const [openWorkExperienceDialog, setWorkExperienceDialog] = useState(false);
-  const [openCertificationDialog, setCertificationDialog] = useState(false);
+  const [openWorkExperienceDialog, setOpenWorkExperienceDialog] =
+    useState(false);
+  const [openCertificationDialog, setOpenCertificationDialog] = useState(false);
+  const [role, setRole] = useState<EnumType | undefined>(undefined);
+  const [openDocumentViewer, setOpenDocumentViewer] = useState(false);
+  const [documentData, setDocumentData] = useState<{
+    fileContent: string;
+    fileType: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   // useEffect(() => {
   //   setLoading(true);
@@ -71,8 +79,8 @@ const MentorStatusProfile = () => {
   //     name: mockUser1.userProfile?.fullName ?? "Unknown Name", // Fallback for name
   //     email: mockUser1.email ?? "", // Fallback for email
   //     expertiseAreas:
-  //       mockUser1.userArenaOfExpertises
-  //         ?.map((expertise) => expertise.arenaOfExpertise?.name ?? "")
+  //       mockUser1.userAreaOfExpertises
+  //         ?.map((expertise) => expertise.AreaOfExpertise?.name ?? "")
   //         .filter((name) => name !== "") ?? [], // Filter out empty strings, fallback to empty array
   //     status:
   //       mockUser1.mentorApplications?.applicationStatus?.name ?? "unknown", // Fallback for status
@@ -90,20 +98,105 @@ const MentorStatusProfile = () => {
   // }, []);
   // Khởi tạo dữ liệu ban đầu (có thể để rỗng vì không dùng mockUser1)
   useEffect(() => {
-    // Không cần gọi API user, khởi tạo rỗng hoặc dùng dữ liệu mặc định
-    setMentorData({
-      mentorEducation: [],
-      mentorWorkExperience: [],
-      certifications: [],
-      mentorDocuments: null,
-    });
-    setEditedMentor({
-      mentorEducation: [],
-      mentorWorkExperience: [],
-      certifications: [],
-      mentorDocuments: null,
-    });
+    const fetchUserData = async (): Promise<UserApplication | null> => {
+      try {
+        const response = await userService.getCurrentUser();
+        console.log("User Data:", response);
+        const mappedUserData: UserApplication = {
+          id: response.id,
+          email: response.email,
+          role: response.role,
+          hasMentorApplication: response.hasMentorApplication,
+          profile: {
+            id: response.id,
+            photoData: response.avatar || undefined,
+            fullName: response.fullName,
+            professionalSkill: response.professionalSkills,
+            industryExperience: response.industryExperience,
+          },
+          userArenaOfExpertises:
+            response.areaOfExpertise?.map((expertise: string) => ({
+              userId: response.id,
+              arenaOfExpertise: { name: expertise },
+            })) || [],
+        };
+        setRole(mappedUserData.role);
+        console.log("Mapped User Data:", mappedUserData.role);
+        return mappedUserData;
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        return null;
+      }
+    };
+
+    const loadMyApplication = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await mentorService.getMyApplication();
+        console.log("My Application Data:", response);
+
+        let mappedDocument = null;
+        if (response.documentsDetails?.[0]) {
+          const doc = response.documentsDetails[0];
+          mappedDocument = {
+            fileName: doc.fileName,
+            fileType: doc.fileType,
+            fileSize: doc.fileSize || 0,
+            uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            documentContent: {
+              fileName: doc.fileName,
+              fileType: doc.fileType,
+              fileContent: doc.fileContent,
+            },
+          };
+        }
+
+        const mappedData: Partial<MentorStatusType> = {
+          mentorEducation: response.educationDetails || [],
+          mentorWorkExperience: response.workExperienceDetails || [],
+          certifications: response.certifications || [],
+          mentorDocuments: mappedDocument,
+          status: response.status,
+        };
+
+        setMentorData((prev) => ({
+          ...prev,
+          ...mappedData,
+        }));
+        setEditedMentor((prev) => ({
+          ...prev,
+          ...mappedData,
+        }));
+      } catch {
+        setError("Failed to load application data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchData = async () => {
+      const userData = await fetchUserData();
+      if (userData) {
+        setMentorData((prev) => ({
+          ...prev,
+          userApplicationDetails: userData,
+        }));
+        console.log("User Data:", userData.hasMentorApplication);
+        if (userData.hasMentorApplication) {
+          await loadMyApplication();
+        } else {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
@@ -129,13 +222,13 @@ const MentorStatusProfile = () => {
       }));
     }
   };
+
   const handleOpenFileExplorer = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  // Xóa document
   const handleRemoveDocument = () => {
     setEditedMentor((prev) => ({
       ...prev,
@@ -147,46 +240,76 @@ const MentorStatusProfile = () => {
     }));
     setSelectedFile(null);
   };
+
   const handleAddNewEducation = async (newEducation: MentorEducation) => {
     if (
       newEducation.institutionName &&
       newEducation.fieldOfStudy &&
       newEducation.graduationYear
     ) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          mentorEducation: [...(prev.mentorEducation || []), newEducation],
-        };
-      });
-      setMentorData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          mentorEducation: [...(prev.mentorEducation || []), newEducation],
-        };
-      });
+      setEditedMentor((prev) => ({
+        ...prev,
+        mentorEducation: [...(prev.mentorEducation || []), newEducation],
+      }));
+      setMentorData((prev) => ({
+        ...prev,
+        mentorEducation: [...(prev.mentorEducation || []), newEducation],
+      }));
       setNewEducation({});
       setOpenEducationDialog(false);
     }
   };
+
   const handleOnEducationClose = () => {
     setOpenEducationDialog(false);
     setNewEducation({});
   };
 
   const handleOnWorkExperienceClose = () => {
-    setWorkExperienceDialog(false);
+    setOpenWorkExperienceDialog(false);
     setNewWorkExperience({});
   };
 
   const handleOnCertificationClose = () => {
-    setCertificationDialog(false);
+    setOpenCertificationDialog(false);
     setNewCertification({});
   };
 
-  // Add new work experience
+  const handleViewDocument = (fileContent: string, fileType: string) => {
+    console.log("handleViewDocument called", {
+      fileType,
+      fileContentLength: fileContent?.length,
+    });
+    if (!fileContent) {
+      console.error("File content is missing or empty");
+      setError("Không thể mở tài liệu: Không có nội dung tài liệu.");
+      return;
+    }
+    if (!fileType) {
+      console.error("File type is missing");
+      setError("Không thể mở tài liệu: Thiếu loại tệp.");
+      return;
+    }
+    try {
+      const isValidBase64 = /^[A-Za-z0-9+/=]+$/.test(fileContent);
+      if (!isValidBase64) {
+        console.error("Invalid Base64 string detected");
+        setError("Không thể mở tài liệu: Dữ liệu Base64 không hợp lệ.");
+        return;
+      }
+      setDocumentData({ fileContent, fileType });
+      setOpenDocumentViewer(true);
+    } catch (error) {
+      console.error("Error in handleViewDocument:", error);
+      setError("Lỗi khi mở tài liệu: Vui lòng thử lại.");
+    }
+  };
+
+  const handleCloseDocumentViewer = () => {
+    setOpenDocumentViewer(false);
+    setDocumentData(null);
+  };
+
   const handleAddWorkExperience = async (
     newWorkExperience: MentorWorkExperience
   ) => {
@@ -195,32 +318,25 @@ const MentorStatusProfile = () => {
       newWorkExperience.position &&
       newWorkExperience.startDate
     ) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          mentorWorkExperience: [
-            ...(prev.mentorWorkExperience || []),
-            newWorkExperience,
-          ],
-        };
-      });
-      setMentorData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          mentorWorkExperience: [
-            ...(prev.mentorWorkExperience || []),
-            newWorkExperience,
-          ],
-        };
-      });
+      setEditedMentor((prev) => ({
+        ...prev,
+        mentorWorkExperience: [
+          ...(prev.mentorWorkExperience || []),
+          newWorkExperience,
+        ],
+      }));
+      setMentorData((prev) => ({
+        ...prev,
+        mentorWorkExperience: [
+          ...(prev.mentorWorkExperience || []),
+          newWorkExperience,
+        ],
+      }));
       setNewWorkExperience({});
-      setWorkExperienceDialog(false);
+      setOpenWorkExperienceDialog(false);
     }
   };
 
-  // Add new certification
   const handleAddCertification = async (
     newCertification: MentorCertification
   ) => {
@@ -228,81 +344,54 @@ const MentorStatusProfile = () => {
       newCertification.certificationName &&
       newCertification.issuingOrganization
     ) {
-      setEditedMentor((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          certifications: [...(prev.certifications || []), newCertification],
-        };
-      });
-      setMentorData((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          certifications: [...(prev.certifications || []), newCertification],
-        };
-      });
+      setEditedMentor((prev) => ({
+        ...prev,
+        certifications: [...(prev.certifications || []), newCertification],
+      }));
+      setMentorData((prev) => ({
+        ...prev,
+        certifications: [...(prev.certifications || []), newCertification],
+      }));
       setNewCertification({});
-      setCertificationDialog(false);
+      setOpenCertificationDialog(false);
     }
   };
 
-  // Remove education
-  // const handleRemoveEducation = (index: number) => {
-  //   if (editedMentor) {
-  //     setEditedMentor((prev) => {
-  //       if (!prev) return prev;
-  //       const mentorEducation = [...(prev.mentorEducation || [])];
-  //       mentorEducation.splice(index, 1);
-  //       return { ...prev, mentorEducation };
-  //     });
-  //   }
-  // };
   const handleRemoveEducation = (index: number) => {
-    setEditedMentor((prev) => {
-      if (!prev) return prev;
-      const mentorEducation = [...(prev.mentorEducation || [])];
-      mentorEducation.splice(index, 1);
-      return { ...prev, mentorEducation };
-    });
-    setMentorData((prev) => {
-      if (!prev) return prev;
-      const mentorEducation = [...(prev.mentorEducation || [])];
-      mentorEducation.splice(index, 1);
-      return { ...prev, mentorEducation };
-    });
+    setEditedMentor((prev) => ({
+      ...prev,
+      mentorEducation: prev.mentorEducation.filter((_, i) => i !== index),
+    }));
+    setMentorData((prev) => ({
+      ...prev,
+      mentorEducation: prev.mentorEducation.filter((_, i) => i !== index),
+    }));
   };
 
-  // Remove work experience
   const handleRemoveWorkExperience = (index: number) => {
-    setEditedMentor((prev) => {
-      if (!prev) return prev;
-      const mentorWorkExperience = [...(prev.mentorWorkExperience || [])];
-      mentorWorkExperience.splice(index, 1);
-      return { ...prev, mentorWorkExperience };
-    });
-    setMentorData((prev) => {
-      if (!prev) return prev;
-      const mentorWorkExperience = [...(prev.mentorWorkExperience || [])];
-      mentorWorkExperience.splice(index, 1);
-      return { ...prev, mentorWorkExperience };
-    });
+    setEditedMentor((prev) => ({
+      ...prev,
+      mentorWorkExperience: prev.mentorWorkExperience.filter(
+        (_, i) => i !== index
+      ),
+    }));
+    setMentorData((prev) => ({
+      ...prev,
+      mentorWorkExperience: prev.mentorWorkExperience.filter(
+        (_, i) => i !== index
+      ),
+    }));
   };
 
-  // Remove certification
   const handleRemoveCertification = (index: number) => {
-    setEditedMentor((prev) => {
-      if (!prev) return prev;
-      const certifications = [...(prev.certifications || [])];
-      certifications.splice(index, 1);
-      return { ...prev, certifications };
-    });
-    setMentorData((prev) => {
-      if (!prev) return prev;
-      const certifications = [...(prev.certifications || [])];
-      certifications.splice(index, 1);
-      return { ...prev, certifications };
-    });
+    setEditedMentor((prev) => ({
+      ...prev,
+      certifications: prev.certifications.filter((_, i) => i !== index),
+    }));
+    setMentorData((prev) => ({
+      ...prev,
+      certifications: prev.certifications.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmitApplication = async () => {
@@ -315,75 +404,38 @@ const MentorStatusProfile = () => {
       mentorEducations: editedMentor.mentorEducation,
       mentorWorkExperiences: editedMentor.mentorWorkExperience,
       mentorCertifications: editedMentor.certifications,
-      menttorDocuments: editedMentor.mentorDocuments,
+      mentorDocuments: editedMentor.mentorDocuments,
     };
 
     try {
       setLoading(true);
       await mentorService.submitCompleteApplication(application, selectedFile);
       alert("Đã gửi đơn đăng ký thành công!");
-      setIsEditing(true);
+      setIsEditing(false);
       setSelectedFile(null);
+
+      const response = await mentorService.getMyApplication();
+      console.log("Updated Application Data:", response);
+
+      const mappedData: MentorStatusType = {
+        mentorEducation: response.mentorEducations || [],
+        mentorWorkExperience: response.mentorWorkExperiences || [],
+        certifications: response.mentorCertifications || [],
+        mentorDocuments: response.supportingDocument || null,
+        status: response.status,
+      };
+
+      setMentorData(mappedData);
+      setEditedMentor({ ...mappedData });
     } catch (error) {
       console.error("Error submitting application:", error);
-      //console.error("Error submitting mentor application:", error);
-      // console.error("Response data:", error.response?.data); // Log the server's response
+      setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
       throw error;
-      // setError(
-      //   `Lỗi khi gửi đơn đăng ký: ${error.message || "Vui lòng thử lại."}`
-      // );
-      // setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
     }
-    // } finally {
-    //   setLoading(false);
-    // }
   };
-  //   // const application: MentorCreateApplication = {
-  //   //   mentorEducations: [
-  //   //     {
-  //   //       institutionName: "Test University",
-  //   //       fieldOfStudy: "Computer Science",
-  //   //       graduationYear: 2020,
-  //   //     },
-  //   //   ],
-  //   //   mentorWorkExperiences: [
-  //   //     {
-  //   //       companyName: "Test Company",
-  //   //       position: "Software Engineer",
-  //   //       startDate: "2021-01-01T00:00:00.000Z", // Past date in ISO 8601 format
-  //   //       endDate: "2023-01-01T00:00:00.000Z", // Past date in ISO 8601 format
-  //   //     },
-  //   //   ],
-  //   //   mentorCertifications: [
-  //   //     {
-  //   //       certificationName: "AWS Certified Developer",
-  //   //       issuingOrganization: "Amazon",
-  //   //     },
-  //   //   ],
-  //   //   menttorDocuments: editedMentor.mentorDocuments,
-  //   // };
 
-  //   try {
-  //     setLoading(true);
-  //     await mentorService.submitCompleteApplication(application, selectedFile);
-  //     alert("Đã gửi đơn đăng ký thành công!");
-  //     setIsEditing(true);
-  //     setSelectedFile(null);
-  //   } catch (error: any) {
-  //     console.error(
-  //       "Error submitting application:",
-  //       error.response?.data || error.message
-  //     );
-  //     setError(
-  //       error.response?.data?.message ||
-  //         "Lỗi khi gửi đơn đăng ký. Vui lòng thử lại."
-  //     );
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // Lưu thay đổi
   const handleSave = () => {
     if (editedMentor) {
       setLoading(true);
@@ -396,7 +448,6 @@ const MentorStatusProfile = () => {
     }
   };
 
-  // Cancel editing
   const handleCancel = () => {
     if (mentorData) {
       setEditedMentor({ ...mentorData });
@@ -426,7 +477,7 @@ const MentorStatusProfile = () => {
           )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData && mentorData.mentorEducation?.length > 0 ? (
+          {mentorData?.mentorEducation?.length > 0 ? (
             mentorData.mentorEducation.map((education, index) => (
               <div
                 key={index}
@@ -465,7 +516,7 @@ const MentorStatusProfile = () => {
           Work Experience
           {isEditing && (
             <button
-              onClick={() => setWorkExperienceDialog(true)}
+              onClick={() => setOpenWorkExperienceDialog(true)}
               className="ml-1"
             >
               <CirclePlus
@@ -476,7 +527,7 @@ const MentorStatusProfile = () => {
           )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData && mentorData.mentorWorkExperience?.length > 0 ? (
+          {mentorData?.mentorWorkExperience?.length > 0 ? (
             mentorData.mentorWorkExperience.map((experience, index) => (
               <div
                 key={index}
@@ -520,7 +571,7 @@ const MentorStatusProfile = () => {
           Certifications
           {isEditing && (
             <button
-              onClick={() => setCertificationDialog(true)}
+              onClick={() => setOpenCertificationDialog(true)}
               className="ml-1"
             >
               <CirclePlus
@@ -531,25 +582,31 @@ const MentorStatusProfile = () => {
           )}
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData && mentorData.certifications?.length > 0 ? (
+          {mentorData?.certifications?.length > 0 ? (
             mentorData.certifications.map((certificate, index) => (
               <div
                 key={index}
                 className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
               >
-                <h5 className="font-medium">{certificate.certificationName}</h5>
-                <div className="flex items-center space-x-2">
-                  <p className="text-[12px] text-gray-400">
-                    {certificate.issuingOrganization}
-                  </p>
-                  {isEditing && (
-                    <button onClick={() => handleRemoveCertification(index)}>
-                      <CircleMinus
-                        size={20}
-                        className="text-red-500 hover:text-red-600"
-                      />
-                    </button>
-                  )}
+                <div className="flex w-full justify-between items-start">
+                  <div className="flex flex-col">
+                    <h5 className="font-medium">
+                      {certificate.certificationName}
+                    </h5>
+                    <p className="text-[12px] text-gray-400">
+                      {certificate.issuingOrganization}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    {isEditing && (
+                      <button onClick={() => handleRemoveCertification(index)}>
+                        <CircleMinus
+                          size={20}
+                          className="text-red-500 hover:text-red-600"
+                        />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
@@ -584,18 +641,33 @@ const MentorStatusProfile = () => {
                   {mentorData.mentorDocuments.fileName}
                 </h5>
                 <p className="text-[12px] text-gray-400">
-                  {mentorData.mentorDocuments.fileType} (
-                  {(mentorData.mentorDocuments.fileSize / 1024).toFixed(2)} KB)
+                  {mentorData.mentorDocuments.fileType}
                 </p>
               </div>
-              {isEditing && (
-                <button onClick={handleRemoveDocument}>
-                  <CircleMinus
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() =>
+                    handleViewDocument(
+                      mentorData.mentorDocuments!.documentContent
+                        ?.fileContent || "",
+                      mentorData.mentorDocuments!.fileType
+                    )
+                  }
+                >
+                  <Eye
                     size={20}
-                    className="text-red-500 hover:text-red-600"
+                    className="text-blue-500 hover:text-blue-600"
                   />
                 </button>
-              )}
+                {isEditing && (
+                  <button onClick={handleRemoveDocument}>
+                    <CircleMinus
+                      size={20}
+                      className="text-red-500 hover:text-red-600"
+                    />
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <p className="text-sm text-gray-200">No document provided.</p>
@@ -606,7 +678,7 @@ const MentorStatusProfile = () => {
   );
 
   if (loading) return <div>Loading...</div>;
-  if (!editedMentor) return <div>No data available</div>;
+  if (!mentorData) return <div>No data available</div>;
 
   return (
     <main className="container mx-auto py-8 px-4">
@@ -626,45 +698,82 @@ const MentorStatusProfile = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
               <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
-                <span className="text-gray-400 text-4xl"></span>
+                {mentorData.userApplicationDetails?.profile?.photoData ? (
+                  <img
+                    src={mentorData.userApplicationDetails.profile.photoData}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-gray-400 text-4xl">
+                    {mentorData.userApplicationDetails?.profile?.fullName?.charAt(
+                      0
+                    ) || ""}
+                  </span>
+                )}
               </div>
               <div>
+                <h2 className="text-xl font-medium text-gray-200">
+                  {mentorData.userApplicationDetails?.profile?.fullName ||
+                    "N/A"}
+                </h2>
                 <div className="mt-1 flex items-center">
                   <span className="bg-orange-500 text-xs text-white px-2.5 py-1 rounded-full capitalize">
-                    mentor
+                    {role?.name}
                   </span>
-                  {/* <span className="pr-1"></span>
+                  <span className="pr-1"></span>
                   <span
                     className={`text-xs text-white px-2.5 py-1 rounded-full capitalize ${
-                      mentorData.status === "approved"
+                      mentorData.status === "Approved"
                         ? "bg-green-500"
-                        : mentorData.status === "rejected"
+                        : mentorData.status === "Rejected"
                         ? "bg-red-500"
-                        : "bg-yellow-500"
+                        : mentorData.status === "Pending"
+                        ? "bg-yellow-500"
+                        : mentorData.status === "Request Info"
+                        ? "bg-blue-500"
+                        : ""
                     }`}
                   >
                     {mentorData.status}
-                  </span> */}
+                  </span>
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="text-sm font-medium text-gray-400 mb-2">
+              <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Areas of expertise
               </h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.userArenaOfExpertises
+                  ?.map((expertise) => expertise.arenaOfExpertise?.name)
+                  .join(", ") || "No expertise provided"}
+              </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Professional skills
               </h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.profile
+                  ?.professionalSkill || "No skills provided"}
+              </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Industry experience
               </h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.profile
+                  ?.industryExperience || "No experience provided"}
+              </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">Email</h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.email ||
+                  "No email provided"}
+              </p>
             </div>
             <ExpandProfileSettings
               additionalSettings={additionalSettingsContent}
@@ -730,6 +839,23 @@ const MentorStatusProfile = () => {
                 isSubmitting={false}
               />
             </CustomModal>
+            <CustomModal
+              isOpen={openDocumentViewer}
+              onClose={handleCloseDocumentViewer}
+              title="View Document"
+              size="xl"
+            >
+              {documentData && (
+                <div className="w-full h-[70vh]">
+                  <embed
+                    src={`data:${documentData.fileType};base64,${documentData.fileContent}`}
+                    type={documentData.fileType}
+                    width="100%"
+                    height="100%"
+                  />
+                </div>
+              )}
+            </CustomModal>
           </div>
           <div className="mt-4 flex justify-end space-x-2">
             {isEditing ? (
@@ -761,4 +887,5 @@ const MentorStatusProfile = () => {
     </main>
   );
 };
+
 export default MentorStatusProfile;

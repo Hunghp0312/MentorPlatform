@@ -8,6 +8,7 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using Microsoft.AspNetCore.Http;
 
 
 namespace ApplicationCore.Services
@@ -69,8 +70,8 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
-                Role = user.Role?.Name ?? string.Empty,
-                Status = user.Status?.Name ?? string.Empty,
+                Role = user.Role,
+                Status = user.Status,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin
             }).ToList();
@@ -93,8 +94,8 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
-                Role = user.Role?.Name ?? string.Empty,
-                Status = user.Status?.Name ?? string.Empty,
+                Role = user.Role,
+                Status = user.Status,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin
             }).ToList();
@@ -131,8 +132,8 @@ namespace ApplicationCore.Services
                 Id = updatedUser.Id,
                 FullName = updatedUser.UserProfile?.FullName ?? string.Empty,
                 Email = updatedUser.Email,
-                Role = updatedUser.Role?.Name ?? string.Empty,
-                Status = updatedUser.Status?.Name ?? string.Empty,
+                Role = updatedUser.Role,
+                Status = updatedUser.Status,
                 JoinDate = updatedUser.CreatedAt,
                 LastActiveDate = updatedUser.LastLogin
             };
@@ -140,7 +141,7 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
-        public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
+        public async Task<OperationResult<UserResponseDto>> GetUserByIdsAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdsAsync(userId);
             if (user == null)
@@ -153,16 +154,17 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
-                Role = user.Role?.Name ?? string.Empty,
-                Status = user.Status?.Name ?? string.Empty,
+                Role = user.Role,
+                Status = user.Status,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,
                 IndustryExperience = user.UserProfile?.IndustryExperience,
                 ProfessionalSkills = user.UserProfile?.ProfessionalSkill,
-                AreaOfExpertise = user.UserArenaOfExpertises
+                AreaOfExpertise = user.UserAreaOfExpertises
                     .Select(a => a.AreaOfExpertise?.Name ?? string.Empty)
                     .Where(a => !string.IsNullOrEmpty(a))
-                    .ToList()
+                    .ToList(),
+                HasMentorApplication = user.SubmittedMentorApplication != null
             };
 
             return OperationResult<UserResponseDto>.Ok(userResponseDto);

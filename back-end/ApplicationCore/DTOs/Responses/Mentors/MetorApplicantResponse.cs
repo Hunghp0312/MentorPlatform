@@ -1,4 +1,4 @@
-using ApplicationCore.DTOs.Responses.ArenaOfExpertises;
+using ApplicationCore.DTOs.Responses.AreaOfExpertises;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
 
 namespace ApplicationCore.DTOs.Responses.Mentors
@@ -18,7 +18,7 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public string? RequestInfoDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public ICollection<ArenaOfExpertiseResponse> ExpertiseAreas { get; set; } = [];
+        public ICollection<AreaOfExpertiseResponse> ExpertiseAreas { get; set; } = [];
         public required string ProfessionExperience { get; set; }
         public required string ApplicationTimeline { get; set; }
         public List<SupportingDocumentResponse>? Documents { get; set; }

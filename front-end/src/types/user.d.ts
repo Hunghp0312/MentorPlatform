@@ -1,16 +1,11 @@
+import { MentorApplicationResponse } from "./approval";
 import { EnumType } from "./commonType";
-import { ArenaOfExpertise } from "./mentorapplication";
+import { AreaOfExpertise } from "./mentorapplication";
 import { MentorApplication } from "./approval";
 
 export interface User {
   id: string;
   email: string;
-  //   passwordHash: string;
-  //   lastLogin?: string; // ISO string for DateTime
-  //   passwordResetToken?: string;
-  //   passwordResetExpiry?: string; // ISO string for DateTime
-  //   refreshToken?: string;
-  //   refreshTokenExpiryTime?: string; // ISO string for DateTime
   role?: EnumType;
   userProfile?: UserProfile;
   //   userTopicOfInterests?: UserTopicOfInterest[];
@@ -18,10 +13,24 @@ export interface User {
   submittedMentorApplication?: MentorApplication;
   reviewedMentorApplication?: MentorApplication;
   //   mentoredCourses?: Course[];
+  userAreaOfExpertises?: UserAreaOfExpertise[];
+}
+export interface UserApplication {
+  id: string;
+  email: string;
+  role?: EnumType;
+  profile?: UserProfile;
   userArenaOfExpertises?: UserArenaOfExpertise[];
+  // Các trường bổ sung từ console log (nếu cần đặt trực tiếp trong User)
+  fullName?: string;
+  avatar?: string | null;
+  areaOfExpertise?: string[];
+  professionalSkills?: string;
+  industryExperience?: string;
+  hasMentorApplication?: boolean;
 }
 export interface UserProfile {
-  id: string;
+  id?: string;
   photoData?: string; // Assuming base64 string for binary data
   fullName?: string;
   bio?: string;
@@ -45,14 +54,14 @@ export interface UserProfile {
 //   user?: User;
 //   topic?: Topic;
 // }
-export interface UserArenaOfExpertise {
+export interface UserAreaOfExpertise {
   userId: string;
-  //   arenaOfExpertiseId: string;
+  //   AreaOfExpertiseId: string;
   //user?: User;
-  arenaOfExpertise?: ArenaOfExpertise;
+  AreaOfExpertise?: AreaOfExpertise;
 }
-// export interface Topic {
-//   id: string;
-//   name: string;
-//   userTopicOfInterests?: UserTopicOfInterest[];
-// }
+
+export interface ArenaOfExpertise {
+  name: string;
+  userArenaOfExpertises?: UserArenaOfExpertise[];
+}
