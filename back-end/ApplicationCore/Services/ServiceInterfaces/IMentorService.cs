@@ -8,7 +8,7 @@ namespace ApplicationCore.Services.ServiceInterfaces
     public interface IMentorService
     {
         Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicationStatus);
-        Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request,Guid adminUserId);
+        Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request, Guid adminUserId);
         Task<OperationResult<MentorApplicationResponseDto>> SubmitApplicationAsync(
            SubmitMentorApplicationApiRequest apiRequest, Guid applicantUserId
        );
@@ -17,5 +17,6 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<MentorApplicationResponseDto>> UpdateMyApplicationAsync(
           UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId
       );
+        Task<OperationResult<MentorApplicationDetailDto>> GettMentoApplicationDetailAsync(Guid mentorApplicationId);
     }
 }

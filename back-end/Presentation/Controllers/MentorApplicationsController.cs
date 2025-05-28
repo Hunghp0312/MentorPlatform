@@ -79,8 +79,17 @@ namespace Presentation.Controllers
         {
             var adminUserId = User.FindFirstValue("id");
             Guid adminId = Guid.Parse(adminUserId!);
-            var result = await _mentorService.UpdateMentorApplicationStatus(request,adminId);
-        
+            var result = await _mentorService.UpdateMentorApplicationStatus(request, adminId);
+
+            return ToActionResult(result);
+        }
+
+        [HttpGet("mentor-application-detail/{mentorApplicationId}")]
+        [ProducesResponseType(typeof(MentorApplicationDetailDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMentorApplicationDetail(Guid mentorApplicationId)
+        {
+            var result = await _mentorService.GettMentoApplicationDetailAsync(mentorApplicationId);
             return ToActionResult(result);
         }
     }

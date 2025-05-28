@@ -311,5 +311,16 @@ namespace ApplicationCore.Services
             return OperationResult<MentorApplicationDetailResponse>.Ok(responseDto);
 
         }
+
+        public async Task<OperationResult<MentorApplicationDetailDto>> GettMentoApplicationDetailAsync(Guid mentorApplicationId)
+        {
+            var mentorApplicationEntity = await _mentorRepository.GetByIdAsync(mentorApplicationId);
+            if (mentorApplicationEntity == null)
+            {
+                return OperationResult<MentorApplicationDetailDto>.NotFound($"No mentor application found for ID '{mentorApplicationId}'.");
+            }
+            var responseDto = mentorApplicationEntity.ToMentorApplicationDetailDto();
+            return OperationResult<MentorApplicationDetailDto>.Ok(responseDto);
+        }
     }
 }
