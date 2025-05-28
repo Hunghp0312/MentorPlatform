@@ -24,7 +24,8 @@ namespace Infrastructure.Data.Configuration
             builder.Property(up => up.FullName).HasMaxLength(200).IsRequired(false);
             builder.Property(up => up.Bio).HasMaxLength(1000).IsRequired(false);
             builder.Property(up => up.ProfessionalSkill).HasMaxLength(1000).IsRequired(false);
-            builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false); builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
+            builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false);
+            builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
 
             builder.HasData(UserProfileSeeding.SeedUserProfiles());
         }

@@ -109,7 +109,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return (users, totalCount);
     }
 
-    public async Task<User?> GetUserByIdsAsync(Guid userId)
+    public async Task<User?> GetUserByIdAsync(Guid userId)
     {
         return await _dbSet
                              .Include(u => u.Role)

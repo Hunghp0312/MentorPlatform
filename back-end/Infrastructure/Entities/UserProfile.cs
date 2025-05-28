@@ -15,7 +15,6 @@ namespace Infrastructure.Entities
         public virtual ICollection<UserProfileAvailability> UserProfileAvailabilities { get; set; } = new List<UserProfileAvailability>();
         public virtual ICollection<UserTopicOfInterest> UserTopicOfInterests { get; set; } = new List<UserTopicOfInterest>();
         public virtual ICollection<UserLearningStyle> UserLearningStyles { get; set; } = new List<UserLearningStyle>();
-        public virtual ICollection<UserAreaOfExpertise> UserAreaOfExpertises { get; set; } = new List<UserAreaOfExpertise>();
         public string? UserGoal { get; set; }
         public SessionFrequency? SessionFrequency { get; set; }
         public int? SessionFrequencyId { get; set; }

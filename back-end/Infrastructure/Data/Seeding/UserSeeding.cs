@@ -16,7 +16,7 @@ public static class UserSeeding
                     RoleId = 1,
                     StatusId = 1,
                     CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0, DateTimeKind.Utc),
-
+                    LastLogin = new DateTime(2024, 5, 25, 10, 30, 0, DateTimeKind.Utc)
                 },
                 new User
                 {
@@ -25,7 +25,8 @@ public static class UserSeeding
                     PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
                     RoleId = 1,
                     StatusId = 1,
-                    CreatedAt = new DateTime(2024, 1, 16, 11, 0, 0, DateTimeKind.Utc)
+                    CreatedAt = new DateTime(2024, 1, 16, 11, 0, 0, DateTimeKind.Utc),
+                    LastLogin = new DateTime(2024, 5, 26, 11, 0, 0, DateTimeKind.Utc)
                 },
                 new User
                 {
@@ -34,7 +35,8 @@ public static class UserSeeding
                     PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
                     RoleId = 1,
                     StatusId = 1,
-                    CreatedAt = new DateTime(2024, 1, 17, 14, 20, 0, DateTimeKind.Utc)
+                    CreatedAt = new DateTime(2024, 1, 17, 14, 20, 0, DateTimeKind.Utc),
+                    LastLogin = new DateTime(2024, 5, 27, 14, 20, 0, DateTimeKind.Utc)
                 },
                 new User
                 {
@@ -44,7 +46,7 @@ public static class UserSeeding
                     RoleId = 2,
                     StatusId = 1,
                     CreatedAt = new DateTime(2024, 2, 10, 9, 5, 0, DateTimeKind.Utc),
-
+                    LastLogin = new DateTime(2024, 5, 20, 9, 5, 0, DateTimeKind.Utc)
                 }, new User
                 {
                     Id = Guid.Parse("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
@@ -53,7 +55,7 @@ public static class UserSeeding
                     RoleId = 2,
                     StatusId = 1,
                     CreatedAt = new DateTime(2024, 2, 12, 16, 30, 0, DateTimeKind.Utc),
-
+                    LastLogin = new DateTime(2024, 5, 21, 16, 30, 0, DateTimeKind.Utc)
 
                 }, new User
                 {
@@ -63,7 +65,7 @@ public static class UserSeeding
                     RoleId = 2,
                     StatusId = 3,
                     CreatedAt = new DateTime(2024, 2, 18, 17, 0, 0, DateTimeKind.Utc),
-
+                    LastLogin = new DateTime(2024, 5, 19, 17, 0, 0, DateTimeKind.Utc)
                 }, new User
                 {
                     Id = Guid.Parse("03ea823d-d625-448d-901d-411c5028b769"),
@@ -72,7 +74,7 @@ public static class UserSeeding
                     RoleId = 3,
                     StatusId = 2,
                     CreatedAt = new DateTime(2024, 3, 1, 10, 0, 0, DateTimeKind.Utc),
-
+                    LastLogin = new DateTime(2024, 5, 28, 9, 0, 0, DateTimeKind.Utc)
                 }, new User
                 {
                     Id = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
@@ -81,7 +83,7 @@ public static class UserSeeding
                     RoleId = 3,
                     StatusId = 2,
                     CreatedAt = new DateTime(2024, 3, 5, 11, 20, 0, DateTimeKind.Utc),
-
+                    LastLogin = new DateTime(2024, 5, 27, 11, 20, 0, DateTimeKind.Utc)
                 }, new User
                 {
                     Id = Guid.Parse("862b702e-2c59-46f7-8c06-5349d769e237"),
@@ -90,7 +92,7 @@ public static class UserSeeding
                     RoleId = 3,
                     StatusId = 2,
                     CreatedAt = new DateTime(2024, 3, 10, 12, 0, 0, DateTimeKind.Utc),
-
+                    LastLogin = new DateTime(2024, 5, 26, 12, 0, 0, DateTimeKind.Utc)
 
                 }, new User
                 {
@@ -100,7 +102,7 @@ public static class UserSeeding
                     RoleId = 2,
                     StatusId = 1,
                     CreatedAt = new DateTime(2024, 3, 15, 14, 45, 0, DateTimeKind.Utc),
-
+                    LastLogin = new DateTime(2024, 5, 28, 14, 45, 0, DateTimeKind.Utc)
                 }
         };
     }

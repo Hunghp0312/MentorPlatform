@@ -67,7 +67,13 @@ namespace ApplicationCore.Services
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 RoleId = request.SelectedRole,
-                StatusId = 2
+                StatusId = 2,
+                UserAreaOfExpertises = request.AreaOfExpertise?
+                .Where(aoeId => aoeId > 0)
+                    .Select(aoeId => new UserAreaOfExpertise
+                    {
+                        AreaOfExpertiseId = aoeId
+                    }).ToList() ?? new List<UserAreaOfExpertise>(),
             };
 
             var userProfile = new UserProfile
@@ -92,14 +98,6 @@ namespace ApplicationCore.Services
                     UserId = user.Id,
                     AvailabilityId = a
                 }).ToList() ?? new List<UserProfileAvailability>(),
-                UserAreaOfExpertises = request.AreaOfExpertise?
-                .Where(aoeId => aoeId > 0)
-                    .Select(aoeId => new UserAreaOfExpertise
-                    {
-                        UserId = user.Id,
-                        AreaOfExpertiseId = aoeId
-                    }).ToList() ?? new List<UserAreaOfExpertise>(),
-
                 User = user
             };
 
