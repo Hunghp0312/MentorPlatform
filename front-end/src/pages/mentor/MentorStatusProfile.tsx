@@ -116,7 +116,7 @@ const MentorStatusProfile = () => {
 
         const mappedDocuments: SupportingDocument[] =
           response.documentsDetails?.map((doc: DocumentContent) => ({
-            id: doc.id, // Lấy id từ BE
+            id: doc.id,
             fileName: doc.fileName,
             fileType: doc.fileType,
             fileSize: doc.fileSize || 0,
@@ -182,7 +182,7 @@ const MentorStatusProfile = () => {
         alert("Error: Only support PDF, JPEG or PNG.");
         return;
       }
-      // Kiểm tra giới hạn 5 file
+
       if (mentorData.mentorDocuments.length >= 5) {
         setError("Bạn chỉ có thể upload tối đa 5 file.");
         return;
@@ -196,7 +196,7 @@ const MentorStatusProfile = () => {
         documentContent: {
           fileName: file.name,
           fileType: file.type,
-          fileContent: "", // Sẽ được cập nhật khi gọi API
+          fileContent: "",
         },
       };
 
@@ -417,7 +417,6 @@ const MentorStatusProfile = () => {
       return;
     }
 
-    // Hiển thị popup xác nhận
     const confirmed = window.confirm(
       "Bạn có chắc chắn muốn gửi đơn đăng ký không?"
     );
@@ -433,10 +432,8 @@ const MentorStatusProfile = () => {
 
     try {
       if (mentorData.status === "") {
-        // Gọi submitCompleteApplication
         await mentorService.submitCompleteApplication(application);
 
-        // Upload tất cả file
         for (const file of selectedFiles) {
           await mentorService.uploadFile(file);
         }
@@ -445,7 +442,6 @@ const MentorStatusProfile = () => {
         setIsEditing(false);
         setSelectedFiles([]);
 
-        // Cập nhật dữ liệu sau khi submit
         const response = await mentorService.getMyApplication();
         const mappedDocuments: SupportingDocument[] =
           response.documentsDetails?.map((doc: DocumentContent) => ({
@@ -467,13 +463,12 @@ const MentorStatusProfile = () => {
           certifications: response.certifications || [],
           mentorDocuments: mappedDocuments,
           status: response.status,
-          userApplicationDetails: mentorData.userApplicationDetails, // Preserve user data
+          userApplicationDetails: mentorData.userApplicationDetails,
         };
 
         setMentorData(mappedData);
         setEditedMentor({ ...mappedData });
       } else if (mentorData.status === "Pending") {
-        // Chỉ upload các file mới (không có id)
         const newFiles = selectedFiles.filter(
           (_, index) => !mentorData.mentorDocuments[index]?.id
         );
@@ -485,7 +480,6 @@ const MentorStatusProfile = () => {
         setIsEditing(false);
         setSelectedFiles([]);
 
-        // Cập nhật dữ liệu sau khi upload
         const response = await mentorService.getMyApplication();
         const mappedDocuments: SupportingDocument[] =
           response.documentsDetails?.map((doc: DocumentContent) => ({
@@ -507,16 +501,14 @@ const MentorStatusProfile = () => {
           certifications: response.certifications || [],
           mentorDocuments: mappedDocuments,
           status: response.status,
-          userApplicationDetails: mentorData.userApplicationDetails, // Preserve user data
+          userApplicationDetails: mentorData.userApplicationDetails,
         };
 
         setMentorData(mappedData);
         setEditedMentor({ ...mappedData });
       } else if (mentorData.status === "Request Info") {
-        // Gọi updateMyApplication
         await mentorService.updateMyApplication(application);
 
-        // Chỉ upload các file mới (không có id)
         const newFiles = selectedFiles.filter(
           (_, index) => !mentorData.mentorDocuments[index]?.id
         );
@@ -528,7 +520,6 @@ const MentorStatusProfile = () => {
         setIsEditing(false);
         setSelectedFiles([]);
 
-        // Cập nhật dữ liệu sau khi update
         const response = await mentorService.getMyApplication();
         const mappedDocuments: SupportingDocument[] =
           response.documentsDetails?.map((doc: DocumentContent) => ({
@@ -550,7 +541,7 @@ const MentorStatusProfile = () => {
           certifications: response.certifications || [],
           mentorDocuments: mappedDocuments,
           status: response.status,
-          userApplicationDetails: mentorData.userApplicationDetails, // Preserve user data
+          userApplicationDetails: mentorData.userApplicationDetails,
         };
 
         setMentorData(mappedData);
@@ -568,7 +559,7 @@ const MentorStatusProfile = () => {
       setMentorData((prev) => ({
         ...prev,
         ...editedMentor,
-        userApplicationDetails: prev.userApplicationDetails, // Preserve user data
+        userApplicationDetails: prev.userApplicationDetails,
       }));
       setIsEditing(false);
       setError(null);

@@ -6,7 +6,7 @@ import {
   MentorCertification,
   SupportingDocument,
 } from "./mentorapplication";
-// src/types/approval.ts
+
 export interface ApprovalType {
   id: string;
   name: string;
@@ -26,10 +26,10 @@ export interface MentorApplicationResponse {
   adminReviewer?: admin;
   submissionDate?: string;
   requestInfoDate?: string;
-  lastStatusUpdateDate?: string; // ISO string for DateTime
+  lastStatusUpdateDate?: string;
   adminComments?: string;
   rejectionReason?: string;
-  approvalDate?: string; // ISO string for DateTime
+  approvalDate?: string;
   applicant?: User;
   mentorEducations?: MentorEducation[];
   mentorWorkExperiences?: MentorWorkExperience[];
@@ -38,7 +38,7 @@ export interface MentorApplicationResponse {
 }
 
 export interface MentorUpdateStatusRequest {
-  mentorId: string; // Guid được biểu diễn dưới dạng string trong TypeScript
+  mentorId: string;
   statusId: number;
   adminComments: string | null;
 }

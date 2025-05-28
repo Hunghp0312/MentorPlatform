@@ -15,7 +15,6 @@ export interface UserApplication {
   role?: EnumType;
   profile?: UserProfile;
   userArenaOfExpertises?: UserArenaOfExpertise[];
-  // Các trường bổ sung từ console log (nếu cần đặt trực tiếp trong User)
   fullName?: string;
   avatar?: string | null;
   areaOfExpertise?: string[];
@@ -25,7 +24,7 @@ export interface UserApplication {
 }
 export interface UserProfile {
   id?: string;
-  photoData?: string; // Assuming base64 string for binary data
+  photoData?: string;
   fullName?: string;
   bio?: string;
   professionalSkill?: string;

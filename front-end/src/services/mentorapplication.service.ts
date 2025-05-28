@@ -12,7 +12,6 @@ export const mentorService = {
         console.log("User ID:", userId);
       }
 
-      // Chuẩn bị dữ liệu ứng tuyển
       const requestData = {
         EducationDetails: application.mentorEducations.map((education) => ({
           InstitutionName: education.institutionName,

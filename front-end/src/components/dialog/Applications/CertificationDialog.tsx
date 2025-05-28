@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import InputCustom from "../../input/InputCustom";
 import { MentorCertification } from "../../../types/mentorapplication";
-// import InputCheckbox from "../input/InputCheckbox";
 import Button from "../../ui/Button";
 import loading from "../../../assets/loadingIcon.svg";
 interface CertificationAddDialogProps {

@@ -18,7 +18,6 @@ import {
 import CustomModal from "../../components/ui/Modal";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
-// Updated ApprovalType interface
 interface ApprovalType {
   applicantUserId: string;
   fullName: string;
@@ -77,7 +76,6 @@ const ListApproval = () => {
   } | null>(null);
   const [isFetching, setIsFetching] = useState(false);
 
-  // Fetch applications
   const statusOptions = [
     { value: "", label: "All" },
     { value: "pending", label: "Pending" },
@@ -111,7 +109,7 @@ const ListApproval = () => {
         pageIndex,
         pageSize
       );
-      console.log("API Response:", res); // Kiểm tra dữ liệu trả về
+      console.log("API Response:", res);
       setTotalItems(res.totalItems);
       setApprovals(res.items);
     } catch (error) {
@@ -194,13 +192,11 @@ const ListApproval = () => {
     });
     setIsDetailsModalOpen(true);
   };
-  // Define columns for CustomTable
   const columns: DataColumn<ApprovalType>[] = [
     {
       header: "",
       accessor: (row) => {
-        console.log("Status:", row.status); // Kiểm tra giá trị status
-        // Hàm helper để lấy ngày mới nhất từ chuỗi ngày (nếu cần split)
+        console.log("Status:", row.status);
         const getLatestDate = (dateString?: string) => {
           if (!dateString) return "";
           const dates = dateString
@@ -213,7 +209,6 @@ const ListApproval = () => {
             .split("T")[0];
         };
 
-        // Xác định nhãn và ngày hiển thị
         let dateLabel = "";
         let dateValue = "";
         if (row.status === "Request Info" && row.requestInfoDate) {
@@ -276,17 +271,13 @@ const ListApproval = () => {
     },
   ];
 
-  // Get current timestamp
-  //const getCurrentTimestamp = () => new Date().toISOString().split("T")[0];
-
-  // Approve handler
   const handleApprove = async (approval: ApprovalType) => {
     if (window.confirm(`Approve application for "${approval.fullName}"?`)) {
       try {
         const request: MentorUpdateStatusRequest = {
           mentorId: approval.applicantUserId,
-          statusId: 3, // Approved
-          adminComments: null, // No comments for Approve
+          statusId: 3,
+          adminComments: null,
         };
         await approvalService.updateMentorApplicationStatus(request);
         setApprovals((prev = []) =>
@@ -314,19 +305,17 @@ const ListApproval = () => {
     }
   };
 
-  // Reject handler
   const handleReject = (approval: ApprovalType) => {
     setSelectedApproval(approval);
     setIsRejectModalOpen(true);
   };
 
-  // Confirm rejection with comment
   const confirmReject = async () => {
     if (selectedApproval) {
       try {
         const request: MentorUpdateStatusRequest = {
           mentorId: selectedApproval.applicantUserId,
-          statusId: 2, // Rejected
+          statusId: 2,
           adminComments: rejectionComment.trim() || null,
         };
         await approvalService.updateMentorApplicationStatus(request);
@@ -357,7 +346,6 @@ const ListApproval = () => {
     }
   };
 
-  // Request Info handler
   const handleRequestInfo = async () => {
     if (
       selectedApproval &&
@@ -368,7 +356,7 @@ const ListApproval = () => {
       try {
         const request: MentorUpdateStatusRequest = {
           mentorId: selectedApproval.applicantUserId,
-          statusId: 4, // Request Info
+          statusId: 4,
           adminComments: adminNotes.trim() || null,
         };
         await approvalService.updateMentorApplicationStatus(request);
@@ -402,7 +390,7 @@ const ListApproval = () => {
     try {
       setIsLoading(true);
       await fetchApplicationDetail(approval.applicantUserId);
-      setAdminNotes(""); // Reset admin notes when selecting a new applicant
+      setAdminNotes("");
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -426,12 +414,11 @@ const ListApproval = () => {
     }
   };
 
-  // Determine circle color based on action
   const getActionColor = (action: string) => {
     if (action.includes("Approved")) return "bg-green-500";
     if (action.includes("Rejected")) return "bg-red-500";
     if (action.includes("Request Info")) return "bg-blue-500";
-    return "bg-orange-500"; // Default for "Submitted"
+    return "bg-orange-500";
   };
 
   if (isLoading) {
@@ -715,10 +702,10 @@ const ListApproval = () => {
                                 timestamp: string;
                                 content: string | null;
                               } => entry.timestamp != null
-                            ) // Type guard to ensure timestamp is string
+                            )
                             .sort((a, b) => {
-                              const dateA = new Date(a.timestamp); // a.timestamp is now guaranteed to be string
-                              const dateB = new Date(b.timestamp); // b.timestamp is now guaranteed to be string
+                              const dateA = new Date(a.timestamp);
+                              const dateB = new Date(b.timestamp);
                               return dateA.getTime() - dateB.getTime();
                             })
                             .map((entry, index) => (
