@@ -21,6 +21,7 @@ import {
 } from "../../types/commonType";
 import { useNavigate } from "react-router-dom";
 import { pathName } from "../../constants/pathName";
+import { AxiosError } from "axios";
 
 const Registration = () => {
   const [step, setStep] = useState(1);
@@ -114,10 +115,22 @@ const Registration = () => {
   };
 
   const createProfile = async () => {
-    console.log(formData);
+    try {
+      console.log(formData);
 
-    const response = await registrionService.createProfile(formData);
-    setUserId(response.userId);
+      const response = await registrionService.createProfile(formData);
+      setUserId(response.userId);
+      return true;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      setStep(1);
+      window.location.reload();
+      console.error("Registration submission failed:", axiosError);
+      alert(
+        `Registration failed: ${axiosError.response?.data} Please try again.`
+      );
+      return false;
+    }
   };
 
   const setPreferences = async () => {
@@ -193,9 +206,9 @@ const Registration = () => {
         JSON.stringify(preferences)
       );
 
-      alert("Registration complete!");
       setFormData(createInitialData(RoleEnum.Learner));
       await setPreferences();
+      alert("Registration success.");
       setStep(1);
       navigation(pathName.home);
     } catch (error) {
@@ -224,7 +237,7 @@ const Registration = () => {
             onRoleChange={handleRoleEnumChange}
             onNext={nextStep}
             onBack={prevStep}
-            onTest={createProfile}
+            onSubmited={createProfile}
           />
         );
       case 3:

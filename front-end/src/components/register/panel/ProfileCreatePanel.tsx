@@ -21,7 +21,7 @@ interface Props {
   onRoleChange: (newRole: RoleEnum) => void;
   onNext: () => void;
   onBack: () => void;
-  onTest: () => void; // Assuming this is for debugging or other purposes
+  onSubmited: () => Promise<boolean>; // Assuming this is for debugging or other purposes
 }
 
 const rolesData = [
@@ -79,7 +79,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
   onRoleChange,
   onNext,
   onBack,
-  onTest,
+  onSubmited,
 }) => {
   const { role, profile } = currentUserData;
 
@@ -295,7 +295,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
     }
   }, [firstErrorFieldId]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Clear all errors before re-validating
     setProfilePictureError("");
@@ -309,10 +309,11 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top to see any top-of-form errors
 
-    if (validateAndSetFocusTarget()) {
+    const success = await onSubmited();
+
+    if (validateAndSetFocusTarget() && success) {
       onNext();
     }
-    onTest(); // Call test function regardless of validation for its own purpose
   };
 
   return (
