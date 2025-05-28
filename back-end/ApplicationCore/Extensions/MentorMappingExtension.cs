@@ -19,55 +19,74 @@ namespace ApplicationCore.Extensions
                     ? Convert.ToBase64String(mentorApplication.Applicant.UserProfile.PhotoData)
                     : string.Empty,
                 FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
-                Email = mentorApplication.Applicant?.Email ?? string.Empty,
                 ExpertiseAreas = mentorApplication.Applicant?.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
                 {
                     Name = x.AreaOfExpertise.Name,
                 }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
-                ProfessionExperience = mentorApplication.Applicant?.UserProfile?.IndustryExperience ?? string.Empty,
-                ApplicationTimeline = mentorApplication.SubmissionDate,
                 SubmissionDate = mentorApplication.SubmissionDate,
-                LastStatusUpdateDate = mentorApplication.LastStatusUpdateDate,
-                ApproverName = mentorApplication.AdminReviewer?.UserProfile?.FullName ?? string.Empty,
-                AdminComments = mentorApplication.AdminComments,
-                RejectionReason = mentorApplication.RejectionReason,
-                RequestInfoDate = mentorApplication.RequestInfoDate,
-                ApprovalDate = mentorApplication.ApprovalDate,
-                CreatedAt = mentorApplication.CreatedAt,
-                UpdatedAt = mentorApplication.UpdatedAt,
-                Documents = mentorApplication.SupportingDocuments.Select(x => new SupportingDocumentResponse
-                {
-                    FileName = x.FileName,
-                    FileId = x.Id,
-                    FileContent = x.DocumentContent.FileContent ?? Array.Empty<byte>(),
-                    FileType = x.DocumentContent.FileType ?? string.Empty,
-                }).ToList(),
-                Status = mentorApplication.ApplicationStatus.Name,
-                MentorEducations = mentorApplication.MentorEducations.Select(x => new MentorEducationReponse
-                {
-                    FieldOfStudy = x.FieldOfStudy,
-                    InstitutionName = x.InstitutionName,
-                    GraduationYear = x.GraduationYear
-                }).ToList(),
-                MentorWorkExperiences = mentorApplication.MentorWorkExperiences.Select(x => new MentorWorkExperienceResponse
-                {
-                    CompanyName = x.CompanyName,
-                    Position = x.Position,
-                    StartDate = x.StartDate,
-                    EndDate = x.EndDate,
-                    Description = x.Description
-                }).ToList(),
-                MentorCertifications = mentorApplication.MentorCertifications.Select(x => new MentorCertificationResponse
-                {
-                    CertificationName = x.CertificationName,
-                    IssuingOrganization = x.IssuingOrganization,
-                }).ToList()
-                
+                Status = mentorApplication.ApplicationStatus.Name ?? string.Empty
             };
         }
         public static List<MentorApplicantResponse> ToMetorApplicantResponseList(this ICollection<MentorApplication> mentorApplications)
         {
             return mentorApplications.Select(x => x.ToMetorApplicantResponse()).ToList();
+        }
+        public static MentorApplicationDetailDto ToMentorApplicationDetailDto(this MentorApplication mentorApplication)
+        {
+            return new MentorApplicationDetailDto
+            {
+                ApplicantUserId = mentorApplication.ApplicantId,
+                PhotoData = mentorApplication.Applicant?.UserProfile?.PhotoData != null
+                    ? Convert.ToBase64String(mentorApplication.Applicant.UserProfile.PhotoData)
+                    : string.Empty,
+                FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
+                Email = mentorApplication.Applicant?.Email ?? string.Empty,
+                SubmissionDate = mentorApplication.SubmissionDate,
+                LastStatusUpdateDate = mentorApplication.LastStatusUpdateDate,
+                ApproverName = mentorApplication.AdminReviewer?.UserProfile?.FullName ?? string.Empty,
+                AdminComments = mentorApplication.AdminComments,
+                RejectionReason = mentorApplication.RejectionReason,
+                ApprovalDate = mentorApplication.ApprovalDate,
+                RequestInfoDate = mentorApplication.RequestInfoDate,
+                ExpertiseAreas = mentorApplication.Applicant?.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
+                {
+                    Name = x.AreaOfExpertise.Name,
+                }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
+                ProfessionExperience = mentorApplication?.Applicant?.UserProfile.IndustryExperience ?? string.Empty,
+                Documents = mentorApplication?.SupportingDocuments?
+                        .Select(sd => new SupportingDocumentResponse
+                        {
+                            FileName = sd.FileName,
+                            FileContent = sd.DocumentContent != null
+                                ? Convert.ToBase64String(sd.DocumentContent.FileContent)
+                                : string.Empty,
+                            FileType = sd.DocumentContent?.FileType ?? string.Empty,
+                        }).ToList() ?? new List<SupportingDocumentResponse>(),
+                MentorEducations = mentorApplication?.MentorEducations?
+                    .Select(me => new MentorEducationReponse
+                    {
+                        FieldOfStudy = me.FieldOfStudy,
+                        GraduationYear = me.GraduationYear,
+                        InstitutionName = me.InstitutionName,
+
+                    }).ToList() ?? new List<MentorEducationReponse>(),
+                MentorWorkExperiences = mentorApplication?.MentorWorkExperiences?
+                    .Select(mwe => new MentorWorkExperienceResponse
+                    {
+                        CompanyName = mwe.CompanyName,
+                        Description = mwe.Description,
+                        EndDate = mwe.EndDate,
+                        StartDate = mwe.StartDate,
+                        Position = mwe.Position
+                    }).ToList() ?? new List<MentorWorkExperienceResponse>(),
+                MentorCertifications = mentorApplication?.MentorCertifications?
+                    .Select(mc => new MentorCertificationResponse
+                    {
+                        CertificationName = mc.CertificationName,
+                        IssuingOrganization = mc.IssuingOrganization
+                    }).ToList() ?? new List<MentorCertificationResponse>(),
+                Status = mentorApplication?.ApplicationStatus.Name ?? string.Empty
+            };
         }
     }
 }

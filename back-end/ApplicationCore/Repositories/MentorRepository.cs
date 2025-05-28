@@ -56,12 +56,7 @@ namespace ApplicationCore.Repositories
                 .Include(a => a.Applicant)
                 .ThenInclude(uae => uae.UserProfile)
                 .Include(x => x.AdminReviewer)
-                .Include(x => x.SupportingDocuments)
-                .ThenInclude(s => s.DocumentContent)
                 .Include(x => x.ApplicationStatus)
-                .Include(m => m.MentorCertifications)
-                .Include(m => m.MentorWorkExperiences)
-                .Include(m => m.MentorEducations)
                 .AsQueryable();
 
             if (filter != null)
