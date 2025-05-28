@@ -14,7 +14,7 @@ namespace ApplicationCore.DTOs.Requests.Users
         public virtual List<int> TeachingApproaches { get; set; } = new List<int>();
         public virtual List<int> UserProfileAvailabilities { get; set; } = new List<int>();
         public virtual List<int> UserTopicOfInterests { get; set; } = new List<int>();
-        public virtual List<int>? UserLearningStyles { get; set; } = new List<int>();
+        public virtual List<int> UserLearningStyles { get; set; } = new List<int>();
         public string? UserGoal { get; set; }
         public int SessionFrequencyId { get; set; }
         public int SessionDurationId { get; set; }

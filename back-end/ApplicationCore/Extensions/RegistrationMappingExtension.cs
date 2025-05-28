@@ -110,6 +110,7 @@ namespace ApplicationCore.Extensions
         }
         public static async Task UpdateFromDtoAsync(this UserProfile userProfile, UpdateUserProfileRequestDto dto, User userEntity)
         {
+            // Basic properties remain the same
             userProfile.FullName = dto.FullName ?? userProfile.FullName;
             userProfile.Bio = dto.Bio ?? userProfile.Bio;
             userProfile.PhoneNumber = dto.PhoneNumber ?? userProfile.PhoneNumber;
@@ -119,110 +120,25 @@ namespace ApplicationCore.Extensions
 
             if (dto.PhotoData != null && dto.PhotoData.Length > 0)
             {
-                using (var ms = new MemoryStream())
-                {
-                    await dto.PhotoData.CopyToAsync(ms);
-                    var imageBytes = ms.ToArray();
-                    userProfile.PhotoData = imageBytes;
-                }
+                await using var ms = new MemoryStream();
+                await dto.PhotoData.CopyToAsync(ms);
+                userProfile.PhotoData = ms.ToArray();
             }
 
+            // Update collections properly
             if (dto.UserProfileAvailabilities != null)
-            {
-                var availabilitiesToRemove = userProfile.UserProfileAvailabilities
-                    .Where(a => !dto.UserProfileAvailabilities.Contains(a.AvailabilityId))
-                    .ToList();
-
-                foreach (var item in availabilitiesToRemove)
-                {
-                    userProfile.UserProfileAvailabilities.Remove(item);
-                }
-
-                foreach (var availabilityId in dto.UserProfileAvailabilities)
-                {
-                    if (!userProfile.UserProfileAvailabilities.Any(a => a.AvailabilityId == availabilityId))
-                    {
-                        userProfile.UserProfileAvailabilities.Add(new UserProfileAvailability
-                        {
-                            UserId = userProfile.Id,
-                            AvailabilityId = availabilityId
-                        });
-                    }
-                }
-            }
+                UpdateUserProfileAvailabilities(userProfile, dto.UserProfileAvailabilities);
 
             if (dto.UserTopicOfInterests != null)
-            {
-                var topicsToRemove = userProfile.UserTopicOfInterests
-                    .Where(t => !dto.UserTopicOfInterests.Contains(t.TopicId))
-                    .ToList();
-
-                foreach (var item in topicsToRemove)
-                {
-                    userProfile.UserTopicOfInterests.Remove(item);
-                }
-
-                foreach (var topicId in dto.UserTopicOfInterests)
-                {
-                    if (!userProfile.UserTopicOfInterests.Any(t => t.TopicId == topicId))
-                    {
-                        userProfile.UserTopicOfInterests.Add(new UserTopicOfInterest
-                        {
-                            UserId = userProfile.Id,
-                            TopicId = topicId
-                        });
-                    }
-                }
-            }
+                UpdateUserTopicOfInterests(userProfile, dto.UserTopicOfInterests);
 
             if (dto.UserLearningStyles != null)
-            {
-                var stylesToRemove = userProfile.UserLearningStyles
-                    .Where(s => !dto.UserLearningStyles.Contains(s.LearningStyleId))
-                    .ToList();
-
-                foreach (var item in stylesToRemove)
-                {
-                    userProfile.UserLearningStyles.Remove(item);
-                }
-
-                foreach (var styleId in dto.UserLearningStyles)
-                {
-                    if (!userProfile.UserLearningStyles.Any(s => s.LearningStyleId == styleId))
-                    {
-                        userProfile.UserLearningStyles.Add(new UserLearningStyle
-                        {
-                            UserId = userProfile.Id,
-                            LearningStyleId = styleId
-                        });
-                    }
-                }
-            }
+                UpdateUserLearningStyles(userProfile, dto.UserLearningStyles);
 
             if (dto.TeachingApproaches != null)
-            {
-                var approachesToRemove = userProfile.TeachingApproaches
-                    .Where(a => !dto.TeachingApproaches.Contains(a.TeachingApproachId))
-                    .ToList();
+                UpdateMentorTeachingApproaches(userProfile, dto.TeachingApproaches);
 
-                foreach (var item in approachesToRemove)
-                {
-                    userProfile.TeachingApproaches.Remove(item);
-                }
-
-                foreach (var approachId in dto.TeachingApproaches)
-                {
-                    if (!userProfile.TeachingApproaches.Any(a => a.TeachingApproachId == approachId))
-                    {
-                        userProfile.TeachingApproaches.Add(new MentorTeachingApproach
-                        {
-                            UserId = userProfile.Id,
-                            TeachingApproachId = approachId
-                        });
-                    }
-                }
-            }
-
+            // Update scalar properties
             if (dto.SessionFrequencyId != 0)
             {
                 userProfile.SessionFrequencyId = dto.SessionFrequencyId;
@@ -239,29 +155,155 @@ namespace ApplicationCore.Extensions
             userProfile.CommunicationMethod = dto.CommunicationMethod != 0 ? dto.CommunicationMethod : userProfile.CommunicationMethod;
 
             if (dto.UserAreaExpertises != null)
+                UpdateUserAreaExpertises(userEntity, dto.UserAreaExpertises);
+        }
+
+        // Fixed helper methods that properly handle entity tracking
+        private static void UpdateUserProfileAvailabilities(UserProfile userProfile, IEnumerable<int> availabilityIds)
+        {
+            var newIds = availabilityIds.ToList();
+
+            // Find items to remove
+            var toRemove = userProfile.UserProfileAvailabilities
+                .Where(a => !newIds.Contains(a.AvailabilityId))
+                .ToList();
+
+            // Remove items
+            foreach (var item in toRemove)
             {
-                var userAreaExpertises = userEntity.UserArenaOfExpertises.ToList() ?? new List<UserAreaOfExpertise>();
-                var areasToRemove = userAreaExpertises
-                    .Where(a => !dto.UserAreaExpertises.Contains(a.AreaOfExpertiseId))
-                    .ToList();
+                userProfile.UserProfileAvailabilities.Remove(item);
+            }
 
-                foreach (var item in areasToRemove)
+            // Find and add new items
+            foreach (var id in newIds)
+            {
+                if (!userProfile.UserProfileAvailabilities.Any(a => a.AvailabilityId == id))
                 {
-                    userEntity.UserArenaOfExpertises.Remove(item);
-                }
-
-                foreach (var areaId in dto.UserAreaExpertises)
-                {
-                    if (!userAreaExpertises.Any(a => a.AreaOfExpertiseId == areaId))
+                    userProfile.UserProfileAvailabilities.Add(new UserProfileAvailability
                     {
-                        userEntity.UserArenaOfExpertises.Add(new UserAreaOfExpertise
-                        {
-                            UserId = userEntity.Id,
-                            AreaOfExpertiseId = areaId
-                        });
-                    }
+                        UserId = userProfile.Id,
+                        AvailabilityId = id
+                    });
                 }
             }
         }
+
+        private static void UpdateUserTopicOfInterests(UserProfile userProfile, IEnumerable<int> topicIds)
+        {
+            var newIds = topicIds.ToList();
+
+            // Find items to remove
+            var toRemove = userProfile.UserTopicOfInterests
+                .Where(t => !newIds.Contains(t.TopicId))
+                .ToList();
+
+            // Remove items
+            foreach (var item in toRemove)
+            {
+                userProfile.UserTopicOfInterests.Remove(item);
+            }
+
+            // Find and add new items
+            foreach (var id in newIds)
+            {
+                if (!userProfile.UserTopicOfInterests.Any(t => t.TopicId == id))
+                {
+                    userProfile.UserTopicOfInterests.Add(new UserTopicOfInterest
+                    {
+                        UserId = userProfile.Id,
+                        TopicId = id
+                    });
+                }
+            }
+        }
+
+        private static void UpdateUserLearningStyles(UserProfile userProfile, IEnumerable<int> styleIds)
+        {
+            var newIds = styleIds.ToList();
+
+            // Find items to remove
+            var toRemove = userProfile.UserLearningStyles
+                .Where(s => !newIds.Contains(s.LearningStyleId))
+                .ToList();
+
+            // Remove items
+            foreach (var item in toRemove)
+            {
+                userProfile.UserLearningStyles.Remove(item);
+            }
+
+            // Find and add new items
+            foreach (var id in newIds)
+            {
+                if (!userProfile.UserLearningStyles.Any(s => s.LearningStyleId == id))
+                {
+                    userProfile.UserLearningStyles.Add(new UserLearningStyle
+                    {
+                        UserId = userProfile.Id,
+                        LearningStyleId = id
+                    });
+                }
+            }
+        }
+
+        private static void UpdateMentorTeachingApproaches(UserProfile userProfile, IEnumerable<int> teachingApproachIds)
+        {
+            var newIds = teachingApproachIds.ToList();
+
+            // Find items to remove
+            var toRemove = userProfile.TeachingApproaches
+                .Where(a => !newIds.Contains(a.TeachingApproachId))
+                .ToList();
+
+            // Remove items
+            foreach (var item in toRemove)
+            {
+                userProfile.TeachingApproaches.Remove(item);
+            }
+
+            // Find and add new items
+            foreach (var id in newIds)
+            {
+                if (!userProfile.TeachingApproaches.Any(a => a.TeachingApproachId == id))
+                {
+                    userProfile.TeachingApproaches.Add(new MentorTeachingApproach
+                    {
+                        UserId = userProfile.Id,
+                        TeachingApproachId = id
+                    });
+                }
+            }
+        }
+
+        private static void UpdateUserAreaExpertises(User userEntity, IEnumerable<int> areaExpertiseIds)
+        {
+            var newIds = areaExpertiseIds.ToList();
+
+            // Find items to remove
+            var toRemove = userEntity.UserArenaOfExpertises
+                .Where(a => !newIds.Contains(a.AreaOfExpertiseId))
+                .ToList();
+
+            // Remove items
+            foreach (var item in toRemove)
+            {
+                userEntity.UserArenaOfExpertises.Remove(item);
+            }
+
+            // Find and add new items
+            foreach (var id in newIds)
+            {
+                if (!userEntity.UserArenaOfExpertises.Any(a => a.AreaOfExpertiseId == id))
+                {
+                    userEntity.UserArenaOfExpertises.Add(new UserAreaOfExpertise
+                    {
+                        UserId = userEntity.Id,
+                        AreaOfExpertiseId = id
+                    });
+                }
+            }
+        }
+
+        // The UpdateCollection method can be removed as it's no longer needed
     }
 }
