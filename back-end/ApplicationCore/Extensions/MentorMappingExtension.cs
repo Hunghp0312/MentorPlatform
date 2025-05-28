@@ -1,4 +1,4 @@
-using ApplicationCore.DTOs.Responses.ArenaOfExpertises;
+using ApplicationCore.DTOs.Responses.AreaOfExpertises;
 using ApplicationCore.DTOs.Responses.MentorCertifications;
 using ApplicationCore.DTOs.Responses.MentorEducations;
 using ApplicationCore.DTOs.Responses.Mentors;
@@ -19,12 +19,14 @@ namespace ApplicationCore.Extensions
                     ? Convert.ToBase64String(mentorApplication.Applicant.UserProfile.PhotoData)
                     : string.Empty,
                 FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
-                ExpertiseAreas = mentorApplication.Applicant?.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
+
+                ExpertiseAreas = mentorApplication.Applicant?.UserAreaOfExpertises.Select(x => new AreaOfExpertiseResponse
                 {
                     Name = x.AreaOfExpertise.Name,
-                }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
-                SubmissionDate = mentorApplication.SubmissionDate,
-                Status = mentorApplication.ApplicationStatus.Name ?? string.Empty
+                }).ToList() ?? new List<AreaOfExpertiseResponse>(),
+
+                Status = mentorApplication.ApplicationStatus.Name
+
             };
         }
         public static List<MentorApplicantResponse> ToMetorApplicantResponseList(this ICollection<MentorApplication> mentorApplications)
@@ -48,10 +50,10 @@ namespace ApplicationCore.Extensions
                 RejectionReason = mentorApplication.RejectionReason,
                 ApprovalDate = mentorApplication.ApprovalDate,
                 RequestInfoDate = mentorApplication.RequestInfoDate,
-                ExpertiseAreas = mentorApplication.Applicant?.UserArenaOfExpertises.Select(x => new ArenaOfExpertiseResponse
+                ExpertiseAreas = mentorApplication.Applicant?.UserAreaOfExpertises.Select(x => new AreaOfExpertiseResponse
                 {
                     Name = x.AreaOfExpertise.Name,
-                }).ToList() ?? new List<ArenaOfExpertiseResponse>(),
+                }).ToList() ?? new List<AreaOfExpertiseResponse>(),
                 ProfessionExperience = mentorApplication?.Applicant?.UserProfile.IndustryExperience ?? string.Empty,
                 Documents = mentorApplication?.SupportingDocuments?
                         .Select(sd => new SupportingDocumentResponse

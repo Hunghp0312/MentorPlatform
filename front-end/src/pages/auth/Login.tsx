@@ -8,6 +8,7 @@ import { pathName } from "../../constants/pathName";
 import { authService } from "../../services/login.service";
 import { AxiosError } from "axios";
 import { useAuthContext } from "../../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -71,8 +72,16 @@ const Login: React.FC = () => {
       console.log(response);
 
       setIsAuthenticated(true);
-      localStorage.setItem("refreshToken", response.refreshToken);
-      localStorage.setItem("accessToken", response.accessToken);
+
+      if (rememberMe) {
+        localStorage.setItem("refreshToken", response.refreshToken);
+        localStorage.setItem("accessToken", response.accessToken);
+      } else {
+        sessionStorage.setItem("refreshToken", response.refreshToken);
+        sessionStorage.setItem("accessToken", response.accessToken);
+      }
+
+      toast.dismiss();
 
       navigate(pathName.home);
     } catch (apiError: unknown) {
@@ -85,22 +94,20 @@ const Login: React.FC = () => {
     }
   };
 
-  const GITHUB_CLIENT_ID = import.meta.env.VITE_GITHUB_CLIENT_ID;
-  const GITHUB_REDIRECT_URI = import.meta.env.VITE_GITHUB_REDIRECT_URI;
-
-  const handleGitHubLogin = () => {
-    if (!GITHUB_CLIENT_ID || !GITHUB_REDIRECT_URI) {
-      console.error(
-        "GitHub OAuth environment variables are not set correctly!"
-      );
-      alert("GitHub login is currently unavailable. Please contact support.");
-      return;
+  const handleGitHubLogin = async () => {
+    try {
+      await authService.githubLogin();
+    } catch (error) {
+      console.error("GitHub login failed:", error);
     }
-    const githubOAuthURL = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${encodeURIComponent(
-      GITHUB_REDIRECT_URI
-    )}&scope=user:email`;
+  };
 
-    window.location.href = githubOAuthURL;
+  const handleGoogleLogin = async () => {
+    try {
+      await authService.googleLogin();
+    } catch (error) {
+      console.error("Google login failed:", error);
+    }
   };
 
   return (
@@ -188,9 +195,8 @@ const Login: React.FC = () => {
         <div className="grid grid-cols-3 gap-3">
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500">
-            {" "}
-            {/* Reduced py-2.5 to py-2 */}
+            className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500"
+            onClick={handleGoogleLogin}>
             <FaGoogle size={18} />
             <span className="hidden sm:inline">Google</span>
           </button>

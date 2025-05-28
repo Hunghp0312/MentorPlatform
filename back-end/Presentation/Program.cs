@@ -14,6 +14,7 @@ using Infrastructure.Data.Context;
 using Infrastructure.Options;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -73,6 +74,7 @@ builder.Services.AddScoped<IMentorWorkExperienceRepository, MentorWorkExperience
 builder.Services.AddScoped<IMentorEducationRepository, MentorEducationRepository>();
 builder.Services.AddScoped<IMentorCertificationRepository, MentorCertificationRepository>();
 builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository>();
+builder.Services.AddScoped<ISupportingDocumentService, SupportingDocumentService>();
 builder.Services.AddScoped<
    ISupportingDocumentRepository, SupportingDocumentRepository>();
 builder.Services.AddScoped<IUserProfileRepository,UserProfileRepository>();
@@ -118,7 +120,10 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
-
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 6 * 1024 * 1024;
+});
 var app = builder.Build();
 app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseSwagger();

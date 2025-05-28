@@ -1,10 +1,9 @@
 // import { CourseType } from "./course";
-import { UserArenaOfExpertise } from "./user";
+import { UserAreaOfExpertise } from "./user";
 
 export interface MentorCertification {
   certificationName: string;
   issuingOrganization: string;
-  //mentorApplication?: MentorApplication;
 }
 
 export interface MentorWorkExperience {
@@ -12,24 +11,21 @@ export interface MentorWorkExperience {
   position: string;
   startDate: string; // ISO string for DateTime
   endDate?: string; // ISO string for DateTime
-  // mentorApplication?: MentorApplication;
 }
 
 export interface MentorEducation {
   institutionName: string;
   fieldOfStudy: string;
   graduationYear?: number;
-  //mentorApplication?: MentorApplication;
 }
 
 export interface MentorCreateApplication {
   mentorEducations: MentorEducation[];
   mentorWorkExperiences: MentorWorkExperience[];
   mentorCertifications: MentorCertification[];
-  menttorDocuments: SupportingDocument;
+  mentorDocuments: SupportingDocument;
 }
 export interface SupportingDocument {
-  //mentorApplication?: MentorApplication;
   fileName: string;
   fileType: string;
   fileSize: number;
@@ -43,10 +39,10 @@ export interface DocumentContent {
   fileType: string;
   supportingDocument?: SupportingDocument;
 }
-export interface ArenaOfExpertise {
+export interface AreaOfExpertise {
   id: string;
   name: string;
-  userArenaOfExpertises?: UserArenaOfExpertise[];
+  userAreaOfExpertises?: UserAreaOfExpertise[];
 }
 export interface ApplicationStatus {
   id: number;

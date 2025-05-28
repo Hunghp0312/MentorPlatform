@@ -9,9 +9,9 @@ import LoginPage from "../pages/auth/Login";
 import ResetPasswordPage from "../pages/auth/ResetPassword";
 import AuthLayout from "../layout/AuthLayout";
 import ForgotPasswordPage from "../pages/auth/ForgotPassword";
-import GitHubCallback from "../components/login/GithubCallback";
 import PrivateRoute from "./PrivateRoute";
 import MentorStatusProfile from "../pages/mentor/MentorStatusProfile";
+import OAuthCallback from "../pages/auth/OAuthCallback";
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -22,9 +22,9 @@ const AppRouter = () => {
         { path: pathName.login, element: <LoginPage /> },
         { path: pathName.resetPassword, element: <ResetPasswordPage /> },
         { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
+        { path: pathName.oauthcallback, element: <OAuthCallback /> },
       ],
     },
-    { path: pathName.githubCallback, element: <GitHubCallback /> },
     {
       path: "/",
       element: (

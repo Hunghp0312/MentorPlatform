@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.QueryParameters;
+using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -44,7 +45,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserById(Guid userId)
         {
-            var result = await _userService.GetUserByIdAsync(userId);
+            var result = await _userService.GetUserByIdsAsync(userId);
             return ToActionResult(result);
         }
 
