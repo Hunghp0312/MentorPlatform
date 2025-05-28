@@ -86,5 +86,42 @@ namespace ApplicationCore.Repositories
                                  .Where(cm => ids.Contains(cm.Id))
                                  .ToListAsync(); // ToListAsync returns List<T> which implements IEnumerable<T>
         }
+
+        public async Task<IEnumerable<Topic>> GetTopicsByIdsAsync(IEnumerable<int> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                return Enumerable.Empty<Topic>();
+            }
+            return await _context.Set<Topic>().Where(t => ids.Contains(t.Id)).ToListAsync();
+        }
+
+        public async Task<IEnumerable<LearningStyle>> GetLearningStylesByIdsAsync(IEnumerable<int> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                return Enumerable.Empty<LearningStyle>();
+            }
+            return await _context.Set<LearningStyle>().Where(ls => ids.Contains(ls.Id)).ToListAsync();
+        }
+
+        public async Task<IEnumerable<TeachingApproach>> GetTeachingApproachesByIdsAsync(IEnumerable<int> ids)
+        {
+            if (ids == null || !ids.Any())
+            {
+                return Enumerable.Empty<TeachingApproach>();
+            }
+            return await _context.Set<TeachingApproach>().Where(ta => ids.Contains(ta.Id)).ToListAsync();
+        }
+
+        public async Task<SessionFrequency?> GetSessionFrequencyByIdAsync(int id)
+        {
+            return await _context.Set<SessionFrequency>().FindAsync(id);
+        }
+
+        public async Task<SessionDuration?> GetSessionDurationByIdAsync(int id)
+        {
+            return await _context.Set<SessionDuration>().FindAsync(id);
+        }
     }
 }

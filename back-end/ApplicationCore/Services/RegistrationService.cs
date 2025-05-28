@@ -98,71 +98,63 @@ namespace ApplicationCore.Services
             await _registrationRepository.AddUserProfileAsync(userProfile);
             await _unitOfWork.SaveChangesAsync();
 
-            string Role = string.Empty;
+            PreferenceItemDto? roleDto = null;
             if (user.RoleId > 0)
             {
                 var roleEntity = await _registrationRepository.GetRoleByIdAsync(user.RoleId);
                 if (roleEntity != null)
                 {
-                    Role = roleEntity.Name;
-                }
-                else
-                {
-                    Role = "Unknown Role";
+                    roleDto = new PreferenceItemDto { Id = roleEntity.Id, Name = roleEntity.Name };
                 }
             }
-            var expertiseAreaNames = new List<string>();
+
+            var expertiseAreaDtos = new List<PreferenceItemDto>();
             if (request.AreaOfExpertise != null && request.AreaOfExpertise.Any())
             {
-                var expertiseIds = request.AreaOfExpertise
-                                          .Where(id => id > 0)
-                                          .Distinct()
-                                          .ToList();
+                var expertiseIds = request.AreaOfExpertise.Where(id => id > 0).Distinct().ToList();
                 if (expertiseIds.Any())
                 {
-
                     var expertiseEntities = await _registrationRepository.GetAreaOfExpertisesByIdsAsync(expertiseIds);
-                    expertiseAreaNames = expertiseEntities.Select(e => e.Name).ToList();
+                    expertiseAreaDtos = expertiseEntities.Select(e => new PreferenceItemDto { Id = e.Id, Name = e.Name }).ToList();
                 }
             }
-            var availabilityNames = new List<string>();
+
+            var availabilityDtos = new List<PreferenceItemDto>();
             if (request.Availability != null && request.Availability.Any())
             {
-                var availabilityIds = request.Availability.Distinct().ToList();
+                var availabilityIds = request.Availability.Where(id => id > 0).Distinct().ToList();
                 if (availabilityIds.Any())
                 {
                     var availabilityEntities = await _registrationRepository.GetAvailabilitiesByIdsAsync(availabilityIds);
-                    availabilityNames = availabilityEntities.Select(a => a.Name).ToList();
+                    availabilityDtos = availabilityEntities.Select(a => new PreferenceItemDto { Id = a.Id, Name = a.Name }).ToList();
                 }
             }
-            string? communicationMethodName = null;
-            List<string> communicationMethodNames = new List<string>();
+
+            var communicationMethodDtos = new List<PreferenceItemDto>();
             if (request.CommunicationMethod != null && request.CommunicationMethod.Any())
             {
                 var validMethodIds = request.CommunicationMethod.Where(id => id > 0).Distinct().ToList();
                 if (validMethodIds.Any())
                 {
                     var methodEntities = await _registrationRepository.GetCommunicationMethodsByIdsAsync(validMethodIds);
-                    communicationMethodNames = methodEntities.Select(m => m.Name).ToList();
-                    communicationMethodName = communicationMethodNames.FirstOrDefault();
+                    communicationMethodDtos = methodEntities.Select(m => new PreferenceItemDto { Id = m.Id, Name = m.Name }).ToList();
                 }
             }
-
 
             var response = new UserProfileResponse
             {
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = userProfile.FullName,
-                Role = Role,
+                Role = roleDto,
                 Bio = userProfile.Bio,
                 PhotoData = userProfile.PhotoData,
                 PhoneNumber = userProfile.PhoneNumber,
-                ExpertiseAreas = expertiseAreaNames,
+                ExpertiseAreas = expertiseAreaDtos,
                 ProfessionalSkills = userProfile.ProfessionalSkill,
                 IndustryExperience = userProfile.IndustryExperience,
-                Availability = availabilityNames,
-                CommunicationMethod = communicationMethodNames
+                Availability = availabilityDtos,
+                CommunicationMethod = communicationMethodDtos
             };
             return OperationResult<UserProfileResponse>.Ok(response);
         }
@@ -187,32 +179,80 @@ namespace ApplicationCore.Services
                 return OperationResult<UserPreferenceResponse>.NotFound("User profile not found.");
             }
 
-            if (userProfile.UserTopicOfInterests == null)
-            {
-                userProfile.UserTopicOfInterests = new List<UserTopicOfInterest>();
-            }
-            if (userProfile.UserLearningStyles == null)
-            {
-                userProfile.UserLearningStyles = new List<UserLearningStyle>();
-            }
-            if (userProfile.TeachingApproaches == null)
-            {
-                userProfile.TeachingApproaches = new List<MentorTeachingApproach>();
-            }
+
+            userProfile.UserTopicOfInterests ??= new List<UserTopicOfInterest>();
+            userProfile.UserLearningStyles ??= new List<UserLearningStyle>();
+            userProfile.TeachingApproaches ??= new List<MentorTeachingApproach>();
 
             userProfile.UpdateUserProfileEntity(request, user);
 
             await _registrationRepository.UpdateUserProfileAsync(userProfile);
             await _unitOfWork.SaveChangesAsync();
 
+            var topicsOfInterestDtos = new List<PreferenceItemDto>();
+            var topicIds = userProfile.UserTopicOfInterests?.Select(t => t.TopicId).Distinct().ToList() ?? new List<int>();
+            if (topicIds.Any())
+            {
+                var topicEntities = await _registrationRepository.GetTopicsByIdsAsync(topicIds);
+                topicsOfInterestDtos = topicEntities.Select(t => new PreferenceItemDto { Id = t.Id, Name = t.Name }).ToList();
+            }
+
+            var learningStylesDtos = new List<PreferenceItemDto>();
+            var learningStyleIds = userProfile.UserLearningStyles?.Select(ls => ls.LearningStyleId).Distinct().ToList() ?? new List<int>();
+            if (learningStyleIds.Any())
+            {
+                var learningStyleEntities = await _registrationRepository.GetLearningStylesByIdsAsync(learningStyleIds);
+                learningStylesDtos = learningStyleEntities.Select(ls => new PreferenceItemDto { Id = ls.Id, Name = ls.Name }).ToList();
+            }
+
+            var teachingApproachesDtos = new List<PreferenceItemDto>();
+            var teachingApproachIds = userProfile.TeachingApproaches?.Select(ta => ta.TeachingApproachId).Distinct().ToList() ?? new List<int>();
+            if (teachingApproachIds.Any())
+            {
+                var teachingApproachEntities = await _registrationRepository.GetTeachingApproachesByIdsAsync(teachingApproachIds);
+                teachingApproachesDtos = teachingApproachEntities.Select(ta => new PreferenceItemDto { Id = ta.Id, Name = ta.Name }).ToList();
+            }
+
+            PreferenceItemDto? sessionFrequencyDto = null;
+            if (userProfile.SessionFrequencyId.HasValue)
+            {
+                var frequencyEntity = await _registrationRepository.GetSessionFrequencyByIdAsync(userProfile.SessionFrequencyId.Value);
+                if (frequencyEntity != null)
+                {
+                    sessionFrequencyDto = new PreferenceItemDto { Id = frequencyEntity.Id, Name = frequencyEntity.Name };
+                }
+            }
+
+            PreferenceItemDto? sessionDurationDto = null;
+            if (userProfile.SessionDurationId.HasValue)
+            {
+                var durationEntity = await _registrationRepository.GetSessionDurationByIdAsync(userProfile.SessionDurationId.Value);
+                if (durationEntity != null)
+                {
+                    sessionDurationDto = new PreferenceItemDto { Id = durationEntity.Id, Name = durationEntity.Name };
+                }
+            }
+
+            List<PreferenceItemDto>? finalLearningStylesDtos = null;
+            if (user.RoleId == 2) // Giả sử RoleId 2 là Learner
+            {
+                finalLearningStylesDtos = learningStylesDtos; // Chỉ gán nếu là Learner
+            }
+
+            List<PreferenceItemDto>? finalTeachingApproachesDtos = null;
+            if (user.RoleId == 3) // Giả sử RoleId 3 là Mentor
+            {
+                finalTeachingApproachesDtos = teachingApproachesDtos; // Chỉ gán nếu là Mentor
+            }
+
             var response = new UserPreferenceResponse
             {
                 UserId = userId,
-                TopicsOfInterest = userProfile.UserTopicOfInterests?.Select(t => t.TopicId).ToList() ?? new List<int>(),
-                SessionFrequency = userProfile.SessionFrequencyId,
-                SessionDuration = userProfile.SessionDurationId,
-                LearningStyles = userProfile.UserLearningStyles?.Select(ls => ls.LearningStyleId).ToList() ?? new List<int>(),
-                TeachingApproaches = userProfile.TeachingApproaches?.Select(ta => ta.TeachingApproachId).ToList() ?? new List<int>(),
+                TopicsOfInterest = topicsOfInterestDtos,
+                SessionFrequency = sessionFrequencyDto,
+                SessionDuration = sessionDurationDto,
+                LearningStyles = finalLearningStylesDtos,       // Sử dụng danh sách đã được điều chỉnh
+                TeachingApproaches = finalTeachingApproachesDtos, // Sử dụng danh sách đã được điều chỉnh
                 PrivacySettings = new UserPreferenceResponse.PrivacySettingsDto
                 {
                     Profile = userProfile.PrivacyProfile,

@@ -17,5 +17,10 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
         Task<Availability?> GetAvailabilityByIdAsync(int availabilityId);
         Task<IEnumerable<Availability>> GetAvailabilitiesByIdsAsync(IEnumerable<int> availabilityIds);
         Task<IEnumerable<CommunicationMethod>> GetCommunicationMethodsByIdsAsync(IEnumerable<int> ids);
+        Task<IEnumerable<Topic>> GetTopicsByIdsAsync(IEnumerable<int> ids);
+        Task<IEnumerable<LearningStyle>> GetLearningStylesByIdsAsync(IEnumerable<int> ids);
+        Task<IEnumerable<TeachingApproach>> GetTeachingApproachesByIdsAsync(IEnumerable<int> ids);
+        Task<SessionFrequency?> GetSessionFrequencyByIdAsync(int id);
+        Task<SessionDuration?> GetSessionDurationByIdAsync(int id);
     }
 }
