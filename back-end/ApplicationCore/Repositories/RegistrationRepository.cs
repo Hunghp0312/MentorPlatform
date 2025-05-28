@@ -84,7 +84,7 @@ namespace ApplicationCore.Repositories
             }
             return await _context.Set<CommunicationMethod>()
                                  .Where(cm => ids.Contains(cm.Id))
-                                 .ToListAsync(); // ToListAsync returns List<T> which implements IEnumerable<T>
+                                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Topic>> GetTopicsByIdsAsync(IEnumerable<int> ids)

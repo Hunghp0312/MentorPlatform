@@ -67,7 +67,13 @@ namespace ApplicationCore.Services
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 RoleId = request.SelectedRole,
-                StatusId = 2
+                StatusId = 2,
+                UserAreaOfExpertises = request.AreaOfExpertise?
+                .Where(aoeId => aoeId > 0)
+                    .Select(aoeId => new UserAreaOfExpertise
+                    {
+                        AreaOfExpertiseId = aoeId
+                    }).ToList() ?? new List<UserAreaOfExpertise>(),
             };
 
             var userProfile = new UserProfile
@@ -79,6 +85,7 @@ namespace ApplicationCore.Services
                 IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : request.SelectedRole == 2 ? request.IndustryExperience : null,
                 PhotoData = photoBytes,
                 PhoneNumber = request.PhoneNumber,
+
                 UserCommunicationMethods = request.CommunicationMethod?
                 .Where(cmId => cmId > 0)
                     .Select(cmId => new UserCommunicationMethod
@@ -234,15 +241,15 @@ namespace ApplicationCore.Services
             }
 
             List<PreferenceItemDto>? finalLearningStylesDtos = null;
-            if (user.RoleId == 2) // Giả sử RoleId 2 là Learner
+            if (user.RoleId == 2)
             {
-                finalLearningStylesDtos = learningStylesDtos; // Chỉ gán nếu là Learner
+                finalLearningStylesDtos = learningStylesDtos;
             }
 
             List<PreferenceItemDto>? finalTeachingApproachesDtos = null;
-            if (user.RoleId == 3) // Giả sử RoleId 3 là Mentor
+            if (user.RoleId == 3)
             {
-                finalTeachingApproachesDtos = teachingApproachesDtos; // Chỉ gán nếu là Mentor
+                finalTeachingApproachesDtos = teachingApproachesDtos;
             }
 
             var response = new UserPreferenceResponse
@@ -251,8 +258,8 @@ namespace ApplicationCore.Services
                 TopicsOfInterest = topicsOfInterestDtos,
                 SessionFrequency = sessionFrequencyDto,
                 SessionDuration = sessionDurationDto,
-                LearningStyles = finalLearningStylesDtos,       // Sử dụng danh sách đã được điều chỉnh
-                TeachingApproaches = finalTeachingApproachesDtos, // Sử dụng danh sách đã được điều chỉnh
+                LearningStyles = finalLearningStylesDtos,
+                TeachingApproaches = finalTeachingApproachesDtos,
                 PrivacySettings = new UserPreferenceResponse.PrivacySettingsDto
                 {
                     Profile = userProfile.PrivacyProfile,

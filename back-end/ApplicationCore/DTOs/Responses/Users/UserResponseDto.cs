@@ -1,8 +1,10 @@
 using Infrastructure.Entities;
 using Infrastructure.Entities.Enum;
+using ApplicationCore.DTOs.Responses.AreaOfExpertises;
 
 namespace ApplicationCore.DTOs.Responses.Users
 {
+
     public class UserResponseDto
     {
         public Guid Id { get; set; }
@@ -15,7 +17,7 @@ namespace ApplicationCore.DTOs.Responses.Users
         public DateTime? LastActiveDate { get; set; }
         public string? IndustryExperience { get; set; }
         public string? ProfessionalSkills { get; set; }
-        public List<string>? AreaOfExpertise { get; set; }
+        public List<AreaOfExpertiseResponse> AreaOfExpertise { get; set; } = null!;
         public bool HasMentorApplication { get; set; }
     }
 }
