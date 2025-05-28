@@ -86,7 +86,7 @@ const UserEditDialog = ({
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             className="mt-1 block w-full"
-            type={""}
+            type={""} // Assuming InputCustom handles type correctly or "" is a valid default
           />
         </div>
         <div>
@@ -185,8 +185,6 @@ const ListUser = () => {
       );
       setUsers(response.items);
       setTotalItems(response.totalItems);
-      // Update counts if you need to display them, e.g., in tabs
-      // setRoleCounts(response.counts);
     } catch (error) {
       const err = error as Error;
       toast.error(err.message || "Failed to load users");
@@ -267,13 +265,41 @@ const ListUser = () => {
     }
   };
 
+  // Helper function to get initials from full name
+  const getInitials = (name: string) => {
+    if (!name) return "";
+    const words = name.split(" ");
+    if (words.length === 1) {
+      return words[0].substring(0, 2).toUpperCase();
+    }
+    return words
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+  };
+
   const columns: DataColumn<UserType>[] = useMemo(
     () => [
       {
         header: "Full Name",
-        accessor: "fullName",
-        sortable: true, // Assuming CustomTable supports this
-        id: "fullName", // For sorting key
+        accessor: (row: UserType) => (
+          <div className="flex items-center">
+            {row.avatar ? (
+              <img
+                src={row.avatar}
+                alt={row.fullName}
+                className="w-8 h-8 rounded-full mr-3 object-cover" // Added object-cover
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full mr-3 bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-xs font-semibold text-gray-700 dark:text-gray-200">
+                {getInitials(row.fullName)}
+              </div>
+            )}
+            <span>{row.fullName}</span>
+          </div>
+        ),
+        sortable: true,
+        id: "fullName", // For sorting key (still sorts by the string name)
       },
       {
         header: "Email",
@@ -325,19 +351,28 @@ const ListUser = () => {
         accessor: (row: UserType) => (
           <div className="flex gap-2 items-center">
             <button
-              onClick={() => handleEditUser(row)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditUser(row);
+              }}
               title="Edit User"
               className="text-blue-500 hover:text-blue-700">
               <Edit3 className="w-4 h-4" />
             </button>
             <button
-              onClick={() => navigate(`/admin/users/${row.id}`)} // Or a dedicated view page
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/users/${row.id}`);
+              }}
               title="View Details"
               className="text-gray-500 hover:text-gray-700">
               <UserCog className="w-4 h-4" />
             </button>
             <button
-              onClick={() => navigate(`/admin/message/${row.id}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/message/${row.id}`);
+              }}
               title="Send Message"
               className="text-purple-500 hover:text-purple-700">
               <MessageSquare className="w-4 h-4" />
@@ -345,7 +380,8 @@ const ListUser = () => {
             {row.status.name === UserStatusName.ACTIVE ||
             row.status.name === UserStatusName.PENDING ? (
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   setSelectedUserForDeactivation(row);
                   setDeactivateModalOpen(true);
                 }}
@@ -355,7 +391,10 @@ const ListUser = () => {
               </button>
             ) : (
               <button
-                onClick={() => handleActivate(row.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleActivate(row.id);
+                }}
                 title="Activate User"
                 className="text-green-500 hover:text-green-700">
                 <CheckCircle className="w-4 h-4" />
@@ -371,16 +410,11 @@ const ListUser = () => {
   return (
     <main className="p-4 container mx-auto">
       {loading && !isSubmitting && <LoadingOverlay />}{" "}
-      {/* Show overlay for page load, not for submit loading */}
       <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             User Management
           </h1>
-          {/* Add "Invite User" or similar button if needed */}
-          {/* <Button variant="primary" size="md" onClick={() => {}}>
-            Invite User
-          </Button> */}
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -422,15 +456,14 @@ const ListUser = () => {
           data={users}
           columns={columns}
           keyField="id"
-          // actions={getActions} // If you adapt to a getActions pattern
           pagination
           pageSize={pageSize}
           setPageSize={setPageSize}
           pageIndex={pageIndex}
           setPageIndex={setPageIndex}
           totalItems={totalItems}
-          isLoading={loading && !isSubmitting} // Table loading state
-          // onSortChange={handleSort} // TODO: Implement sorting if CustomTable supports it
+          isLoading={loading && !isSubmitting}
+          // onRowClick={(row) => navigate(`/admin/users/${row.id}`)} // Example of onRowClick
         />
       </div>
       {/* Deactivation Confirmation Modal */}
@@ -459,7 +492,7 @@ const ListUser = () => {
           </Button>
         </div>
       </CustomModal>
-      {/* Edit User Modal - Uses placeholder UserEditDialog */}
+      {/* Edit User Modal */}
       {editModalOpen && initialDataForEdit && (
         <UserEditDialog
           isOpen={editModalOpen}
