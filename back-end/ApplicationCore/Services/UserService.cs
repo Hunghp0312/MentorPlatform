@@ -8,7 +8,7 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
-using Microsoft.AspNetCore.Http;
+
 
 
 namespace ApplicationCore.Services
@@ -33,36 +33,10 @@ namespace ApplicationCore.Services
                 predicate = predicate.And(u => u.RoleId == queryParameters.RoleId.Value);
             }
 
-            if (!string.IsNullOrEmpty(queryParameters.Status))
-            {
-                if (queryParameters.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
-                {
-                    predicate = predicate.And(u => u.StatusId == 2);
-                }
-                else if (queryParameters.Status.Equals("Active", StringComparison.OrdinalIgnoreCase))
-                {
-                    predicate = predicate.And(u => u.StatusId == 1);
-                }
-                else if (queryParameters.Status.Equals("Deactivated", StringComparison.OrdinalIgnoreCase))
-                {
-                    predicate = predicate.And(u => u.StatusId == 3);
-                }
-            }
-
-            if (!string.IsNullOrEmpty(queryParameters.SearchQuery))
-            {
-                var searchQuery = queryParameters.SearchQuery.ToLower();
-                predicate = predicate.And(u =>
-                    (u.UserProfile != null && u.UserProfile.FullName != null && u.UserProfile.FullName.ToLower().Contains(searchQuery)) ||
-                    (u.Email != null && u.Email.ToLower().Contains(searchQuery))
-                );
-            }
-
             var (users, totalCount) = await _userRepository.GetUsersWithDetailsAsync(
                 predicate,
                 queryParameters.PageIndex,
-                queryParameters.PageSize,
-                queryParameters.OrderBy
+                queryParameters.PageSize
             );
 
             var userResponseDtos = users.Select(user => new UserResponseDto
@@ -73,7 +47,13 @@ namespace ApplicationCore.Services
                 Role = user.Role,
                 Status = user.Status,
                 JoinDate = user.CreatedAt,
-                LastActiveDate = user.LastLogin
+                LastActiveDate = user.LastLogin,
+                IndustryExperience = user.UserProfile?.IndustryExperience,
+                ProfessionalSkills = user.UserProfile?.ProfessionalSkill,
+                AreaOfExpertise = user.UserAreaOfExpertises
+                    .Select(a => a.AreaOfExpertise?.Name ?? string.Empty)
+                    .Where(a => !string.IsNullOrEmpty(a))
+                    .ToList(),
             }).ToList();
 
             var pagedResult = new PagedResult<UserResponseDto>
@@ -97,7 +77,13 @@ namespace ApplicationCore.Services
                 Role = user.Role,
                 Status = user.Status,
                 JoinDate = user.CreatedAt,
-                LastActiveDate = user.LastLogin
+                LastActiveDate = user.LastLogin,
+                IndustryExperience = user.UserProfile?.IndustryExperience,
+                ProfessionalSkills = user.UserProfile?.ProfessionalSkill,
+                AreaOfExpertise = user.UserAreaOfExpertises
+                    .Select(a => a.AreaOfExpertise?.Name ?? string.Empty)
+                    .Where(a => !string.IsNullOrEmpty(a))
+                    .ToList()
             }).ToList();
             return OperationResult<IEnumerable<UserResponseDto>>.Ok(userDtos);
         }

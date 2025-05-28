@@ -20,8 +20,15 @@ namespace Presentation.Controllers
         {
             _userService = userService;
         }
+        [HttpGet("all")]
+        [ProducesResponseType(typeof(IEnumerable<UserResponseDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var result = await _userService.GetAllUsersAsync();
+            return ToActionResult(result);
+        }
 
-        [HttpGet]
+        [HttpGet("paged")]
         [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters queryParameters)
