@@ -7,6 +7,7 @@ namespace ApplicationCore.DTOs.Common
         private int _pageSize = 10;
         private int _pageIndex = 1;
 
+
         public int PageIndex
         {
             get => _pageIndex;

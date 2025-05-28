@@ -14,13 +14,14 @@ using Infrastructure.Data.Context;
 using Infrastructure.Options;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Presentation.Configurations;
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddCors();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -33,7 +34,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 var configuration = builder.Configuration;
-//Add JWT authentication
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -55,17 +56,28 @@ builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRegistrationRepository, RegistrationRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddTransient<ISendEmailService, SendEmailService>();
-
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IAuthenticateService, AuthenticateService>();    
-
+builder.Services.AddScoped<IAuthenticateService, AuthenticateService>();
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<IMentorService, MentorService>();
 builder.Services.AddScoped<IMentorRepository, MentorRepository>();
+builder.Services.AddScoped<IMentorWorkExperienceRepository, MentorWorkExperienceRepository>();
+builder.Services.AddScoped<IMentorEducationRepository, MentorEducationRepository>();
+builder.Services.AddScoped<IMentorCertificationRepository, MentorCertificationRepository>();
+builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository>();
+builder.Services.AddScoped<ISupportingDocumentService, SupportingDocumentService>();
+builder.Services.AddScoped<
+   ISupportingDocumentRepository, SupportingDocumentRepository>();
+builder.Services.AddScoped<IDocumentContentService, DocumentContentService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);
 builder
@@ -107,7 +119,10 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
-
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 6 * 1024 * 1024;
+});
 var app = builder.Build();
 app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 app.UseSwagger();

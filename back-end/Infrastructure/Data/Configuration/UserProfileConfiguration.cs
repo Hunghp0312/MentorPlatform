@@ -1,4 +1,5 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Data.Seeding;
+using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -23,19 +24,14 @@ namespace Infrastructure.Data.Configuration
             builder.Property(up => up.FullName).HasMaxLength(200).IsRequired(false);
             builder.Property(up => up.Bio).HasMaxLength(1000).IsRequired(false);
             builder.Property(up => up.ProfessionalSkill).HasMaxLength(1000).IsRequired(false);
-            builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false);
-            builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
+            builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false); builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
+            builder.Property(up => up.SessionFrequencyId);
+            builder.Property(up => up.SessionDurationId);
+            // builder.Property(up => up.PrivacyProfile).IsRequired().HasDefaultValue(true);
+            // builder.Property(up => up.MessagePermission).IsRequired().HasDefaultValue(true);
+            // builder.Property(up => up.NotificationsEnabled).IsRequired().HasDefaultValue(true);
 
-            builder.Property(up => up.AvailabilityData).IsRequired(false);
-            builder.Property(up => up.SessionFrequency).IsRequired(false);
-            builder.Property(up => up.SessionDuration).IsRequired(false);
-            builder.Property(up => up.LearningStyle).IsRequired(false);
-            builder.Property(up => up.TeachingApproach).IsRequired(false);
-            builder.Property(up => up.CommunicationMethod).IsRequired(false);
-
-            builder.Property(up => up.PrivacyProfile).IsRequired().HasDefaultValue(true);
-            builder.Property(up => up.MessagePermission).IsRequired().HasDefaultValue(true);
-            builder.Property(up => up.NotificationsEnabled).IsRequired().HasDefaultValue(true);
+            builder.HasData(UserProfileSeeding.SeedUserProfiles());
         }
     }
 }

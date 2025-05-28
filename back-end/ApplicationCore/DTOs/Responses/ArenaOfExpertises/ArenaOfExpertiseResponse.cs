@@ -1,7 +1,6 @@
-
-namespace ApplicationCore.DTOs.Responses.ArenaOfExpertises
+namespace ApplicationCore.DTOs.Responses.AreaOfExpertises
 {
-    public class ArenaOfExpertiseResponse
+    public class AreaOfExpertiseResponse
     {
         public string Name { get; set; } = string.Empty;
     }

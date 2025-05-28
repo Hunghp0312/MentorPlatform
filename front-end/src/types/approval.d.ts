@@ -1,26 +1,43 @@
+import { admin } from "./admin";
+import { User } from "./user";
+import { ApplicationStatus } from "./mentorapplication";
+import {
+  MentorEducation,
+  MentorWorkExperience,
+  MentorCertification,
+} from "./mentorapplication";
 // src/types/approval.ts
 export interface ApprovalType {
-  id: string | number;
+  id: string;
   name: string;
   email: string;
-  expertiseAreas: string[]; // For detailed view
-  status: "pending" | "approved" | "rejected"; // 1 = Pending, 2 = Approved
+  expertiseAreas: string[];
+  status: string;
   submittedDate: string;
   profileImage: string;
   experience: string;
-  documents: { name: string; type: "PDF" | "JPG"; url: string }[];
-  adminNotes?: string;
+  documents: { type: string; name: string; url: string }[];
+}
+export interface MentorApplicationResponse {
+  applicantId: string;
+  applicationStatus?: ApplicationStatus;
+  adminReviewer?: admin;
+  submissionDate?: string;
+  requestInfoDate?: string;
+  lastStatusUpdateDate?: string; // ISO string for DateTime
+  adminComments?: string;
+  rejectionReason?: string;
+  approvalDate?: string; // ISO string for DateTime
+  applicant?: User;
+  mentorEducations?: MentorEducation[];
+  mentorWorkExperiences?: MentorWorkExperience[];
+  mentorCertifications?: MentorCertification[];
+  supportingDocuments?: SupportingDocument;
 }
 
-// export interface ApprovalCreateType {
-//   name: string;
-//   email: string;
-//   profileImage: string;
-//   //skills: string;
-//   expertiseAreas: string[];
-//   professionalExperience: string;
-//   status: "pending" | "approved" | "rejected";
-//   submittedDate: string;
-//   documents: { name: string; type: "PDF" | "JPG"; url: string }[];
-//   adminNotes?: string;
-// }
+export interface MentorUpdateStatusRequest {
+  mentorId: string; // Guid được biểu diễn dưới dạng string trong TypeScript
+  statusId: number;
+  adminComments?: string;
+  adminReviewerId?: string; // Guid được biểu diễn dưới dạng string
+}

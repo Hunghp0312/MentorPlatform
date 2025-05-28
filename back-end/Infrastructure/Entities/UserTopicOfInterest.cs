@@ -1,11 +1,12 @@
-﻿namespace Infrastructure.Entities
+﻿using Infrastructure.Entities.Enum;
+
+namespace Infrastructure.Entities
 {
     public class UserTopicOfInterest
     {
-        public Guid UserId { get; set; }
-        public Guid TopicId { get; set; }
-
-        public virtual User User { get; set; } = null!;
+        public Guid UserProfileId { get; set; }
+        public int TopicId { get; set; }
+        public virtual UserProfile UserProfile { get; set; } = null!;
         public virtual Topic Topic { get; set; } = null!;
     }
 }
