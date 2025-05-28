@@ -101,18 +101,18 @@ namespace ApplicationCore.Extensions
                 ProfessionalSkill = userProfile.ProfessionalSkill,
                 IndustryExperience = userProfile.IndustryExperience,
                 PhotoData = userProfile.PhotoData != null ? Convert.ToBase64String(userProfile.PhotoData) : string.Empty,
-                CommunicationMethod = userProfile.CommunicationMethod,
+                CommunicationMethod = userProfile.UserCommunicationMethods?.Select(cm => cm.CommunicationMethod?.Name ?? string.Empty).FirstOrDefault() ?? string.Empty,
                 SessionFrequency = userProfile.SessionFrequency != null ? userProfile.SessionFrequency.Name : string.Empty,
                 SessionDuration = userProfile.SessionDuration != null ? userProfile.SessionDuration.Name : string.Empty,
-                PrivacyProfile = userProfile.PrivacyProfile,
-                MessagePermission = userProfile.MessagePermission,
-                NotificationsEnabled = userProfile.NotificationsEnabled,
-                TeachingApproaches = userProfile.TeachingApproaches.Select(ta => ta.TeachingApproach.Name).ToList(),
-                UserProfileAvailabilities = userProfile.UserProfileAvailabilities.Select(ua => ua.Availability.Name).ToList(),
-                UserTopicOfstringerests = userProfile.UserTopicOfInterests.Select(uti => uti.Topic.Name).ToList(),
-                UserLearningStyles = userProfile.UserLearningStyles.Select(uls => uls.LearningStyle.Name).ToList(),
-                UserGoal = userProfile.UserGoal,
-                UserAreaExpertises = userProfile.User.UserArenaOfExpertises.Select(uae => uae.AreaOfExpertise.Name).ToList()
+                PrivacyProfile = userProfile.PrivacyProfile ?? false,
+                MessagePermission = userProfile.MessagePermission ?? false,
+                NotificationsEnabled = userProfile.NotificationsEnabled ?? false,
+                TeachingApproaches = userProfile.TeachingApproaches?.Select(ta => ta.TeachingApproach?.Name ?? string.Empty).ToList() ?? new List<string>(),
+                UserProfileAvailabilities = userProfile.UserProfileAvailabilities?.Select(ua => ua.Availability?.Name ?? string.Empty).ToList() ?? new List<string>(),
+                UserTopicOfstringerests = userProfile.UserTopicOfInterests?.Select(uti => uti.Topic?.Name ?? string.Empty).ToList() ?? new List<string>(),
+                UserLearningStyles = userProfile.UserLearningStyles?.Select(uls => uls.LearningStyle?.Name ?? string.Empty).ToList() ?? new List<string>(),
+                UserGoal = userProfile.UserGoal ?? string.Empty,
+                UserAreaExpertises = userProfile.User?.UserAreaOfExpertises?.Select(uae => uae.AreaOfExpertise?.Name ?? string.Empty).ToList() ?? new List<string>()
             };
         }
         public static async Task UpdateFromDtoAsync(this UserProfile userProfile, UpdateUserProfileRequestDto dto, User userEntity)
@@ -159,7 +159,15 @@ namespace ApplicationCore.Extensions
             userProfile.PrivacyProfile = dto.PrivacyProfile;
             userProfile.MessagePermission = dto.MessagePermission;
             userProfile.NotificationsEnabled = dto.NotificationsEnabled;
-            userProfile.CommunicationMethod = dto.CommunicationMethod != 0 ? dto.CommunicationMethod : userProfile.CommunicationMethod;
+            if (dto.CommunicationMethod != 0)
+            {
+                userProfile.UserCommunicationMethods.Clear();
+                userProfile.UserCommunicationMethods.Add(new UserCommunicationMethod
+                {
+                    UserProfileId = userProfile.Id,
+                    CommunicationMethodId = dto.CommunicationMethod
+                });
+            }
 
             if (dto.UserAreaExpertises != null)
                 UpdateUserAreaExpertises(userEntity, dto.UserAreaExpertises);
@@ -217,7 +225,7 @@ namespace ApplicationCore.Extensions
                 {
                     userProfile.UserTopicOfInterests.Add(new UserTopicOfInterest
                     {
-                        UserId = userProfile.Id,
+                        UserProfileId = userProfile.Id,
                         TopicId = id
                     });
                 }
@@ -275,7 +283,7 @@ namespace ApplicationCore.Extensions
                 {
                     userProfile.TeachingApproaches.Add(new MentorTeachingApproach
                     {
-                        UserId = userProfile.Id,
+                        UserProfileId = userProfile.Id,
                         TeachingApproachId = id
                     });
                 }
@@ -287,22 +295,22 @@ namespace ApplicationCore.Extensions
             var newIds = areaExpertiseIds.ToList();
 
             // Find items to remove
-            var toRemove = userEntity.UserArenaOfExpertises
+            var toRemove = userEntity.UserAreaOfExpertises
                 .Where(a => !newIds.Contains(a.AreaOfExpertiseId))
                 .ToList();
 
             // Remove items
             foreach (var item in toRemove)
             {
-                userEntity.UserArenaOfExpertises.Remove(item);
+                userEntity.UserAreaOfExpertises.Remove(item);
             }
 
             // Find and add new items
             foreach (var id in newIds)
             {
-                if (!userEntity.UserArenaOfExpertises.Any(a => a.AreaOfExpertiseId == id))
+                if (!userEntity.UserAreaOfExpertises.Any(a => a.AreaOfExpertiseId == id))
                 {
-                    userEntity.UserArenaOfExpertises.Add(new UserAreaOfExpertise
+                    userEntity.UserAreaOfExpertises.Add(new UserAreaOfExpertise
                     {
                         UserId = userEntity.Id,
                         AreaOfExpertiseId = id
@@ -311,6 +319,5 @@ namespace ApplicationCore.Extensions
             }
         }
 
-        // The UpdateCollection method can be removed as it's no longer needed
     }
 }

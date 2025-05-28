@@ -16,7 +16,7 @@ namespace ApplicationCore.Repositories
         {
             return await _dbSet
                 .Include(up => up.User)
-                .ThenInclude(up => up.UserArenaOfExpertises)
+                .ThenInclude(up => up.UserAreaOfExpertises)
                 .ThenInclude(x => x.AreaOfExpertise)
                 .Include(up => up.TeachingApproaches)
                 .ThenInclude(ta => ta.TeachingApproach)
