@@ -1,5 +1,3 @@
-using Infrastructure.Entities.Enum;
-
 namespace ApplicationCore.DTOs.Responses.Users
 {
     public class UserResponseDto

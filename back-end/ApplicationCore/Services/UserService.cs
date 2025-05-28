@@ -10,15 +10,18 @@ using Infrastructure.Data;
 using Infrastructure.Entities;
 
 
+
 namespace ApplicationCore.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserProfileRepository _userProfileRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IUserProfileRepository userProfileRepository)
         {
+            _userProfileRepository = userProfileRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
         }
@@ -168,9 +171,26 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(userResponseDto);
         }
 
-        public Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto)
+        public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto)
         {
-            throw new NotImplementedException();
+            var userProfile = await _userProfileRepository.GetByIdAsync(requestDto.Id);
+
+            if (userProfile == null)
+            {
+                return OperationResult<UserProfileResponseDto>.NotFound($"UserProfile with ID {requestDto.Id} not found.");
+            }
+
+            await userProfile.UpdateFromDtoAsync(requestDto, userProfile.User);
+            _userProfileRepository.Update(userProfile);
+            await _unitOfWork.SaveChangesAsync();
+            
+            var updatedUserProfile = await _userProfileRepository.GetByIdAsync(requestDto.Id);
+            if (updatedUserProfile == null)
+            {
+                return OperationResult<UserProfileResponseDto>.NotFound($"UserProfile with ID {requestDto.Id} not found after update.");
+            }
+            var response = updatedUserProfile.ToUserProfileResponseDto();
+            return OperationResult<UserProfileResponseDto>.Ok(response);
         }
     }
 }
