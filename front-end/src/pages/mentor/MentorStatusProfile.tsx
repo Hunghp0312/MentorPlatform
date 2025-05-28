@@ -757,7 +757,7 @@ const MentorStatusProfile = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
           Documents
-          {mentorData.mentorDocuments.length < 5 && (
+          {isEditing && mentorData.mentorDocuments.length < 5 && (
             <button
               id="open-file-explorer-icon"
               onClick={() => handleOpenFileExplorer()}
@@ -791,20 +791,22 @@ const MentorStatusProfile = () => {
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <button
-                    id={`view-document-icon-${index}`}
-                    onClick={() =>
-                      handleViewDocument(
-                        document.documentContent?.fileContent || "",
-                        document.fileType
-                      )
-                    }
-                  >
-                    <Eye
-                      size={20}
-                      className="text-blue-500 hover:text-blue-600"
-                    />
-                  </button>
+                  {mentorData.status !== "" && (
+                    <button
+                      id={`view-document-icon-${index}`}
+                      onClick={() =>
+                        handleViewDocument(
+                          document.documentContent?.fileContent || "",
+                          document.fileType
+                        )
+                      }
+                    >
+                      <Eye
+                        size={20}
+                        className="text-blue-500 hover:text-blue-600"
+                      />
+                    </button>
+                  )}
                   {isEditing && (
                     <button
                       id={`remove-document-icon-${index}`}
@@ -841,7 +843,14 @@ const MentorStatusProfile = () => {
             <button
               id="edit-application-button"
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
+              className={`px-4 py-2 rounded-md transition-colors ${
+                mentorData.status === "" || mentorData.status === "Request Info"
+                  ? "bg-orange-500 hover:bg-orange-600 text-white"
+                  : "bg-gray-700 text-gray-400 cursor-not-allowed"
+              }`}
+              disabled={
+                mentorData.status !== "" && mentorData.status !== "Request Info"
+              }
             >
               Edit Application
             </button>
@@ -1032,14 +1041,14 @@ const MentorStatusProfile = () => {
                 id="submit-application-button"
                 onClick={() => handleSubmitApplication()}
                 className={`px-4 py-2 rounded-md transition-colors ${
-                  mentorData.status === "Approved" ||
-                  mentorData.status === "Rejected"
-                    ? "bg-orange-700 text-gray-400 cursor-not-allowed"
-                    : "bg-orange-500 hover:bg-orange-600 text-white"
+                  mentorData.status === "" ||
+                  mentorData.status === "Request Info"
+                    ? "bg-orange-500 hover:bg-orange-600 text-white"
+                    : "bg-gray-700 text-gray-400 cursor-not-allowed"
                 }`}
                 disabled={
-                  mentorData.status === "Approved" ||
-                  mentorData.status === "Rejected"
+                  mentorData.status !== "" &&
+                  mentorData.status !== "Request Info"
                 }
               >
                 Submit

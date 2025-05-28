@@ -34,9 +34,9 @@ interface ApprovalType {
   createdAt: string;
   updatedAt: string | null;
   expertiseAreas: ExpertiseArea[];
-  workExperienceDetails: MentorWorkExperience[];
-  certifications: MentorCertification[];
-  educationDetails: MentorEducation[];
+  mentorWorkExperiences: MentorWorkExperience[];
+  mentorCertifications: MentorCertification[];
+  mentorEducations: MentorEducation[];
   professionExperience: string;
   applicationTimeline: string;
   documents: SupportingDocument[];
@@ -131,7 +131,17 @@ const ListApproval = () => {
       const res = await approvalService.getMentorApplicationDetail(
         mentorApplicationId
       );
-      setSelectedApproval(res);
+      setSelectedApproval({
+        ...res,
+        documents: res.documents.map((doc: SupportingDocument) => ({
+          ...doc,
+          documentContent: {
+            fileName: doc.fileName,
+            fileType: doc.fileType,
+            fileContent: doc.documentContent?.fileContent || "",
+          },
+        })),
+      });
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -388,9 +398,21 @@ const ListApproval = () => {
     }
   };
 
-  const handleSelectApplicants = (approval: ApprovalType) => {
-    fetchApplicationDetail(approval.applicantUserId);
-    setAdminNotes(""); // Reset admin notes when selecting a new applicant
+  const handleSelectApplicants = async (approval: ApprovalType) => {
+    try {
+      setIsLoading(true);
+      await fetchApplicationDetail(approval.applicantUserId);
+      setAdminNotes(""); // Reset admin notes when selecting a new applicant
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        handleAxiosError(error);
+      } else {
+        console.error("Error fetching application detail:", error);
+        toast.error("Failed to load application details");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSearch = (
@@ -420,8 +442,8 @@ const ListApproval = () => {
       <div>
         <h4 className="text-sm font-medium text-gray-400">Education(s)</h4>
         <div className="bg-gray-700 p-1 rounded-lg">
-          {selectedApproval?.educationDetails.length != 0 ? (
-            selectedApproval?.educationDetails.map((education, index) => (
+          {selectedApproval?.mentorEducations.length != 0 ? (
+            selectedApproval?.mentorEducations.map((education, index) => (
               <div
                 key={index}
                 className="flex justify-between py-1 border-b-1 border-gray-500 last:border-b-0"
@@ -451,8 +473,8 @@ const ListApproval = () => {
           Work Experience(s)
         </h4>
         <div className="bg-gray-700 p-1 rounded-lg">
-          {selectedApproval?.workExperienceDetails.length != 0 ? (
-            selectedApproval?.workExperienceDetails.map((experience, index) => (
+          {selectedApproval?.mentorWorkExperiences.length != 0 ? (
+            selectedApproval?.mentorWorkExperiences.map((experience, index) => (
               <div
                 key={index}
                 className="flex justify-between py-1 border-b-1 border-gray-500 last:border-b-0"
@@ -485,8 +507,8 @@ const ListApproval = () => {
       <div>
         <h3 className="text-sm font-medium text-gray-400">Certification(s)</h3>
         <div className="bg-gray-700 p-1 rounded-lg">
-          {selectedApproval?.certifications?.length != 0 ? (
-            selectedApproval?.certifications.map((certificate, index) => (
+          {selectedApproval?.mentorCertifications?.length != 0 ? (
+            selectedApproval?.mentorCertifications.map((certificate, index) => (
               <div
                 key={index}
                 className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
@@ -739,12 +761,14 @@ const ListApproval = () => {
                             ))}
                         </div>
                       </div>
-                      <ExpandProfileSettings
-                        title="Additional Profile"
-                        additionalSettings={additionalSettingsContent}
-                        isExpanded={isExpanded}
-                        onToggle={() => setIsExpanded((prev) => !prev)}
-                      />
+                      {selectedApproval && (
+                        <ExpandProfileSettings
+                          title="Additional Profile"
+                          additionalSettings={additionalSettingsContent}
+                          isExpanded={isExpanded}
+                          onToggle={() => setIsExpanded((prev) => !prev)}
+                        />
+                      )}
                       <div className="mt-4">
                         <h4 className="text-sm font-medium text-gray-400">
                           Uploaded Documents
