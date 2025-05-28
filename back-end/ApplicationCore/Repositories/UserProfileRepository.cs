@@ -28,7 +28,6 @@ namespace ApplicationCore.Repositories
                 .ThenInclude(uls => uls.LearningStyle)
                 .Include(up => up.SessionFrequency)
                 .Include(up => up.SessionDuration)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(up => up.Id == id);
         }
     }

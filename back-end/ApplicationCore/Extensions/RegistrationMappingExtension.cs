@@ -117,7 +117,6 @@ namespace ApplicationCore.Extensions
             userProfile.IndustryExperience = dto.IndustryExperience ?? userProfile.IndustryExperience;
             userProfile.UserGoal = dto.UserGoal ?? userProfile.UserGoal;
 
-            // Convert image to base64 string and store in PhotoData
             if (dto.PhotoData != null && dto.PhotoData.Length > 0)
             {
                 using (var ms = new MemoryStream())
@@ -241,7 +240,8 @@ namespace ApplicationCore.Extensions
 
             if (dto.UserAreaExpertises != null)
             {
-                var areasToRemove = userEntity.UserArenaOfExpertises
+                var userAreaExpertises = userEntity.UserArenaOfExpertises.ToList() ?? new List<UserAreaOfExpertise>();
+                var areasToRemove = userAreaExpertises
                     .Where(a => !dto.UserAreaExpertises.Contains(a.AreaOfExpertiseId))
                     .ToList();
 
@@ -252,7 +252,7 @@ namespace ApplicationCore.Extensions
 
                 foreach (var areaId in dto.UserAreaExpertises)
                 {
-                    if (!userEntity.UserArenaOfExpertises.Any(a => a.AreaOfExpertiseId == areaId))
+                    if (!userAreaExpertises.Any(a => a.AreaOfExpertiseId == areaId))
                     {
                         userEntity.UserArenaOfExpertises.Add(new UserAreaOfExpertise
                         {
