@@ -8,6 +8,10 @@ import {
   UserUpdateType,
 } from "../types/userRole.d";
 
+// const UserRoleService = {
+//   async GetUser() {},
+// };
+
 const mockUsers: UserType[] = [
   {
     id: "1",
