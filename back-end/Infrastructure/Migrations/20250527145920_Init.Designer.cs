@@ -12,15 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-<<<<<<<< HEAD:back-end/Infrastructure/Migrations/20250527130031_Initial.Designer.cs
-    [Migration("20250527130031_Initial")]
-    partial class Initial
-========
+
     [Migration("20250527145920_Init")]
     partial class Init
->>>>>>>> approval-and-update-for-mentor-fe:back-end/Infrastructure/Migrations/20250527145920_Init.Designer.cs
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

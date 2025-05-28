@@ -6,14 +6,9 @@
 
 namespace Infrastructure.Migrations
 {
-    /// <inheritdoc />
-<<<<<<<< HEAD:back-end/Infrastructure/Migrations/20250527130031_Initial.cs
+
     public partial class Initial : Migration
-========
-    public partial class Init : Migration
->>>>>>>> approval-and-update-for-mentor-fe:back-end/Infrastructure/Migrations/20250527145920_Init.cs
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
