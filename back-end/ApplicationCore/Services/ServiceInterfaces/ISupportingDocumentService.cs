@@ -9,5 +9,8 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<SupportingDocumentResponse>> UploadFileAsync(
           IFormFile? file, Guid applicantId
       );
+        Task<OperationResult<SupportingDocumentResponse>> DeleteFileAsync(
+            Guid applicantId, Guid fileId
+      );
     }
 }

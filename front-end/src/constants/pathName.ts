@@ -7,5 +7,5 @@ export const pathName = {
   approval: "/approval",
   resetPassword: "/reset-password",
   forgotPassword: "/forgot-passord",
-  githubCallback: "/auth/github/callback",
+  oauthcallback: "/oauth-callback",
 };

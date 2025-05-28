@@ -1,40 +1,61 @@
 export enum Role {
-  Learner = "Learner",
-  Mentor = "Mentor",
+  Admin = 1,
+  Learner = 2,
+  Mentor = 3,
 }
 
 export enum CommunicationMethod {
-  VideoCall = "Video Call",
-  AudioCall = "Audio Call",
-  TextChat = "Text Chat",
+  VideoCall = 1,
+  AudioCall = 2,
+  TextChat = 3,
 }
 
 export enum SessionFrequencyOption {
-  Weekly = "Weekly",
-  Biweekly = "Every two weeks",
-  Monthly = "Monthly",
-  AsNeeded = "As needed",
+  Weekly = 1,
+  Biweekly = 2,
+  Monthly = 3,
+  AsNeeded = 4,
 }
 
 export enum SessionDurationOption {
-  HalfHour = "30 minutes",
-  OneHour = "1 hour",
-  OneAndHalfHour = "1.5 hours",
-  TwoHours = "2 hours",
+  HalfHour = 1,
+  FortyFiveMinutes = 2,
+  OneHour = 3,
+  OneAndHalfHour = 4,
+  TwoHours = 5,
 }
 
 export enum LearningStyleOption {
-  Visual = "Visual",
-  Auditory = "Auditory",
-  ReadingWriting = "Reading/Writing",
-  Kinesthetic = "Kinesthetic",
+  Visual = 1,
+  Auditory = 2,
+  ReadingWriting = 3,
+  Kinesthetic = 4,
 }
 
 export enum TeachingApproachOption {
-  HandsOn = "Hands-On",
-  TheoryBased = "Theory Based",
-  ProjectLedMentoring = "Project-Led Mentoring",
-  StepByStepTutorials = "StepByStepTutorials",
+  HandsOn = 1,
+  TheoryBased = 2,
+  ProjectLedMentoring = 3,
+  StepByStepTutorials = 4,
+}
+
+export enum ArenaOfExpertise {
+  Leadership = 1,
+  Programming = 2,
+  Design = 3,
+  Marketing = 4,
+  DataScience = 5,
+  Business = 6,
+  ProjectManagement = 7,
+  Communication = 8,
+}
+
+export enum Availability {
+  Weekdays = 1,
+  Weekends = 2,
+  Mornings = 3,
+  Afternoons = 4,
+  Evenings = 5,
 }
 
 export interface AccountDetails {
@@ -42,16 +63,47 @@ export interface AccountDetails {
   password: string;
 }
 
+export enum TopicOfInterest {
+  CareerDevelopment = 1,
+  TechnicalSkills = 2,
+  Leadership = 3,
+  Communication = 4,
+  WorkLifeBalance = 5,
+  IndustryInsights = 6,
+  Networking = 7,
+  Entrepreneurship = 8,
+}
+
+export interface CreateProfileResponse {
+  userId: string;
+  email: string;
+  fullName: string;
+  role: {
+    id: number;
+    name: string;
+  };
+  bio: string;
+  photoData: string;
+  phoneNumber: string;
+  expertiseAreas: string[];
+  professionalSkills: string;
+  industryExperience: string;
+  availability: string[];
+  communicationMethods: string[];
+  userGoals: string;
+}
+
 export interface SharedProfileDetails {
   fullName: string;
   bio: string;
+  contact: string;
   profilePictureUrl?: string;
   profilePictureFile?: File | null;
-  expertise: string[];
-  skills?: string[];
+  expertise: ArenaOfExpertise[];
+  skills?: string;
   industryExperience?: string;
-  availability: string[];
-  preferredCommunication: CommunicationMethod;
+  availability: Availability[];
+  preferredCommunication: CommunicationMethod[];
 }
 
 export interface LearnerDetails {
@@ -64,7 +116,7 @@ export interface MentorDetails {
 }
 
 export interface UserPreferences {
-  interestedTopics: string[];
+  interestedTopics: TopicOfInterest[];
   sessionFrequency: SessionFrequencyOption;
   sessionDuration: SessionDurationOption;
   goal: string;
@@ -99,12 +151,13 @@ const baseAccount: AccountDetails = {
 const baseProfile: SharedProfileDetails = {
   fullName: "",
   bio: "",
+  contact: "",
   profilePictureFile: null,
   expertise: [],
-  skills: [],
+  skills: "",
   industryExperience: "",
   availability: [],
-  preferredCommunication: CommunicationMethod.VideoCall,
+  preferredCommunication: [CommunicationMethod.VideoCall],
 };
 
 const basePreferences: UserPreferences = {
