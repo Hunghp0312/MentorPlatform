@@ -19,7 +19,7 @@ namespace ApplicationCore.DTOs.Responses.Users
         public bool PrivacyProfile { get; set; } = true;
         public bool MessagePermission { get; set; } = true;
         public bool NotificationsEnabled { get; set; } = true;
-        public required int CommunicationMethod { get; set; }
+        public required string CommunicationMethod { get; set; }
         public List<string> UserAreaExpertises { get; set; } = new List<string>();
     }
 }

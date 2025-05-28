@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices.Marshalling;
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
@@ -9,9 +8,6 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
-using Microsoft.EntityFrameworkCore;
-
-
 
 namespace ApplicationCore.Services
 {
@@ -174,19 +170,19 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(userResponseDto);
         }
 
-        public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto)
+        public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto)
         {
             try
             {
-                var userProfile = await _userProfileRepository.GetByIdAsync(requestDto.Id);
+                var userProfile = await _userProfileRepository.GetByIdAsync(userProfileId);
                 if (userProfile == null)
                 {
-                    return OperationResult<UserProfileResponseDto>.NotFound($"User profile with ID {requestDto.Id} not found.");
+                    return OperationResult<UserProfileResponseDto>.NotFound($"User profile with ID {userProfileId} not found.");
                 }
                 await userProfile.UpdateFromDtoAsync(requestDto, userProfile.User);
                 _userProfileRepository.Update(userProfile);
                 await _unitOfWork.SaveChangesAsync();
-                var updatedUserProfile = await _userProfileRepository.GetByIdAsync(requestDto.Id);
+                var updatedUserProfile = await _userProfileRepository.GetByIdAsync(userProfileId);
                 if (updatedUserProfile == null)
                 {
                     return OperationResult<UserProfileResponseDto>.NotFound("Failed to retrieve updated user profile.");

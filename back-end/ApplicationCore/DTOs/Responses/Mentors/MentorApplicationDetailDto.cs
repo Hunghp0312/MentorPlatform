@@ -1,4 +1,4 @@
-using ApplicationCore.DTOs.Responses.ArenaOfExpertises;
+using ApplicationCore.DTOs.Responses.AreaOfExpertises;
 using ApplicationCore.DTOs.Responses.MentorCertifications;
 using ApplicationCore.DTOs.Responses.MentorEducations;
 using ApplicationCore.DTOs.Responses.MentorWorkExperiences;
@@ -19,7 +19,7 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public string? RejectionReason { get; set; }
         public DateTime? ApprovalDate { get; set; }
         public string? RequestInfoDate { get; set; }
-        public ICollection<ArenaOfExpertiseResponse> ExpertiseAreas { get; set; } = [];
+        public ICollection<AreaOfExpertiseResponse> ExpertiseAreas { get; set; } = [];
         public required string ProfessionExperience { get; set; }
         public List<SupportingDocumentResponse>? Documents { get; set; }
         public List<MentorEducationReponse> MentorEducations { get; set; } = new List<MentorEducationReponse>();

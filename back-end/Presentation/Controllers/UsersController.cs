@@ -2,11 +2,9 @@ using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Users;
 using ApplicationCore.DTOs.Responses.Users;
 using ApplicationCore.Services.ServiceInterfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ApplicationCore.Common;
 using ApplicationCore.DTOs.QueryParameters;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Presentation.Controllers
 {
@@ -53,13 +51,14 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpPut("{userId}/profile")]
+        [HttpPut("{userProfileId}/profile")]
+        [Authorize]
         [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateUserProfile(Guid userId, [FromForm] UpdateUserProfileRequestDto request)
+        public async Task<IActionResult> UpdateUserProfile(Guid userProfileId,[FromForm] UpdateUserProfileRequestDto request)
         {
-            var result = await _userService.UpdateUserProfile(request);
+            var result = await _userService.UpdateUserProfile(userProfileId,request);
             return ToActionResult(result);
         }
     }
