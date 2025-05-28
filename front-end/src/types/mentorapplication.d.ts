@@ -6,8 +6,8 @@ export interface MentorCertification {
 export interface MentorWorkExperience {
   companyName: string;
   position: string;
-  startDate: string; // ISO string for DateTime
-  endDate: string | null; // ISO string for DateTime
+  startDate: string;
+  endDate: string | null;
 }
 
 export interface MentorEducation {
@@ -20,10 +20,9 @@ export interface MentorCreateApplication {
   mentorEducations: MentorEducation[];
   mentorWorkExperiences: MentorWorkExperience[];
   mentorCertifications: MentorCertification[];
-  //mentorDocuments: SupportingDocument[];
 }
 export interface SupportingDocument {
-  id?: string; // Thêm id để lưu fileId (GUID từ BE)
+  id?: string;
   fileName: string;
   fileType: string;
   fileSize: number;

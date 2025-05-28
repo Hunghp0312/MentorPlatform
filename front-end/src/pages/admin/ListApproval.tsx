@@ -9,7 +9,6 @@ import { approvalService } from "../../services/approval.service";
 import { handleAxiosError } from "../../utils/handlerError";
 import { AxiosError } from "axios";
 import { MentorUpdateStatusRequest } from "../../types/approval";
-import { userService } from "../../services/user.service";
 import {
   MentorCertification,
   MentorEducation,
@@ -40,7 +39,7 @@ interface ApprovalType {
   educationDetails: MentorEducation[];
   professionExperience: string;
   applicationTimeline: string;
-  documents: SupportingDocument;
+  documents: SupportingDocument[];
   status: "Pending" | "Approved" | "Rejected" | "Request Info";
 }
 interface ExpertiseArea {
@@ -77,25 +76,6 @@ const ListApproval = () => {
     fileType: string;
   } | null>(null);
   const [isFetching, setIsFetching] = useState(false);
-  // const statusOptions = [
-  //   { value: "", label: "All" },
-  //   { value: "pending", label: "Pending" },
-  //   { value: "approved", label: "Approved" },
-  //   { value: "rejected", label: "Rejected" },
-  //   { value: "request-info", label: "Request Info" },
-  // ];
-
-  // useEffect(() => {
-  //   // Map statusFilter to filter number
-  //   const statusToFilter: { [key: string]: number } = {
-  //     "": 0, // All
-  //     pending: 1,
-  //     approved: 3,
-  //     rejected: 2,
-  //     "request-info": 4,
-  //   };
-  //   setFilter(statusToFilter[statusFilter] || 0);
-  // }, [statusFilter]);
 
   // Fetch applications
   const statusOptions = [
@@ -145,33 +125,29 @@ const ListApproval = () => {
       setIsFetching(false);
     }
   };
+  const fetchApplicationDetail = async (mentorApplicationId: string) => {
+    try {
+      setIsLoading(true);
+      const res = await approvalService.getMentorApplicationDetail(
+        mentorApplicationId
+      );
+      setSelectedApproval(res);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        handleAxiosError(error);
+      } else {
+        console.error("Error fetching application detail:", error);
+        toast.error("Failed to load application details");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchApplications();
   }, [pageIndex, pageSize, searchDebounced, statusFilter]);
 
-  // Initial page load
-  // useEffect(() => {
-  //   const loadInitialData = async () => {
-  //     try {
-  //       setIsPageLoading(true);
-  //       await fetchApplications();
-  //     } finally {
-  //       setIsPageLoading(false);
-  //     }
-  //   };
-  //   loadInitialData();
-  // }, []);
-
-  // // Update data on search, filter, or pagination change
-  // // useEffect(() => {
-  // //   fetchApplications();
-  // // }, [pageIndex, pageSize, searchDebounced, statusFilter]);
-
-  // // Render
-  // if (isPageLoading) {
-  //   return <LoadingOverlay />;
-  // }
   const handleViewDocument = (
     fileContent: string | undefined,
     fileType: string
@@ -300,7 +276,6 @@ const ListApproval = () => {
         const request: MentorUpdateStatusRequest = {
           mentorId: approval.applicantUserId,
           statusId: 3, // Approved
-          adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID if available
           adminComments: null, // No comments for Approve
         };
         await approvalService.updateMentorApplicationStatus(request);
@@ -342,7 +317,6 @@ const ListApproval = () => {
         const request: MentorUpdateStatusRequest = {
           mentorId: selectedApproval.applicantUserId,
           statusId: 2, // Rejected
-          adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID
           adminComments: rejectionComment.trim() || null,
         };
         await approvalService.updateMentorApplicationStatus(request);
@@ -385,7 +359,6 @@ const ListApproval = () => {
         const request: MentorUpdateStatusRequest = {
           mentorId: selectedApproval.applicantUserId,
           statusId: 4, // Request Info
-          adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID
           adminComments: adminNotes.trim() || null,
         };
         await approvalService.updateMentorApplicationStatus(request);
@@ -394,7 +367,7 @@ const ListApproval = () => {
             item.applicantUserId === selectedApproval.applicantUserId
               ? {
                   ...item,
-                  status: "RequestInfo",
+                  status: "Request Info",
                   requestInfoDate: new Date().toISOString(),
                   adminComments: adminNotes.trim() || null,
                 }
@@ -404,7 +377,7 @@ const ListApproval = () => {
         toast.success(`Info requested for ${selectedApproval.fullName}`);
         setSelectedApproval({
           ...selectedApproval,
-          status: "RequestInfo",
+          status: "Request Info",
           requestInfoDate: new Date().toISOString(),
           adminComments: adminNotes.trim() || null,
         });
@@ -416,7 +389,7 @@ const ListApproval = () => {
   };
 
   const handleSelectApplicants = (approval: ApprovalType) => {
-    setSelectedApproval(approval);
+    fetchApplicationDetail(approval.applicantUserId);
     setAdminNotes(""); // Reset admin notes when selecting a new applicant
   };
 
@@ -682,16 +655,17 @@ const ListApproval = () => {
                                     content: null,
                                   }))
                               : []),
-                            ...(selectedApproval.approvalDate
+                            ...(selectedApproval?.approvalDate
                               ? [
                                   {
                                     action: "Approved",
                                     timestamp: selectedApproval.approvalDate,
-                                    content: null, // Explicitly set to null
+                                    content: null,
                                   },
                                 ]
                               : []),
-                            ...(selectedApproval.rejectionReason
+                            ...(selectedApproval?.rejectionReason &&
+                            selectedApproval?.approvalDate
                               ? [
                                   {
                                     action: `Rejected: ${selectedApproval.rejectionReason}`,
@@ -711,11 +685,20 @@ const ListApproval = () => {
                                   }))
                               : []),
                           ]
-                            .sort(
-                              (a, b) =>
-                                new Date(a.timestamp).getTime() -
-                                new Date(b.timestamp).getTime()
-                            )
+                            .filter(
+                              (
+                                entry
+                              ): entry is {
+                                action: string;
+                                timestamp: string;
+                                content: string | null;
+                              } => entry.timestamp != null
+                            ) // Type guard to ensure timestamp is string
+                            .sort((a, b) => {
+                              const dateA = new Date(a.timestamp); // a.timestamp is now guaranteed to be string
+                              const dateB = new Date(b.timestamp); // b.timestamp is now guaranteed to be string
+                              return dateA.getTime() - dateB.getTime();
+                            })
                             .map((entry, index) => (
                               <div
                                 key={index}
@@ -786,7 +769,7 @@ const ListApproval = () => {
                                   id={`view-document-icon-${index}`}
                                   onClick={() =>
                                     handleViewDocument(
-                                      doc.fileContent,
+                                      doc.documentContent.fileContent,
                                       doc.fileType
                                     )
                                   }
@@ -920,5 +903,4 @@ const ListApproval = () => {
     </main>
   );
 };
-
 export default ListApproval;

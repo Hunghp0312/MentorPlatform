@@ -4,6 +4,7 @@ import {
   MentorEducation,
   MentorWorkExperience,
   MentorCertification,
+  SupportingDocument,
 } from "./mentorapplication";
 // src/types/approval.ts
 export interface ApprovalType {
@@ -40,5 +41,4 @@ export interface MentorUpdateStatusRequest {
   mentorId: string; // Guid được biểu diễn dưới dạng string trong TypeScript
   statusId: number;
   adminComments: string | null;
-  adminReviewerId?: string; // Guid được biểu diễn dưới dạng string
 }

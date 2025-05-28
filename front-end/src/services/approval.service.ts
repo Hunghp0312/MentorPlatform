@@ -36,4 +36,15 @@ export const approvalService = {
     );
     return response.data;
   },
+  async getMentorApplicationDetail(mentorApplicationId: string) {
+    try {
+      const response = await axiosInstance.get(
+        `/MentorApplications/mentor-application-detail/${mentorApplicationId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching mentor application detail:", error);
+      throw error;
+    }
+  },
 };
