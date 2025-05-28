@@ -12,6 +12,7 @@ import ForgotPasswordPage from "../pages/auth/ForgotPassword";
 import PrivateRoute from "./PrivateRoute";
 import MentorStatusProfile from "../pages/mentor/MentorStatusProfile";
 import OAuthCallback from "../pages/auth/OAuthCallback";
+import ListUser from "../pages/admin/ListUser";
 
 const AppRouter = () => {
   const routes = useRoutes([
@@ -38,6 +39,7 @@ const AppRouter = () => {
         { path: pathName.course, element: <ListCourse /> },
         { path: pathName.approval, element: <ListApproval /> },
         { path: "mentorstatus", element: <MentorStatusProfile /> },
+        { path: pathName.userList, element: <ListUser /> },
       ],
     },
   ]);

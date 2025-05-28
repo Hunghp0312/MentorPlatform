@@ -74,11 +74,6 @@ export enum Availability {
   Evenings = 5,
 }
 
-export interface AccountDetails {
-  email: string;
-  password: string;
-}
-
 export enum TopicOfInterest {
   CareerDevelopment = 1,
   TechnicalSkills = 2,
