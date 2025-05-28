@@ -109,7 +109,7 @@ namespace ApplicationCore.Services
             return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
         }
 
-        public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request)
+        public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request,Guid adminUserId)
         {
             if (request.MentorId == Guid.Empty)
             {
@@ -128,7 +128,7 @@ namespace ApplicationCore.Services
                 return validationResult;
             }
 
-            UpdateMentorApplicationStatusFields(mentorApplication, request);
+            UpdateMentorApplicationStatusFields(mentorApplication, request,adminUserId);
 
             _mentorRepository.Update(mentorApplication);
             await _unitOfWork.SaveChangesAsync();
@@ -148,6 +148,9 @@ namespace ApplicationCore.Services
 
         private static OperationResult<MentorApplicantResponse>? ValidateStatusChange(MentorApplication mentorApplication, MentorUpdateStatusRequest request)
         {
+            if(request.StatusId <= 0){
+                return OperationResult<MentorApplicantResponse>.BadRequest("Invalid status ID provided.");
+            }
             if (mentorApplication.ApplicationStatusId == request.StatusId)
             {
                 return OperationResult<MentorApplicantResponse>.BadRequest("The application is already in the requested status.");
@@ -159,11 +162,11 @@ namespace ApplicationCore.Services
             return null;
         }
 
-        private static void UpdateMentorApplicationStatusFields(MentorApplication mentorApplication, MentorUpdateStatusRequest request)
+        private static void UpdateMentorApplicationStatusFields(MentorApplication mentorApplication, MentorUpdateStatusRequest request,Guid adminUserId)
         {
             mentorApplication.ApplicationStatusId = request.StatusId;
             mentorApplication.LastStatusUpdateDate = DateTime.UtcNow;
-            mentorApplication.AdminReviewerId = request.AdminReviewerId;
+            mentorApplication.AdminReviewerId = adminUserId;
             if (request.StatusId == 2)
             {
                 mentorApplication.RejectionReason = request.AdminComments;

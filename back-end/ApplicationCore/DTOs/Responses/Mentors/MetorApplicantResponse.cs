@@ -2,7 +2,11 @@ using ApplicationCore.DTOs.Requests.Certifications;
 using ApplicationCore.DTOs.Requests.Educations;
 using ApplicationCore.DTOs.Requests.WorkExperiences;
 using ApplicationCore.DTOs.Responses.ArenaOfExpertises;
+using ApplicationCore.DTOs.Responses.MentorCertifications;
+using ApplicationCore.DTOs.Responses.MentorEducations;
+using ApplicationCore.DTOs.Responses.MentorWorkExperiences;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
+using Infrastructure.Entities;
 
 namespace ApplicationCore.DTOs.Responses.Mentors
 {
@@ -28,6 +32,9 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public required string ProfessionExperience { get; set; }
         public required string ApplicationTimeline { get; set; }
         public List<SupportingDocumentResponse>? Documents { get; set; }
+        public List<MentorEducationReponse> MentorEducations { get; set; } = new List<MentorEducationReponse>();
+        public List<MentorWorkExperienceResponse> MentorWorkExperiences { get; set; } = new List<MentorWorkExperienceResponse>();
+        public List<MentorCertificationResponse> MentorCertifications { get; set; } = new List<MentorCertificationResponse>();
         public required string Status { get; set; }
 
     }

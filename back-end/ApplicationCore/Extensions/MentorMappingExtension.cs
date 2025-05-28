@@ -1,5 +1,8 @@
 using ApplicationCore.DTOs.Responses.ArenaOfExpertises;
+using ApplicationCore.DTOs.Responses.MentorCertifications;
+using ApplicationCore.DTOs.Responses.MentorEducations;
 using ApplicationCore.DTOs.Responses.Mentors;
+using ApplicationCore.DTOs.Responses.MentorWorkExperiences;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using Infrastructure.Entities;
 
@@ -43,6 +46,26 @@ namespace ApplicationCore.Extensions
                     FileType = x.DocumentContent.FileType ?? string.Empty,
                 }).ToList(),
                 Status = mentorApplication.ApplicationStatus.Name,
+                MentorEducations = mentorApplication.MentorEducations.Select(x => new MentorEducationReponse
+                {
+                    FieldOfStudy = x.FieldOfStudy,
+                    InstitutionName = x.InstitutionName,
+                    GraduationYear = x.GraduationYear
+                }).ToList(),
+                MentorWorkExperiences = mentorApplication.MentorWorkExperiences.Select(x => new MentorWorkExperienceResponse
+                {
+                    CompanyName = x.CompanyName,
+                    Position = x.Position,
+                    StartDate = x.StartDate,
+                    EndDate = x.EndDate,
+                    Description = x.Description
+                }).ToList(),
+                MentorCertifications = mentorApplication.MentorCertifications.Select(x => new MentorCertificationResponse
+                {
+                    CertificationName = x.CertificationName,
+                    IssuingOrganization = x.IssuingOrganization,
+                }).ToList()
+                
             };
         }
         public static List<MentorApplicantResponse> ToMetorApplicantResponseList(this ICollection<MentorApplication> mentorApplications)

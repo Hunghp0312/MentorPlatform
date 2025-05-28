@@ -70,14 +70,17 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
         [HttpPut("update-status")]
+        [Authorize(Roles = "Admin")]
         [ProducesResponseType(typeof(MentorApplicantResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [Authorize]
         public async Task<IActionResult> UpdateMentorApplicationStatus([FromBody] MentorUpdateStatusRequest request)
         {
-            var result = await _mentorService.UpdateMentorApplicationStatus(request);
-
+            var adminUserId = User.FindFirstValue("id");
+            Guid adminId = Guid.Parse(adminUserId!);
+            var result = await _mentorService.UpdateMentorApplicationStatus(request,adminId);
+        
             return ToActionResult(result);
         }
     }
