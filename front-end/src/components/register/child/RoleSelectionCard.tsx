@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "../../../utils/cn"; // Adjust path as needed
-import { Role as AppRole } from "../../../types/userRegister.d"; // Import the Role enum, aliased as AppRole to avoid naming conflict
+import { RoleEnum as AppRole } from "../../../types/commonType"; // Import the Role enum, aliased as AppRole to avoid naming conflict
 
 // Define the structure of the role data object expected by this component
 interface RoleUIData {

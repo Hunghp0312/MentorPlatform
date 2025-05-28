@@ -1,4 +1,3 @@
-import { MentorApplicationResponse } from "./approval";
 import { EnumType } from "./commonType";
 import { AreaOfExpertise } from "./mentorapplication";
 import { MentorApplication } from "./approval";
