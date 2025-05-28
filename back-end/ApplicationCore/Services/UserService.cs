@@ -155,7 +155,7 @@ namespace ApplicationCore.Services
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
-                Status = user.SubmittedMentorApplication?.ApplicationStatus?.Name ?? string.Empty,
+                Status = user.Status,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,
                 IndustryExperience = user.UserProfile?.IndustryExperience,
