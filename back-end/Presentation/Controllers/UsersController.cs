@@ -5,6 +5,7 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.DTOs.QueryParameters;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -56,9 +57,9 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateUserProfile(Guid userProfileId,[FromForm] UpdateUserProfileRequestDto request)
+        public async Task<IActionResult> UpdateUserProfile(Guid userProfileId, [FromForm] UpdateUserProfileRequestDto request)
         {
-            var result = await _userService.UpdateUserProfile(userProfileId,request);
+            var result = await _userService.UpdateUserProfile(userProfileId, request);
             return ToActionResult(result);
         }
     }
