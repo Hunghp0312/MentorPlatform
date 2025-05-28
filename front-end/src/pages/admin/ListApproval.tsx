@@ -18,6 +18,7 @@ import {
 } from "../../types/mentorapplication";
 import CustomModal from "../../components/ui/Modal";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
+import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
 // Updated ApprovalType interface
 interface ApprovalType {
   applicantUserId: string;
@@ -40,7 +41,7 @@ interface ApprovalType {
   professionExperience: string;
   applicationTimeline: string;
   documents: SupportingDocument;
-  status: "Pending" | "Approved" | "Rejected" | "RequestInfo";
+  status: "Pending" | "Approved" | "Rejected" | "Request Info";
 }
 interface ExpertiseArea {
   name: string;
@@ -51,19 +52,16 @@ const ListApproval = () => {
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
   );
-
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [filter, setFilter] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionComment, setRejectionComment] = useState("");
-  const [adminNotes, setAdminNotes] = useState(""); // New state for admin notes
-
+  const [adminNotes, setAdminNotes] = useState("");
   const searchDebounced = useDebounce(searchTerm, 500);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [detailsContent, setDetailsContent] = useState<{
@@ -78,7 +76,28 @@ const ListApproval = () => {
     fileContent: string;
     fileType: string;
   } | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
+  // const statusOptions = [
+  //   { value: "", label: "All" },
+  //   { value: "pending", label: "Pending" },
+  //   { value: "approved", label: "Approved" },
+  //   { value: "rejected", label: "Rejected" },
+  //   { value: "request-info", label: "Request Info" },
+  // ];
 
+  // useEffect(() => {
+  //   // Map statusFilter to filter number
+  //   const statusToFilter: { [key: string]: number } = {
+  //     "": 0, // All
+  //     pending: 1,
+  //     approved: 3,
+  //     rejected: 2,
+  //     "request-info": 4,
+  //   };
+  //   setFilter(statusToFilter[statusFilter] || 0);
+  // }, [statusFilter]);
+
+  // Fetch applications
   const statusOptions = [
     { value: "", label: "All" },
     { value: "pending", label: "Pending" },
@@ -87,33 +106,34 @@ const ListApproval = () => {
     { value: "request-info", label: "Request Info" },
   ];
 
-  useEffect(() => {
-    // Map statusFilter to filter number
-    const statusToFilter: { [key: string]: number } = {
-      "": 0, // All
-      pending: 1,
-      approved: 3,
-      rejected: 2,
-      "request-info": 4,
-    };
-    setFilter(statusToFilter[statusFilter] || 0);
-  }, [statusFilter]);
-
-  useEffect(() => {
-    fetchApplications();
-  }, [pageIndex, pageSize, searchDebounced, statusFilter]);
   const fetchApplications = async () => {
+    if (isFetching) return;
+    console.log("Fetching applications with:", {
+      searchDebounced,
+      statusFilter,
+      pageIndex,
+      pageSize,
+    });
+    setIsFetching(true);
     try {
-      setLoading(true);
+      setIsLoading(true);
+      const statusToFilter: { [key: string]: number | undefined } = {
+        "": undefined,
+        pending: 1,
+        approved: 3,
+        rejected: 2,
+        "request-info": 4,
+      };
+      const currentFilter = statusToFilter[statusFilter] || 0;
       const res = await approvalService.getAllMentorApplications(
         searchDebounced,
-        filter,
+        currentFilter,
         pageIndex,
         pageSize
       );
+      console.log("API Response:", res); // Kiểm tra dữ liệu trả về
       setTotalItems(res.totalItems);
       setApprovals(res.items);
-      console.log("Data:", res.items);
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -121,9 +141,37 @@ const ListApproval = () => {
         console.error("Error fetching applications:", error);
       }
     } finally {
-      setLoading(false);
+      setIsLoading(false);
+      setIsFetching(false);
     }
   };
+
+  useEffect(() => {
+    fetchApplications();
+  }, [pageIndex, pageSize, searchDebounced, statusFilter]);
+
+  // Initial page load
+  // useEffect(() => {
+  //   const loadInitialData = async () => {
+  //     try {
+  //       setIsPageLoading(true);
+  //       await fetchApplications();
+  //     } finally {
+  //       setIsPageLoading(false);
+  //     }
+  //   };
+  //   loadInitialData();
+  // }, []);
+
+  // // Update data on search, filter, or pagination change
+  // // useEffect(() => {
+  // //   fetchApplications();
+  // // }, [pageIndex, pageSize, searchDebounced, statusFilter]);
+
+  // // Render
+  // if (isPageLoading) {
+  //   return <LoadingOverlay />;
+  // }
   const handleViewDocument = (
     fileContent: string | undefined,
     fileType: string
@@ -164,68 +212,80 @@ const ListApproval = () => {
   const columns: DataColumn<ApprovalType>[] = [
     {
       header: "",
-      accessor: (row) => (
-        <div className="flex items-center space-x-4">
-          <img
-            // src={row.photoData}
-            src="https://via.placeholder.com/48"
-            alt={row.fullName}
-            className="w-12 h-12 rounded-full object-cover"
-          />
-          <div className="flex-1 min-w-0">
-            <p className="font-medium truncate text-white">{row.fullName}</p>
-            <p className="text-sm text-gray-400 truncate pt-0.5">
-              {row.expertiseAreas.map((area) => area.name).join(", ")}
-            </p>
-            <div className="flex items-center mt-1">
-              <span
-                className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                  row.status === "Pending"
-                    ? "bg-yellow-500"
-                    : row.status === "Approved"
-                    ? "bg-green-500"
-                    : row.status === "Rejected"
-                    ? "bg-red-500"
-                    : row.status === "RequestInfo"
-                    ? "bg-blue-500"
-                    : ""
-                }`}
-              ></span>
-              <span className="text-xs text-gray-400 capitalize">
-                {row.status}
-              </span>
-              <span className="mx-2 text-gray-500">•</span>
-              <span className="text-xs text-gray-400">
-                {row.status === "RequestInfo" && row.requestInfoDate
-                  ? `Request Info: ${
-                      row.requestInfoDate
-                        .split(",")
-                        .filter((date) => date.trim())
-                        .sort(
-                          (a, b) =>
-                            new Date(b).getTime() - new Date(a).getTime()
-                        )[0]
-                    }`
-                  : row.status === "Pending" && row.submissionDate
-                  ? `Submission Date: ${
-                      row.submissionDate
-                        .split(",")
-                        .filter((date) => date.trim())
-                        .sort(
-                          (a, b) =>
-                            new Date(b).getTime() - new Date(a).getTime()
-                        )[0]
-                    }`
-                  : row.status === "Approved" && row.approvalDate
-                  ? `Approval Date: ${row.approvalDate}`
-                  : row.status === "Rejected" && row.approvalDate
-                  ? `Rejection Date: ${row.approvalDate}`
-                  : ""}
-              </span>
+      accessor: (row) => {
+        console.log("Status:", row.status); // Kiểm tra giá trị status
+        // Hàm helper để lấy ngày mới nhất từ chuỗi ngày (nếu cần split)
+        const getLatestDate = (dateString?: string) => {
+          if (!dateString) return "";
+          const dates = dateString
+            .split(",")
+            .filter((date) => date.trim())
+            .map((date) => new Date(date.trim()));
+          if (dates.length === 0) return "";
+          return new Date(Math.max(...dates.map((d) => d.getTime())))
+            .toISOString()
+            .split("T")[0];
+        };
+
+        // Xác định nhãn và ngày hiển thị
+        let dateLabel = "";
+        let dateValue = "";
+        if (row.status === "Request Info" && row.requestInfoDate) {
+          dateLabel = "Request Info";
+          dateValue = getLatestDate(row.requestInfoDate);
+        } else if (row.status === "Pending" && row.submissionDate) {
+          dateLabel = "Submission Date";
+          dateValue = getLatestDate(row.submissionDate);
+        } else if (row.status === "Approved" && row.approvalDate) {
+          dateLabel = "Approval Date";
+          dateValue = row.approvalDate.split("T")[0];
+        } else if (row.status === "Rejected" && row.approvalDate) {
+          dateLabel = "Rejection Date";
+          dateValue = row.approvalDate.split("T")[0];
+        }
+
+        return (
+          <div className="flex items-center space-x-4">
+            <img
+              src={DefaultImage}
+              alt={row.fullName}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="font-medium truncate text-white">{row.fullName}</p>
+              <p className="text-sm text-gray-400 truncate pt-0.5">
+                {row.expertiseAreas.map((area) => area.name).join(", ")}
+              </p>
+              <div className="flex items-center mt-1">
+                <span
+                  className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                    row.status === "Pending"
+                      ? "bg-yellow-500"
+                      : row.status === "Approved"
+                      ? "bg-green-500"
+                      : row.status === "Rejected"
+                      ? "bg-red-500"
+                      : row.status === "Request Info"
+                      ? "bg-blue-500"
+                      : "bg-gray-500"
+                  }`}
+                ></span>
+                <span className="text-xs text-gray-400 capitalize">
+                  {row.status}
+                </span>
+                {dateLabel && dateValue && (
+                  <>
+                    <span className="mx-2 text-gray-500">•</span>
+                    <span className="text-xs text-gray-400">
+                      {dateLabel}: {dateValue}
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ),
+        );
+      },
       align: "left",
     },
   ];
@@ -241,7 +301,7 @@ const ListApproval = () => {
           mentorId: approval.applicantUserId,
           statusId: 3, // Approved
           adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID if available
-          adminComments: undefined, // No comments for Approve
+          adminComments: null, // No comments for Approve
         };
         await approvalService.updateMentorApplicationStatus(request);
         setApprovals((prev = []) =>
@@ -283,7 +343,7 @@ const ListApproval = () => {
           mentorId: selectedApproval.applicantUserId,
           statusId: 2, // Rejected
           adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID
-          adminComments: rejectionComment.trim() || undefined,
+          adminComments: rejectionComment.trim() || null,
         };
         await approvalService.updateMentorApplicationStatus(request);
         setApprovals((prev = []) =>
@@ -326,7 +386,7 @@ const ListApproval = () => {
           mentorId: selectedApproval.applicantUserId,
           statusId: 4, // Request Info
           adminReviewerId: (await userService.getCurrentUser()).id, // Replace with actual admin ID
-          adminComments: adminNotes.trim() || undefined,
+          adminComments: adminNotes.trim() || null,
         };
         await approvalService.updateMentorApplicationStatus(request);
         setApprovals((prev = []) =>
@@ -379,7 +439,7 @@ const ListApproval = () => {
     return "bg-orange-500"; // Default for "Submitted"
   };
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingOverlay />;
   }
   const additionalSettingsContent = (
@@ -572,10 +632,7 @@ const ListApproval = () => {
                     )}
                     <div className="flex items-center space-x-4">
                       <img
-                        src={
-                          selectedApproval.photoData ||
-                          "https://via.placeholder.com/48"
-                        }
+                        src={selectedApproval.photoData || DefaultImage}
                         alt={selectedApproval.fullName}
                         className="w-12 h-12 rounded-full object-cover"
                       />

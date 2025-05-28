@@ -19,18 +19,18 @@ export const approvalService = {
   },
   async getAllMentorApplications(
     query: string,
-    page: number,
-    pageSize: number,
-    status: number
+    applicationStatus: number,
+    pageIndex: number,
+    pageSize: number
   ) {
     const response = await axiosInstance.get(
       "/MentorApplications/applications",
       {
         params: {
           Query: query,
-          PageIndex: page,
+          PageIndex: pageIndex,
           PageSize: pageSize,
-          Status: status,
+          applicationStatus: applicationStatus,
         },
       }
     );
