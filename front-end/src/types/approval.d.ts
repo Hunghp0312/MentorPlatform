@@ -1,12 +1,12 @@
 import { admin } from "./admin";
 import { User } from "./user";
-import { ApplicationStatus } from "./mentorapplication";
 import {
   MentorEducation,
   MentorWorkExperience,
   MentorCertification,
+  SupportingDocument,
 } from "./mentorapplication";
-// src/types/approval.ts
+
 export interface ApprovalType {
   id: string;
   name: string;
@@ -20,14 +20,16 @@ export interface ApprovalType {
 }
 export interface MentorApplicationResponse {
   applicantId: string;
-  applicationStatus?: ApplicationStatus;
+  status: string;
+  email: string;
+  fullName: string;
   adminReviewer?: admin;
   submissionDate?: string;
   requestInfoDate?: string;
-  lastStatusUpdateDate?: string; // ISO string for DateTime
+  lastStatusUpdateDate?: string;
   adminComments?: string;
   rejectionReason?: string;
-  approvalDate?: string; // ISO string for DateTime
+  approvalDate?: string;
   applicant?: User;
   mentorEducations?: MentorEducation[];
   mentorWorkExperiences?: MentorWorkExperience[];
@@ -36,8 +38,7 @@ export interface MentorApplicationResponse {
 }
 
 export interface MentorUpdateStatusRequest {
-  mentorId: string; // Guid được biểu diễn dưới dạng string trong TypeScript
+  mentorId: string;
   statusId: number;
-  adminComments?: string;
-  adminReviewerId?: string; // Guid được biểu diễn dưới dạng string
+  adminComments: string | null;
 }

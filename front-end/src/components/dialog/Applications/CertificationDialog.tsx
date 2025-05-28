@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import InputCustom from "../../input/InputCustom";
 import { MentorCertification } from "../../../types/mentorapplication";
-// import InputCheckbox from "../input/InputCheckbox";
 import Button from "../../ui/Button";
 import loading from "../../../assets/loadingIcon.svg";
 interface CertificationAddDialogProps {
@@ -108,6 +107,7 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
       {/* Form Actions */}
       <div className="flex justify-end space-x-4 pt-4">
         <Button
+          id="cancel-certification-button"
           variant="secondary"
           size="md"
           className="font-bold text-white"
@@ -117,6 +117,7 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
           Cancel
         </Button>
         <Button
+          id="submit-certification-button"
           variant="primary"
           size="md"
           type="submit"

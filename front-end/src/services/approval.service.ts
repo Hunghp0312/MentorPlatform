@@ -4,7 +4,7 @@ import {
   MentorUpdateStatusRequest,
 } from "../types/approval";
 
-export const mentorService = {
+export const approvalService = {
   async updateMentorApplicationStatus(request: MentorUpdateStatusRequest) {
     try {
       const response = await axiosInstance.put<MentorApplicationResponse>(
@@ -19,21 +19,32 @@ export const mentorService = {
   },
   async getAllMentorApplications(
     query: string,
-    page: number,
-    pageSize: number,
-    status: number
+    applicationStatus: number,
+    pageIndex: number,
+    pageSize: number
   ) {
     const response = await axiosInstance.get(
       "/MentorApplications/applications",
       {
         params: {
           Query: query,
-          PageIndex: page,
+          PageIndex: pageIndex,
           PageSize: pageSize,
-          Status: status,
+          applicationStatus: applicationStatus,
         },
       }
     );
     return response.data;
+  },
+  async getMentorApplicationDetail(mentorApplicationId: string) {
+    try {
+      const response = await axiosInstance.get(
+        `/MentorApplications/mentor-application-detail/${mentorApplicationId}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching mentor application detail:", error);
+      throw error;
+    }
   },
 };

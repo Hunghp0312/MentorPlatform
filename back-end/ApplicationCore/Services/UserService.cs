@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices.Marshalling;
 using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
@@ -8,7 +9,8 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
-using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+
 
 
 namespace ApplicationCore.Services
@@ -16,10 +18,12 @@ namespace ApplicationCore.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserProfileRepository _userProfileRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IUserProfileRepository userProfileRepository)
         {
+            _userProfileRepository = userProfileRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
         }
@@ -141,7 +145,7 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
-        public async Task<OperationResult<UserResponseDto>> GetUserByIdsAsync(Guid userId)
+        public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdsAsync(userId);
             if (user == null)
@@ -155,7 +159,7 @@ namespace ApplicationCore.Services
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
-                Status = user.Status,
+                Status = user.SubmittedMentorApplication?.ApplicationStatus?.Name ?? string.Empty,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,
                 IndustryExperience = user.UserProfile?.IndustryExperience,
@@ -170,9 +174,33 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(userResponseDto);
         }
 
-        public Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto)
+        public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var userProfile = await _userProfileRepository.GetByIdAsync(requestDto.Id);
+                if (userProfile == null)
+                {
+                    return OperationResult<UserProfileResponseDto>.NotFound($"User profile with ID {requestDto.Id} not found.");
+                }
+                await userProfile.UpdateFromDtoAsync(requestDto, userProfile.User);
+                _userProfileRepository.Update(userProfile);
+                await _unitOfWork.SaveChangesAsync();
+                var updatedUserProfile = await _userProfileRepository.GetByIdAsync(requestDto.Id);
+                if (updatedUserProfile == null)
+                {
+                    return OperationResult<UserProfileResponseDto>.NotFound("Failed to retrieve updated user profile.");
+                }
+
+                var res = updatedUserProfile.ToUserProfileResponseDto();
+
+                return OperationResult<UserProfileResponseDto>.Ok(res);
+            }
+            catch (Exception ex)
+            {
+                return OperationResult<UserProfileResponseDto>.Fail($"An error occurred while updating the user profile: {ex.Message}");
+            }
+
         }
     }
 }

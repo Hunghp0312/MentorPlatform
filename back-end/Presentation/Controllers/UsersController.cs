@@ -24,6 +24,7 @@ namespace Presentation.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+
         public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters queryParameters)
         {
             var result = await _userService.GetUsersAsync(queryParameters);
@@ -43,9 +44,22 @@ namespace Presentation.Controllers
         [HttpGet("{userId}")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetUserById(Guid userId)
+        [Authorize]
+        public async Task<IActionResult> GetCurentUser()
         {
-            var result = await _userService.GetUserByIdsAsync(userId);
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _userService.GetUserByIdAsync(userId);
+            return ToActionResult(result);
+        }
+
+        [HttpPut("{userId}/profile")]
+        [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateUserProfile(Guid userId, [FromForm] UpdateUserProfileRequestDto request)
+        {
+            var result = await _userService.UpdateUserProfile(request);
             return ToActionResult(result);
         }
     }
