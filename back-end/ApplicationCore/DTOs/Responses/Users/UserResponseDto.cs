@@ -1,4 +1,5 @@
 using Infrastructure.Entities;
+using Infrastructure.Entities.Enum;
 
 namespace ApplicationCore.DTOs.Responses.Users
 {
