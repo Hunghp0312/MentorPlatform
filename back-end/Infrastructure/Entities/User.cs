@@ -18,10 +18,9 @@ namespace Infrastructure.Entities
         public virtual UserStatus Status { get; set; } = null!;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public virtual UserProfile UserProfile { get; set; } = default!;
-        public virtual ICollection<UserTopicOfInterest> UserTopicOfInterests { get; set; } = new List<UserTopicOfInterest>();
         public virtual MentorApplication SubmittedMentorApplication { get; set; } = null!;
         public virtual MentorApplication ReviewedMentorApplication { get; set; } = null!;
         public virtual ICollection<Course> MentoredCourses { get; set; } = new List<Course>();
-        public virtual ICollection<UserAreaOfExpertise> UserArenaOfExpertises { get; set; } = new List<UserAreaOfExpertise>();
+        public virtual ICollection<UserAreaOfExpertise> UserAreaOfExpertises { get; set; } = new List<UserAreaOfExpertise>();
     }
 }

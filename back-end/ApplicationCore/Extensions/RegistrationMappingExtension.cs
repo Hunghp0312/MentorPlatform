@@ -32,8 +32,15 @@ namespace ApplicationCore.Extensions
                     UserId = userId,
                     AvailabilityId = a
                 }).ToList() ?? new List<UserProfileAvailability>(),
-                CommunicationMethod = dto.CommunicationMethods?.FirstOrDefault() ?? 0,
+                UserCommunicationMethods = dto.CommunicationMethod?
+                    .Where(cmId => cmId > 0)
+                    .Select(cmId => new UserCommunicationMethod
+                    {
+                        UserProfileId = userId,
+                        CommunicationMethodId = cmId
+                    }).ToList() ?? new List<UserCommunicationMethod>()
             };
+
 
             return userProfile;
         }
@@ -52,7 +59,7 @@ namespace ApplicationCore.Extensions
                 existingProfile.UserTopicOfInterests.Clear();
                 foreach (var topicId in dto.TopicOfInterestIds)
                 {
-                    existingProfile.UserTopicOfInterests.Add(new UserTopicOfInterest { UserId = existingProfile.Id, TopicId = topicId });
+                    existingProfile.UserTopicOfInterests.Add(new UserTopicOfInterest { UserProfileId = existingProfile.Id, TopicId = topicId });
                 }
             }
 
@@ -76,7 +83,7 @@ namespace ApplicationCore.Extensions
                     existingProfile.TeachingApproaches.Clear();
                     foreach (var approachId in dto.TeachingApproachIds)
                     {
-                        existingProfile.TeachingApproaches.Add(new MentorTeachingApproach { UserId = existingProfile.Id, TeachingApproachId = approachId });
+                        existingProfile.TeachingApproaches.Add(new MentorTeachingApproach { UserProfileId = existingProfile.Id, TeachingApproachId = approachId });
                     }
                 }
             }

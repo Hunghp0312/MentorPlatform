@@ -17,4 +17,23 @@ export const mentorService = {
       throw error;
     }
   },
+  async getAllMentorApplications(
+    query: string,
+    page: number,
+    pageSize: number,
+    status: number
+  ) {
+    const response = await axiosInstance.get(
+      "/MentorApplications/applications",
+      {
+        params: {
+          Query: query,
+          PageIndex: page,
+          PageSize: pageSize,
+          Status: status,
+        },
+      }
+    );
+    return response.data;
+  },
 };

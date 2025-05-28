@@ -1,5 +1,6 @@
 using Infrastructure.BaseRepository;
 using Infrastructure.Entities;
+using Infrastructure.Entities.Enum;
 
 namespace ApplicationCore.Repositories.RepositoryInterfaces
 {
@@ -10,5 +11,16 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
         Task AddUserProfileAsync(UserProfile userProfile);
         Task<UserProfile?> GetUserProfileAsync(Guid userId);
         Task UpdateUserProfileAsync(UserProfile userProfile);
+        Task<Role?> GetRoleByIdAsync(int id);
+        Task<AreaOfExpertise?> GetAreaOfExpertiseByIdAsync(int id);
+        Task<IEnumerable<AreaOfExpertise>> GetAreaOfExpertisesByIdsAsync(IEnumerable<int> id);
+        Task<Availability?> GetAvailabilityByIdAsync(int availabilityId);
+        Task<IEnumerable<Availability>> GetAvailabilitiesByIdsAsync(IEnumerable<int> availabilityIds);
+        Task<IEnumerable<CommunicationMethod>> GetCommunicationMethodsByIdsAsync(IEnumerable<int> ids);
+        Task<IEnumerable<Topic>> GetTopicsByIdsAsync(IEnumerable<int> ids);
+        Task<IEnumerable<LearningStyle>> GetLearningStylesByIdsAsync(IEnumerable<int> ids);
+        Task<IEnumerable<TeachingApproach>> GetTeachingApproachesByIdsAsync(IEnumerable<int> ids);
+        Task<SessionFrequency?> GetSessionFrequencyByIdAsync(int id);
+        Task<SessionDuration?> GetSessionDurationByIdAsync(int id);
     }
 }

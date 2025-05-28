@@ -1,8 +1,8 @@
-import { ArenaOfExpertise } from "../types/mentorapplication";
+import { AreaOfExpertise } from "../types/mentorapplication";
 import { EnumType } from "../types/commonType";
 import { User } from "../types/user";
 export const role: EnumType = { id: 2, name: "Mentor" };
-export const mockArenaOfExpertises: ArenaOfExpertise[] = [
+export const mockAreaOfExpertises: AreaOfExpertise[] = [
   {
     id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
     name: "Software Development",
@@ -84,31 +84,31 @@ export const mockUser1: User = {
       },
     ],
   },
-  userArenaOfExpertises: [
+  userAreaOfExpertises: [
     {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      arenaOfExpertise: {
+      AreaOfExpertise: {
         id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
         name: "Data Science",
       },
     },
     {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      arenaOfExpertise: {
+      AreaOfExpertise: {
         id: "c3d4e5f6-a7b8-9012-cdef-3456789012",
         name: "Artificial Intelligence",
       },
     },
     {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      arenaOfExpertise: {
+      AreaOfExpertise: {
         id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
         name: "Software Development",
       },
     },
     {
       userId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-      arenaOfExpertise: {
+      AreaOfExpertise: {
         id: "d4e5f6a7-b8c9-0123-def0-4567890123",
         name: "Cloud Computing",
       },

@@ -15,7 +15,7 @@ namespace Infrastructure.Data.Configuration
                 .HasMaxLength(200);
             builder.HasIndex(a => a.Name).IsUnique();
 
-            builder.HasData(AreaOfExpertiseSeeding.SeedArenasOfExpertise());
+            builder.HasData(AreaOfExpertiseSeeding.SeedAreasOfExpertise());
         }
     }
 }
