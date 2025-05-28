@@ -4,7 +4,6 @@ namespace ApplicationCore.DTOs.Requests.Users
 {
     public class UpdateUserProfileRequestDto
     {
-        public Guid Id { get; set; }
         public IFormFile? PhotoData { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string? Bio { get; set; }

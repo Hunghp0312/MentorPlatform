@@ -3,7 +3,6 @@ using ApplicationCore.DTOs.Responses.MentorCertifications;
 using ApplicationCore.DTOs.Responses.MentorEducations;
 using ApplicationCore.DTOs.Responses.MentorWorkExperiences;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
-using Infrastructure.Entities.Enum;
 
 namespace ApplicationCore.DTOs.Responses.Mentors
 {
