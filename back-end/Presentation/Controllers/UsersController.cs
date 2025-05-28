@@ -47,5 +47,15 @@ namespace Presentation.Controllers
             var result = await _userService.GetUserByIdAsync(userId);
             return ToActionResult(result);
         }
+
+        [HttpPut("{userId}/profile")]
+        [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateUserProfile(Guid userId, [FromForm] UpdateUserProfileRequestDto request)
+        {
+            var result = await _userService.UpdateUserProfile(request);
+            return ToActionResult(result);
+        }
     }
 }
