@@ -59,14 +59,14 @@ namespace ApplicationCore.Services
                 photoBytes = ms.ToArray();
             }
 
-            // Create User entity directly here, or use an extension if RegistrationProfileRequest has all needed fields
+
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Email = request.Email, // Assuming Email is in RegistrationProfileRequest
-                PasswordHash = passwordHash, // Assuming Password is in RegistrationProfileRequest
-                RoleId = request.SelectedRole, // RoleId from the profile request
-                StatusId = 2, // Default StatusId, e.g., Active or Pending Confirmation. Adjust if necessary.
+                Email = request.Email,
+                PasswordHash = passwordHash,
+                RoleId = request.SelectedRole,
+                StatusId = 2,
                 UserAreaOfExpertises = request.AreaOfExpertise?
                 .Where(aoeId => aoeId > 0)
                     .Select(aoeId => new UserAreaOfExpertise
@@ -80,8 +80,8 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = request.FullName ?? string.Empty,
                 Bio = request.Bio ?? string.Empty,
-                ProfessionalSkill = request.SelectedRole == 3 ? request.ProfessionalSkill : request.SelectedRole == 2 ? request.ProfessionalSkill : null,
-                IndustryExperience = request.SelectedRole == 3 ? request.IndustryExperience : request.SelectedRole == 2 ? request.IndustryExperience : null,
+                ProfessionalSkill = (request.SelectedRole == 2 || request.SelectedRole == 3) ? request.ProfessionalSkill : null,
+                IndustryExperience = (request.SelectedRole == 2 || request.SelectedRole == 3) ? request.IndustryExperience : null,
                 PhotoData = photoBytes,
                 PhoneNumber = request.PhoneNumber,
 
