@@ -10,8 +10,6 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 
-
-
 namespace ApplicationCore.Services
 {
     public class UserService : IUserService
@@ -38,6 +36,11 @@ namespace ApplicationCore.Services
             if (queryParameters.RoleId.HasValue)
             {
                 predicate = predicate.And(u => u.RoleId == queryParameters.RoleId.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(queryParameters.Query))
+            {
+                var searchTermLower = queryParameters.Query.ToLower();
+                predicate = predicate.And(u => u.UserProfile != null && u.UserProfile.FullName.ToLower().Contains(searchTermLower));
             }
 
             var (users, totalCount) = await _userRepository.GetUsersWithDetailsAsync(
@@ -131,13 +134,10 @@ namespace ApplicationCore.Services
             }
             else if (currentStatusId == StatusIdDeactivated)
             {
-
-                var alreadyDeactivatedDto = MapUserToResponseDto(user);
-                return OperationResult<UserResponseDto>.Ok(alreadyDeactivatedDto);
+                nextStatusId = StatusIdActive;
             }
             else
             {
-
                 return OperationResult<UserResponseDto>.BadRequest($"User's current status ('{currentStatusName}') does not allow for an automatic update in the defined flow (Pending -> Active -> Deactivated).");
             }
 
@@ -157,37 +157,10 @@ namespace ApplicationCore.Services
                 return OperationResult<UserResponseDto>.Fail("Failed to retrieve user details after status update.");
             }
 
-            var updatedUserDto = MapUserToResponseDto(updatedUser);
+            var updatedUserDto = UserMappingExtensions.MapUserToResponseDto(updatedUser);
             return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
-        private UserResponseDto MapUserToResponseDto(User user)
-        {
-            if (user == null) return null!;
-
-            return new UserResponseDto
-            {
-                Id = user.Id,
-                FullName = user.UserProfile?.FullName ?? string.Empty,
-                Email = user.Email,
-
-                Role = user.Role,
-                Status = user.Status,
-                JoinDate = user.CreatedAt,
-                LastActiveDate = user.LastLogin,
-                IndustryExperience = user.UserProfile?.IndustryExperience,
-                ProfessionalSkills = user.UserProfile?.ProfessionalSkill,
-                AreaOfExpertise = user.UserAreaOfExpertises
-                    .Where(uae => uae.AreaOfExpertise != null)
-                    .Select(uae => new AreaOfExpertiseResponse
-                    {
-                        Id = uae.AreaOfExpertise!.Id,
-                        Name = uae.AreaOfExpertise!.Name ?? string.Empty
-                    })
-                    .ToList(),
-                HasMentorApplication = user.SubmittedMentorApplication != null
-            };
-        }
         public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);
