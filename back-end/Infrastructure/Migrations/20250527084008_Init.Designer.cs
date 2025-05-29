@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250527084008_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1002,15 +1005,20 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.MentorTeachingApproach", b =>
                 {
-                    b.Property<Guid>("UserProfileId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TeachingApproachId")
                         .HasColumnType("int");
 
-                    b.HasKey("UserProfileId", "TeachingApproachId");
+                    b.Property<Guid?>("UserProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "TeachingApproachId");
 
                     b.HasIndex("TeachingApproachId");
+
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("MentorTeachingApproach");
                 });
@@ -1219,7 +1227,6 @@ namespace Infrastructure.Migrations
                             Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
                             CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.admin@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 25, 10, 30, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I",
                             RoleId = 1,
                             StatusId = 1
@@ -1229,7 +1236,6 @@ namespace Infrastructure.Migrations
                             Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
                             CreatedAt = new DateTime(2024, 1, 16, 11, 0, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.admin@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 26, 11, 0, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
                             RoleId = 1,
                             StatusId = 1
@@ -1239,7 +1245,6 @@ namespace Infrastructure.Migrations
                             Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
                             CreatedAt = new DateTime(2024, 1, 17, 14, 20, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.admin@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 27, 14, 20, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
                             RoleId = 1,
                             StatusId = 1
@@ -1249,17 +1254,15 @@ namespace Infrastructure.Migrations
                             Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
                             CreatedAt = new DateTime(2024, 2, 10, 9, 5, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.learner@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 20, 9, 5, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
                             RoleId = 2,
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
                             Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             CreatedAt = new DateTime(2024, 2, 12, 16, 30, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.learner@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 21, 16, 30, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi",
                             RoleId = 2,
                             StatusId = 1
@@ -1269,7 +1272,6 @@ namespace Infrastructure.Migrations
                             Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
                             CreatedAt = new DateTime(2024, 2, 18, 17, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.learner@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 19, 17, 0, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT",
                             RoleId = 2,
                             StatusId = 3
@@ -1279,17 +1281,15 @@ namespace Infrastructure.Migrations
                             Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             CreatedAt = new DateTime(2024, 3, 1, 10, 0, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.mentor@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 28, 9, 0, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
                             RoleId = 3,
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             CreatedAt = new DateTime(2024, 3, 5, 11, 20, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.mentor@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 27, 11, 20, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV",
                             RoleId = 3,
                             StatusId = 2
@@ -1299,17 +1299,15 @@ namespace Infrastructure.Migrations
                             Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
                             CreatedAt = new DateTime(2024, 3, 10, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.mentor@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 26, 12, 0, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
                             RoleId = 3,
-                            StatusId = 2
+                            StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
                             CreatedAt = new DateTime(2024, 3, 15, 14, 45, 0, 0, DateTimeKind.Utc),
                             Email = "dancega713@gmail.com",
-                            LastLogin = new DateTime(2024, 5, 28, 14, 45, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw",
                             RoleId = 2,
                             StatusId = 1
@@ -1329,83 +1327,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("AreaOfExpertiseId");
 
                     b.ToTable("UserAreaOfExpertise");
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
-                            AreaOfExpertiseId = 2
-                        },
-                        new
-                        {
-                            UserId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
-                            AreaOfExpertiseId = 5
-                        },
-                        new
-                        {
-                            UserId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
-                            AreaOfExpertiseId = 3
-                        },
-                        new
-                        {
-                            UserId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
-                            AreaOfExpertiseId = 4
-                        },
-                        new
-                        {
-                            UserId = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
-                            AreaOfExpertiseId = 5
-                        },
-                        new
-                        {
-                            UserId = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
-                            AreaOfExpertiseId = 2
-                        },
-                        new
-                        {
-                            UserId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            AreaOfExpertiseId = 1
-                        },
-                        new
-                        {
-                            UserId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            AreaOfExpertiseId = 7
-                        },
-                        new
-                        {
-                            UserId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
-                            AreaOfExpertiseId = 2
-                        },
-                        new
-                        {
-                            UserId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
-                            AreaOfExpertiseId = 8
-                        },
-                        new
-                        {
-                            UserId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
-                            AreaOfExpertiseId = 3
-                        },
-                        new
-                        {
-                            UserId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
-                            AreaOfExpertiseId = 6
-                        });
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.UserCommunicationMethod", b =>
-                {
-                    b.Property<Guid>("UserProfileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("CommunicationMethodId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserProfileId", "CommunicationMethodId");
-
-                    b.HasIndex("CommunicationMethodId");
-
-                    b.ToTable("UserCommunicationMethod");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserLearningStyle", b =>
@@ -1432,6 +1353,9 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<int>("CommunicationMethod")
+                        .HasColumnType("int");
+
                     b.Property<string>("FullName")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -1440,11 +1364,15 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<bool?>("MessagePermission")
-                        .HasColumnType("bit");
+                    b.Property<bool>("MessagePermission")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
-                    b.Property<bool?>("NotificationsEnabled")
-                        .HasColumnType("bit");
+                    b.Property<bool>("NotificationsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
@@ -1452,17 +1380,19 @@ namespace Infrastructure.Migrations
                     b.Property<byte[]>("PhotoData")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<bool?>("PrivacyProfile")
-                        .HasColumnType("bit");
+                    b.Property<bool>("PrivacyProfile")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("ProfessionalSkill")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("SessionDurationId")
+                    b.Property<int>("SessionDurationId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SessionFrequencyId")
+                    b.Property<int>("SessionFrequencyId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserGoal")
@@ -1482,8 +1412,8 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
                             Bio = "Experienced tech administrator with background in education platforms.",
+                            CommunicationMethod = 1,
                             FullName = "Huy Nguyen Admin",
-                            IndustryExperience = "Experienced in education platforms, with expertise in system administration, DevOps, and cloud infrastructure.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = true,
@@ -1495,8 +1425,8 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
                             Bio = "Platform administrator with focus on user experience and system reliability.",
+                            CommunicationMethod = 1,
                             FullName = "Huy Khuong Admin",
-                            IndustryExperience = "Experienced in user experience and system reliability, with expertise in user management, technical support, and data analytics.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = true,
@@ -1508,8 +1438,8 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
                             Bio = "Senior administrator overseeing platform development and technical operations.",
+                            CommunicationMethod = 1,
                             FullName = "Minh Chau Admin",
-                            IndustryExperience = "Experienced in project management, system architecture, and team leadership, with expertise in platform development and technical operations.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = true,
@@ -1521,12 +1451,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
                             Bio = "Aspiring software developer interested in web technologies and cloud computing.",
+                            CommunicationMethod = 2,
                             FullName = "Huy Nguyen Learner",
-                            IndustryExperience = "Aspiring software developer interested in web technologies and cloud computing, with expertise in web development, cloud computing, and problem-solving.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = true,
-                            ProfessionalSkill = "Web development, Cloud computing, Problem-solving",
                             SessionDurationId = 2,
                             SessionFrequencyId = 1,
                             UserGoal = "To master modern web development frameworks and secure a developer position."
@@ -1535,12 +1464,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             Bio = "Data science enthusiast with background in statistics and mathematics.",
+                            CommunicationMethod = 1,
                             FullName = "Huy Khuong Learner",
-                            IndustryExperience = "Data science enthusiast with background in statistics and mathematics, with expertise in machine learning algorithms and data visualization.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = false,
-                            ProfessionalSkill = "Statistics, Mathematics, Machine learning",
                             SessionDurationId = 3,
                             SessionFrequencyId = 2,
                             UserGoal = "To develop expertise in machine learning algorithms and data visualization."
@@ -1549,12 +1477,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
                             Bio = "UX/UI designer looking to expand skills in frontend development.",
+                            CommunicationMethod = 3,
                             FullName = "Minh Chau Learner",
-                            IndustryExperience = "UX/UI designer looking to expand skills in frontend development, with expertise in UX/UI design, frontend development, and problem-solving.",
                             MessagePermission = false,
                             NotificationsEnabled = false,
                             PrivacyProfile = true,
-                            ProfessionalSkill = "UX/UI design, Frontend development, Problem-solving",
                             SessionDurationId = 1,
                             SessionFrequencyId = 3,
                             UserGoal = "To combine design expertise with technical implementation skills."
@@ -1563,12 +1490,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
                             Bio = "Full-stack developer with interest in blockchain and distributed systems.",
+                            CommunicationMethod = 2,
                             FullName = "Dan Cega",
-                            IndustryExperience = "Full-stack developer with interest in blockchain and distributed systems, with expertise in blockchain, distributed systems, and problem-solving.",
                             MessagePermission = true,
                             NotificationsEnabled = true,
                             PrivacyProfile = false,
-                            ProfessionalSkill = "Blockchain, Distributed systems, Problem-solving",
                             SessionDurationId = 5,
                             SessionFrequencyId = 1,
                             UserGoal = "To build scalable decentralized applications and smart contracts."
@@ -1577,6 +1503,7 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             Bio = "Senior software engineer with 8+ years of experience in full-stack development.",
+                            CommunicationMethod = 1,
                             FullName = "Huy Nguyen Mentor",
                             IndustryExperience = "Fintech, E-commerce, Enterprise applications",
                             MessagePermission = true,
@@ -1590,6 +1517,7 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Bio = "Data scientist specializing in predictive analytics and natural language processing.",
+                            CommunicationMethod = 2,
                             FullName = "Huy Khuong Mentor",
                             IndustryExperience = "Healthcare, Research, Marketing analytics",
                             MessagePermission = true,
@@ -1603,6 +1531,7 @@ namespace Infrastructure.Migrations
                         {
                             Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
                             Bio = "Frontend specialist with expertise in modern JavaScript frameworks and UI/UX principles.",
+                            CommunicationMethod = 3,
                             FullName = "Minh Chau Mentor",
                             IndustryExperience = "SaaS products, E-learning platforms, Creative agencies",
                             MessagePermission = true,
@@ -1631,15 +1560,20 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.UserTopicOfInterest", b =>
                 {
-                    b.Property<Guid>("UserProfileId")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TopicId")
                         .HasColumnType("int");
 
-                    b.HasKey("UserProfileId", "TopicId");
+                    b.Property<Guid?>("UserProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "TopicId");
 
                     b.HasIndex("TopicId");
+
+                    b.HasIndex("UserProfileId");
 
                     b.ToTable("UserTopicOfInterest");
                 });
@@ -1742,15 +1676,19 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
-                        .WithMany("TeachingApproaches")
-                        .HasForeignKey("UserProfileId")
+                    b.HasOne("Infrastructure.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.UserProfile", null)
+                        .WithMany("TeachingApproaches")
+                        .HasForeignKey("UserProfileId");
+
                     b.Navigation("TeachingApproach");
 
-                    b.Navigation("UserProfile");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
@@ -1826,7 +1764,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.User", "User")
-                        .WithMany("UserAreaOfExpertises")
+                        .WithMany("UserArenaOfExpertises")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1834,25 +1772,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("AreaOfExpertise");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.UserCommunicationMethod", b =>
-                {
-                    b.HasOne("Infrastructure.Entities.Enum.CommunicationMethod", "CommunicationMethod")
-                        .WithMany()
-                        .HasForeignKey("CommunicationMethodId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
-                        .WithMany("UserCommunicationMethods")
-                        .HasForeignKey("UserProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommunicationMethod");
-
-                    b.Navigation("UserProfile");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserLearningStyle", b =>
@@ -1884,11 +1803,15 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("Infrastructure.Entities.Enum.SessionDuration", "SessionDuration")
                         .WithMany()
-                        .HasForeignKey("SessionDurationId");
+                        .HasForeignKey("SessionDurationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.Enum.SessionFrequency", "SessionFrequency")
                         .WithMany()
-                        .HasForeignKey("SessionFrequencyId");
+                        .HasForeignKey("SessionFrequencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("SessionDuration");
 
@@ -1924,15 +1847,19 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.UserProfile", "UserProfile")
+                    b.HasOne("Infrastructure.Entities.User", "User")
                         .WithMany("UserTopicOfInterests")
-                        .HasForeignKey("UserProfileId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.UserProfile", null)
+                        .WithMany("UserTopicOfInterests")
+                        .HasForeignKey("UserProfileId");
+
                     b.Navigation("Topic");
 
-                    b.Navigation("UserProfile");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Category", b =>
@@ -1973,17 +1900,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("SubmittedMentorApplication")
                         .IsRequired();
 
-                    b.Navigation("UserAreaOfExpertises");
+                    b.Navigation("UserArenaOfExpertises");
 
                     b.Navigation("UserProfile")
                         .IsRequired();
+
+                    b.Navigation("UserTopicOfInterests");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.UserProfile", b =>
                 {
                     b.Navigation("TeachingApproaches");
-
-                    b.Navigation("UserCommunicationMethods");
 
                     b.Navigation("UserLearningStyles");
 

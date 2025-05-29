@@ -5,6 +5,7 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.DTOs.QueryParameters;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -18,32 +19,43 @@ namespace Presentation.Controllers
         {
             _userService = userService;
         }
+        [HttpGet("all")]
+        [ProducesResponseType(typeof(IEnumerable<UserResponseDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var result = await _userService.GetAllUsersAsync();
+            return ToActionResult(result);
+        }
 
-        [HttpGet]
+        [HttpGet("paged")]
         [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters queryParameters)
         {
             var result = await _userService.GetUsersAsync(queryParameters);
             return ToActionResult(result);
         }
 
-        [HttpPut("{userId}/role")]
+        [HttpPut("{userId}/status")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateUserRole(Guid userId, [FromBody] UpdateUserRoleRequestDto request)
+        public async Task<IActionResult> UpdateUserStatus(Guid userId)
         {
-            var result = await _userService.UpdateUserRoleAsync(userId, request);
+            var result = await _userService.UpdateUserStatusAsync(userId);
             return ToActionResult(result);
         }
 
-        [HttpGet("{userId}")]
+        [HttpGet("current-user")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetUserById(Guid userId)
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
         {
-            var result = await _userService.GetUserByIdsAsync(userId);
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _userService.GetUserByIdAsync(userId);
             return ToActionResult(result);
         }
 
@@ -52,9 +64,9 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(UserProfileResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateUserProfile(Guid userProfileId,[FromForm] UpdateUserProfileRequestDto request)
+        public async Task<IActionResult> UpdateUserProfile(Guid userProfileId, [FromForm] UpdateUserProfileRequestDto request)
         {
-            var result = await _userService.UpdateUserProfile(userProfileId,request);
+            var result = await _userService.UpdateUserProfile(userProfileId, request);
             return ToActionResult(result);
         }
     }

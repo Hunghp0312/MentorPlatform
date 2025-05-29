@@ -1,77 +1,8 @@
-export enum Role {
-  Admin = 1,
-  Learner = 2,
-  Mentor = 3,
-}
-
-export enum CommunicationMethod {
-  VideoCall = 1,
-  AudioCall = 2,
-  TextChat = 3,
-}
-
-export enum SessionFrequencyOption {
-  Weekly = 1,
-  Biweekly = 2,
-  Monthly = 3,
-  AsNeeded = 4,
-}
-
-export enum SessionDurationOption {
-  HalfHour = 1,
-  FortyFiveMinutes = 2,
-  OneHour = 3,
-  OneAndHalfHour = 4,
-  TwoHours = 5,
-}
-
-export enum LearningStyleOption {
-  Visual = 1,
-  Auditory = 2,
-  ReadingWriting = 3,
-  Kinesthetic = 4,
-}
-
-export enum TeachingApproachOption {
-  HandsOn = 1,
-  TheoryBased = 2,
-  ProjectLedMentoring = 3,
-  StepByStepTutorials = 4,
-}
-
-export enum ArenaOfExpertise {
-  Leadership = 1,
-  Programming = 2,
-  Design = 3,
-  Marketing = 4,
-  DataScience = 5,
-  Business = 6,
-  ProjectManagement = 7,
-  Communication = 8,
-}
-
-export enum Availability {
-  Weekdays = 1,
-  Weekends = 2,
-  Mornings = 3,
-  Afternoons = 4,
-  Evenings = 5,
-}
+import * as common from "./commonType";
 
 export interface AccountDetails {
   email: string;
   password: string;
-}
-
-export enum TopicOfInterest {
-  CareerDevelopment = 1,
-  TechnicalSkills = 2,
-  Leadership = 3,
-  Communication = 4,
-  WorkLifeBalance = 5,
-  IndustryInsights = 6,
-  Networking = 7,
-  Entrepreneurship = 8,
 }
 
 export interface CreateProfileResponse {
@@ -99,26 +30,26 @@ export interface SharedProfileDetails {
   contact: string;
   profilePictureUrl?: string;
   profilePictureFile?: File | null;
-  expertise: ArenaOfExpertise[];
+  expertise: common.ArenaOfExpertise[];
   skills?: string;
   industryExperience?: string;
-  availability: Availability[];
-  preferredCommunication: CommunicationMethod[];
+  availability: common.Availability[];
+  preferredCommunication: common.CommunicationMethod[];
 }
 
 export interface LearnerDetails {
-  learningStyle: LearningStyleOption[];
+  learningStyle: common.LearningStyleOption[];
 }
 
 export interface MentorDetails {
   industryExperience: string;
-  teachingApproach: TeachingApproachOption[];
+  teachingApproach: common.TeachingApproachOption[];
 }
 
 export interface UserPreferences {
-  interestedTopics: TopicOfInterest[];
-  sessionFrequency: SessionFrequencyOption;
-  sessionDuration: SessionDurationOption;
+  interestedTopics: common.TopicOfInterest[];
+  sessionFrequency: common.SessionFrequencyOption;
+  sessionDuration: common.SessionDurationOption;
   goal: string;
   privacySettings: {
     isProfilePrivate: boolean;
@@ -157,13 +88,13 @@ const baseProfile: SharedProfileDetails = {
   skills: "",
   industryExperience: "",
   availability: [],
-  preferredCommunication: [CommunicationMethod.VideoCall],
+  preferredCommunication: [common.CommunicationMethod.VideoCall],
 };
 
 const basePreferences: UserPreferences = {
   interestedTopics: [],
-  sessionFrequency: SessionFrequencyOption.Weekly,
-  sessionDuration: SessionDurationOption.OneHour,
+  sessionFrequency: common.SessionFrequencyOption.Weekly,
+  sessionDuration: common.SessionDurationOption.OneHour,
   goal: "",
   privacySettings: {
     isProfilePrivate: false,
@@ -177,12 +108,12 @@ export const createInitialData = (role: Role): UserRegistrationRequest => {
   const profile = { ...baseProfile };
   const preferences = { ...basePreferences };
 
-  if (role === Role.Learner) {
+  if (role === common.RoleEnum.Learner) {
     return {
       role,
       account,
       profile,
-      learnerDetails: { learningStyle: [LearningStyleOption.Visual] },
+      learnerDetails: { learningStyle: [common.LearningStyleOption.Visual] },
       preferences,
     };
   } else {
@@ -192,7 +123,7 @@ export const createInitialData = (role: Role): UserRegistrationRequest => {
       profile,
       mentorDetails: {
         industryExperience: "",
-        teachingApproach: [TeachingApproachOption.HandsOn],
+        teachingApproach: [common.TeachingApproachOption.HandsOn],
       },
       preferences,
     };

@@ -32,6 +32,8 @@ public class UserRepository : BaseRepository<User>, IUserRepository
                              .Include(u => u.Role)
                              .Include(u => u.Status)
                              .Include(u => u.UserProfile)
+                             .Include(u => u.UserAreaOfExpertises)
+                            .ThenInclude(ua => ua.AreaOfExpertise)
                              .ToListAsync();
     }
 
@@ -57,7 +59,9 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 
         query = query.Include(u => u.Role)
                      .Include(u => u.Status)
-                     .Include(u => u.UserProfile);
+                     .Include(u => u.UserProfile)
+                     .Include(u => u.UserAreaOfExpertises)
+                     .ThenInclude(ua => ua.AreaOfExpertise);
 
         if (!string.IsNullOrWhiteSpace(orderBy))
         {
@@ -105,7 +109,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return (users, totalCount);
     }
 
-    public async Task<User?> GetUserByIdsAsync(Guid userId)
+    public async Task<User?> GetUserByIdAsync(Guid userId)
     {
         return await _dbSet
                              .Include(u => u.Role)
