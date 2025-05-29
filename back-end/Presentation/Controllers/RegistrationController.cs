@@ -49,5 +49,18 @@ namespace Presentation.Controllers
 
             return result.Success ? Ok(result.Data) : StatusCode((int)result.StatusCode, result.Message);
         }
+
+        [HttpGet("check-email")]
+        [ProducesResponseType(typeof(CheckEmailResponse), 200)]
+        [ProducesResponseType(typeof(string), 400)]
+        public async Task<IActionResult> CheckEmailExists([FromQuery] string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return BadRequest(new { Message = "Email cannot be empty." });
+            }
+            var result = await _registrationService.CheckEmailExistsAsync(email);
+            return result.Success ? Ok(result.Data) : StatusCode((int)result.StatusCode, new { Message = result.Message });
+        }
     }
 }

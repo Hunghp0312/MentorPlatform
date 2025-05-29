@@ -35,8 +35,6 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-
-
         public async Task<OperationResult<UserProfileResponse>> CreateProfileAsync(RegistrationProfileRequest request)
         {
             var validationResult = await _profileValidator.ValidateAsync(request);
@@ -45,7 +43,9 @@ namespace ApplicationCore.Services
                 return OperationResult<UserProfileResponse>.BadRequest(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
             }
 
-            if (await _registrationRepository.GetByEmailAsync(request.Email) != null)
+            // Check for existing email before creating user
+            var emailCheckResult = await CheckEmailExistsAsync(request.Email);
+            if (emailCheckResult.Data != null && emailCheckResult.Data.Exists)
             {
                 return OperationResult<UserProfileResponse>.Conflict("Email already exists.");
             }
@@ -59,15 +59,14 @@ namespace ApplicationCore.Services
                 photoBytes = ms.ToArray();
             }
 
-            int roleId = request.SelectedRole;
-
+            // Create User entity directly here, or use an extension if RegistrationProfileRequest has all needed fields
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                Email = request.Email,
-                PasswordHash = passwordHash,
-                RoleId = request.SelectedRole,
-                StatusId = 2,
+                Email = request.Email, // Assuming Email is in RegistrationProfileRequest
+                PasswordHash = passwordHash, // Assuming Password is in RegistrationProfileRequest
+                RoleId = request.SelectedRole, // RoleId from the profile request
+                StatusId = 2, // Default StatusId, e.g., Active or Pending Confirmation. Adjust if necessary.
                 UserAreaOfExpertises = request.AreaOfExpertise?
                 .Where(aoeId => aoeId > 0)
                     .Select(aoeId => new UserAreaOfExpertise
@@ -151,7 +150,6 @@ namespace ApplicationCore.Services
             var response = new UserProfileResponse
             {
                 UserId = user.Id,
-                Email = user.Email,
                 FullName = userProfile.FullName,
                 Role = roleDto,
                 Bio = userProfile.Bio,
@@ -269,6 +267,16 @@ namespace ApplicationCore.Services
             };
 
             return OperationResult<UserPreferenceResponse>.Ok(response);
+        }
+
+        public async Task<OperationResult<CheckEmailResponse>> CheckEmailExistsAsync(string email)
+        {
+            var existingUser = await _registrationRepository.GetByEmailAsync(email);
+            if (existingUser != null)
+            {
+                return OperationResult<CheckEmailResponse>.Ok(new CheckEmailResponse { Exists = true, Message = "Email already exists." });
+            }
+            return OperationResult<CheckEmailResponse>.Ok(new CheckEmailResponse { Exists = false, Message = "Email is available." });
         }
     }
 }
