@@ -100,6 +100,7 @@ const MentorStatusProfile = () => {
             fullName: response.fullName,
             professionalSkill: response.professionalSkills,
             industryExperience: response.industryExperience,
+            userGoal: response.userGoal,
           },
           userAreaOfExpertises:
             response.areaOfExpertise?.map(
@@ -746,9 +747,14 @@ const MentorStatusProfile = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">
-                      {new Date(experience.startDate).getFullYear()}–
+                      {new Date(experience.startDate).toISOString().slice(5, 7)}
+                      /{new Date(experience.startDate).getFullYear()}–
                       {experience.endDate
-                        ? new Date(experience.endDate).getFullYear()
+                        ? `${new Date(experience.endDate)
+                            .toISOString()
+                            .slice(5, 7)}/${new Date(
+                            experience.endDate
+                          ).getFullYear()}`
                         : "Present"}
                     </span>
                     {isEditing && (
@@ -990,6 +996,15 @@ const MentorStatusProfile = () => {
               <p className="text-sm text-gray-200">
                 {mentorData.userApplicationDetails?.profile
                   ?.industryExperience || "No experience provided"}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">
+                Motivation
+              </h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.profile?.userGoal ||
+                  "No Motivation provided"}
               </p>
             </div>
             <div>

@@ -16,6 +16,7 @@ namespace ApplicationCore.Extensions
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
+                UserGoal = user.UserProfile?.UserGoal,
                 Status = user.Status,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,

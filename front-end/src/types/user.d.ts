@@ -16,6 +16,7 @@ export interface UserApplication {
   userAreaOfExpertises?: UserAreaOfExpertise[];
   areaOfExpertise?: { id: number; name: string }[];
   fullName?: string;
+  userGoal?: string;
   avatar?: string | null;
   areaOfExpertise?: string[];
   professionalSkills?: string;
@@ -27,6 +28,7 @@ export interface UserProfile {
   photoData?: string;
   fullName?: string;
   bio?: string;
+  userGoal?: string;
   professionalSkill?: string;
   industryExperience?: string;
   userApplication?: MentorApplicationResponse;
