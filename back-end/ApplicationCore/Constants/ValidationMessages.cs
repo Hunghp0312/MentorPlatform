@@ -49,6 +49,7 @@
         public const string PositionRequired = "Position is required.";
         public const string StartDateRequired = "Start date is required.";
         public const string EndDateAfterStartDate = "End date must be after start date.";
+        public const string StartDateEqualOrBeforeCurrentDate = "Start date must be equal current date or before.";
         public const string CertificationNameRequired = "Certification name is required.";
         public const string IssuingOrganizationRequired = "Issuing organization is required.";
         public const string CredentialUrlInvalid = "Credential URL is not a valid URL.";
