@@ -1,4 +1,3 @@
-
 using ApplicationCore.DTOs.Responses.AreaOfExpertises;
 using ApplicationCore.DTOs.Responses.Users;
 using Infrastructure.Entities;
@@ -16,7 +15,6 @@ namespace ApplicationCore.Extensions
                 Id = user.Id,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
-
                 Role = user.Role,
                 Status = user.Status,
                 JoinDate = user.CreatedAt,
