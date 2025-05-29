@@ -10,9 +10,6 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 
-
-
-
 namespace ApplicationCore.Services
 {
     public class UserService : IUserService
@@ -39,6 +36,11 @@ namespace ApplicationCore.Services
             if (queryParameters.RoleId.HasValue)
             {
                 predicate = predicate.And(u => u.RoleId == queryParameters.RoleId.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(queryParameters.Query))
+            {
+                var searchTermLower = queryParameters.Query.ToLower();
+                predicate = predicate.And(u => u.UserProfile != null && u.UserProfile.FullName.ToLower().Contains(searchTermLower));
             }
 
             var (users, totalCount) = await _userRepository.GetUsersWithDetailsAsync(
