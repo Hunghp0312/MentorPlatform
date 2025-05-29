@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250529074003_initialDb")]
+    partial class initialDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1337,30 +1340,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("StatusId");
 
                     b.ToTable("SessionBooking");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"),
-                            AvailabilitySlotId = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
-                            CreatedAt = new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc),
-                            LearnerId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
-                            LearnerMessage = "I would like to discuss about C# performance optimization.",
-                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            SessionTypeId = 3,
-                            StatusId = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"),
-                            AvailabilitySlotId = new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"),
-                            CreatedAt = new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc),
-                            LearnerId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
-                            LearnerMessage = "Please help me review my CV for a junior developer position.",
-                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
-                            SessionTypeId = 3,
-                            StatusId = 1
-                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
