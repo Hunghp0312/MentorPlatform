@@ -30,6 +30,7 @@ namespace Presentation.Controllers
         [HttpGet("paged")]
         [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUsers([FromQuery] UserQueryParameters queryParameters)
         {
             var result = await _userService.GetUsersAsync(queryParameters);
@@ -49,6 +50,7 @@ namespace Presentation.Controllers
         [HttpGet("current-user")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> GetCurrentUser()
         {
             var userIdString = User.FindFirstValue("id")!;

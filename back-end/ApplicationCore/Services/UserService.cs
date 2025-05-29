@@ -49,6 +49,9 @@ namespace ApplicationCore.Services
             var userResponseDtos = users.Select(user => new UserResponseDto
             {
                 Id = user.Id,
+                Avatar = user.UserProfile?.PhotoData != null
+                    ? $"data:image/png;base64,{Convert.ToBase64String(user.UserProfile.PhotoData)}"
+                    : string.Empty,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
@@ -196,6 +199,7 @@ namespace ApplicationCore.Services
             var userResponseDto = new UserResponseDto
             {
                 Id = user.Id,
+                Avatar = $"data:image/png;base64,{Convert.ToBase64String(user.UserProfile?.PhotoData ?? Array.Empty<byte>())}",
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
