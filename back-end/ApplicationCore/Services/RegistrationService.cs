@@ -43,7 +43,6 @@ namespace ApplicationCore.Services
                 return OperationResult<UserProfileResponse>.BadRequest(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
             }
 
-            // Check for existing email before creating user
             var emailCheckResult = await CheckEmailExistsAsync(request.Email);
             if (emailCheckResult.Data != null && emailCheckResult.Data.Exists)
             {
