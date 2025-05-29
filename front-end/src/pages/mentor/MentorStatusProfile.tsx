@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { CirclePlus, CircleMinus, Eye, PencilLine } from "lucide-react";
+import { CirclePlus, CircleMinus, Eye } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import { mentorService } from "../../services/mentorapplication.service";
 import { userService } from "../../services/user.service";
@@ -148,7 +148,6 @@ const MentorStatusProfile = () => {
           status: response.status,
         };
 
-        // Update mentorData, editedMentor, and saveState
         setMentorData((prev) => ({
           ...prev,
           ...mappedData,
@@ -157,20 +156,28 @@ const MentorStatusProfile = () => {
           ...prev,
           ...mappedData,
         }));
-        setSaveState((prev) => ({
-          ...prev,
-          ...mappedData,
-        }));
-      } catch {
-        // If no application exists, set saveState to empty state
+
         setSaveState({
+          mentorEducation: [...(mappedData.mentorEducation || [])],
+          mentorWorkExperience: [...(mappedData.mentorWorkExperience || [])],
+          certifications: [...(mappedData.certifications || [])],
+          mentorDocuments: [...(mappedData.mentorDocuments || [])],
+          submissionDate: mappedData.submissionDate || "",
+          status: mappedData.status || "",
+        });
+      } catch {
+        const emptyState = {
           mentorEducation: [],
           mentorWorkExperience: [],
           certifications: [],
           mentorDocuments: [],
           submissionDate: "",
           status: "",
-        });
+        };
+
+        setSaveState(emptyState);
+        setMentorData((prev) => ({ ...prev, ...emptyState }));
+        setEditedMentor((prev) => ({ ...prev, ...emptyState }));
         setError("Failed to load application data");
       } finally {
         setLoading(false);
@@ -188,6 +195,15 @@ const MentorStatusProfile = () => {
         if (userData.hasMentorApplication) {
           await loadMyApplication();
         } else {
+          const emptyState = {
+            mentorEducation: [],
+            mentorWorkExperience: [],
+            certifications: [],
+            mentorDocuments: [],
+            submissionDate: "",
+            status: "",
+          };
+          setSaveState(emptyState);
           setLoading(false);
         }
       } else {
@@ -202,10 +218,17 @@ const MentorStatusProfile = () => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       const allowedFileTypes = ["application/pdf", "image/jpeg", "image/png"];
+      const maxFileSize = 5 * 1024 * 1024;
 
       if (!allowedFileTypes.includes(file.type)) {
         setError("Chỉ hỗ trợ các định dạng PDF, JPEG, hoặc PNG.");
         alert("Error: Only support PDF, JPEG or PNG.");
+        return;
+      }
+
+      if (file.size > maxFileSize) {
+        setError("Kích thước file không được vượt quá 5MB.");
+        alert("Error: File size must not exceed 5MB.");
         return;
       }
 
@@ -580,35 +603,41 @@ const MentorStatusProfile = () => {
     }
   };
 
-  // const handleSave = () => {
-  //   if (editedMentor) {
-  //     setMentorData((prev) => ({
-  //       ...prev,
-  //       ...editedMentor,
-  //       userApplicationDetails: prev.userApplicationDetails,
-  //     }));
-  //     setIsEditing(false);
-  //     setError(null);
-  //   }
-  // };
   const handleSave = () => {
     if (editedMentor) {
-      setMentorData((prev) => ({
-        ...prev,
-        ...editedMentor,
-        userApplicationDetails: prev.userApplicationDetails,
-      }));
-      setSaveState((prev) => ({
-        ...prev,
-        ...editedMentor,
-        userApplicationDetails: prev.userApplicationDetails,
-      }));
+      const updatedData = {
+        ...mentorData,
+        mentorEducation: [...(editedMentor.mentorEducation || [])],
+        mentorWorkExperience: [...(editedMentor.mentorWorkExperience || [])],
+        certifications: [...(editedMentor.certifications || [])],
+        mentorDocuments: [...(editedMentor.mentorDocuments || [])],
+      };
+
+      setMentorData(updatedData);
+
+      setSaveState({
+        mentorEducation: [...(editedMentor.mentorEducation || [])],
+        mentorWorkExperience: [...(editedMentor.mentorWorkExperience || [])],
+        certifications: [...(editedMentor.certifications || [])],
+        mentorDocuments: [...(editedMentor.mentorDocuments || [])],
+      });
+
       setIsEditing(false);
       setError(null);
     }
   };
 
   const handleCancel = () => {
+    const restoredData = {
+      ...mentorData,
+      mentorEducation: [...(saveState.mentorEducation || [])],
+      mentorWorkExperience: [...(saveState.mentorWorkExperience || [])],
+      certifications: [...(saveState.certifications || [])],
+      mentorDocuments: [...(saveState.mentorDocuments || [])],
+    };
+
+    setMentorData(restoredData);
+
     setEditedMentor({
       ...saveState,
       mentorEducation: [...(saveState.mentorEducation || [])],
@@ -616,6 +645,7 @@ const MentorStatusProfile = () => {
       certifications: [...(saveState.certifications || [])],
       mentorDocuments: [...(saveState.mentorDocuments || [])],
     });
+
     setIsEditing(false);
     setError(null);
     setNewEducation({});
@@ -647,16 +677,18 @@ const MentorStatusProfile = () => {
             mentorData.mentorEducation.map((education, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0 items-center"
               >
                 <div className="flex w-full justify-between items-start">
-                  <div className="flex flex-col">
-                    <h5 className="font-medium">{education.fieldOfStudy}</h5>
-                    <p className="text-[12px] text-gray-400">
+                  <div className="flex flex-col max-w-[75%]">
+                    <h5 className="font-medium break-words overflow-wrap-anywhere">
+                      {education.fieldOfStudy}
+                    </h5>
+                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
                       {education.institutionName}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 min-w-[100px] justify-end">
                     <span className="text-sm text-gray-400">
                       {education.graduationYear ?? "N/A"}
                     </span>
@@ -701,12 +733,14 @@ const MentorStatusProfile = () => {
             mentorData.mentorWorkExperience.map((experience, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0 items-center"
               >
                 <div className="flex w-full justify-between items-start">
-                  <div className="flex flex-col">
-                    <h5 className="font-medium">{experience.position}</h5>
-                    <p className="text-[12px] text-gray-400">
+                  <div className="flex flex-col max-w-[75%]">
+                    <h5 className="font-medium break-words overflow-wrap-anywhere">
+                      {experience.position}
+                    </h5>
+                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
                       {experience.companyName}
                     </p>
                   </div>
@@ -760,14 +794,14 @@ const MentorStatusProfile = () => {
             mentorData.certifications.map((certificate, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0 items-center"
               >
                 <div className="flex w-full justify-between items-start">
-                  <div className="flex flex-col">
-                    <h5 className="font-medium">
+                  <div className="flex flex-col max-w-[75%]">
+                    <h5 className="font-medium break-words overflow-wrap-anywhere">
                       {certificate.certificationName}
                     </h5>
-                    <p className="text-[12px] text-gray-400">
+                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
                       {certificate.issuingOrganization}
                     </p>
                   </div>
