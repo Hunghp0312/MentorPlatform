@@ -1,9 +1,9 @@
 import axiosInstance from "../configs/axiosInstance";
 import {
   CreateProfileResponse,
-  TopicOfInterest,
   UserRegistrationRequest,
 } from "../types/userRegister";
+import { TopicOfInterest } from "../types/commonType";
 
 export const submitRegistration = async (
   email: string,

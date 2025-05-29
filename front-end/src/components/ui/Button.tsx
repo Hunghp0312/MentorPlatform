@@ -9,6 +9,7 @@ type ButtonProps = {
   disabled?: boolean;
   type?: "button" | "submit" | "reset";
   dataTestId?: string;
+  id?: string;
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -20,6 +21,7 @@ const Button: React.FC<ButtonProps> = ({
   disabled = false,
   type = "button",
   dataTestId,
+  id,
 }) => {
   const baseStyles =
     "rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2";
@@ -46,6 +48,7 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <button
+      id={id}
       className={`${classes} ${className} `}
       data-testid={dataTestId}
       onClick={onClick}

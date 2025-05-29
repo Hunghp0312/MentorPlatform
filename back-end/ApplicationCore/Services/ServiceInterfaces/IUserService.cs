@@ -8,10 +8,10 @@ namespace ApplicationCore.Services.ServiceInterfaces
 {
     public interface IUserService
     {
-        Task<OperationResult<PagedResult<UserResponseDto>>> GetUsersAsync(UserQueryParameters queryParameters); // Changed
+        Task<OperationResult<PagedResult<UserResponseDto>>> GetUsersAsync(UserQueryParameters queryParameters);
         Task<OperationResult<IEnumerable<UserResponseDto>>> GetAllUsersAsync();
-        Task<OperationResult<UserResponseDto>> UpdateUserRoleAsync(Guid userId, UpdateUserRoleRequestDto requestDto);
-        Task<OperationResult<UserResponseDto>> GetUserByIdsAsync(Guid userId); // Added new method
-        Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(UpdateUserProfileRequestDto requestDto);
+        Task<OperationResult<UserResponseDto>> UpdateUserStatusAsync(Guid userId);
+        Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId);
+        Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto);
     }
 }

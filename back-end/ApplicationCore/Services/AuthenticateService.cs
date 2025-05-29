@@ -41,7 +41,7 @@ public class AuthenticateService : IAuthenticateService
         user.PasswordResetExpiry = DateTime.UtcNow.AddMinutes(30);
         var encodedPasswordResetToken = Uri.EscapeDataString(user.PasswordResetToken);
         var encodedEmail = Uri.EscapeDataString(user.Email);
-        var frontendUrl = _configuration["FrontendUrl"] ?? "https://localhost:5173";
+        var frontendUrl = _configuration["FrontendUrl"];
         await _unitOfWork.SaveChangesAsync();
         await _sendEmailService.SendEmail(
             email.Email,
@@ -54,7 +54,8 @@ public class AuthenticateService : IAuthenticateService
     public async Task<OperationResult<TokenResponse>> GitHubLoginAsync(string code)
     {
         using var httpClient = new HttpClient();
-        var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
+        var githubAccessTokenLink = "https://github.com/login/oauth/access_token";
+        var tokenRequest = new HttpRequestMessage(HttpMethod.Post, githubAccessTokenLink);
         var clientId = _configuration["Github:ClientId"];
         var clientSecret = _configuration["Github:ClientSecret"];
         tokenRequest.Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -73,7 +74,8 @@ public class AuthenticateService : IAuthenticateService
         if (string.IsNullOrEmpty(githubAccessToken))
             return OperationResult<TokenResponse>.BadRequest("GitHub access token missing.");
 
-        var userRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user");
+        var githubUserLink = "https://api.github.com/user";
+        var userRequest = new HttpRequestMessage(HttpMethod.Get, githubUserLink);
         userRequest.Headers.Add("Authorization", $"Bearer {githubAccessToken}");
         userRequest.Headers.Add("User-Agent", "YourAppName");
         var userResponse = await httpClient.SendAsync(userRequest);
@@ -87,7 +89,8 @@ public class AuthenticateService : IAuthenticateService
 
         if (string.IsNullOrEmpty(githubEmail))
         {
-            var emailsRequest = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user/emails");
+            var githubEmailLink = "https://api.github.com/user/emails";
+            var emailsRequest = new HttpRequestMessage(HttpMethod.Get, githubEmailLink);
             emailsRequest.Headers.Add("Authorization", $"Bearer {githubAccessToken}");
             emailsRequest.Headers.Add("User-Agent", "YourAppName");
             var emailsResponse = await httpClient.SendAsync(emailsRequest);
@@ -151,11 +154,12 @@ public class AuthenticateService : IAuthenticateService
     }
     public async Task<OperationResult<TokenResponse>> GoogleLoginAsync(string code)
     {
+        var googleAccessTokenLink = "https://oauth2.googleapis.com/token";
         using var httpClient = new HttpClient();
         var clientId = _configuration["Google:ClientId"];
         var clientSecret = _configuration["Google:ClientSecret"];
         var redirectUri = _configuration["Google:RedirectUri"];
-        var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://oauth2.googleapis.com/token")
+        var tokenRequest = new HttpRequestMessage(HttpMethod.Post, googleAccessTokenLink)
         {
             Content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
@@ -176,7 +180,8 @@ public class AuthenticateService : IAuthenticateService
             return OperationResult<TokenResponse>.BadRequest("Google access token missing.");
 
 
-        var userRequest = new HttpRequestMessage(HttpMethod.Get, "https://www.googleapis.com/oauth2/v2/userinfo");
+        var gooogleInfoLink = "https://www.googleapis.com/oauth2/v2/userinfo";
+        var userRequest = new HttpRequestMessage(HttpMethod.Get, gooogleInfoLink);
         userRequest.Headers.Add("Authorization", $"Bearer {googleAccessToken}");
         var userResponse = await httpClient.SendAsync(userRequest);
         if (!userResponse.IsSuccessStatusCode)
@@ -240,7 +245,10 @@ public class AuthenticateService : IAuthenticateService
         {
             return OperationResult<TokenResponse>.BadRequest("Password is incorrect");
         }
-
+        if (user.StatusId == 3)
+        {
+            return OperationResult<TokenResponse>.BadRequest("Your account is deactivated. Please contact support.");
+        }
         var claims = new List<Claim>
         {
             new Claim("id", user.Id.ToString()),
@@ -251,6 +259,7 @@ public class AuthenticateService : IAuthenticateService
         var refreshToken = _tokenService.GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        user.LastLogin = DateTime.UtcNow;
         await _unitOfWork.SaveChangesAsync();
         var tokenHandler = new JwtSecurityTokenHandler();
         var loginResponse = new TokenResponse
@@ -302,6 +311,10 @@ public class AuthenticateService : IAuthenticateService
         {
             return OperationResult<TokenResponse>.BadRequest("Invalid refresh token.");
         }
+        if (user.StatusId == 3)
+        {
+            return OperationResult<TokenResponse>.BadRequest("Your account is deactivated. Please contact support.");
+        }
         var claims = new List<Claim>
         {
             new Claim("id", user.Id.ToString()),
@@ -312,6 +325,7 @@ public class AuthenticateService : IAuthenticateService
         var newRefreshToken = _tokenService.GenerateRefreshToken();
         user.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        user.LastLogin = DateTime.UtcNow;
         await _unitOfWork.SaveChangesAsync();
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenResponse = new TokenResponse

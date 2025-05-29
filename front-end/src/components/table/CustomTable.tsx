@@ -165,8 +165,7 @@ const DataTable = <T extends Record<string, any>>({
                 }`}
                 {...(action.buttonName
                   ? { "button-name": action.buttonName }
-                  : {})}
-              >
+                  : {})}>
                 {action.icon && (
                   <span className={action.label ? "mr-1" : ""}>
                     {action.icon}
@@ -199,8 +198,7 @@ const DataTable = <T extends Record<string, any>>({
                 className={`px-3 py-1 text-xs rounded-md flex items-center ${
                   action.className ||
                   "bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600 transition-colors"
-                }`}
-              >
+                }`}>
                 {action.icon && (
                   <span className={action.label ? "mr-1" : ""}>
                     {action.icon}
@@ -232,8 +230,7 @@ const DataTable = <T extends Record<string, any>>({
                   className={`py-3 px-4 text-sm font-medium text-gray-300 ${getAlignClass(
                     column.align
                   )} ${headerClassName}`}
-                  style={{ width: column.width }}
-                >
+                  style={{ width: column.width }}>
                   {column.header}
                 </th>
               ))}
@@ -268,8 +265,7 @@ const DataTable = <T extends Record<string, any>>({
                     } ${rowClassName} ${
                       selectable || onRowClick ? "cursor-pointer" : ""
                     }`}
-                    row-index-test={`row-${index}`}
-                  >
+                    row-index-test={`row-${index}`}>
                     {/* Checkbox cell */}
                     {selectable && (
                       <td className="py-3 px-4 text-sm text-gray-300 text-center w-10">
@@ -283,8 +279,7 @@ const DataTable = <T extends Record<string, any>>({
                               isSelected
                                 ? "bg-gray-600 border-gray-500"
                                 : "border-gray-600 hover:border-gray-500"
-                            }`}
-                          >
+                            }`}>
                             {isSelected && (
                               <Check className="h-3 w-3 text-white" />
                             )}
@@ -299,8 +294,7 @@ const DataTable = <T extends Record<string, any>>({
                         key={colIndex}
                         className={`py-3 px-4 text-sm text-gray-300 ${getAlignClass(
                           column.align
-                        )} ${cellClassName}`}
-                      >
+                        )} ${cellClassName}`}>
                         {renderCell(row, column)}
                       </td>
                     ))}
@@ -311,8 +305,7 @@ const DataTable = <T extends Record<string, any>>({
               <tr>
                 <td
                   colSpan={tableColumns.length + (selectable ? 1 : 0)}
-                  className="py-6 px-4 text-center text-sm text-gray-500"
-                >
+                  className="py-6 px-4 text-center text-sm text-gray-500">
                   {emptyMessage}
                 </td>
               </tr>
@@ -330,8 +323,7 @@ const DataTable = <T extends Record<string, any>>({
           totalItems={totalItems}
           setPageSize={setPageSize}
           pageSizeOptions={pageSizeOptions}
-          className={paginationClassName || ""}
-        ></TableFooter>
+          className={paginationClassName || ""}></TableFooter>
       )}
     </div>
   );

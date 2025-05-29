@@ -7,13 +7,16 @@ import {
   UserPreferences,
   LearnerDetails,
   MentorDetails,
-  Role,
+} from "../../../types/userRegister.d"; // Assume path is correct
+
+import {
+  RoleEnum,
   SessionFrequencyOption,
   SessionDurationOption,
   LearningStyleOption,
   TeachingApproachOption,
   TopicOfInterest, // Import TopicOfInterest
-} from "../../../types/userRegister.d"; // Assume path is correct
+} from "../../../types/commonType"; // Import common types if needed
 
 interface Props {
   currentPreferences: UserPreferences;
@@ -27,7 +30,7 @@ interface Props {
       }
     >
   ) => void;
-  userRole: Role;
+  userRoleEnum: RoleEnum;
   onSubmit: () => void;
   onBack: () => void;
 }
@@ -93,7 +96,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
   currentLearnerDetails,
   currentMentorDetails,
   onUpdate,
-  userRole,
+  userRoleEnum,
   onSubmit,
   onBack,
 }) => {
@@ -186,7 +189,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
       setGoalError("");
     }
 
-    if (userRole === Role.Learner) {
+    if (userRoleEnum === RoleEnum.Learner) {
       if (
         !currentLearnerDetails?.learningStyle ||
         currentLearnerDetails.learningStyle.length === 0
@@ -197,7 +200,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
       } else {
         setLearningStyleError("");
       }
-    } else if (userRole === Role.Mentor) {
+    } else if (userRoleEnum === RoleEnum.Mentor) {
       if (
         !currentMentorDetails?.teachingApproach ||
         currentMentorDetails.teachingApproach.length === 0
@@ -322,7 +325,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
       />
 
-      {userRole === Role.Learner && currentLearnerDetails && (
+      {userRoleEnum === RoleEnum.Learner && currentLearnerDetails && (
         <div id="learnerLearningStyleGroup">
           <MultiSelectButtons
             label="Your Preferred Learning Style(s)"
@@ -348,7 +351,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
           )}
         </div>
       )}
-      {userRole === Role.Mentor && currentMentorDetails && (
+      {userRoleEnum === RoleEnum.Mentor && currentMentorDetails && (
         <div id="mentorTeachingApproachGroup">
           <MultiSelectButtons
             label="Your Preferred Teaching Approach(es)"

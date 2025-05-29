@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { JSX, useState } from "react";
 import Navbar from "./Navbar";
 import { Book, BookCopy, UserCheck } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { getUserFromToken } from "../utils/auth";
+import { pathName } from "../constants/pathName";
 
 export default function Layout() {
   const [collapsed, setCollapsed] = useState(false);
@@ -11,24 +13,45 @@ export default function Layout() {
   const toggleSidebar = () => {
     setCollapsed(!collapsed);
   };
-  const navItems = [
-    { icon: <Book size={20} />, label: "Categories", href: "/category" },
-    {
-      icon: <BookCopy size={20} />,
-      label: "Courses",
-      href: "/course",
-    },
-    {
-      icon: <UserCheck size={20} />,
-      label: "Approvals",
-      href: "/approval",
-    },
-    {
-      icon: <UserCheck size={20} />,
-      label: "Mentor Status",
-      href: "/mentorstatus",
-    },
-  ];
+
+  const decodedToken = getUserFromToken();
+  const role = decodedToken?.role;
+
+  const navItemsByRole: Record<
+    string,
+    { icon: JSX.Element; label: string; href: string }[]
+  > = {
+    Admin: [
+      {
+        icon: <Book size={20} />,
+        label: "Categories",
+        href: pathName.category,
+      },
+      { icon: <BookCopy size={20} />, label: "Courses", href: pathName.course },
+      {
+        icon: <UserCheck size={20} />,
+        label: "Approvals",
+        href: pathName.approval,
+      },
+      {
+        icon: <UserCheck size={20} />,
+        label: "User Management",
+        href: pathName.userList,
+      },
+    ],
+    Mentor: [
+      {
+        icon: <UserCheck size={20} />,
+        label: "Mentor Status",
+        href: pathName.mentorStatus,
+      },
+    ],
+    Learner: [],
+  };
+
+  // Fallback empty nav if no role or unknown role
+  const navItems = role && navItemsByRole[role] ? navItemsByRole[role] : [];
+
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
       <Navbar
@@ -39,8 +62,7 @@ export default function Layout() {
       <main
         className={`flex-1 transition-all duration-300 overflow-y-auto p-6 ${
           collapsed ? "ml-16" : "ml-64"
-        }`}
-      >
+        }`}>
         <div className="bg-gray-900 min-h-screen text-gray-200">
           <Outlet />
         </div>

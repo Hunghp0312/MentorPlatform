@@ -8,4 +8,7 @@ export const pathName = {
   resetPassword: "/reset-password",
   forgotPassword: "/forgot-passord",
   oauthcallback: "/oauth-callback",
+  userList: "/users-listing",
+  mentorStatus: "/status",
+  unauthorized: "/unauthorized",
 };

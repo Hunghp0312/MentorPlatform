@@ -38,7 +38,14 @@ namespace ApplicationCore.Services
             {
                 if (applicationStatus != 0)
                 {
-                    query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicationStatus);
+                    if (applicationStatus == 1 || applicationStatus == 5 || applicationStatus == 6)
+                    {
+                        query = query.Where(x => x.ApplicationStatus != null && (x.ApplicationStatus.Id == 1 || x.ApplicationStatus.Id == 5 || x.ApplicationStatus.Id == 6));
+                    }
+                    else
+                    {
+                        query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicationStatus);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(paginationParameters.Query))
@@ -109,7 +116,7 @@ namespace ApplicationCore.Services
             return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
         }
 
-        public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request)
+        public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request, Guid adminUserId)
         {
             if (request.MentorId == Guid.Empty)
             {
@@ -128,7 +135,7 @@ namespace ApplicationCore.Services
                 return validationResult;
             }
 
-            UpdateMentorApplicationStatusFields(mentorApplication, request);
+            UpdateMentorApplicationStatusFields(mentorApplication, request, adminUserId);
 
             _mentorRepository.Update(mentorApplication);
             await _unitOfWork.SaveChangesAsync();
@@ -148,6 +155,10 @@ namespace ApplicationCore.Services
 
         private static OperationResult<MentorApplicantResponse>? ValidateStatusChange(MentorApplication mentorApplication, MentorUpdateStatusRequest request)
         {
+            if (request.StatusId <= 0)
+            {
+                return OperationResult<MentorApplicantResponse>.BadRequest("Invalid status ID provided.");
+            }
             if (mentorApplication.ApplicationStatusId == request.StatusId)
             {
                 return OperationResult<MentorApplicantResponse>.BadRequest("The application is already in the requested status.");
@@ -159,11 +170,11 @@ namespace ApplicationCore.Services
             return null;
         }
 
-        private static void UpdateMentorApplicationStatusFields(MentorApplication mentorApplication, MentorUpdateStatusRequest request)
+        private static void UpdateMentorApplicationStatusFields(MentorApplication mentorApplication, MentorUpdateStatusRequest request, Guid adminUserId)
         {
             mentorApplication.ApplicationStatusId = request.StatusId;
             mentorApplication.LastStatusUpdateDate = DateTime.UtcNow;
-            mentorApplication.AdminReviewerId = request.AdminReviewerId;
+            mentorApplication.AdminReviewerId = adminUserId;
             if (request.StatusId == 2)
             {
                 mentorApplication.RejectionReason = request.AdminComments;
@@ -307,6 +318,17 @@ namespace ApplicationCore.Services
 
             return OperationResult<MentorApplicationDetailResponse>.Ok(responseDto);
 
+        }
+
+        public async Task<OperationResult<MentorApplicationDetailDto>> GettMentoApplicationDetailAsync(Guid mentorApplicationId)
+        {
+            var mentorApplicationEntity = await _mentorRepository.GetByIdAsync(mentorApplicationId);
+            if (mentorApplicationEntity == null)
+            {
+                return OperationResult<MentorApplicationDetailDto>.NotFound($"No mentor application found for ID '{mentorApplicationId}'.");
+            }
+            var responseDto = mentorApplicationEntity.ToMentorApplicationDetailDto();
+            return OperationResult<MentorApplicationDetailDto>.Ok(responseDto);
         }
     }
 }
