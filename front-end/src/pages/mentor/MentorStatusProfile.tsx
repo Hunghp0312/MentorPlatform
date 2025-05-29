@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { CirclePlus, CircleMinus, Eye } from "lucide-react";
+import { CirclePlus, CircleMinus, Eye, PencilLine } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import { mentorService } from "../../services/mentorapplication.service";
 import { userService } from "../../services/user.service";
@@ -44,6 +44,14 @@ const MentorStatusProfile = () => {
     submissionDate: "",
     status: "",
   });
+  const [saveState, setSaveState] = useState<MentorStatusType>({
+    mentorEducation: [],
+    mentorWorkExperience: [],
+    certifications: [],
+    mentorDocuments: [],
+    submissionDate: "",
+    status: "",
+  });
   const [editedMentor, setEditedMentor] = useState<MentorStatusType>({
     mentorEducation: [],
     mentorWorkExperience: [],
@@ -52,6 +60,7 @@ const MentorStatusProfile = () => {
     submissionDate: "",
     status: "",
   });
+
   const [isEditing, setIsEditing] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [newEducation, setNewEducation] = useState<Partial<MentorEducation>>(
@@ -92,11 +101,13 @@ const MentorStatusProfile = () => {
             professionalSkill: response.professionalSkills,
             industryExperience: response.industryExperience,
           },
-          userArenaOfExpertises:
-            response.areaOfExpertise?.map((expertise: string) => ({
-              userId: response.id,
-              arenaOfExpertise: { name: expertise },
-            })) || [],
+          userAreaOfExpertises:
+            response.areaOfExpertise?.map(
+              (expertise: { id: number; name: string }) => ({
+                userId: response.id,
+                arenaOfExpertise: { name: expertise.name },
+              })
+            ) || [],
         };
         setRole(mappedUserData.role);
         console.log("Mapped User Data:", mappedUserData.role);
@@ -137,6 +148,7 @@ const MentorStatusProfile = () => {
           status: response.status,
         };
 
+        // Update mentorData, editedMentor, and saveState
         setMentorData((prev) => ({
           ...prev,
           ...mappedData,
@@ -145,7 +157,20 @@ const MentorStatusProfile = () => {
           ...prev,
           ...mappedData,
         }));
+        setSaveState((prev) => ({
+          ...prev,
+          ...mappedData,
+        }));
       } catch {
+        // If no application exists, set saveState to empty state
+        setSaveState({
+          mentorEducation: [],
+          mentorWorkExperience: [],
+          certifications: [],
+          mentorDocuments: [],
+          submissionDate: "",
+          status: "",
+        });
         setError("Failed to load application data");
       } finally {
         setLoading(false);
@@ -555,9 +580,25 @@ const MentorStatusProfile = () => {
     }
   };
 
+  // const handleSave = () => {
+  //   if (editedMentor) {
+  //     setMentorData((prev) => ({
+  //       ...prev,
+  //       ...editedMentor,
+  //       userApplicationDetails: prev.userApplicationDetails,
+  //     }));
+  //     setIsEditing(false);
+  //     setError(null);
+  //   }
+  // };
   const handleSave = () => {
     if (editedMentor) {
       setMentorData((prev) => ({
+        ...prev,
+        ...editedMentor,
+        userApplicationDetails: prev.userApplicationDetails,
+      }));
+      setSaveState((prev) => ({
         ...prev,
         ...editedMentor,
         userApplicationDetails: prev.userApplicationDetails,
@@ -568,14 +609,19 @@ const MentorStatusProfile = () => {
   };
 
   const handleCancel = () => {
-    if (mentorData) {
-      setEditedMentor({ ...mentorData });
-      setIsEditing(false);
-      setError(null);
-      setNewEducation({});
-      setNewWorkExperience({});
-      setNewCertification({});
-    }
+    setEditedMentor({
+      ...saveState,
+      mentorEducation: [...(saveState.mentorEducation || [])],
+      mentorWorkExperience: [...(saveState.mentorWorkExperience || [])],
+      certifications: [...(saveState.certifications || [])],
+      mentorDocuments: [...(saveState.mentorDocuments || [])],
+    });
+    setIsEditing(false);
+    setError(null);
+    setNewEducation({});
+    setNewWorkExperience({});
+    setNewCertification({});
+    setSelectedFiles([]);
   };
 
   const additionalSettingsContent = (
@@ -889,7 +935,7 @@ const MentorStatusProfile = () => {
                 Areas of expertise
               </h3>
               <p className="text-sm text-gray-200">
-                {mentorData.userApplicationDetails?.userArenaOfExpertises
+                {mentorData.userApplicationDetails?.userAreaOfExpertises
                   ?.map((expertise) => expertise.arenaOfExpertise?.name)
                   .join(", ") || "No expertise provided"}
               </p>

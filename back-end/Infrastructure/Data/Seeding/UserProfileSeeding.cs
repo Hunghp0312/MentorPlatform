@@ -78,7 +78,6 @@ namespace Infrastructure.Data.Seeding
                 new UserProfile
                 {
                     Id = Guid.Parse("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
-
                     FullName = "Minh Chau Learner",
                     Bio = "UX/UI designer looking to expand skills in frontend development.",
                     UserGoal = "To combine design expertise with technical implementation skills.",
@@ -113,6 +112,7 @@ namespace Infrastructure.Data.Seeding
                     Bio = "Senior software engineer with 8+ years of experience in full-stack development.",
                     ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
                     IndustryExperience = "Fintech, E-commerce, Enterprise applications",
+                    UserGoal = "To teach a seasoned software engineer and lead younge developers.",
                     PrivacyProfile = false,
                     MessagePermission = true,
                     NotificationsEnabled = true,
@@ -126,6 +126,7 @@ namespace Infrastructure.Data.Seeding
                     Bio = "Data scientist specializing in predictive analytics and natural language processing.",
                     ProfessionalSkill = "Python, TensorFlow, PyTorch, NLP, Big Data",
                     IndustryExperience = "Healthcare, Research, Marketing analytics",
+                    UserGoal = "To share knowledge and expertise in data science and machine learning.",
                     PrivacyProfile = true,
                     MessagePermission = true,
                     NotificationsEnabled = true,
@@ -139,6 +140,7 @@ namespace Infrastructure.Data.Seeding
                     Bio = "Frontend specialist with expertise in modern JavaScript frameworks and UI/UX principles.",
                     ProfessionalSkill = "React, Vue.js, Angular, SCSS, Accessibility",
                     IndustryExperience = "SaaS products, E-learning platforms, Creative agencies",
+                    UserGoal = "To share knowledge and expertise in frontend development and UI/UX design.",
                     PrivacyProfile = false,
                     MessagePermission = true,
                     NotificationsEnabled = false,
