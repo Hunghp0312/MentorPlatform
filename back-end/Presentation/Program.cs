@@ -77,6 +77,7 @@ builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository
 builder.Services.AddScoped<ISupportingDocumentService, SupportingDocumentService>();
 builder.Services.AddScoped<
    ISupportingDocumentRepository, SupportingDocumentRepository>();
+builder.Services.AddScoped<IUserProfileRepository,UserProfileRepository>();
 builder.Services.AddScoped<IDocumentContentService, DocumentContentService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);

@@ -3,12 +3,14 @@ import { CirclePlus, CircleMinus, Eye } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import { mentorService } from "../../services/mentorapplication.service";
 import { userService } from "../../services/user.service";
+import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
 import {
   MentorCertification,
   MentorEducation,
   MentorWorkExperience,
   MentorCreateApplication,
   SupportingDocument,
+  DocumentContent,
 } from "../../types/mentorapplication";
 import { User, UserApplication } from "../../types/user";
 import CustomModal from "../../components/ui/Modal";
@@ -21,7 +23,7 @@ interface MentorStatusType {
   mentorEducation: MentorEducation[];
   mentorWorkExperience: MentorWorkExperience[];
   certifications: MentorCertification[];
-  mentorDocuments: SupportingDocument | null;
+  mentorDocuments: SupportingDocument[];
   submissionDate?: string;
   approvalDate?: string;
   rejectedDate?: string;
@@ -38,7 +40,7 @@ const MentorStatusProfile = () => {
     mentorEducation: [],
     mentorWorkExperience: [],
     certifications: [],
-    mentorDocuments: null,
+    mentorDocuments: [],
     submissionDate: "",
     status: "",
   });
@@ -46,12 +48,12 @@ const MentorStatusProfile = () => {
     mentorEducation: [],
     mentorWorkExperience: [],
     certifications: [],
-    mentorDocuments: null,
+    mentorDocuments: [],
     submissionDate: "",
     status: "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [newEducation, setNewEducation] = useState<Partial<MentorEducation>>(
     {}
   );
@@ -72,31 +74,7 @@ const MentorStatusProfile = () => {
     fileType: string;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // useEffect(() => {
-  //   setLoading(true);
-  //   const initialMentor: MentorStatusType = {
-  //     id: mockUser1.id ?? "", // Fallback to empty string if id is undefined
-  //     name: mockUser1.userProfile?.fullName ?? "Unknown Name", // Fallback for name
-  //     email: mockUser1.email ?? "", // Fallback for email
-  //     expertiseAreas:
-  //       mockUser1.userAreaOfExpertises
-  //         ?.map((expertise) => expertise.AreaOfExpertise?.name ?? "")
-  //         .filter((name) => name !== "") ?? [], // Filter out empty strings, fallback to empty array
-  //     status:
-  //       mockUser1.mentorApplications?.applicationStatus?.name ?? "unknown", // Fallback for status
-  //     profileImage: mockUser1.userProfile?.photoData ?? "", // Fallback for profileImage
-  //     professionalSkill: mockUser1.userProfile?.professionalSkill ?? "", // Fallback for professionalSkill
-  //     industryExperience: mockUser1.userProfile?.industryExperience ?? "", // Fallback for industryExperience
-  //     mentorEducation: mockUser1.mentorApplications?.mentorEducations ?? [], // Fallback for mentorEducation
-  //     mentorWorkExperience:
-  //       mockUser1.mentorApplications?.mentorWorkExperiences ?? [], // Fallback for mentorWorkExperience
-  //     certifications: mockUser1.mentorApplications?.mentorCertifications ?? [], // Fallback for certifications
-  //   };
-  //   setMentorData(initialMentor);
-  //   setEditedMentor({ ...initialMentor });
-  //   setLoading(false);
-  // }, []);
-  // Khởi tạo dữ liệu ban đầu (có thể để rỗng vì không dùng mockUser1)
+
   useEffect(() => {
     const fetchUserData = async (): Promise<UserApplication | null> => {
       try {
@@ -109,7 +87,7 @@ const MentorStatusProfile = () => {
           hasMentorApplication: response.hasMentorApplication,
           profile: {
             id: response.id,
-            photoData: response.avatar || undefined,
+            photoData: response.avatar || DefaultImage,
             fullName: response.fullName,
             professionalSkill: response.professionalSkills,
             industryExperience: response.industryExperience,
@@ -137,10 +115,9 @@ const MentorStatusProfile = () => {
         const response = await mentorService.getMyApplication();
         console.log("My Application Data:", response);
 
-        let mappedDocument = null;
-        if (response.documentsDetails?.[0]) {
-          const doc = response.documentsDetails[0];
-          mappedDocument = {
+        const mappedDocuments: SupportingDocument[] =
+          response.documentsDetails?.map((doc: DocumentContent) => ({
+            id: doc.id,
             fileName: doc.fileName,
             fileType: doc.fileType,
             fileSize: doc.fileSize || 0,
@@ -150,14 +127,13 @@ const MentorStatusProfile = () => {
               fileType: doc.fileType,
               fileContent: doc.fileContent,
             },
-          };
-        }
+          })) || [];
 
         const mappedData: Partial<MentorStatusType> = {
           mentorEducation: response.educationDetails || [],
           mentorWorkExperience: response.workExperienceDetails || [],
           certifications: response.certifications || [],
-          mentorDocuments: mappedDocument,
+          mentorDocuments: mappedDocuments,
           status: response.status,
         };
 
@@ -200,7 +176,19 @@ const MentorStatusProfile = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      setSelectedFile(file);
+      const allowedFileTypes = ["application/pdf", "image/jpeg", "image/png"];
+
+      if (!allowedFileTypes.includes(file.type)) {
+        setError("Chỉ hỗ trợ các định dạng PDF, JPEG, hoặc PNG.");
+        alert("Error: Only support PDF, JPEG or PNG.");
+        return;
+      }
+
+      if (mentorData.mentorDocuments.length >= 5) {
+        setError("Bạn chỉ có thể upload tối đa 5 file.");
+        return;
+      }
+
       const newDocument: SupportingDocument = {
         fileName: file.name,
         fileType: file.type,
@@ -212,13 +200,15 @@ const MentorStatusProfile = () => {
           fileContent: "",
         },
       };
+
+      setSelectedFiles((prev) => [...prev, file]);
       setEditedMentor((prev) => ({
         ...prev,
-        mentorDocuments: newDocument,
+        mentorDocuments: [...prev.mentorDocuments, newDocument],
       }));
       setMentorData((prev) => ({
         ...prev,
-        mentorDocuments: newDocument,
+        mentorDocuments: [...prev.mentorDocuments, newDocument],
       }));
     }
   };
@@ -229,16 +219,44 @@ const MentorStatusProfile = () => {
     }
   };
 
-  const handleRemoveDocument = () => {
-    setEditedMentor((prev) => ({
-      ...prev,
-      mentorDocuments: null,
-    }));
-    setMentorData((prev) => ({
-      ...prev,
-      mentorDocuments: null,
-    }));
-    setSelectedFile(null);
+  const handleRemoveDocument = async (index: number) => {
+    const document = mentorData.mentorDocuments[index];
+
+    if (
+      (mentorData.status === "Request Info" ||
+        mentorData.status === "Pending") &&
+      document.id
+    ) {
+      try {
+        await mentorService.deleteFile(document.id);
+        setEditedMentor((prev) => ({
+          ...prev,
+          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        }));
+        setMentorData((prev) => ({
+          ...prev,
+          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        }));
+        setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+      } catch (error) {
+        console.error("Error deleting file:", error);
+        setError("Lỗi khi xóa tài liệu. Vui lòng thử lại.");
+      }
+    } else {
+      setEditedMentor((prev) => ({
+        ...prev,
+        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+      }));
+      setMentorData((prev) => ({
+        ...prev,
+        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+      }));
+      setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    }
+
+    if (mentorData.mentorDocuments.length <= 1) {
+      setSelectedFiles([]);
+    }
   };
 
   const handleAddNewEducation = async (newEducation: MentorEducation) => {
@@ -395,8 +413,15 @@ const MentorStatusProfile = () => {
   };
 
   const handleSubmitApplication = async () => {
-    if (!editedMentor || !selectedFile || !editedMentor.mentorDocuments) {
-      setError("Vui lòng chọn một tài liệu.");
+    if (!editedMentor || editedMentor.mentorDocuments.length === 0) {
+      setError("Vui lòng chọn ít nhất một tài liệu.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Bạn có chắc chắn muốn gửi đơn đăng ký không?"
+    );
+    if (!confirmed) {
       return;
     }
 
@@ -404,47 +429,141 @@ const MentorStatusProfile = () => {
       mentorEducations: editedMentor.mentorEducation,
       mentorWorkExperiences: editedMentor.mentorWorkExperience,
       mentorCertifications: editedMentor.certifications,
-      mentorDocuments: editedMentor.mentorDocuments,
     };
 
     try {
-      setLoading(true);
-      await mentorService.submitCompleteApplication(application, selectedFile);
-      alert("Đã gửi đơn đăng ký thành công!");
-      setIsEditing(false);
-      setSelectedFile(null);
+      if (mentorData.status === "") {
+        await mentorService.submitCompleteApplication(application);
 
-      const response = await mentorService.getMyApplication();
-      console.log("Updated Application Data:", response);
+        for (const file of selectedFiles) {
+          await mentorService.uploadFile(file);
+        }
 
-      const mappedData: MentorStatusType = {
-        mentorEducation: response.mentorEducations || [],
-        mentorWorkExperience: response.mentorWorkExperiences || [],
-        certifications: response.mentorCertifications || [],
-        mentorDocuments: response.supportingDocument || null,
-        status: response.status,
-      };
+        alert("Đã gửi đơn đăng ký thành công!");
+        setIsEditing(false);
+        setSelectedFiles([]);
 
-      setMentorData(mappedData);
-      setEditedMentor({ ...mappedData });
+        const response = await mentorService.getMyApplication();
+        const mappedDocuments: SupportingDocument[] =
+          response.documentsDetails?.map((doc: DocumentContent) => ({
+            id: doc.id,
+            fileName: doc.fileName,
+            fileType: doc.fileType,
+            fileSize: doc.fileSize || 0,
+            uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            documentContent: {
+              fileName: doc.fileName,
+              fileType: doc.fileType,
+              fileContent: doc.fileContent,
+            },
+          })) || [];
+
+        const mappedData: MentorStatusType = {
+          mentorEducation: response.educationDetails || [],
+          mentorWorkExperience: response.workExperienceDetails || [],
+          certifications: response.certifications || [],
+          mentorDocuments: mappedDocuments,
+          status: response.status,
+          userApplicationDetails: mentorData.userApplicationDetails,
+        };
+
+        setMentorData(mappedData);
+        setEditedMentor({ ...mappedData });
+      } else if (mentorData.status === "Pending") {
+        const newFiles = selectedFiles.filter(
+          (_, index) => !mentorData.mentorDocuments[index]?.id
+        );
+        for (const file of newFiles) {
+          await mentorService.uploadFile(file);
+        }
+
+        alert("Đã cập nhật tài liệu thành công!");
+        setIsEditing(false);
+        setSelectedFiles([]);
+
+        const response = await mentorService.getMyApplication();
+        const mappedDocuments: SupportingDocument[] =
+          response.documentsDetails?.map((doc: DocumentContent) => ({
+            id: doc.id,
+            fileName: doc.fileName,
+            fileType: doc.fileType,
+            fileSize: doc.fileSize || 0,
+            uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            documentContent: {
+              fileName: doc.fileName,
+              fileType: doc.fileType,
+              fileContent: doc.fileContent,
+            },
+          })) || [];
+
+        const mappedData: MentorStatusType = {
+          mentorEducation: response.educationDetails || [],
+          mentorWorkExperience: response.workExperienceDetails || [],
+          certifications: response.certifications || [],
+          mentorDocuments: mappedDocuments,
+          status: response.status,
+          userApplicationDetails: mentorData.userApplicationDetails,
+        };
+
+        setMentorData(mappedData);
+        setEditedMentor({ ...mappedData });
+      } else if (mentorData.status === "Request Info") {
+        await mentorService.updateMyApplication(application);
+
+        const newFiles = selectedFiles.filter(
+          (_, index) => !mentorData.mentorDocuments[index]?.id
+        );
+        for (const file of newFiles) {
+          await mentorService.uploadFile(file);
+        }
+
+        alert("Đã cập nhật đơn đăng ký thành công!");
+        setIsEditing(false);
+        setSelectedFiles([]);
+
+        const response = await mentorService.getMyApplication();
+        const mappedDocuments: SupportingDocument[] =
+          response.documentsDetails?.map((doc: DocumentContent) => ({
+            id: doc.id,
+            fileName: doc.fileName,
+            fileType: doc.fileType,
+            fileSize: doc.fileSize || 0,
+            uploadedAt: doc.uploadedAt || new Date().toISOString(),
+            documentContent: {
+              fileName: doc.fileName,
+              fileType: doc.fileType,
+              fileContent: doc.fileContent,
+            },
+          })) || [];
+
+        const mappedData: MentorStatusType = {
+          mentorEducation: response.educationDetails || [],
+          mentorWorkExperience: response.workExperienceDetails || [],
+          certifications: response.certifications || [],
+          mentorDocuments: mappedDocuments,
+          status: response.status,
+          userApplicationDetails: mentorData.userApplicationDetails,
+        };
+
+        setMentorData(mappedData);
+        setEditedMentor({ ...mappedData });
+      }
     } catch (error) {
       console.error("Error submitting application:", error);
       setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
       throw error;
-    } finally {
-      setLoading(false);
     }
   };
 
   const handleSave = () => {
     if (editedMentor) {
-      setLoading(true);
-      setTimeout(() => {
-        setMentorData(editedMentor);
-        setIsEditing(false);
-        setLoading(false);
-        setError(null);
-      }, 1000);
+      setMentorData((prev) => ({
+        ...prev,
+        ...editedMentor,
+        userApplicationDetails: prev.userApplicationDetails,
+      }));
+      setIsEditing(false);
+      setError(null);
     }
   };
 
@@ -466,6 +585,7 @@ const MentorStatusProfile = () => {
           Education
           {isEditing && (
             <button
+              id="open-education-dialog-icon"
               onClick={() => setOpenEducationDialog(true)}
               className="ml-1"
             >
@@ -495,7 +615,10 @@ const MentorStatusProfile = () => {
                       {education.graduationYear ?? "N/A"}
                     </span>
                     {isEditing && (
-                      <button onClick={() => handleRemoveEducation(index)}>
+                      <button
+                        id={`remove-education-icon-${index}`}
+                        onClick={() => handleRemoveEducation(index)}
+                      >
                         <CircleMinus
                           size={20}
                           className="text-red-500 hover:text-red-600"
@@ -516,6 +639,7 @@ const MentorStatusProfile = () => {
           Work Experience
           {isEditing && (
             <button
+              id="open-work-experience-dialog-icon"
               onClick={() => setOpenWorkExperienceDialog(true)}
               className="ml-1"
             >
@@ -543,12 +667,15 @@ const MentorStatusProfile = () => {
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">
                       {new Date(experience.startDate).getFullYear()}–
-                      {experience.endDate && experience.endDate !== "Present"
+                      {experience.endDate
                         ? new Date(experience.endDate).getFullYear()
                         : "Present"}
                     </span>
                     {isEditing && (
-                      <button onClick={() => handleRemoveWorkExperience(index)}>
+                      <button
+                        id={`remove-workexperience-icon-${index}`}
+                        onClick={() => handleRemoveWorkExperience(index)}
+                      >
                         <CircleMinus
                           size={20}
                           className="text-red-500 hover:text-red-600"
@@ -571,6 +698,7 @@ const MentorStatusProfile = () => {
           Certifications
           {isEditing && (
             <button
+              id="open-certification-dialog-icon"
               onClick={() => setOpenCertificationDialog(true)}
               className="ml-1"
             >
@@ -599,7 +727,10 @@ const MentorStatusProfile = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     {isEditing && (
-                      <button onClick={() => handleRemoveCertification(index)}>
+                      <button
+                        id={`remove-certification-icon-${index}`}
+                        onClick={() => handleRemoveCertification(index)}
+                      >
                         <CircleMinus
                           size={20}
                           className="text-red-500 hover:text-red-600"
@@ -617,9 +748,13 @@ const MentorStatusProfile = () => {
       </div>
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
-          Document
-          {isEditing && (
-            <button onClick={() => handleOpenFileExplorer()} className="ml-1">
+          Documents
+          {isEditing && mentorData.mentorDocuments.length < 5 && (
+            <button
+              id="open-file-explorer-icon"
+              onClick={() => handleOpenFileExplorer()}
+              className="ml-1"
+            >
               <CirclePlus
                 size={20}
                 className="text-green-500 hover:text-green-600"
@@ -630,47 +765,56 @@ const MentorStatusProfile = () => {
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
+            accept=".pdf,image/jpeg,image/png"
             style={{ display: "none" }}
           />
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData.mentorDocuments ? (
-            <div className="flex justify-between py-2 border-b-1 border-gray-500">
-              <div className="flex flex-col">
-                <h5 className="font-medium">
-                  {mentorData.mentorDocuments.fileName}
-                </h5>
-                <p className="text-[12px] text-gray-400">
-                  {mentorData.mentorDocuments.fileType}
-                </p>
+          {mentorData.mentorDocuments.length > 0 ? (
+            mentorData.mentorDocuments.map((document, index) => (
+              <div
+                key={index}
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+              >
+                <div className="flex flex-col">
+                  <h5 className="font-medium">{document.fileName}</h5>
+                  <p className="text-[12px] text-gray-400">
+                    {document.fileType}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  {mentorData.status !== "" && (
+                    <button
+                      id={`view-document-icon-${index}`}
+                      onClick={() =>
+                        handleViewDocument(
+                          document.documentContent?.fileContent || "",
+                          document.fileType
+                        )
+                      }
+                    >
+                      <Eye
+                        size={20}
+                        className="text-blue-500 hover:text-blue-600"
+                      />
+                    </button>
+                  )}
+                  {isEditing && (
+                    <button
+                      id={`remove-document-icon-${index}`}
+                      onClick={() => handleRemoveDocument(index)}
+                    >
+                      <CircleMinus
+                        size={20}
+                        className="text-red-500 hover:text-red-600"
+                      />
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() =>
-                    handleViewDocument(
-                      mentorData.mentorDocuments!.documentContent
-                        ?.fileContent || "",
-                      mentorData.mentorDocuments!.fileType
-                    )
-                  }
-                >
-                  <Eye
-                    size={20}
-                    className="text-blue-500 hover:text-blue-600"
-                  />
-                </button>
-                {isEditing && (
-                  <button onClick={handleRemoveDocument}>
-                    <CircleMinus
-                      size={20}
-                      className="text-red-500 hover:text-red-600"
-                    />
-                  </button>
-                )}
-              </div>
-            </div>
+            ))
           ) : (
-            <p className="text-sm text-gray-200">No document provided.</p>
+            <p className="text-sm text-gray-200">No documents provided.</p>
           )}
         </div>
       </div>
@@ -689,8 +833,16 @@ const MentorStatusProfile = () => {
               Your Application
             </h1>
             <button
+              id="edit-application-button"
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
+              className={`px-4 py-2 rounded-md transition-colors ${
+                mentorData.status === "" || mentorData.status === "Request Info"
+                  ? "bg-orange-500 hover:bg-orange-600 text-white"
+                  : "bg-gray-700 text-gray-400 cursor-not-allowed"
+              }`}
+              disabled={
+                mentorData.status !== "" && mentorData.status !== "Request Info"
+              }
             >
               Edit Application
             </button>
@@ -698,19 +850,11 @@ const MentorStatusProfile = () => {
           <div className="space-y-6">
             <div className="flex items-center space-x-4">
               <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
-                {mentorData.userApplicationDetails?.profile?.photoData ? (
-                  <img
-                    src={mentorData.userApplicationDetails.profile.photoData}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-gray-400 text-4xl">
-                    {mentorData.userApplicationDetails?.profile?.fullName?.charAt(
-                      0
-                    ) || ""}
-                  </span>
-                )}
+                <img
+                  src={DefaultImage}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
                 <h2 className="text-xl font-medium text-gray-200">
@@ -776,6 +920,7 @@ const MentorStatusProfile = () => {
               </p>
             </div>
             <ExpandProfileSettings
+              title="Additional Profile"
               additionalSettings={additionalSettingsContent}
               isExpanded={isExpanded}
               onToggle={() => setIsExpanded((prev) => !prev)}
@@ -861,12 +1006,14 @@ const MentorStatusProfile = () => {
             {isEditing ? (
               <>
                 <button
+                  id="save-button"
                   onClick={handleSave}
                   className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors"
                 >
                   Save
                 </button>
                 <button
+                  id="cancel-button"
                   onClick={handleCancel}
                   className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors"
                 >
@@ -875,8 +1022,18 @@ const MentorStatusProfile = () => {
               </>
             ) : (
               <button
+                id="submit-application-button"
                 onClick={() => handleSubmitApplication()}
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
+                className={`px-4 py-2 rounded-md transition-colors ${
+                  mentorData.status === "" ||
+                  mentorData.status === "Request Info"
+                    ? "bg-orange-500 hover:bg-orange-600 text-white"
+                    : "bg-gray-700 text-gray-400 cursor-not-allowed"
+                }`}
+                disabled={
+                  mentorData.status !== "" &&
+                  mentorData.status !== "Request Info"
+                }
               >
                 Submit
               </button>

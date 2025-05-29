@@ -1,5 +1,3 @@
-using Infrastructure.Entities;
-
 namespace ApplicationCore.DTOs.Responses.Registration
 {
     public class UserProfileResponse

@@ -82,16 +82,11 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       isValid = false;
     }
 
-    if (
-      formState.endDate &&
-      formState.endDate !== "Present" &&
-      !/^\d{4}$/.test(formState.endDate)
-    ) {
+    if (formState.endDate && !/^\d{4}$/.test(formState.endDate)) {
       newErrors.endDate = "End year must be a valid 4-digit number.";
       isValid = false;
     } else if (
       formState.endDate &&
-      formState.endDate !== "Present" &&
       Number(formState.endDate) < Number(formState.startDate)
     ) {
       newErrors.endDate = "End year cannot be earlier than start year.";
@@ -110,10 +105,9 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
     const updatedFormState = {
       ...formState,
       startDate: `${formState.startDate}-01-01T00:00:00.000Z`,
-      endDate:
-        formState.endDate?.trim() === ""
-          ? "Present"
-          : `${formState.endDate}-01-01T00:00:00.000Z`,
+      endDate: formState.endDate?.trim()
+        ? `${formState.endDate}-01-01T00:00:00.000Z`
+        : null,
     };
     onSubmit(updatedFormState);
     onClose();
@@ -170,6 +164,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       </div>
       <div className="flex justify-end space-x-4 pt-4">
         <Button
+          id="cancel-workexperience-dialog-button"
           variant="secondary"
           size="md"
           className="font-bold text-white"
@@ -179,6 +174,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
           Cancel
         </Button>
         <Button
+          id="submit-workexperience-dialog-button"
           variant="primary"
           size="md"
           type="submit"

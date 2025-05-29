@@ -1219,6 +1219,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("148b5a81-90d6-476d-9fee-747b834011ee"),
                             CreatedAt = new DateTime(2024, 1, 15, 10, 30, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.admin@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 25, 10, 30, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I",
                             RoleId = 1,
                             StatusId = 1
@@ -1228,6 +1229,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"),
                             CreatedAt = new DateTime(2024, 1, 16, 11, 0, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.admin@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 26, 11, 0, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E",
                             RoleId = 1,
                             StatusId = 1
@@ -1237,6 +1239,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"),
                             CreatedAt = new DateTime(2024, 1, 17, 14, 20, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.admin@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 27, 14, 20, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8",
                             RoleId = 1,
                             StatusId = 1
@@ -1246,6 +1249,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
                             CreatedAt = new DateTime(2024, 2, 10, 9, 5, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.learner@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 20, 9, 5, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu",
                             RoleId = 2,
                             StatusId = 1
@@ -1255,6 +1259,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             CreatedAt = new DateTime(2024, 2, 12, 16, 30, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.learner@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 21, 16, 30, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi",
                             RoleId = 2,
                             StatusId = 1
@@ -1264,6 +1269,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"),
                             CreatedAt = new DateTime(2024, 2, 18, 17, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.learner@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 19, 17, 0, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT",
                             RoleId = 2,
                             StatusId = 3
@@ -1273,6 +1279,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             CreatedAt = new DateTime(2024, 3, 1, 10, 0, 0, 0, DateTimeKind.Utc),
                             Email = "huynguyen.mentor@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 28, 9, 0, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq",
                             RoleId = 3,
                             StatusId = 2
@@ -1282,6 +1289,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             CreatedAt = new DateTime(2024, 3, 5, 11, 20, 0, 0, DateTimeKind.Utc),
                             Email = "huykhuong.mentor@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 27, 11, 20, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV",
                             RoleId = 3,
                             StatusId = 2
@@ -1291,6 +1299,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
                             CreatedAt = new DateTime(2024, 3, 10, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "minhchau.mentor@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 26, 12, 0, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr",
                             RoleId = 3,
                             StatusId = 2
@@ -1300,6 +1309,7 @@ namespace Infrastructure.Migrations
                             Id = new Guid("0dd85da0-9214-419e-aa02-adefac68c264"),
                             CreatedAt = new DateTime(2024, 3, 15, 14, 45, 0, 0, DateTimeKind.Utc),
                             Email = "dancega713@gmail.com",
+                            LastLogin = new DateTime(2024, 5, 28, 14, 45, 0, 0, DateTimeKind.Utc),
                             PasswordHash = "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw",
                             RoleId = 2,
                             StatusId = 1

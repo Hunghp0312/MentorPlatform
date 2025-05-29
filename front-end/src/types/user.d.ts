@@ -1,27 +1,19 @@
-import { MentorApplicationResponse } from "./approval";
 import { EnumType } from "./commonType";
-import { AreaOfExpertise } from "./mentorapplication";
-import { MentorApplication } from "./approval";
+import { MentorApplicationResponse } from "./approval";
 
 export interface User {
   id: string;
   email: string;
   role?: EnumType;
-  userProfile?: UserProfile;
-  //   userTopicOfInterests?: UserTopicOfInterest[];
-  mentorApplications?: MentorApplication;
-  submittedMentorApplication?: MentorApplication;
-  reviewedMentorApplication?: MentorApplication;
-  //   mentoredCourses?: Course[];
-  userAreaOfExpertises?: UserAreaOfExpertise[];
+  profile?: UserProfile;
+  userArenaOfExpertises?: UserAreaOfExpertise[];
 }
 export interface UserApplication {
   id: string;
   email: string;
   role?: EnumType;
   profile?: UserProfile;
-  userArenaOfExpertises?: UserArenaOfExpertise[];
-  // Các trường bổ sung từ console log (nếu cần đặt trực tiếp trong User)
+  userArenaOfExpertises?: UserAreaOfExpertise[];
   fullName?: string;
   avatar?: string | null;
   areaOfExpertise?: string[];
@@ -31,37 +23,20 @@ export interface UserApplication {
 }
 export interface UserProfile {
   id?: string;
-  photoData?: string; // Assuming base64 string for binary data
+  photoData?: string;
   fullName?: string;
   bio?: string;
   professionalSkill?: string;
   industryExperience?: string;
-  availabilityData?: EnumType[];
-  //   userGoal?: string;
-  //   sessionFrequency?: number;
-  //   sessionDuration?: number;
-  //   learningStyle?: number;
-  //   teachingApproach?: number;
-  //   privacyProfile: boolean;
-  //   messagePermission: boolean;
-  //   notificationsEnabled: boolean;
-  communicationMethod?: EnumType;
-  user?: User;
-}
-// export interface UserTopicOfInterest {
-//   //   userId: string;
-//   //   topicId: string;
-//   user?: User;
-//   topic?: Topic;
-// }
-export interface UserAreaOfExpertise {
-  userId: string;
-  //   AreaOfExpertiseId: string;
-  //user?: User;
-  AreaOfExpertise?: AreaOfExpertise;
+  userApplication?: MentorApplicationResponse;
 }
 
-export interface ArenaOfExpertise {
+export interface UserAreaOfExpertise {
+  userId: string;
+  arenaOfExpertise?: AreaOfExpertise;
+}
+
+export interface AreaOfExpertise {
   name: string;
-  userArenaOfExpertises?: UserArenaOfExpertise[];
+  userArenaOfExpertises?: UserAreaOfExpertise[];
 }
