@@ -7,11 +7,6 @@ namespace ApplicationCore.Extensions
 {
     public static class RegistrationMappingExtension
     {
-        // Removed ToUserEntity extension for RegisRequest as it's no longer used.
-        // User creation is now handled within CreateProfileAsync in RegistrationService.
-        // Ensure RegistrationProfileRequest contains all necessary fields (Email, Password etc.)
-        // or adjust CreateProfileAsync accordingly.
-
         public static UserProfile ToUserProfileEntity(this RegistrationProfileRequest dto, Guid userId, byte[]? photoData)
         {
             var userProfile = new UserProfile
