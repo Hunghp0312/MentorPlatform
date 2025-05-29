@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import InputCustom from "../../input/InputCustom";
 import { MentorEducation } from "../../../types/mentorapplication";
-// import InputCheckbox from "../input/InputCheckbox";
 import Button from "../../ui/Button";
 import loading from "../../../assets/loadingIcon.svg";
 interface EducationAddDialogProps {
@@ -131,6 +130,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
       {/* Form Actions */}
       <div className="flex justify-end space-x-4 pt-4">
         <Button
+          id="cancel-education-dialog-button"
           variant="secondary"
           size="md"
           className="font-bold text-white"
@@ -140,6 +140,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
           Cancel
         </Button>
         <Button
+          id="submit-education-dialog-button"
           variant="primary"
           size="md"
           type="submit"
