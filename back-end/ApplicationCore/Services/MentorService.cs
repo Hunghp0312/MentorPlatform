@@ -38,7 +38,14 @@ namespace ApplicationCore.Services
             {
                 if (applicationStatus != 0)
                 {
-                    query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicationStatus);
+                    if (applicationStatus == 1 || applicationStatus == 5 || applicationStatus == 6)
+                    {
+                        query = query.Where(x => x.ApplicationStatus != null && (x.ApplicationStatus.Id == 1 || x.ApplicationStatus.Id == 5 || x.ApplicationStatus.Id == 6));
+                    }
+                    else
+                    {
+                        query = query.Where(x => x.ApplicationStatus != null && x.ApplicationStatus.Id == applicationStatus);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(paginationParameters.Query))
@@ -109,7 +116,7 @@ namespace ApplicationCore.Services
             return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
         }
 
-        public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request,Guid adminUserId)
+        public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request, Guid adminUserId)
         {
             if (request.MentorId == Guid.Empty)
             {
@@ -128,7 +135,7 @@ namespace ApplicationCore.Services
                 return validationResult;
             }
 
-            UpdateMentorApplicationStatusFields(mentorApplication, request,adminUserId);
+            UpdateMentorApplicationStatusFields(mentorApplication, request, adminUserId);
 
             _mentorRepository.Update(mentorApplication);
             await _unitOfWork.SaveChangesAsync();
@@ -148,7 +155,8 @@ namespace ApplicationCore.Services
 
         private static OperationResult<MentorApplicantResponse>? ValidateStatusChange(MentorApplication mentorApplication, MentorUpdateStatusRequest request)
         {
-            if(request.StatusId <= 0){
+            if (request.StatusId <= 0)
+            {
                 return OperationResult<MentorApplicantResponse>.BadRequest("Invalid status ID provided.");
             }
             if (mentorApplication.ApplicationStatusId == request.StatusId)
@@ -162,7 +170,7 @@ namespace ApplicationCore.Services
             return null;
         }
 
-        private static void UpdateMentorApplicationStatusFields(MentorApplication mentorApplication, MentorUpdateStatusRequest request,Guid adminUserId)
+        private static void UpdateMentorApplicationStatusFields(MentorApplication mentorApplication, MentorUpdateStatusRequest request, Guid adminUserId)
         {
             mentorApplication.ApplicationStatusId = request.StatusId;
             mentorApplication.LastStatusUpdateDate = DateTime.UtcNow;
