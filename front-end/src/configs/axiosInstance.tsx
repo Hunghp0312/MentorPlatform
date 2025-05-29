@@ -46,7 +46,8 @@ axiosInstance.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      localStorage.getItem("refreshToken")
+      (localStorage.getItem("refreshToken") ||
+        sessionStorage.getItem("refreshToken"))
     ) {
       originalRequest._retry = true;
 
@@ -62,17 +63,31 @@ axiosInstance.interceptors.response.use(
       }
 
       isRefreshing = true;
-      const refreshToken = localStorage.getItem("refreshToken");
-      const accessToken = localStorage.getItem("accessToken");
+      let isRemembered = false;
+      if (localStorage.getItem("accessToken")) {
+        isRemembered = true;
+      } else if (sessionStorage.getItem("accessToken")) {
+        isRemembered = false;
+      }
+      const refreshToken =
+        localStorage.getItem("refreshToken") ||
+        sessionStorage.getItem("refreshToken");
+      const accessToken =
+        localStorage.getItem("accessToken") ||
+        sessionStorage.getItem("accessToken");
 
       try {
         if (!refreshToken || !accessToken) return;
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
           await authService.refreshToken({ accessToken, refreshToken });
-
-        localStorage.setItem("accessToken", newAccessToken);
-        localStorage.setItem("refreshToken", newRefreshToken);
+        if (isRemembered) {
+          localStorage.setItem("accessToken", newAccessToken);
+          localStorage.setItem("refreshToken", newRefreshToken);
+        } else {
+          sessionStorage.setItem("accessToken", newAccessToken);
+          sessionStorage.setItem("refreshToken", newRefreshToken);
+        }
         axiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
 
         processQueue(null, accessToken);
@@ -80,8 +95,13 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        if (isRemembered) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+        } else {
+          sessionStorage.removeItem("accessToken");
+          sessionStorage.removeItem("refreshToken");
+        }
         window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {

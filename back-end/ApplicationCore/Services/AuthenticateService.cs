@@ -245,7 +245,10 @@ public class AuthenticateService : IAuthenticateService
         {
             return OperationResult<TokenResponse>.BadRequest("Password is incorrect");
         }
-
+        if (user.StatusId == 3)
+        {
+            return OperationResult<TokenResponse>.BadRequest("Your account is deactivated. Please contact support.");
+        }
         var claims = new List<Claim>
         {
             new Claim("id", user.Id.ToString()),
@@ -256,6 +259,7 @@ public class AuthenticateService : IAuthenticateService
         var refreshToken = _tokenService.GenerateRefreshToken();
         user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        user.LastLogin = DateTime.UtcNow;
         await _unitOfWork.SaveChangesAsync();
         var tokenHandler = new JwtSecurityTokenHandler();
         var loginResponse = new TokenResponse
@@ -307,6 +311,10 @@ public class AuthenticateService : IAuthenticateService
         {
             return OperationResult<TokenResponse>.BadRequest("Invalid refresh token.");
         }
+        if (user.StatusId == 3)
+        {
+            return OperationResult<TokenResponse>.BadRequest("Your account is deactivated. Please contact support.");
+        }
         var claims = new List<Claim>
         {
             new Claim("id", user.Id.ToString()),
@@ -317,6 +325,7 @@ public class AuthenticateService : IAuthenticateService
         var newRefreshToken = _tokenService.GenerateRefreshToken();
         user.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        user.LastLogin = DateTime.UtcNow;
         await _unitOfWork.SaveChangesAsync();
         var tokenHandler = new JwtSecurityTokenHandler();
         var tokenResponse = new TokenResponse
