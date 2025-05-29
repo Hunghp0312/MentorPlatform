@@ -48,19 +48,19 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
     };
 
     if (!formState.institutionName.trim()) {
-      newErrors.institutionName = "Institution name is required.";
+      newErrors.institutionName = "University name is required.";
       isValid = false;
     } else if (formState.institutionName.length > 100) {
       newErrors.institutionName =
-        "Institution name must not exceed 100 characters.";
+        "University name must not exceed 100 characters.";
       isValid = false;
     }
 
     if (!formState.fieldOfStudy.trim()) {
-      newErrors.fieldOfStudy = "Field Of Study is required.";
+      newErrors.fieldOfStudy = "Degree name is required.";
       isValid = false;
     } else if (formState.fieldOfStudy.length > 100) {
-      newErrors.fieldOfStudy = "Field Of Study must not exceed 100 characters.";
+      newErrors.fieldOfStudy = "Degree name must not exceed 100 characters.";
       isValid = false;
     }
 
@@ -90,26 +90,26 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
       <div className="grid grid-cols-1 gap-6">
         {/* School Name Field */}
         <InputCustom
-          label="Institution Name"
+          label="University Name"
           name="institutionName"
           type="text"
           value={formState.institutionName}
           onChange={handleChange}
           isRequired
-          placeholder="Enter school name"
+          placeholder="Enter University name"
           errorMessage={errors.institutionName}
         />
       </div>
       <div className="grid grid-cols-1 gap-6">
         {/* Major Field */}
         <InputCustom
-          label="Field Of Study"
+          label="Degree Name"
           name="fieldOfStudy"
           type="text"
           value={formState.fieldOfStudy}
           onChange={handleChange}
           isRequired
-          placeholder="Enter major"
+          placeholder="Enter Degree name"
           errorMessage={errors.fieldOfStudy}
         />
       </div>

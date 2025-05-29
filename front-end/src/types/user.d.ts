@@ -6,14 +6,15 @@ export interface User {
   email: string;
   role?: EnumType;
   profile?: UserProfile;
-  userArenaOfExpertises?: UserAreaOfExpertise[];
+  userAreaOfExpertises?: UserAreaOfExpertise[];
 }
 export interface UserApplication {
   id: string;
   email: string;
   role?: EnumType;
   profile?: UserProfile;
-  userArenaOfExpertises?: UserAreaOfExpertise[];
+  userAreaOfExpertises?: UserAreaOfExpertise[];
+  areaOfExpertise?: { id: number; name: string }[];
   fullName?: string;
   avatar?: string | null;
   areaOfExpertise?: string[];
