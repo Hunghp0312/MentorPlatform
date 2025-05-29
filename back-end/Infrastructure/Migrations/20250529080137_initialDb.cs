@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -771,7 +772,9 @@ namespace Infrastructure.Migrations
                     { 1, "Pending" },
                     { 2, "Rejected" },
                     { 3, "Approved" },
-                    { 4, "Request Info" }
+                    { 4, "Request Info" },
+                    { 5, "Submited" },
+                    { 6, "Under Review" }
                 });
 
             migrationBuilder.InsertData(
@@ -969,16 +972,16 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "CreatedAt", "Email", "LastLogin", "PasswordHash", "PasswordResetExpiry", "PasswordResetToken", "RefreshToken", "RefreshTokenExpiryTime", "RoleId", "StatusId" },
                 values: new object[,]
                 {
-                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), new DateTime(2024, 1, 17, 14, 20, 0, 0, DateTimeKind.Utc), "minhchau.admin@gmail.com", null, "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8", null, null, null, null, 1, 1 },
-                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), new DateTime(2024, 3, 1, 10, 0, 0, 0, DateTimeKind.Utc), "huynguyen.mentor@gmail.com", null, "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq", null, null, null, null, 3, 2 },
-                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), new DateTime(2024, 3, 15, 14, 45, 0, 0, DateTimeKind.Utc), "dancega713@gmail.com", null, "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw", null, null, null, null, 2, 1 },
-                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), new DateTime(2024, 1, 15, 10, 30, 0, 0, DateTimeKind.Utc), "huynguyen.admin@gmail.com", null, "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I", null, null, null, null, 1, 1 },
-                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), new DateTime(2024, 1, 16, 11, 0, 0, 0, DateTimeKind.Utc), "huykhuong.admin@gmail.com", null, "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E", null, null, null, null, 1, 1 },
-                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new DateTime(2024, 3, 10, 12, 0, 0, 0, DateTimeKind.Utc), "minhchau.mentor@gmail.com", null, "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr", null, null, null, null, 3, 2 },
-                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), new DateTime(2024, 3, 5, 11, 20, 0, 0, DateTimeKind.Utc), "huykhuong.mentor@gmail.com", null, "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV", null, null, null, null, 3, 2 },
-                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), new DateTime(2024, 2, 10, 9, 5, 0, 0, DateTimeKind.Utc), "huynguyen.learner@gmail.com", null, "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu", null, null, null, null, 2, 1 },
-                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), new DateTime(2024, 2, 12, 16, 30, 0, 0, DateTimeKind.Utc), "huykhuong.learner@gmail.com", null, "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi", null, null, null, null, 2, 1 },
-                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), new DateTime(2024, 2, 18, 17, 0, 0, 0, DateTimeKind.Utc), "minhchau.learner@gmail.com", null, "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT", null, null, null, null, 2, 3 }
+                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), new DateTime(2024, 1, 17, 14, 20, 0, 0, DateTimeKind.Utc), "minhchau.admin@gmail.com", new DateTime(2024, 5, 27, 14, 20, 0, 0, DateTimeKind.Utc), "7ZpVU6DoVE+e0Op1dI8PIvL4VVOQimwEZdUZskBB0plT1CmAP/y+SRsT9WSZudW8", null, null, null, null, 1, 1 },
+                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), new DateTime(2024, 3, 1, 10, 0, 0, 0, DateTimeKind.Utc), "huynguyen.mentor@gmail.com", new DateTime(2024, 5, 28, 9, 0, 0, 0, DateTimeKind.Utc), "ZKZIjsIEcJZT88GTD+nT3l+vwBZH/mla4b5WiSYufGWiOAbvBqnoRNZQjM6qsaqq", null, null, null, null, 3, 2 },
+                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), new DateTime(2024, 3, 15, 14, 45, 0, 0, DateTimeKind.Utc), "dancega713@gmail.com", new DateTime(2024, 5, 28, 14, 45, 0, 0, DateTimeKind.Utc), "r0e+UhrOsii3FlfUcY8OKkdRK1bc5komYpbONiqqJYj6qD78uz9oc+1XH+3IiEZw", null, null, null, null, 2, 1 },
+                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), new DateTime(2024, 1, 15, 10, 30, 0, 0, DateTimeKind.Utc), "huynguyen.admin@gmail.com", new DateTime(2024, 5, 25, 10, 30, 0, 0, DateTimeKind.Utc), "4CojI/ZvEQrJoJShTol0qRKe7e2405PVU3hFGnrjR0aDrWVa3D7eNC3WhLJkK26I", null, null, null, null, 1, 1 },
+                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), new DateTime(2024, 1, 16, 11, 0, 0, 0, DateTimeKind.Utc), "huykhuong.admin@gmail.com", new DateTime(2024, 5, 26, 11, 0, 0, 0, DateTimeKind.Utc), "/+9ouySHkK9R7JdK3pa7U54juoLGcDiqYx2POg1X3bZLkBvw0FVDzkFMUD+Vmc+E", null, null, null, null, 1, 1 },
+                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new DateTime(2024, 3, 10, 12, 0, 0, 0, DateTimeKind.Utc), "minhchau.mentor@gmail.com", new DateTime(2024, 5, 26, 12, 0, 0, 0, DateTimeKind.Utc), "dhkox+ORaHABdxUb6ihukuIpaSWTQOhgaObuiH3yr7E7WpX+vCJOH1PBlc5RbhQr", null, null, null, null, 3, 2 },
+                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), new DateTime(2024, 3, 5, 11, 20, 0, 0, DateTimeKind.Utc), "huykhuong.mentor@gmail.com", new DateTime(2024, 5, 27, 11, 20, 0, 0, DateTimeKind.Utc), "kj0QXVpwv8AjYwrfB+FPVaxCzfziTAXK32tqjdoPoc82UNhIxrkXB+2NSkaAr5AV", null, null, null, null, 3, 2 },
+                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), new DateTime(2024, 2, 10, 9, 5, 0, 0, DateTimeKind.Utc), "huynguyen.learner@gmail.com", new DateTime(2024, 5, 20, 9, 5, 0, 0, DateTimeKind.Utc), "B/Rx/lR+MNs1oWANBFYVwZXSd2hFKDhpk0By7MEg7K3ecpz9LwQBZiUv07/TkqVu", null, null, null, null, 2, 1 },
+                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), new DateTime(2024, 2, 12, 16, 30, 0, 0, DateTimeKind.Utc), "huykhuong.learner@gmail.com", new DateTime(2024, 5, 21, 16, 30, 0, 0, DateTimeKind.Utc), "odpdHFLV8lFXrpiHJJtYd0npiynudyI824s0lciPT5yBap7SDcMWGHCmAXoPtRyi", null, null, null, null, 2, 1 },
+                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), new DateTime(2024, 2, 18, 17, 0, 0, 0, DateTimeKind.Utc), "minhchau.learner@gmail.com", new DateTime(2024, 5, 19, 17, 0, 0, 0, DateTimeKind.Utc), "d9G9m3ndZwGLV5ciCqHMDRGslR0k1znhgJiPFvN33VyVNYSIeREzLj9Qgtk4m4TT", null, null, null, null, 2, 3 }
                 });
 
             migrationBuilder.InsertData(
@@ -1044,6 +1047,15 @@ namespace Infrastructure.Migrations
                     { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "Aspiring software developer interested in web technologies and cloud computing.", "Huy Nguyen Learner", "Aspiring software developer interested in web technologies and cloud computing, with expertise in web development, cloud computing, and problem-solving.", true, true, null, null, true, "Web development, Cloud computing, Problem-solving", 2, 1, "To master modern web development frameworks and secure a developer position." },
                     { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Data science enthusiast with background in statistics and mathematics.", "Huy Khuong Learner", "Data science enthusiast with background in statistics and mathematics, with expertise in machine learning algorithms and data visualization.", true, true, null, null, false, "Statistics, Mathematics, Machine learning", 3, 2, "To develop expertise in machine learning algorithms and data visualization." },
                     { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "UX/UI designer looking to expand skills in frontend development.", "Minh Chau Learner", "UX/UI designer looking to expand skills in frontend development, with expertise in UX/UI design, frontend development, and problem-solving.", false, false, null, null, true, "UX/UI design, Frontend development, Problem-solving", 1, 3, "To combine design expertise with technical implementation skills." }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SessionBooking",
+                columns: new[] { "Id", "AvailabilitySlotId", "CreatedAt", "LearnerId", "LearnerMessage", "MentorId", "SessionTypeId", "StatusId" },
+                values: new object[,]
+                {
+                    { new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"), new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"), new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Please help me review my CV for a junior developer position.", new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), 3, 1 },
+                    { new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"), new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "I would like to discuss about C# performance optimization.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), 3, 1 }
                 });
 
             migrationBuilder.CreateIndex(

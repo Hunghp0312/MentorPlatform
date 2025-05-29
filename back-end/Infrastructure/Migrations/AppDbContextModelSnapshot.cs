@@ -381,6 +381,16 @@ namespace Infrastructure.Migrations
                         {
                             Id = 4,
                             Name = "Request Info"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Submited"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Under Review"
                         });
                 });
 
