@@ -284,7 +284,7 @@ namespace ApplicationCore.Services
                 }
                 existingApplication.LastStatusUpdateDate = DateTime.UtcNow;
                 existingApplication.UpdatedAt = DateTime.UtcNow;
-                existingApplication.ApplicationStatusId = 1;
+                existingApplication.ApplicationStatusId = 5;
                 existingApplication.SubmissionDate += $", {DateTime.UtcNow}";
 
                 _mentorRepository.Update(existingApplication);
