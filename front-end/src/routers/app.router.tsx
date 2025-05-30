@@ -24,6 +24,9 @@ import PrivateRoute from "./PrivateRoute";
 import { RequireRole } from "./RequiredRoute";
 import UnauthorizedPage from "../pages/auth/Unauthorized";
 import EditUserPage from "../pages/user/EditUserPage";
+import BookingSession from "../pages/session/BookingSession";
+import MentorDashBoard from "../pages/mentor/MentorDashBoard";
+import SessionManagement from "../pages/session/SessionManagement";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -95,6 +98,9 @@ const AppRouter = () => {
       ),
       children: [],
     },
+    { path: pathName.bookingSession, element: <BookingSession /> },
+    { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
+    { path: pathName.sessionManagement, element: <SessionManagement /> },
   ]);
 
   return routes;

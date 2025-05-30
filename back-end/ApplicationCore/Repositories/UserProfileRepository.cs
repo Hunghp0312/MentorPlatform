@@ -15,6 +15,7 @@ namespace ApplicationCore.Repositories
         public override async Task<UserProfile?> GetByIdAsync(Guid id)
         {
             return await _dbSet
+                .Include(up => up.CommunicationMethod)
                 .Include(up => up.User)
                 .ThenInclude(up => up.UserAreaOfExpertises)
                 .ThenInclude(x => x.AreaOfExpertise)
