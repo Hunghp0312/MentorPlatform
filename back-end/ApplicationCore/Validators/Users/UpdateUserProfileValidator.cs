@@ -1,4 +1,3 @@
-using System.Data;
 using ApplicationCore.Constants;
 using ApplicationCore.DTOs.Requests.Users;
 using FluentValidation;
@@ -14,7 +13,7 @@ namespace ApplicationCore.Validators.Users
                 .Must(file => file == null || (file.Length > 0 && file.Length <= 5 * 1024 * 1024))
                 .WithMessage("Larger or unsupported format: Please select a .png, .jpeg or .jpg file with a maximum of 5MB")
                 .Must(file => file == null ||
-                    (file.ContentType == "image/png" || file.ContentType == "image/jpeg" || file.ContentType == "image/jpg"))
+                    file.ContentType == "image/png" || file.ContentType == "image/jpeg" || file.ContentType == "image/jpg")
                     .WithMessage(ValidationMessages.InvalidFileType
                         .Replace("{AllowedTypes}", "png, jpeg, jpg"));
             RuleFor(x => x.FullName)
