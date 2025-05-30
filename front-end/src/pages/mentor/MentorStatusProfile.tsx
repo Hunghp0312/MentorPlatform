@@ -44,6 +44,14 @@ const MentorStatusProfile = () => {
     submissionDate: "",
     status: "",
   });
+  const [saveState, setSaveState] = useState<MentorStatusType>({
+    mentorEducation: [],
+    mentorWorkExperience: [],
+    certifications: [],
+    mentorDocuments: [],
+    submissionDate: "",
+    status: "",
+  });
   const [editedMentor, setEditedMentor] = useState<MentorStatusType>({
     mentorEducation: [],
     mentorWorkExperience: [],
@@ -52,6 +60,7 @@ const MentorStatusProfile = () => {
     submissionDate: "",
     status: "",
   });
+
   const [isEditing, setIsEditing] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [newEducation, setNewEducation] = useState<Partial<MentorEducation>>(
@@ -91,12 +100,15 @@ const MentorStatusProfile = () => {
             fullName: response.fullName,
             professionalSkill: response.professionalSkills,
             industryExperience: response.industryExperience,
+            userGoal: response.userGoal,
           },
-          userArenaOfExpertises:
-            response.areaOfExpertise?.map((expertise: string) => ({
-              userId: response.id,
-              arenaOfExpertise: { name: expertise },
-            })) || [],
+          userAreaOfExpertises:
+            response.areaOfExpertise?.map(
+              (expertise: { id: number; name: string }) => ({
+                userId: response.id,
+                arenaOfExpertise: { name: expertise.name },
+              })
+            ) || [],
         };
         setRole(mappedUserData.role);
         console.log("Mapped User Data:", mappedUserData.role);
@@ -145,7 +157,28 @@ const MentorStatusProfile = () => {
           ...prev,
           ...mappedData,
         }));
+
+        setSaveState({
+          mentorEducation: [...(mappedData.mentorEducation || [])],
+          mentorWorkExperience: [...(mappedData.mentorWorkExperience || [])],
+          certifications: [...(mappedData.certifications || [])],
+          mentorDocuments: [...(mappedData.mentorDocuments || [])],
+          submissionDate: mappedData.submissionDate || "",
+          status: mappedData.status || "",
+        });
       } catch {
+        const emptyState = {
+          mentorEducation: [],
+          mentorWorkExperience: [],
+          certifications: [],
+          mentorDocuments: [],
+          submissionDate: "",
+          status: "",
+        };
+
+        setSaveState(emptyState);
+        setMentorData((prev) => ({ ...prev, ...emptyState }));
+        setEditedMentor((prev) => ({ ...prev, ...emptyState }));
         setError("Failed to load application data");
       } finally {
         setLoading(false);
@@ -163,6 +196,15 @@ const MentorStatusProfile = () => {
         if (userData.hasMentorApplication) {
           await loadMyApplication();
         } else {
+          const emptyState = {
+            mentorEducation: [],
+            mentorWorkExperience: [],
+            certifications: [],
+            mentorDocuments: [],
+            submissionDate: "",
+            status: "",
+          };
+          setSaveState(emptyState);
           setLoading(false);
         }
       } else {
@@ -177,10 +219,17 @@ const MentorStatusProfile = () => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       const allowedFileTypes = ["application/pdf", "image/jpeg", "image/png"];
+      const maxFileSize = 5 * 1024 * 1024;
 
       if (!allowedFileTypes.includes(file.type)) {
         setError("Chỉ hỗ trợ các định dạng PDF, JPEG, hoặc PNG.");
         alert("Error: Only support PDF, JPEG or PNG.");
+        return;
+      }
+
+      if (file.size > maxFileSize) {
+        setError("Kích thước file không được vượt quá 5MB.");
+        alert("Error: File size must not exceed 5MB.");
         return;
       }
 
@@ -222,11 +271,7 @@ const MentorStatusProfile = () => {
   const handleRemoveDocument = async (index: number) => {
     const document = mentorData.mentorDocuments[index];
 
-    if (
-      (mentorData.status === "Request Info" ||
-        mentorData.status === "Pending") &&
-      document.id
-    ) {
+    if (mentorData.status === "Request Info" && document.id) {
       try {
         await mentorService.deleteFile(document.id);
         setEditedMentor((prev) => ({
@@ -440,73 +485,6 @@ const MentorStatusProfile = () => {
         }
 
         alert("Đã gửi đơn đăng ký thành công!");
-        setIsEditing(false);
-        setSelectedFiles([]);
-
-        const response = await mentorService.getMyApplication();
-        const mappedDocuments: SupportingDocument[] =
-          response.documentsDetails?.map((doc: DocumentContent) => ({
-            id: doc.id,
-            fileName: doc.fileName,
-            fileType: doc.fileType,
-            fileSize: doc.fileSize || 0,
-            uploadedAt: doc.uploadedAt || new Date().toISOString(),
-            documentContent: {
-              fileName: doc.fileName,
-              fileType: doc.fileType,
-              fileContent: doc.fileContent,
-            },
-          })) || [];
-
-        const mappedData: MentorStatusType = {
-          mentorEducation: response.educationDetails || [],
-          mentorWorkExperience: response.workExperienceDetails || [],
-          certifications: response.certifications || [],
-          mentorDocuments: mappedDocuments,
-          status: response.status,
-          userApplicationDetails: mentorData.userApplicationDetails,
-        };
-
-        setMentorData(mappedData);
-        setEditedMentor({ ...mappedData });
-      } else if (mentorData.status === "Pending") {
-        const newFiles = selectedFiles.filter(
-          (_, index) => !mentorData.mentorDocuments[index]?.id
-        );
-        for (const file of newFiles) {
-          await mentorService.uploadFile(file);
-        }
-
-        alert("Đã cập nhật tài liệu thành công!");
-        setIsEditing(false);
-        setSelectedFiles([]);
-
-        const response = await mentorService.getMyApplication();
-        const mappedDocuments: SupportingDocument[] =
-          response.documentsDetails?.map((doc: DocumentContent) => ({
-            id: doc.id,
-            fileName: doc.fileName,
-            fileType: doc.fileType,
-            fileSize: doc.fileSize || 0,
-            uploadedAt: doc.uploadedAt || new Date().toISOString(),
-            documentContent: {
-              fileName: doc.fileName,
-              fileType: doc.fileType,
-              fileContent: doc.fileContent,
-            },
-          })) || [];
-
-        const mappedData: MentorStatusType = {
-          mentorEducation: response.educationDetails || [],
-          mentorWorkExperience: response.workExperienceDetails || [],
-          certifications: response.certifications || [],
-          mentorDocuments: mappedDocuments,
-          status: response.status,
-          userApplicationDetails: mentorData.userApplicationDetails,
-        };
-
-        setMentorData(mappedData);
-        setEditedMentor({ ...mappedData });
       } else if (mentorData.status === "Request Info") {
         await mentorService.updateMyApplication(application);
 
@@ -518,36 +496,37 @@ const MentorStatusProfile = () => {
         }
 
         alert("Đã cập nhật đơn đăng ký thành công!");
-        setIsEditing(false);
-        setSelectedFiles([]);
+      }
 
-        const response = await mentorService.getMyApplication();
-        const mappedDocuments: SupportingDocument[] =
-          response.documentsDetails?.map((doc: DocumentContent) => ({
-            id: doc.id,
+      setIsEditing(false);
+      setSelectedFiles([]);
+
+      const response = await mentorService.getMyApplication();
+      const mappedDocuments: SupportingDocument[] =
+        response.documentsDetails?.map((doc: DocumentContent) => ({
+          id: doc.id,
+          fileName: doc.fileName,
+          fileType: doc.fileType,
+          fileSize: doc.fileSize || 0,
+          uploadedAt: doc.uploadedAt || new Date().toISOString(),
+          documentContent: {
             fileName: doc.fileName,
             fileType: doc.fileType,
-            fileSize: doc.fileSize || 0,
-            uploadedAt: doc.uploadedAt || new Date().toISOString(),
-            documentContent: {
-              fileName: doc.fileName,
-              fileType: doc.fileType,
-              fileContent: doc.fileContent,
-            },
-          })) || [];
+            fileContent: doc.fileContent,
+          },
+        })) || [];
 
-        const mappedData: MentorStatusType = {
-          mentorEducation: response.educationDetails || [],
-          mentorWorkExperience: response.workExperienceDetails || [],
-          certifications: response.certifications || [],
-          mentorDocuments: mappedDocuments,
-          status: response.status,
-          userApplicationDetails: mentorData.userApplicationDetails,
-        };
+      const mappedData: MentorStatusType = {
+        mentorEducation: response.educationDetails || [],
+        mentorWorkExperience: response.workExperienceDetails || [],
+        certifications: response.certifications || [],
+        mentorDocuments: mappedDocuments,
+        status: response.status,
+        userApplicationDetails: mentorData.userApplicationDetails,
+      };
 
-        setMentorData(mappedData);
-        setEditedMentor({ ...mappedData });
-      }
+      setMentorData(mappedData);
+      setEditedMentor({ ...mappedData });
     } catch (error) {
       console.error("Error submitting application:", error);
       setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
@@ -557,25 +536,53 @@ const MentorStatusProfile = () => {
 
   const handleSave = () => {
     if (editedMentor) {
-      setMentorData((prev) => ({
-        ...prev,
-        ...editedMentor,
-        userApplicationDetails: prev.userApplicationDetails,
-      }));
+      const updatedData = {
+        ...mentorData,
+        mentorEducation: [...(editedMentor.mentorEducation || [])],
+        mentorWorkExperience: [...(editedMentor.mentorWorkExperience || [])],
+        certifications: [...(editedMentor.certifications || [])],
+        mentorDocuments: [...(editedMentor.mentorDocuments || [])],
+      };
+
+      setMentorData(updatedData);
+
+      setSaveState({
+        mentorEducation: [...(editedMentor.mentorEducation || [])],
+        mentorWorkExperience: [...(editedMentor.mentorWorkExperience || [])],
+        certifications: [...(editedMentor.certifications || [])],
+        mentorDocuments: [...(editedMentor.mentorDocuments || [])],
+      });
+
       setIsEditing(false);
       setError(null);
     }
   };
-
+  //
   const handleCancel = () => {
-    if (mentorData) {
-      setEditedMentor({ ...mentorData });
-      setIsEditing(false);
-      setError(null);
-      setNewEducation({});
-      setNewWorkExperience({});
-      setNewCertification({});
-    }
+    const restoredData = {
+      ...mentorData,
+      mentorEducation: [...(saveState.mentorEducation || [])],
+      mentorWorkExperience: [...(saveState.mentorWorkExperience || [])],
+      certifications: [...(saveState.certifications || [])],
+      mentorDocuments: [...(saveState.mentorDocuments || [])],
+    };
+
+    setMentorData(restoredData);
+
+    setEditedMentor({
+      ...saveState,
+      mentorEducation: [...(saveState.mentorEducation || [])],
+      mentorWorkExperience: [...(saveState.mentorWorkExperience || [])],
+      certifications: [...(saveState.certifications || [])],
+      mentorDocuments: [...(saveState.mentorDocuments || [])],
+    });
+
+    setIsEditing(false);
+    setError(null);
+    setNewEducation({});
+    setNewWorkExperience({});
+    setNewCertification({});
+    setSelectedFiles([]);
   };
 
   const additionalSettingsContent = (
@@ -601,16 +608,18 @@ const MentorStatusProfile = () => {
             mentorData.mentorEducation.map((education, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0 items-center"
               >
                 <div className="flex w-full justify-between items-start">
-                  <div className="flex flex-col">
-                    <h5 className="font-medium">{education.fieldOfStudy}</h5>
-                    <p className="text-[12px] text-gray-400">
+                  <div className="flex flex-col max-w-[75%]">
+                    <h5 className="font-medium break-words overflow-wrap-anywhere">
+                      {education.fieldOfStudy}
+                    </h5>
+                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
                       {education.institutionName}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 min-w-[100px] justify-end">
                     <span className="text-sm text-gray-400">
                       {education.graduationYear ?? "N/A"}
                     </span>
@@ -655,20 +664,27 @@ const MentorStatusProfile = () => {
             mentorData.mentorWorkExperience.map((experience, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0 items-center"
               >
                 <div className="flex w-full justify-between items-start">
-                  <div className="flex flex-col">
-                    <h5 className="font-medium">{experience.position}</h5>
-                    <p className="text-[12px] text-gray-400">
+                  <div className="flex flex-col max-w-[75%]">
+                    <h5 className="font-medium break-words overflow-wrap-anywhere">
+                      {experience.position}
+                    </h5>
+                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
                       {experience.companyName}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">
-                      {new Date(experience.startDate).getFullYear()}–
+                      {new Date(experience.startDate).toISOString().slice(5, 7)}
+                      /{new Date(experience.startDate).getFullYear()}–
                       {experience.endDate
-                        ? new Date(experience.endDate).getFullYear()
+                        ? `${new Date(experience.endDate)
+                            .toISOString()
+                            .slice(5, 7)}/${new Date(
+                            experience.endDate
+                          ).getFullYear()}`
                         : "Present"}
                     </span>
                     {isEditing && (
@@ -714,14 +730,14 @@ const MentorStatusProfile = () => {
             mentorData.certifications.map((certificate, index) => (
               <div
                 key={index}
-                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
+                className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0 items-center"
               >
                 <div className="flex w-full justify-between items-start">
-                  <div className="flex flex-col">
-                    <h5 className="font-medium">
+                  <div className="flex flex-col max-w-[75%]">
+                    <h5 className="font-medium break-words overflow-wrap-anywhere">
                       {certificate.certificationName}
                     </h5>
-                    <p className="text-[12px] text-gray-400">
+                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
                       {certificate.issuingOrganization}
                     </p>
                   </div>
@@ -872,7 +888,8 @@ const MentorStatusProfile = () => {
                         ? "bg-green-500"
                         : mentorData.status === "Rejected"
                         ? "bg-red-500"
-                        : mentorData.status === "Pending"
+                        : mentorData.status === "Submitted" ||
+                          mentorData.status === "Under Review"
                         ? "bg-yellow-500"
                         : mentorData.status === "Request Info"
                         ? "bg-blue-500"
@@ -889,7 +906,7 @@ const MentorStatusProfile = () => {
                 Areas of expertise
               </h3>
               <p className="text-sm text-gray-200">
-                {mentorData.userApplicationDetails?.userArenaOfExpertises
+                {mentorData.userApplicationDetails?.userAreaOfExpertises
                   ?.map((expertise) => expertise.arenaOfExpertise?.name)
                   .join(", ") || "No expertise provided"}
               </p>
@@ -910,6 +927,15 @@ const MentorStatusProfile = () => {
               <p className="text-sm text-gray-200">
                 {mentorData.userApplicationDetails?.profile
                   ?.industryExperience || "No experience provided"}
+              </p>
+            </div>
+            <div>
+              <h3 className="text-sm font-medium text-gray-400 mb-1">
+                Motivation
+              </h3>
+              <p className="text-sm text-gray-200">
+                {mentorData.userApplicationDetails?.profile?.userGoal ||
+                  "No Motivation provided"}
               </p>
             </div>
             <div>

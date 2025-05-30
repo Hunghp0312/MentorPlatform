@@ -3,7 +3,6 @@ namespace ApplicationCore.DTOs.Responses.Registration
     public class UserProfileResponse
     {
         public Guid UserId { get; set; }
-        public required string Email { get; set; }
         public required string FullName { get; set; }
         public PreferenceItemDto? Role { get; set; }
         public string? Bio { get; set; }

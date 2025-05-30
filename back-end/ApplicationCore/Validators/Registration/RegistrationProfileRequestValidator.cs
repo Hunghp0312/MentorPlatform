@@ -29,7 +29,11 @@ namespace ApplicationCore.Validators
             RuleFor(x => x.ConfirmPassword)
                 .Equal(x => x.Password)
                 .WithMessage(ValidationMessages.CONFIRM_PASSWORD_NOT_MATCH);
-
+            RuleFor(x => x.PhoneNumber)
+                .Matches(@"^\+?[0-9\s\-()]+$")
+                .WithMessage(ValidationMessages.PHONE_NUMBER_INVALID_FORMAT)
+                .MaximumLength(15)
+                .WithMessage(ValidationMessages.PHONE_NUMBER_MAX_LENGTH);
             RuleFor(x => x.SelectedRole)
                 .NotEmpty()
                 .WithMessage(ValidationMessages.ROLE_REQUIRED)

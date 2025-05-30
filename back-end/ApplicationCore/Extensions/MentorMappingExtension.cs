@@ -50,6 +50,7 @@ namespace ApplicationCore.Extensions
                 RejectionReason = mentorApplication.RejectionReason,
                 ApprovalDate = mentorApplication.ApprovalDate,
                 RequestInfoDate = mentorApplication.RequestInfoDate,
+                UserGoal = mentorApplication?.Applicant?.UserProfile.UserGoal ?? string.Empty,
                 ExpertiseAreas = mentorApplication.Applicant?.UserAreaOfExpertises.Select(x => new AreaOfExpertiseResponse
                 {
                     Name = x.AreaOfExpertise.Name,

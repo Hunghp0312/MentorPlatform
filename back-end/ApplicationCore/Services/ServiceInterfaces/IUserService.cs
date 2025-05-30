@@ -1,8 +1,8 @@
 using ApplicationCore.Common;
+using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Users;
 using ApplicationCore.DTOs.Responses.Users;
-using ApplicationCore.DTOs.QueryParameters;
-using ApplicationCore.DTOs.Common;
 
 namespace ApplicationCore.Services.ServiceInterfaces
 {

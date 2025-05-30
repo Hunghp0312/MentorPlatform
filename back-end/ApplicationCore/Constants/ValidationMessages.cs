@@ -49,6 +49,7 @@
         public const string PositionRequired = "Position is required.";
         public const string StartDateRequired = "Start date is required.";
         public const string EndDateAfterStartDate = "End date must be after start date.";
+        public const string StartDateEqualOrBeforeCurrentDate = "Start date must be equal current date or before.";
         public const string CertificationNameRequired = "Certification name is required.";
         public const string IssuingOrganizationRequired = "Issuing organization is required.";
         public const string CredentialUrlInvalid = "Credential URL is not a valid URL.";
@@ -66,6 +67,10 @@
         public const string ROLE_INVALID = "Invalid role selected. Must be 'Learner' or 'Mentor'.";
         public const string FULL_NAME_REQUIRED = "Full name is required.";
         public const string FULL_NAME_MAX_LENGTH = "Full name must not exceed 100 characters.";
+
+        public const string PHONE_NUMBER_INVALID_FORMAT =
+            "Phone number must be in a valid format (e.g., +1234567890).";
+        public const string PHONE_NUMBER_MAX_LENGTH = "Phone number must not exceed 15 characters.";
         public const string BIO_MAX_LENGTH = "Bio must not exceed 500 characters.";
         public const string PHOTO_REQUIRED = "Photo is required.";
         public const string EXPERTISE_AREAS_INVALID_FORMAT =
