@@ -7,17 +7,6 @@ namespace ApplicationCore.Extensions
 {
     public static class RegistrationMappingExtension
     {
-        public static User ToUserEntity(this RegistrationProfileRequest dto, string passwordHash, int roleId)
-        {
-            return new User
-            {
-                Id = Guid.NewGuid(),
-                Email = dto.Email,
-                PasswordHash = passwordHash,
-                RoleId = roleId
-            };
-        }
-
         public static UserProfile ToUserProfileEntity(this RegistrationProfileRequest dto, Guid userId, byte[]? photoData)
         {
             var userProfile = new UserProfile
@@ -132,7 +121,7 @@ namespace ApplicationCore.Extensions
                 userProfile.PhotoData = ms.ToArray();
             }
 
-            // Update collections properly
+
             if (dto.UserProfileAvailabilities != null)
                 UpdateUserProfileAvailabilities(userProfile, dto.UserProfileAvailabilities);
 
@@ -145,7 +134,7 @@ namespace ApplicationCore.Extensions
             if (dto.TeachingApproaches != null)
                 UpdateMentorTeachingApproaches(userProfile, dto.TeachingApproaches);
 
-            // Update scalar properties
+
             if (dto.SessionFrequencyId != 0)
             {
                 userProfile.SessionFrequencyId = dto.SessionFrequencyId;
@@ -173,7 +162,7 @@ namespace ApplicationCore.Extensions
                 UpdateUserAreaExpertises(userEntity, dto.UserAreaExpertises);
         }
 
-        // Fixed helper methods that properly handle entity tracking
+
         private static void UpdateUserProfileAvailabilities(UserProfile userProfile, IEnumerable<int> availabilityIds)
         {
             var newIds = availabilityIds.ToList();
