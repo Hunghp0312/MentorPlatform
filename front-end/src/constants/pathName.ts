@@ -11,4 +11,5 @@ export const pathName = {
   userList: "/users-listing",
   mentorStatus: "/status",
   unauthorized: "/unauthorized",
+  profile: "/profile",
 };

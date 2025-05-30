@@ -1,13 +1,25 @@
 import axiosInstance from "../configs/axiosInstance";
-import { UserApplication } from "../types/user";
 
 export const userService = {
-  async getCurrentUser(): Promise<UserApplication> {
+  async getCurrentUser() {
     const response = await axiosInstance.get(`/Users/current-user`);
     const data = response.data;
-
-    // Map backend response to frontend User interface
-
+    return data;
+  },
+  async updateUserProfile(userData: FormData, userId: string) {
+    userData.forEach((value, key) => {
+      console.log(`${key}:`, value);
+    });
+    const response = await axiosInstance.put(
+      `/Users/${userId}/profile`,
+      userData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    const data = response.data;
     return data;
   },
 };
