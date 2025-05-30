@@ -84,13 +84,7 @@ namespace ApplicationCore.Services
                 PhotoData = photoBytes,
                 PhoneNumber = request.PhoneNumber,
 
-                UserCommunicationMethods = request.CommunicationMethod?
-                .Where(cmId => cmId > 0)
-                    .Select(cmId => new UserCommunicationMethod
-                    {
-                        UserProfileId = user.Id,
-                        CommunicationMethodId = cmId
-                    }).ToList() ?? new List<UserCommunicationMethod>(),
+                CommunicationMethodId = request.CommunicationMethod,
                 UserProfileAvailabilities = request.Availability?.Select(a => new UserProfileAvailability
                 {
                     UserId = user.Id,
@@ -135,16 +129,7 @@ namespace ApplicationCore.Services
                 }
             }
 
-            var communicationMethodDtos = new List<PreferenceItemDto>();
-            if (request.CommunicationMethod != null && request.CommunicationMethod.Any())
-            {
-                var validMethodIds = request.CommunicationMethod.Where(id => id > 0).Distinct().ToList();
-                if (validMethodIds.Any())
-                {
-                    var methodEntities = await _registrationRepository.GetCommunicationMethodsByIdsAsync(validMethodIds);
-                    communicationMethodDtos = methodEntities.Select(m => new PreferenceItemDto { Id = m.Id, Name = m.Name }).ToList();
-                }
-            }
+        
 
             var response = new UserProfileResponse
             {
@@ -158,7 +143,11 @@ namespace ApplicationCore.Services
                 ProfessionalSkills = userProfile.ProfessionalSkill,
                 IndustryExperience = userProfile.IndustryExperience,
                 Availability = availabilityDtos,
-                CommunicationMethod = communicationMethodDtos
+                CommunicationMethod = new PreferenceItemDto
+                {
+                    Id = userProfile.CommunicationMethodId,
+                    Name = userProfile.CommunicationMethod?.Name ?? "Not specified"
+                }
             };
             return OperationResult<UserProfileResponse>.Ok(response);
         }

@@ -23,13 +23,7 @@ namespace ApplicationCore.Extensions
                     UserId = userId,
                     AvailabilityId = a
                 }).ToList() ?? new List<UserProfileAvailability>(),
-                UserCommunicationMethods = dto.CommunicationMethod?
-                    .Where(cmId => cmId > 0)
-                    .Select(cmId => new UserCommunicationMethod
-                    {
-                        UserProfileId = userId,
-                        CommunicationMethodId = cmId
-                    }).ToList() ?? new List<UserCommunicationMethod>()
+                CommunicationMethodId = dto.CommunicationMethod
             };
 
 
@@ -90,7 +84,7 @@ namespace ApplicationCore.Extensions
                 ProfessionalSkill = userProfile.ProfessionalSkill,
                 IndustryExperience = userProfile.IndustryExperience,
                 PhotoData = userProfile.PhotoData != null ? Convert.ToBase64String(userProfile.PhotoData) : string.Empty,
-                CommunicationMethod = userProfile.UserCommunicationMethods?.Select(cm => cm.CommunicationMethod?.Name ?? string.Empty).FirstOrDefault() ?? string.Empty,
+                CommunicationMethod = userProfile.CommunicationMethod.Name ?? string.Empty,
                 SessionFrequency = userProfile.SessionFrequency != null ? userProfile.SessionFrequency.Name : string.Empty,
                 SessionDuration = userProfile.SessionDuration != null ? userProfile.SessionDuration.Name : string.Empty,
                 PrivacyProfile = userProfile.PrivacyProfile ?? false,
@@ -149,16 +143,9 @@ namespace ApplicationCore.Extensions
             userProfile.MessagePermission = dto.MessagePermission;
             userProfile.NotificationsEnabled = dto.NotificationsEnabled;
 
-            // Remove old communication methods and add the new one if provided
             if (dto.CommunicationMethod != 0)
             {
-                // Remove existing UserCommunicationMethods from the database
-                userProfile.UserCommunicationMethods.Clear();
-                userProfile.UserCommunicationMethods.Add(new UserCommunicationMethod
-                {
-                    UserProfileId = userProfile.Id,
-                    CommunicationMethodId = dto.CommunicationMethod
-                });
+                userProfile.CommunicationMethodId = dto.CommunicationMethod;
             }
 
             if (dto.UserAreaExpertises != null)
@@ -170,18 +157,15 @@ namespace ApplicationCore.Extensions
         {
             var newIds = availabilityIds.ToList();
 
-            // Find items to remove
             var toRemove = userProfile.UserProfileAvailabilities
                 .Where(a => !newIds.Contains(a.AvailabilityId))
                 .ToList();
 
-            // Remove items
             foreach (var item in toRemove)
             {
                 userProfile.UserProfileAvailabilities.Remove(item);
             }
 
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userProfile.UserProfileAvailabilities.Any(a => a.AvailabilityId == id))
@@ -199,18 +183,17 @@ namespace ApplicationCore.Extensions
         {
             var newIds = topicIds.ToList();
 
-            // Find items to remove
+
             var toRemove = userProfile.UserTopicOfInterests
                 .Where(t => !newIds.Contains(t.TopicId))
                 .ToList();
 
-            // Remove items
+
             foreach (var item in toRemove)
             {
                 userProfile.UserTopicOfInterests.Remove(item);
             }
 
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userProfile.UserTopicOfInterests.Any(t => t.TopicId == id))
@@ -228,18 +211,15 @@ namespace ApplicationCore.Extensions
         {
             var newIds = styleIds.ToList();
 
-            // Find items to remove
             var toRemove = userProfile.UserLearningStyles
                 .Where(s => !newIds.Contains(s.LearningStyleId))
                 .ToList();
 
-            // Remove items
             foreach (var item in toRemove)
             {
                 userProfile.UserLearningStyles.Remove(item);
             }
 
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userProfile.UserLearningStyles.Any(s => s.LearningStyleId == id))
@@ -257,18 +237,14 @@ namespace ApplicationCore.Extensions
         {
             var newIds = teachingApproachIds.ToList();
 
-            // Find items to remove
             var toRemove = userProfile.TeachingApproaches
                 .Where(a => !newIds.Contains(a.TeachingApproachId))
                 .ToList();
 
-            // Remove items
             foreach (var item in toRemove)
             {
                 userProfile.TeachingApproaches.Remove(item);
             }
-
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userProfile.TeachingApproaches.Any(a => a.TeachingApproachId == id))
@@ -286,18 +262,15 @@ namespace ApplicationCore.Extensions
         {
             var newIds = areaExpertiseIds.ToList();
 
-            // Find items to remove
             var toRemove = userEntity.UserAreaOfExpertises
                 .Where(a => !newIds.Contains(a.AreaOfExpertiseId))
                 .ToList();
 
-            // Remove items
             foreach (var item in toRemove)
             {
                 userEntity.UserAreaOfExpertises.Remove(item);
             }
 
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userEntity.UserAreaOfExpertises.Any(a => a.AreaOfExpertiseId == id))
@@ -310,6 +283,6 @@ namespace ApplicationCore.Extensions
                 }
             }
         }
-
+        
     }
 }
