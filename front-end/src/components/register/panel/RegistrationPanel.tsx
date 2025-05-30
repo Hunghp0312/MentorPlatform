@@ -4,27 +4,36 @@ import InputCheckbox from "../../input/InputCheckbox";
 import { AccountDetails } from "../../../types/userRegister";
 import { pathName } from "../../../constants/pathName";
 import { Link } from "react-router-dom";
+import { registrionService } from "../../../services/registration.service";
+import TermsDialog from "../../dialog/TermsOfServiceDialog";
+import PrivacyPolicyDialog from "../../dialog/PrivacyPolicyDiaglog";
 
 type Props = {
   initialEmail: string;
   initialPassword: string;
+  initialConfirm: string;
+  initialAgreed: boolean;
   onAccountSubmit: (accountDetails: AccountDetails) => void;
 };
 
 const RegistrationPanel: React.FC<Props> = ({
   initialEmail,
   initialPassword,
+  initialConfirm,
+  initialAgreed,
   onAccountSubmit,
 }) => {
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState(initialPassword);
-  const [confirm, setConfirm] = useState("");
-  const [agreed, setAgreed] = useState(false);
+  const [confirm, setConfirm] = useState(initialConfirm);
+  const [agreed, setAgreed] = useState(initialAgreed);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
-  const validate = () => {
+  const validate = async () => {
     const errs: Record<string, string> = {};
 
     const trimmedEmail = email.trim();
@@ -64,7 +73,7 @@ const RegistrationPanel: React.FC<Props> = ({
     } else if (confirm.length < 8 || confirm.length > 100) {
       errs.confirm = "Please enter between 8-100 characters.";
     } else if (password !== confirm) {
-      errs.confirm = "Passwords don’t match";
+      errs.confirm = "The password and confirmation do not match";
     }
 
     if (!agreed) {
@@ -72,15 +81,35 @@ const RegistrationPanel: React.FC<Props> = ({
         "Please read and agree to our terms of service and privacy policies.";
     }
 
+    await checkEmailExists(errs);
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const checkEmailExists = async (
+    errors: Record<string, string>
+  ): Promise<boolean> => {
+    const response = await registrionService.checkEmail({ email });
+
+    if (response.exists) {
+      errors.email = "Email already exists. Please use a different email.";
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    const isValid = await validate();
+
+    if (!isValid) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
-    onAccountSubmit({ email, password });
+    onAccountSubmit({
+      email,
+      password,
+      confirmPassword: confirm,
+      agreedToTerms: agreed,
+    });
   };
 
   return (
@@ -143,29 +172,41 @@ const RegistrationPanel: React.FC<Props> = ({
         setShowPassword={setShowConfirmPassword}
       />
 
-      <div className="flex items-center">
+      <div className="flex items-start">
         <InputCheckbox
           checked={agreed}
           onChange={(e) => setAgreed(e.target.checked)}
           name="agreed"
-          label={""}
+          label=""
         />
         <label className="ml-2 text-sm">
           By continuing, you agree to our{" "}
-          <a href="/terms-of-service" className="text-orange-500 underline">
+          <button
+            type="button"
+            className="text-orange-500 underline"
+            onClick={() => setShowTerms(true)}>
             Terms of Service
-          </a>
-          {" and "}
-          <a href="/privacy-policy" className="text-orange-500 underline">
+          </button>{" "}
+          and{" "}
+          <button
+            type="button"
+            className="text-orange-500 underline"
+            onClick={() => setShowPrivacy(true)}>
             Privacy Policy
-          </a>
+          </button>
+          .
         </label>
+
+        {showTerms && <TermsDialog onClose={() => setShowTerms(false)} />}
+        {showPrivacy && (
+          <PrivacyPolicyDialog onClose={() => setShowPrivacy(false)} />
+        )}
       </div>
       {errors.agreed && (
         <p className="text-sm text-red-500 mt-1">{errors.agreed}</p>
       )}
       <button type="submit" className="w-full py-2 bg-orange-500 rounded">
-        Continue
+        Continue to Profile Setup
       </button>
       <p className="text-sm text-center text-slate-400 mt-4">
         Already have an account?{" "}

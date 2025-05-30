@@ -3,6 +3,8 @@ import * as common from "./commonType";
 export interface AccountDetails {
   email: string;
   password: string;
+  confirmPassword: string;
+  agreedToTerms: boolean; // Optional, used for registration
 }
 
 export interface CreateProfileResponse {
@@ -77,6 +79,8 @@ export type UserRegistrationRequest =
 const baseAccount: AccountDetails = {
   email: "",
   password: "",
+  confirmPassword: "",
+  agreedToTerms: false,
 };
 
 const baseProfile: SharedProfileDetails = {

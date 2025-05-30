@@ -8,8 +8,6 @@ import {
 
 export const userService = {
   async GetPaginatedUser(payload: userPaginationRequest) {
-    console.log(payload);
-
     const response = await axiosInstance.get("/Users/paged", {
       params: {
         Query: payload.Query,

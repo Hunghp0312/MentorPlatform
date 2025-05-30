@@ -61,11 +61,9 @@ export const authService = {
 
   async githubCallback(payload: CodeThirdParty): Promise<AppTokenResponse> {
     try {
-      console.log("Send data", payload);
       const response = await axiosInstance.get(`/Auth/github/callback`, {
         params: { code: payload.code },
       });
-      console.log(response);
       return response.data;
     } catch (error) {
       console.error("Error during GitHub backend callback:", error);

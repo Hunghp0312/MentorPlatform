@@ -24,7 +24,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Add token to request headers
 axiosInstance.interceptors.request.use((config) => {
   const localToken = localStorage.getItem("accessToken");
   const sessionToken = sessionStorage.getItem("accessToken");
@@ -33,8 +32,6 @@ axiosInstance.interceptors.request.use((config) => {
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    console.warn("No access token found in localStorage or sessionStorage.");
   }
 
   return config;
@@ -59,7 +56,6 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Handle token expiration
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
