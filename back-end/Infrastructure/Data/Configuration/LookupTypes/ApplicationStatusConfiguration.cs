@@ -12,7 +12,9 @@ namespace Infrastructure.Data.Configuration.LookupTypes
               new ApplicationStatus { Id = 1, Name = "Pending" },
               new ApplicationStatus { Id = 2, Name = "Rejected" },
               new ApplicationStatus { Id = 3, Name = "Approved" },
-              new ApplicationStatus { Id = 4, Name = "Request Info" }
+              new ApplicationStatus { Id = 4, Name = "Request Info" },
+              new ApplicationStatus { Id = 5, Name = "Submitted" },
+              new ApplicationStatus { Id = 6, Name = "Under Review" }
           );
         }
     }

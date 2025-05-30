@@ -10,8 +10,6 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 
-
-
 namespace ApplicationCore.Services
 {
     public class UserService : IUserService
@@ -23,6 +21,9 @@ namespace ApplicationCore.Services
         private const int StatusIdActive = 1;
         private const int StatusIdPending = 2;
         private const int StatusIdDeactivated = 3;
+
+        private const string MentorRoleName = "Mentor";
+        private const string LearnerRoleName = "Learner";
 
         public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IUserProfileRepository userProfileRepository)
         {
@@ -38,6 +39,11 @@ namespace ApplicationCore.Services
             if (queryParameters.RoleId.HasValue)
             {
                 predicate = predicate.And(u => u.RoleId == queryParameters.RoleId.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(queryParameters.Query))
+            {
+                var searchTermLower = queryParameters.Query.ToLower();
+                predicate = predicate.And(u => u.UserProfile != null && u.UserProfile.FullName.ToLower().Contains(searchTermLower));
             }
 
             var (users, totalCount) = await _userRepository.GetUsersWithDetailsAsync(
@@ -115,79 +121,82 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<UserResponseDto>.NotFound($"User with ID {userId} not found.");
             }
+            if (user.Role == null)
+            {
+                return OperationResult<UserResponseDto>.Fail("User role information is not loaded. Cannot update status.");
+            }
 
             int currentStatusId = user.StatusId;
             int nextStatusId = -1;
-
             string currentStatusName = user.Status?.Name ?? $"ID ({currentStatusId})";
+            string userRoleName = user.Role.Name;
 
-            if (currentStatusId == StatusIdPending)
+            if (userRoleName.Equals(LearnerRoleName, StringComparison.OrdinalIgnoreCase))
             {
-                nextStatusId = StatusIdActive;
-            }
-            else if (currentStatusId == StatusIdActive)
-            {
-                nextStatusId = StatusIdDeactivated;
-            }
-            else if (currentStatusId == StatusIdDeactivated)
-            {
+                if (currentStatusId == StatusIdActive)
+                {
+                    nextStatusId = StatusIdDeactivated;
+                }
+                else if (currentStatusId == StatusIdDeactivated)
+                {
+                    nextStatusId = StatusIdActive;
+                }
+                else
+                {
 
-                var alreadyDeactivatedDto = MapUserToResponseDto(user);
-                return OperationResult<UserResponseDto>.Ok(alreadyDeactivatedDto);
+                    return OperationResult<UserResponseDto>.BadRequest(
+                        $"Learner users can only transition between Active and Deactivated statuses. Current status: '{currentStatusName}'.");
+                }
             }
             else
             {
-
-                return OperationResult<UserResponseDto>.BadRequest($"User's current status ('{currentStatusName}') does not allow for an automatic update in the defined flow (Pending -> Active -> Deactivated).");
+                if (currentStatusId == StatusIdPending)
+                {
+                    nextStatusId = StatusIdActive;
+                }
+                else if (currentStatusId == StatusIdActive)
+                {
+                    nextStatusId = StatusIdDeactivated;
+                }
+                else if (currentStatusId == StatusIdDeactivated)
+                {
+                    nextStatusId = StatusIdActive;
+                }
+                else
+                {
+                    return OperationResult<UserResponseDto>.BadRequest($"User's current status ('{currentStatusName}') does not allow for an automatic update in the defined flow for their role ('{userRoleName}').");
+                }
             }
 
             if (nextStatusId == -1)
             {
-                return OperationResult<UserResponseDto>.BadRequest($"Cannot automatically determine next status for user with current status '{currentStatusName}'.");
+
+                return OperationResult<UserResponseDto>.BadRequest($"Cannot automatically determine next status for user with current status '{currentStatusName}' and role '{userRoleName}'. An unhandled status transition was attempted.");
+            }
+
+            if (nextStatusId == StatusIdPending)
+            {
+                if (!userRoleName.Equals(MentorRoleName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return OperationResult<UserResponseDto>.BadRequest(
+                        $"User status cannot be set to Pending. This operation is only allowed for users with the '{MentorRoleName}' role. This user's role is '{user.Role.Name}'.");
+                }
             }
 
             user.StatusId = nextStatusId;
-            await _userRepository.UpdateUserAsync(user);
-            await _unitOfWork.SaveChangesAsync();
 
+            await _userRepository.UpdateUserAsync(user);
+            await _unitOfWork.CommitAsync();
             var updatedUser = await _userRepository.GetUserByIdAsync(userId);
             if (updatedUser == null)
             {
 
                 return OperationResult<UserResponseDto>.Fail("Failed to retrieve user details after status update.");
             }
-
-            var updatedUserDto = MapUserToResponseDto(updatedUser);
+            var updatedUserDto = UserMappingExtensions.MapUserToResponseDto(updatedUser);
             return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
-        private UserResponseDto MapUserToResponseDto(User user)
-        {
-            if (user == null) return null!;
-
-            return new UserResponseDto
-            {
-                Id = user.Id,
-                FullName = user.UserProfile?.FullName ?? string.Empty,
-                Email = user.Email,
-
-                Role = user.Role,
-                Status = user.Status,
-                JoinDate = user.CreatedAt,
-                LastActiveDate = user.LastLogin,
-                IndustryExperience = user.UserProfile?.IndustryExperience,
-                ProfessionalSkills = user.UserProfile?.ProfessionalSkill,
-                AreaOfExpertise = user.UserAreaOfExpertises
-                    .Where(uae => uae.AreaOfExpertise != null)
-                    .Select(uae => new AreaOfExpertiseResponse
-                    {
-                        Id = uae.AreaOfExpertise!.Id,
-                        Name = uae.AreaOfExpertise!.Name ?? string.Empty
-                    })
-                    .ToList(),
-                HasMentorApplication = user.SubmittedMentorApplication != null
-            };
-        }
         public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);
@@ -199,11 +208,14 @@ namespace ApplicationCore.Services
             var userResponseDto = new UserResponseDto
             {
                 Id = user.Id,
-                Avatar = $"data:image/png;base64,{Convert.ToBase64String(user.UserProfile?.PhotoData ?? Array.Empty<byte>())}",
+                Avatar = user.UserProfile?.PhotoData != null
+                    ? $"data:image/png;base64,{Convert.ToBase64String(user.UserProfile.PhotoData)}"
+                    : string.Empty,
                 FullName = user.UserProfile?.FullName ?? string.Empty,
                 Email = user.Email,
                 Role = user.Role,
                 Status = user.Status,
+                UserGoal = user.UserProfile?.UserGoal,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,
                 IndustryExperience = user.UserProfile?.IndustryExperience,
@@ -221,7 +233,6 @@ namespace ApplicationCore.Services
 
             return OperationResult<UserResponseDto>.Ok(userResponseDto);
         }
-
         public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto)
         {
             try
