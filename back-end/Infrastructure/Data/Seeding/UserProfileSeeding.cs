@@ -112,7 +112,7 @@ namespace Infrastructure.Data.Seeding
                     Bio = "Senior software engineer with 8+ years of experience in full-stack development.",
                     ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
                     IndustryExperience = "Fintech, E-commerce, Enterprise applications",
-                    UserGoal = "To teach a seasoned software engineer and lead younge developers.",
+                    UserGoal = "To teach a seasoned software engineer and lead young developers.",
                     PrivacyProfile = false,
                     MessagePermission = true,
                     NotificationsEnabled = true,

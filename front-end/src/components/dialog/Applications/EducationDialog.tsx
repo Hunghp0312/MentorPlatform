@@ -46,6 +46,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
       fieldOfStudy: "",
       graduationYear: "",
     };
+    const currentYear = new Date().getFullYear();
 
     if (!formState.institutionName.trim()) {
       newErrors.institutionName = "University name is required.";
@@ -69,6 +70,12 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
       isValid = false;
     } else if (!/^\d{4}$/.test(formState.graduationYear.toString())) {
       newErrors.graduationYear = "Year must be a valid 4-digit number.";
+      isValid = false;
+    } else if (
+      parseInt(formState.graduationYear.toString()) < 1900 ||
+      parseInt(formState.graduationYear.toString()) > currentYear
+    ) {
+      newErrors.graduationYear = `Year must be between 1900 and ${currentYear}.`;
       isValid = false;
     }
 

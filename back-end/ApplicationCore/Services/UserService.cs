@@ -215,6 +215,7 @@ namespace ApplicationCore.Services
                 Email = user.Email,
                 Role = user.Role,
                 Status = user.Status,
+                UserGoal = user.UserProfile?.UserGoal,
                 JoinDate = user.CreatedAt,
                 LastActiveDate = user.LastLogin,
                 IndustryExperience = user.UserProfile?.IndustryExperience,
