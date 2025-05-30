@@ -13,9 +13,9 @@ namespace Infrastructure.Data.Configuration
             builder.Property(r => r.LearnerMessage).HasMaxLength(1000);
 
             builder
-                .HasOne(sb => sb.TimeAvailabilitySlot)
+                .HasOne(sb => sb.MentorTimeAvailable)
                 .WithMany(mas => mas.SessionBookings)
-                .HasForeignKey(sd => sd.AvailabilitySlotId)
+                .HasForeignKey(sd => sd.MentorTimeAvailableId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder

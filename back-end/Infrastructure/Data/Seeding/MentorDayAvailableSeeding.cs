@@ -8,7 +8,6 @@ namespace Infrastructure.Data.Seeding
         {
             var mentor1Id = Guid.Parse("03EA823D-D625-448D-901D-411C5028B769");
             var mentor2Id = Guid.Parse("862B702E-2C59-46F7-8C06-5349D769E237");
-            var mentor3Id = Guid.Parse("B2F7A8C3-6D58-4F99-BCC1-215E1B9F6C19");
 
             return new List<MentorDayAvailable>
             {
@@ -55,7 +54,7 @@ namespace Infrastructure.Data.Seeding
                 new MentorDayAvailable
                 {
                     Id = Guid.Parse("9E8D7C6B-5A4B-3C2D-1E0F-A9B8C7D6E5F4"),
-                    MentorId = mentor3Id,
+                    MentorId = mentor2Id,
                     Day = new DateOnly(2025, 6, 8),
                     StartWorkTime = new TimeOnly(8, 30),
                     EndWorkTime = new TimeOnly(11, 0),
@@ -65,7 +64,7 @@ namespace Infrastructure.Data.Seeding
                 new MentorDayAvailable
                 {
                     Id = Guid.Parse("E1A3F4B8-7C69-45A7-B0F5-92BFFE86754B"),
-                    MentorId = mentor3Id,
+                    MentorId = mentor1Id,
                     Day = new DateOnly(2025, 6, 9),
                     StartWorkTime = new TimeOnly(13, 0),
                     EndWorkTime = new TimeOnly(15, 30),

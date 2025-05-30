@@ -13,11 +13,11 @@ namespace Infrastructure.Data.Configuration
 
             builder
                 .HasOne(me => me.Mentor)
-                .WithMany(ma => ma.CreatedAvailabilitySlots)
+                .WithMany(ma => ma.DayAvailabilities)
                 .HasForeignKey(me => me.MentorId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // builder.HasData(MentorDayAvailableSeeding.SeedMentorDayAvailable());
+            builder.HasData(MentorDayAvailableSeeding.SeedMentorDayAvailable());
         }
     }
 }

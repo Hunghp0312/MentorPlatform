@@ -23,7 +23,7 @@ namespace Infrastructure.Entities
         public virtual ICollection<Course> MentoredCourses { get; set; } = new List<Course>();
         public virtual ICollection<UserAreaOfExpertise> UserAreaOfExpertises { get; set; } =
             new List<UserAreaOfExpertise>();
-        public virtual ICollection<MentorDayAvailable> CreatedAvailabilitySlots { get; set; } =
+        public virtual ICollection<MentorDayAvailable> DayAvailabilities { get; set; } =
             new List<MentorDayAvailable>();
         public virtual ICollection<SessionBooking> MentorSessions { get; set; } =
             new List<SessionBooking>();

@@ -1,3 +1,4 @@
+using Infrastructure.Data.Seeding;
 using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -21,6 +22,8 @@ namespace Infrastructure.Data.Configuration
                 .WithMany()
                 .HasForeignKey(me => me.StatusId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasData(MentorTimeAvailableSeeding.SeedMentorTimeAvailable());
         }
     }
 }
