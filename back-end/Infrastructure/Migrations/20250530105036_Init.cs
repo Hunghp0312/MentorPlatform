@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateCommunicationRelation : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -386,26 +386,22 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MentorAvailabilitySlot",
+                name: "MentorDayAvailable",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false),
-                    MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Day = table.Column<DateOnly>(type: "date", nullable: false),
+                    StartWorkTime = table.Column<TimeOnly>(type: "time", nullable: false),
+                    EndWorkTime = table.Column<TimeOnly>(type: "time", nullable: false),
+                    SessionDuration = table.Column<TimeOnly>(type: "time", nullable: false),
+                    BufferTime = table.Column<TimeOnly>(type: "time", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MentorAvailabilitySlot", x => x.Id);
+                    table.PrimaryKey("PK_MentorDayAvailable", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MentorAvailabilitySlot_SessionAvailabilityStatus_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "SessionAvailabilityStatus",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MentorAvailabilitySlot_User_MentorId",
+                        name: "FK_MentorDayAvailable_User_MentorId",
                         column: x => x.MentorId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -516,8 +512,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CertificationName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    IssuingOrganization = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    CertificationName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    IssuingOrganization = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -536,8 +532,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    InstitutionName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    FieldOfStudy = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    InstitutionName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FieldOfStudy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     GraduationYear = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -557,8 +553,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Position = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CompanyName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Position = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -604,49 +600,28 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SessionBooking",
+                name: "MentorTimeAvailable",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LearnerMessage = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LearnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AvailabilitySlotId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false),
-                    SessionTypeId = table.Column<int>(type: "int", nullable: false)
+                    Start = table.Column<TimeOnly>(type: "time", nullable: false),
+                    End = table.Column<TimeOnly>(type: "time", nullable: false),
+                    DayId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StatusId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SessionBooking", x => x.Id);
+                    table.PrimaryKey("PK_MentorTimeAvailable", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SessionBooking_MentorAvailabilitySlot_AvailabilitySlotId",
-                        column: x => x.AvailabilitySlotId,
-                        principalTable: "MentorAvailabilitySlot",
+                        name: "FK_MentorTimeAvailable_MentorDayAvailable_DayId",
+                        column: x => x.DayId,
+                        principalTable: "MentorDayAvailable",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_SessionBooking_SessionBookingStatus_StatusId",
+                        name: "FK_MentorTimeAvailable_SessionAvailabilityStatus_StatusId",
                         column: x => x.StatusId,
-                        principalTable: "SessionBookingStatus",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_SessionBooking_SessionType_SessionTypeId",
-                        column: x => x.SessionTypeId,
-                        principalTable: "SessionType",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_SessionBooking_User_LearnerId",
-                        column: x => x.LearnerId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_SessionBooking_User_MentorId",
-                        column: x => x.MentorId,
-                        principalTable: "User",
+                        principalTable: "SessionAvailabilityStatus",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -747,6 +722,54 @@ namespace Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "SessionBooking",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LearnerMessage = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LearnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MentorTimeAvailableId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
+                    SessionTypeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SessionBooking", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SessionBooking_MentorTimeAvailable_MentorTimeAvailableId",
+                        column: x => x.MentorTimeAvailableId,
+                        principalTable: "MentorTimeAvailable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SessionBooking_SessionBookingStatus_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "SessionBookingStatus",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SessionBooking_SessionType_SessionTypeId",
+                        column: x => x.SessionTypeId,
+                        principalTable: "SessionType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SessionBooking_User_LearnerId",
+                        column: x => x.LearnerId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SessionBooking_User_MentorId",
+                        column: x => x.MentorId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.InsertData(
                 table: "ApplicationStatus",
                 columns: new[] { "Id", "Name" },
@@ -756,7 +779,7 @@ namespace Infrastructure.Migrations
                     { 2, "Rejected" },
                     { 3, "Approved" },
                     { 4, "Request Info" },
-                    { 5, "Submited" },
+                    { 5, "Submitted" },
                     { 6, "Under Review" }
                 });
 
@@ -986,15 +1009,16 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "MentorAvailabilitySlot",
-                columns: new[] { "Id", "EndTime", "MentorId", "StartTime", "StatusId" },
+                table: "MentorDayAvailable",
+                columns: new[] { "Id", "BufferTime", "Day", "EndWorkTime", "MentorId", "SessionDuration", "StartWorkTime" },
                 values: new object[,]
                 {
-                    { new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"), new DateTime(2025, 6, 5, 20, 0, 0, 0, DateTimeKind.Utc), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new DateTime(2025, 6, 5, 19, 0, 0, 0, DateTimeKind.Utc), 1 },
-                    { new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new DateTime(2025, 6, 2, 11, 0, 0, 0, DateTimeKind.Utc), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new DateTime(2025, 6, 2, 10, 0, 0, 0, DateTimeKind.Utc), 1 },
-                    { new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"), new DateTime(2025, 6, 7, 11, 0, 0, 0, DateTimeKind.Utc), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new DateTime(2025, 6, 7, 10, 0, 0, 0, DateTimeKind.Utc), 1 },
-                    { new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new DateTime(2025, 6, 2, 10, 0, 0, 0, DateTimeKind.Utc), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new DateTime(2025, 6, 2, 9, 0, 0, 0, DateTimeKind.Utc), 1 },
-                    { new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new DateTime(2025, 6, 3, 15, 0, 0, 0, DateTimeKind.Utc), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new DateTime(2025, 6, 3, 14, 0, 0, 0, DateTimeKind.Utc), 1 }
+                    { new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 7), new TimeOnly(12, 30, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 45, 0), new TimeOnly(10, 0, 0) },
+                    { new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 3), new TimeOnly(17, 0, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(1, 0, 0), new TimeOnly(14, 0, 0) },
+                    { new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"), new TimeOnly(0, 10, 0), new DateOnly(2025, 6, 8), new TimeOnly(11, 0, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 30, 0), new TimeOnly(8, 30, 0) },
+                    { new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 2), new TimeOnly(12, 0, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(1, 0, 0), new TimeOnly(9, 0, 0) },
+                    { new Guid("e1a3f4b8-7c69-45a7-b0f5-92bffe86754b"), new TimeOnly(0, 5, 0), new DateOnly(2025, 6, 9), new TimeOnly(15, 30, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(0, 30, 0), new TimeOnly(13, 0, 0) },
+                    { new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 5), new TimeOnly(21, 0, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(1, 0, 0), new TimeOnly(19, 0, 0) }
                 });
 
             migrationBuilder.InsertData(
@@ -1034,12 +1058,25 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "SessionBooking",
-                columns: new[] { "Id", "AvailabilitySlotId", "CreatedAt", "LearnerId", "LearnerMessage", "MentorId", "SessionTypeId", "StatusId" },
+                table: "MentorTimeAvailable",
+                columns: new[] { "Id", "DayId", "End", "Start", "StatusId" },
                 values: new object[,]
                 {
-                    { new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"), new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"), new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Please help me review my CV for a junior developer position.", new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), 3, 1 },
-                    { new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"), new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "I would like to discuss about C# performance optimization.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), 3, 1 }
+                    { new Guid("10000000-0000-0000-0000-000000000001"), new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(9, 30, 0), new TimeOnly(9, 0, 0), 1 },
+                    { new Guid("10000000-0000-0000-0000-000000000002"), new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(10, 0, 0), new TimeOnly(9, 30, 0), 1 },
+                    { new Guid("10000000-0000-0000-0000-000000000003"), new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(14, 30, 0), new TimeOnly(14, 0, 0), 1 },
+                    { new Guid("10000000-0000-0000-0000-000000000004"), new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(15, 0, 0), new TimeOnly(14, 30, 0), 1 },
+                    { new Guid("10000000-0000-0000-0000-000000000005"), new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(10, 30, 0), new TimeOnly(10, 0, 0), 1 },
+                    { new Guid("10000000-0000-0000-0000-000000000006"), new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(11, 0, 0), new TimeOnly(10, 30, 0), 1 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "SessionBooking",
+                columns: new[] { "Id", "CreatedAt", "LearnerId", "LearnerMessage", "MentorId", "MentorTimeAvailableId", "SessionTypeId", "StatusId" },
+                values: new object[,]
+                {
+                    { new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"), new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Please help me review my CV for a junior developer position.", new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new Guid("10000000-0000-0000-0000-000000000002"), 3, 1 },
+                    { new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"), new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "I would like to discuss about C# performance optimization.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), new Guid("10000000-0000-0000-0000-000000000001"), 3, 1 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -1092,19 +1129,14 @@ namespace Infrastructure.Migrations
                 column: "ApplicationStatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MentorAvailabilitySlot_MentorId",
-                table: "MentorAvailabilitySlot",
-                column: "MentorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MentorAvailabilitySlot_StatusId",
-                table: "MentorAvailabilitySlot",
-                column: "StatusId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MentorCertification_MentorApplicationId",
                 table: "MentorCertification",
                 column: "MentorApplicationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MentorDayAvailable_MentorId",
+                table: "MentorDayAvailable",
+                column: "MentorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MentorEducation_MentorApplicationId",
@@ -1115,6 +1147,16 @@ namespace Infrastructure.Migrations
                 name: "IX_MentorTeachingApproach_TeachingApproachId",
                 table: "MentorTeachingApproach",
                 column: "TeachingApproachId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MentorTimeAvailable_DayId",
+                table: "MentorTimeAvailable",
+                column: "DayId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MentorTimeAvailable_StatusId",
+                table: "MentorTimeAvailable",
+                column: "StatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MentorWorkExperience_MentorApplicationId",
@@ -1134,11 +1176,6 @@ namespace Infrastructure.Migrations
                 filter: "[DocumentContentId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SessionBooking_AvailabilitySlotId",
-                table: "SessionBooking",
-                column: "AvailabilitySlotId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_SessionBooking_LearnerId",
                 table: "SessionBooking",
                 column: "LearnerId");
@@ -1147,6 +1184,11 @@ namespace Infrastructure.Migrations
                 name: "IX_SessionBooking_MentorId",
                 table: "SessionBooking",
                 column: "MentorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SessionBooking_MentorTimeAvailableId",
+                table: "SessionBooking",
+                column: "MentorTimeAvailableId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SessionBooking_SessionTypeId",
@@ -1276,7 +1318,7 @@ namespace Infrastructure.Migrations
                 name: "Course");
 
             migrationBuilder.DropTable(
-                name: "MentorAvailabilitySlot");
+                name: "MentorTimeAvailable");
 
             migrationBuilder.DropTable(
                 name: "SessionBookingStatus");
@@ -1315,6 +1357,9 @@ namespace Infrastructure.Migrations
                 name: "CourseStatus");
 
             migrationBuilder.DropTable(
+                name: "MentorDayAvailable");
+
+            migrationBuilder.DropTable(
                 name: "SessionAvailabilityStatus");
 
             migrationBuilder.DropTable(
@@ -1330,10 +1375,10 @@ namespace Infrastructure.Migrations
                 name: "SessionFrequency");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "CategoryStatus");
 
             migrationBuilder.DropTable(
-                name: "CategoryStatus");
+                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Role");

@@ -143,7 +143,8 @@ public class AuthenticateService : IAuthenticateService
                 UserProfile = new UserProfile
                 {
                     FullName = githubName,
-                    PhotoData = avatarBytes
+                    PhotoData = avatarBytes,
+                    CommunicationMethodId = 1
                 }
             };
             await _userRepository.AddAsync(user);
@@ -231,7 +232,8 @@ public class AuthenticateService : IAuthenticateService
                 UserProfile = new UserProfile
                 {
                     FullName = userObj.GetProperty("name").GetString() ?? "Google User",
-                    PhotoData = avatarBytes
+                    PhotoData = avatarBytes,
+                    CommunicationMethodId = 1
                 }
             };
             await _userRepository.AddAsync(user);
