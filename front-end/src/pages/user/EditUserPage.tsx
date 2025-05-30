@@ -78,9 +78,9 @@ const sessionDurationOptions = [
 ];
 
 const communicationMethodOptions = [
-  { value: "1", label: "Video Call" },
-  { value: "2", label: "Audio Call" },
-  { value: "3", label: "Text Chat" },
+  { value: 1, label: "Video Call" },
+  { value: 2, label: "Audio Call" },
+  { value: 3, label: "Text Chat" },
 ];
 
 const EditUserPage = () => {
@@ -97,7 +97,7 @@ const EditUserPage = () => {
   const [userData, setUserData] = useState<UserUpdateRequest>({
     fullName: "",
     bio: null,
-    professionalSkills: null,
+    professionalSkill: null,
     industryExperience: null,
     teachingApproaches: [],
     userProfileAvailabilities: [],
@@ -109,7 +109,7 @@ const EditUserPage = () => {
     privacyProfile: false,
     messagePermission: true,
     notificationsEnabled: true,
-    communicationMethod: [], // Default to video call
+    communicationMethod: 1, // Default to video call
     userAreaExpertises: [],
   });
 
@@ -326,7 +326,9 @@ const EditUserPage = () => {
   ) => {
     const option = options.find((opt) => opt.label === label);
     if (option) {
-      const currentValues = [...userData.userAreaExpertises];
+      const currentValues = [
+        ...((userData[fieldName as keyof typeof userData] as number[]) || []),
+      ];
       const optionValue = option.value.toString();
       const index = currentValues.findIndex(
         (val) => val.toString() === optionValue
@@ -442,7 +444,7 @@ const EditUserPage = () => {
                     label="Professional Skills"
                     name="professionalSkill"
                     type="text"
-                    value={userData.professionalSkills || ""}
+                    value={userData.professionalSkill || ""}
                     onChange={handleInputChange}
                     placeholder="e.g. JavaScript, Python, Project Management"
                     className="bg-gray-700 border-gray-600"
@@ -487,7 +489,6 @@ const EditUserPage = () => {
                 }
                 isRequired
                 id="area-expertise"
-                gridColsClass="grid-cols-2 sm:grid-cols-4"
               />
             </section>
 
@@ -622,41 +623,26 @@ const EditUserPage = () => {
               <div className="space-y-6">
                 <MultiSelectButtons
                   label="Topics of Interest"
-                  name="userTopicOfInterests"
                   options={topicOptions.map((option) => option.label)}
                   selectedOptions={userData.userTopicOfInterests
-                    .map((value) => {
+                    .map((val) => {
                       const option = topicOptions.find(
-                        (opt) => opt.value === value
+                        (opt) => opt.value === val.toString()
                       );
                       return option?.label || "";
                     })
                     .filter(Boolean)}
-                  onToggleSelect={(label) => {
-                    const option = topicOptions.find(
-                      (opt) => opt.label === label
-                    );
-                    if (option) {
-                      const currentValues = [...userData.userTopicOfInterests];
-                      const index = currentValues.indexOf(option.value);
-
-                      if (index > -1) {
-                        currentValues.splice(index, 1);
-                      } else {
-                        currentValues.push(option.value);
-                      }
-
-                      handleMultiSelectChange(
-                        "userTopicOfInterests",
-                        currentValues
-                      );
-                    }
-                  }}
-                  errorMessage={errors.userTopicOfInterests}
+                  onToggleSelect={(label) =>
+                    handleToggleSelect(
+                      label,
+                      topicOptions,
+                      "userTopicOfInterests"
+                    )
+                  }
                   isRequired
+                  id="availability"
                   gridColsClass="grid-cols-2 sm:grid-cols-4"
                 />
-
                 <InputCustom
                   label="Your Goals"
                   name="userGoal"

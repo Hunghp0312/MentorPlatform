@@ -38,7 +38,7 @@ public class AuthenticateService : IAuthenticateService
         }
         var tokenResetPassword = _tokenService.GenerateRefreshToken();
         user.PasswordResetToken = tokenResetPassword;
-        user.PasswordResetExpiry = DateTime.UtcNow.AddMinutes(30);
+        user.PasswordResetExpiry = DateTime.UtcNow.AddMinutes(5);
         var encodedPasswordResetToken = Uri.EscapeDataString(user.PasswordResetToken);
         var encodedEmail = Uri.EscapeDataString(user.Email);
         var frontendUrl = _configuration["FrontendUrl"];
@@ -115,6 +115,23 @@ public class AuthenticateService : IAuthenticateService
         var user = await _userRepository.GetByEmailAsync(githubEmail);
         if (user == null)
         {
+            // Initialize avatarBytes to an empty byte array to avoid CS0165 error
+            byte[] avatarBytes = Array.Empty<byte>();
+            var avatarUrl = userObj.GetProperty("avatar_url").GetString() ?? "";
+            if (!string.IsNullOrEmpty(avatarUrl))
+            {
+                try
+                {
+                    using var avatarResponse = await httpClient.GetAsync(avatarUrl);
+                    avatarResponse.EnsureSuccessStatusCode();
+                    avatarBytes = await avatarResponse.Content.ReadAsByteArrayAsync();
+                }
+                catch
+                {
+                    avatarBytes = Array.Empty<byte>();
+                }
+            }
+            var githubName = userObj.GetProperty("name").GetString() ?? userObj.GetProperty("login").GetString() ?? "Github User";
             user = new User
             {
                 Id = Guid.NewGuid(),
@@ -123,6 +140,11 @@ public class AuthenticateService : IAuthenticateService
                 RoleId = 2,
                 LastLogin = DateTime.UtcNow,
                 StatusId = 1,
+                UserProfile = new UserProfile
+                {
+                    FullName = githubName,
+                    PhotoData = avatarBytes
+                }
             };
             await _userRepository.AddAsync(user);
         }
@@ -131,25 +153,7 @@ public class AuthenticateService : IAuthenticateService
             user.LastLogin = DateTime.UtcNow;
         }
 
-        var claims = new List<Claim>
-        {
-            new Claim("id", user.Id.ToString()),
-            new Claim(ClaimTypes.Role, user.Role?.Name ?? "Learner"),
-            new Claim("isActive", user.StatusId.ToString())
-        };
-        var accessToken = _tokenService.GenerateAccessToken(claims);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-
-        await _unitOfWork.SaveChangesAsync();
-
-        var jwtHandler = new JwtSecurityTokenHandler();
-        var response = new TokenResponse
-        {
-            AccessToken = jwtHandler.WriteToken(accessToken),
-            RefreshToken = refreshToken
-        };
+        var response = await GenerateTokensForUser(user);
         return OperationResult<TokenResponse>.Ok(response);
     }
     public async Task<OperationResult<TokenResponse>> GoogleLoginAsync(string code)
@@ -191,11 +195,31 @@ public class AuthenticateService : IAuthenticateService
         var googleEmail = userObj.GetProperty("email").GetString();
         if (string.IsNullOrEmpty(googleEmail))
             return OperationResult<TokenResponse>.BadRequest("Google email not found.");
+        // Get the profile picture URL
 
 
         var user = await _userRepository.GetByEmailAsync(googleEmail);
         if (user == null)
         {
+            var pictureUrl = userObj.TryGetProperty("picture", out var pictureProp) && pictureProp.ValueKind == System.Text.Json.JsonValueKind.String
+            ? pictureProp.GetString()
+            : null;
+
+            // Download the profile image if available
+            byte[] avatarBytes = Array.Empty<byte>();
+            if (!string.IsNullOrEmpty(pictureUrl))
+            {
+                try
+                {
+                    using var avatarResponse = await httpClient.GetAsync(pictureUrl);
+                    avatarResponse.EnsureSuccessStatusCode();
+                    avatarBytes = await avatarResponse.Content.ReadAsByteArrayAsync();
+                }
+                catch
+                {
+                    avatarBytes = Array.Empty<byte>();
+                }
+            }
             user = new User
             {
                 Id = Guid.NewGuid(),
@@ -204,6 +228,11 @@ public class AuthenticateService : IAuthenticateService
                 RoleId = 2,
                 LastLogin = DateTime.UtcNow,
                 StatusId = 1,
+                UserProfile = new UserProfile
+                {
+                    FullName = userObj.GetProperty("name").GetString() ?? "Google User",
+                    PhotoData = avatarBytes
+                }
             };
             await _userRepository.AddAsync(user);
         }
@@ -211,27 +240,7 @@ public class AuthenticateService : IAuthenticateService
         {
             user.LastLogin = DateTime.UtcNow;
         }
-
-
-        var claims = new List<Claim>
-    {
-        new Claim("id", user.Id.ToString()),
-        new Claim(ClaimTypes.Role, user.Role?.Name ?? "Learner"),
-        new Claim("isActive", user.StatusId.ToString())
-    };
-        var accessToken = _tokenService.GenerateAccessToken(claims);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-
-        await _unitOfWork.SaveChangesAsync();
-
-        var jwtHandler = new JwtSecurityTokenHandler();
-        var response = new TokenResponse
-        {
-            AccessToken = jwtHandler.WriteToken(accessToken),
-            RefreshToken = refreshToken
-        };
+        var response = await GenerateTokensForUser(user);
         return OperationResult<TokenResponse>.Ok(response);
     }
     public async Task<OperationResult<TokenResponse>> LoginAsync(LoginRequest loginRequest)
@@ -249,25 +258,8 @@ public class AuthenticateService : IAuthenticateService
         {
             return OperationResult<TokenResponse>.BadRequest("Your account is deactivated. Please contact support.");
         }
-        var claims = new List<Claim>
-        {
-            new Claim("id", user.Id.ToString()),
-            new Claim(ClaimTypes.Role, user.Role.Name.ToString()),
-            new Claim("isActive", user.StatusId.ToString())
-        };
-        var accessToken = _tokenService.GenerateAccessToken(claims);
-        var refreshToken = _tokenService.GenerateRefreshToken();
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-        user.LastLogin = DateTime.UtcNow;
-        await _unitOfWork.SaveChangesAsync();
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var loginResponse = new TokenResponse
-        {
-            AccessToken = tokenHandler.WriteToken(accessToken),
-            RefreshToken = refreshToken,
-        };
-        return OperationResult<TokenResponse>.Ok(loginResponse);
+        var tokenResponse = await GenerateTokensForUser(user);
+        return OperationResult<TokenResponse>.Ok(tokenResponse);
     }
 
     public Task LogoutAsync(string accessToken)
@@ -315,25 +307,34 @@ public class AuthenticateService : IAuthenticateService
         {
             return OperationResult<TokenResponse>.BadRequest("Your account is deactivated. Please contact support.");
         }
+        var tokenResponse = await GenerateTokensForUser(user);
+        return OperationResult<TokenResponse>.Ok(tokenResponse);
+    }
+
+    private async Task<TokenResponse> GenerateTokensForUser(User user)
+    {
         var claims = new List<Claim>
         {
             new Claim("id", user.Id.ToString()),
-            new Claim(ClaimTypes.Role, user.Role.Name),
+            new Claim(ClaimTypes.Role, user.Role?.Name ?? "Learner"),
             new Claim("isActive", user.StatusId.ToString())
         };
-        var newAccessToken = _tokenService.GenerateAccessToken(claims);
-        var newRefreshToken = _tokenService.GenerateRefreshToken();
-        user.RefreshToken = newRefreshToken;
+
+        var accessToken = _tokenService.GenerateAccessToken(claims);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+
+        user.RefreshToken = refreshToken;
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
         user.LastLogin = DateTime.UtcNow;
+
         await _unitOfWork.SaveChangesAsync();
+
         var tokenHandler = new JwtSecurityTokenHandler();
-        var tokenResponse = new TokenResponse
+        return new TokenResponse
         {
-            AccessToken = tokenHandler.WriteToken(newAccessToken),
-            RefreshToken = newRefreshToken,
+            AccessToken = tokenHandler.WriteToken(accessToken),
+            RefreshToken = refreshToken
         };
-        return OperationResult<TokenResponse>.Ok(tokenResponse);
     }
 
 }

@@ -48,7 +48,7 @@ export interface UserUpdateRequest {
   photoData?: File;
   fullName: string;
   bio?: string | null;
-  professionalSkills: string | null;
+  professionalSkill: string | null;
   industryExperience: string | null;
   teachingApproaches: number[];
   userProfileAvailabilities: number[];
@@ -60,6 +60,6 @@ export interface UserUpdateRequest {
   privacyProfile: boolean;
   messagePermission: boolean;
   notificationsEnabled: boolean;
-  communicationMethod: number[];
+  communicationMethod: number;
   userAreaExpertises: number[];
 }
