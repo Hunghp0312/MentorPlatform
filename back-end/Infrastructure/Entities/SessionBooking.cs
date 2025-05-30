@@ -14,7 +14,7 @@ namespace Infrastructure.Entities
         public int SessionTypeId { get; set; }
         public virtual User Learner { get; set; } = null!;
         public virtual User Mentor { get; set; } = null!;
-        public virtual MentorAvailabilitySlot AvailabilitySlot { get; set; } = null!;
+        public virtual MentorTimeAvailable TimeAvailabilitySlot { get; set; } = null!;
         public SessionBookingStatus Status { get; set; } = null!;
         public SessionType SessionType { get; set; } = null!;
     }
