@@ -385,7 +385,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            Name = "Submited"
+                            Name = "Submitted"
                         },
                         new
                         {
@@ -747,6 +747,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 5,
                             Name = "Cancelled"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Scheduled"
                         });
                 });
 
@@ -1060,75 +1065,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("MentorApplication");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.MentorAvailabilitySlot", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("MentorId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MentorId");
-
-                    b.HasIndex("StatusId");
-
-                    b.ToTable("MentorAvailabilitySlot");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
-                            EndTime = new DateTime(2025, 6, 2, 10, 0, 0, 0, DateTimeKind.Utc),
-                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            StartTime = new DateTime(2025, 6, 2, 9, 0, 0, 0, DateTimeKind.Utc),
-                            StatusId = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"),
-                            EndTime = new DateTime(2025, 6, 2, 11, 0, 0, 0, DateTimeKind.Utc),
-                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            StartTime = new DateTime(2025, 6, 2, 10, 0, 0, 0, DateTimeKind.Utc),
-                            StatusId = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
-                            EndTime = new DateTime(2025, 6, 3, 15, 0, 0, 0, DateTimeKind.Utc),
-                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            StartTime = new DateTime(2025, 6, 3, 14, 0, 0, 0, DateTimeKind.Utc),
-                            StatusId = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"),
-                            EndTime = new DateTime(2025, 6, 5, 20, 0, 0, 0, DateTimeKind.Utc),
-                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
-                            StartTime = new DateTime(2025, 6, 5, 19, 0, 0, 0, DateTimeKind.Utc),
-                            StatusId = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"),
-                            EndTime = new DateTime(2025, 6, 7, 11, 0, 0, 0, DateTimeKind.Utc),
-                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
-                            StartTime = new DateTime(2025, 6, 7, 10, 0, 0, 0, DateTimeKind.Utc),
-                            StatusId = 1
-                        });
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.MentorCertification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1153,6 +1089,99 @@ namespace Infrastructure.Migrations
                     b.HasIndex("MentorApplicationId");
 
                     b.ToTable("MentorCertification");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorDayAvailable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeOnly>("BufferTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateOnly>("Day")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly>("EndWorkTime")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("MentorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeOnly>("SessionDuration")
+                        .HasColumnType("time");
+
+                    b.Property<TimeOnly>("StartWorkTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MentorId");
+
+                    b.ToTable("MentorDayAvailable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
+                            BufferTime = new TimeOnly(0, 15, 0),
+                            Day = new DateOnly(2025, 6, 2),
+                            EndWorkTime = new TimeOnly(12, 0, 0),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            SessionDuration = new TimeOnly(1, 0, 0),
+                            StartWorkTime = new TimeOnly(9, 0, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"),
+                            BufferTime = new TimeOnly(0, 15, 0),
+                            Day = new DateOnly(2025, 6, 3),
+                            EndWorkTime = new TimeOnly(17, 0, 0),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            SessionDuration = new TimeOnly(1, 0, 0),
+                            StartWorkTime = new TimeOnly(14, 0, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
+                            BufferTime = new TimeOnly(0, 15, 0),
+                            Day = new DateOnly(2025, 6, 5),
+                            EndWorkTime = new TimeOnly(21, 0, 0),
+                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            SessionDuration = new TimeOnly(1, 0, 0),
+                            StartWorkTime = new TimeOnly(19, 0, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"),
+                            BufferTime = new TimeOnly(0, 15, 0),
+                            Day = new DateOnly(2025, 6, 7),
+                            EndWorkTime = new TimeOnly(12, 30, 0),
+                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            SessionDuration = new TimeOnly(0, 45, 0),
+                            StartWorkTime = new TimeOnly(10, 0, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"),
+                            BufferTime = new TimeOnly(0, 10, 0),
+                            Day = new DateOnly(2025, 6, 8),
+                            EndWorkTime = new TimeOnly(11, 0, 0),
+                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            SessionDuration = new TimeOnly(0, 30, 0),
+                            StartWorkTime = new TimeOnly(8, 30, 0)
+                        },
+                        new
+                        {
+                            Id = new Guid("e1a3f4b8-7c69-45a7-b0f5-92bffe86754b"),
+                            BufferTime = new TimeOnly(0, 5, 0),
+                            Day = new DateOnly(2025, 6, 9),
+                            EndWorkTime = new TimeOnly(15, 30, 0),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            SessionDuration = new TimeOnly(0, 30, 0),
+                            StartWorkTime = new TimeOnly(13, 0, 0)
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorEducation", b =>
@@ -1197,6 +1226,83 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TeachingApproachId");
 
                     b.ToTable("MentorTeachingApproach");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorTimeAvailable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DayId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeOnly>("End")
+                        .HasColumnType("time");
+
+                    b.Property<TimeOnly>("Start")
+                        .HasColumnType("time");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DayId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("MentorTimeAvailable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000001"),
+                            DayId = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
+                            End = new TimeOnly(9, 30, 0),
+                            Start = new TimeOnly(9, 0, 0),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000002"),
+                            DayId = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
+                            End = new TimeOnly(10, 0, 0),
+                            Start = new TimeOnly(9, 30, 0),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000003"),
+                            DayId = new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"),
+                            End = new TimeOnly(14, 30, 0),
+                            Start = new TimeOnly(14, 0, 0),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000004"),
+                            DayId = new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"),
+                            End = new TimeOnly(15, 0, 0),
+                            Start = new TimeOnly(14, 30, 0),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000005"),
+                            DayId = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
+                            End = new TimeOnly(10, 30, 0),
+                            Start = new TimeOnly(10, 0, 0),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000006"),
+                            DayId = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
+                            End = new TimeOnly(11, 0, 0),
+                            Start = new TimeOnly(10, 30, 0),
+                            StatusId = 1
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
@@ -1312,9 +1418,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AvailabilitySlotId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1328,6 +1431,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("MentorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("MentorTimeAvailableId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("SessionTypeId")
                         .HasColumnType("int");
 
@@ -1336,11 +1442,11 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AvailabilitySlotId");
-
                     b.HasIndex("LearnerId");
 
                     b.HasIndex("MentorId");
+
+                    b.HasIndex("MentorTimeAvailableId");
 
                     b.HasIndex("SessionTypeId");
 
@@ -1352,22 +1458,22 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"),
-                            AvailabilitySlotId = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
                             CreatedAt = new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc),
                             LearnerId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             LearnerMessage = "I would like to discuss about C# performance optimization.",
                             MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            MentorTimeAvailableId = new Guid("10000000-0000-0000-0000-000000000001"),
                             SessionTypeId = 3,
                             StatusId = 1
                         },
                         new
                         {
                             Id = new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"),
-                            AvailabilitySlotId = new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"),
                             CreatedAt = new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc),
                             LearnerId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             LearnerMessage = "Please help me review my CV for a junior developer position.",
                             MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            MentorTimeAvailableId = new Guid("10000000-0000-0000-0000-000000000002"),
                             SessionTypeId = 3,
                             StatusId = 1
                         });
@@ -1836,7 +1942,7 @@ namespace Infrastructure.Migrations
                             ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
                             SessionDurationId = 4,
                             SessionFrequencyId = 2,
-                            UserGoal = "To teach a seasoned software engineer and lead younge developers."
+                            UserGoal = "To teach a seasoned software engineer and lead young developers."
                         },
                         new
                         {
@@ -1966,25 +2072,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("ApplicationStatus");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.MentorAvailabilitySlot", b =>
-                {
-                    b.HasOne("Infrastructure.Entities.User", "Mentor")
-                        .WithMany("CreatedAvailabilitySlots")
-                        .HasForeignKey("MentorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Infrastructure.Entities.Enum.SessionAvailabilityStatus", "Status")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Mentor");
-
-                    b.Navigation("Status");
-                });
-
             modelBuilder.Entity("Infrastructure.Entities.MentorCertification", b =>
                 {
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
@@ -1994,6 +2081,17 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("MentorApplication");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorDayAvailable", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.User", "Mentor")
+                        .WithMany("DayAvailabilities")
+                        .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mentor");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorEducation", b =>
@@ -2026,6 +2124,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("UserProfile");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.MentorTimeAvailable", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.MentorDayAvailable", "MentorDayAvailable")
+                        .WithMany("MentorTimeAvailables")
+                        .HasForeignKey("DayId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.SessionAvailabilityStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("MentorDayAvailable");
+
+                    b.Navigation("Status");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.MentorWorkExperience", b =>
                 {
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
@@ -2055,12 +2172,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Infrastructure.Entities.SessionBooking", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.MentorAvailabilitySlot", "AvailabilitySlot")
-                        .WithMany("SessionBookings")
-                        .HasForeignKey("AvailabilitySlotId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Infrastructure.Entities.User", "Learner")
                         .WithMany("LearnerSessions")
                         .HasForeignKey("LearnerId")
@@ -2070,6 +2181,12 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Entities.User", "Mentor")
                         .WithMany("MentorSessions")
                         .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.MentorTimeAvailable", "MentorTimeAvailable")
+                        .WithMany("SessionBookings")
+                        .HasForeignKey("MentorTimeAvailableId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2085,11 +2202,11 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("AvailabilitySlot");
-
                     b.Navigation("Learner");
 
                     b.Navigation("Mentor");
+
+                    b.Navigation("MentorTimeAvailable");
 
                     b.Navigation("SessionType");
 
@@ -2279,14 +2396,19 @@ namespace Infrastructure.Migrations
                     b.Navigation("SupportingDocuments");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.MentorAvailabilitySlot", b =>
+            modelBuilder.Entity("Infrastructure.Entities.MentorDayAvailable", b =>
+                {
+                    b.Navigation("MentorTimeAvailables");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.MentorTimeAvailable", b =>
                 {
                     b.Navigation("SessionBookings");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
                 {
-                    b.Navigation("CreatedAvailabilitySlots");
+                    b.Navigation("DayAvailabilities");
 
                     b.Navigation("LearnerSessions");
 
