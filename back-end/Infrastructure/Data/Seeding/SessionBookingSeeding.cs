@@ -8,7 +8,7 @@ namespace Infrastructure.Data.Seeding
         {
             var mentor1Id = Guid.Parse("03EA823D-D625-448D-901D-411C5028B769");
             var mentor2Id = Guid.Parse("862B702E-2C59-46F7-8C06-5349D769E237");
-            var learner1Id = Guid.Parse("F052ECF6-7646-4FA6-8DEB-3E991A1E4E16"); // Ví dụ một Learner ID
+            var learner1Id = Guid.Parse("F052ECF6-7646-4FA6-8DEB-3E991A1E4E16");
 
             var slotFromMentor1 = Guid.Parse("10000000-0000-0000-0000-000000000001");
             var slotFromMentor2 = Guid.Parse("10000000-0000-0000-0000-000000000002");

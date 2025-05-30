@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Infrastructure.Entities;
 
 namespace Infrastructure.Data.Seeding
@@ -10,10 +8,9 @@ namespace Infrastructure.Data.Seeding
         {
             var statusAvailableId = 1;
 
-            // Pre-seeded Day IDs from MentorDayAvailable
-            var day1Id = Guid.Parse("DA331A4B-3665-4D78-99A6-825DA4015E76"); // 2025-06-02
-            var day2Id = Guid.Parse("4A6E7525-23E4-4D6F-930B-22F2E40783D9"); // 2025-06-03
-            var day3Id = Guid.Parse("F4E2B81E-479A-4B6A-8A4D-08D3E4C8A6B0"); // etc.
+            var day1Id = Guid.Parse("DA331A4B-3665-4D78-99A6-825DA4015E76");
+            var day2Id = Guid.Parse("4A6E7525-23E4-4D6F-930B-22F2E40783D9");
+            var day3Id = Guid.Parse("F4E2B81E-479A-4B6A-8A4D-08D3E4C8A6B0");
 
             return new List<MentorTimeAvailable>
             {
