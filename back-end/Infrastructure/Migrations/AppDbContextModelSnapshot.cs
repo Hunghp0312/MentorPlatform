@@ -385,7 +385,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            Name = "Submited"
+                            Name = "Submitted"
                         },
                         new
                         {
@@ -747,6 +747,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 5,
                             Name = "Cancelled"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Scheduled"
                         });
                 });
 
@@ -1836,7 +1841,7 @@ namespace Infrastructure.Migrations
                             ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
                             SessionDurationId = 4,
                             SessionFrequencyId = 2,
-                            UserGoal = "To teach a seasoned software engineer and lead younge developers."
+                            UserGoal = "To teach a seasoned software engineer and lead young developers."
                         },
                         new
                         {

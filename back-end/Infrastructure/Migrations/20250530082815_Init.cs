@@ -773,7 +773,7 @@ namespace Infrastructure.Migrations
                     { 2, "Rejected" },
                     { 3, "Approved" },
                     { 4, "Request Info" },
-                    { 5, "Submited" },
+                    { 5, "Submitted" },
                     { 6, "Under Review" }
                 });
 
@@ -878,7 +878,8 @@ namespace Infrastructure.Migrations
                     { 2, "Confirmed" },
                     { 3, "Declined" },
                     { 4, "Completed" },
-                    { 5, "Cancelled" }
+                    { 5, "Cancelled" },
+                    { 6, "Scheduled" }
                 });
 
             migrationBuilder.InsertData(
@@ -1038,7 +1039,7 @@ namespace Infrastructure.Migrations
                 values: new object[,]
                 {
                     { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "Senior administrator overseeing platform development and technical operations.", "Minh Chau Admin", "Experienced in project management, system architecture, and team leadership, with expertise in platform development and technical operations.", true, true, null, null, true, "Project management, System architecture, Team leadership", 3, 4, null },
-                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "Senior software engineer with 8+ years of experience in full-stack development.", "Huy Nguyen Mentor", "Fintech, E-commerce, Enterprise applications", true, true, null, null, false, "Java, Spring, React, AWS, DevOps", 4, 2, "To teach a seasoned software engineer and lead younge developers." },
+                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "Senior software engineer with 8+ years of experience in full-stack development.", "Huy Nguyen Mentor", "Fintech, E-commerce, Enterprise applications", true, true, null, null, false, "Java, Spring, React, AWS, DevOps", 4, 2, "To teach a seasoned software engineer and lead young developers." },
                     { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), "Full-stack developer with interest in blockchain and distributed systems.", "Dan Cega", "Full-stack developer with interest in blockchain and distributed systems, with expertise in blockchain, distributed systems, and problem-solving.", true, true, null, null, false, "Blockchain, Distributed systems, Problem-solving", 5, 1, "To build scalable decentralized applications and smart contracts." },
                     { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "Experienced tech administrator with background in education platforms.", "Huy Nguyen Admin", "Experienced in education platforms, with expertise in system administration, DevOps, and cloud infrastructure.", true, true, null, null, true, "System administration, DevOps, Cloud infrastructure", 3, 4, null },
                     { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "Platform administrator with focus on user experience and system reliability.", "Huy Khuong Admin", "Experienced in user experience and system reliability, with expertise in user management, technical support, and data analytics.", true, true, null, null, true, "User management, Technical support, Data analytics", 3, 4, null },

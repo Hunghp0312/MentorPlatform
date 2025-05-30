@@ -10,8 +10,8 @@ namespace Infrastructure.Data.Configuration
         {
             builder.HasKey(me => me.Id);
             builder.Property(me => me.MentorApplicationId).IsRequired();
-            builder.Property(me => me.InstitutionName).IsRequired().HasMaxLength(255);
-            builder.Property(me => me.FieldOfStudy).IsRequired().HasMaxLength(150);
+            builder.Property(me => me.InstitutionName).IsRequired().HasMaxLength(100);
+            builder.Property(me => me.FieldOfStudy).IsRequired().HasMaxLength(100);
             builder.Property(me => me.GraduationYear).IsRequired(false);
 
             builder.HasOne(me => me.MentorApplication)

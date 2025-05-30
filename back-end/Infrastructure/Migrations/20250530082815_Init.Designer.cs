@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250530052318_InitialSchema2")]
-    partial class InitialSchema2
+    [Migration("20250530082815_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -388,7 +388,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            Name = "Submited"
+                            Name = "Submitted"
                         },
                         new
                         {
@@ -750,6 +750,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 5,
                             Name = "Cancelled"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Scheduled"
                         });
                 });
 
@@ -1839,7 +1844,7 @@ namespace Infrastructure.Migrations
                             ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
                             SessionDurationId = 4,
                             SessionFrequencyId = 2,
-                            UserGoal = "To teach a seasoned software engineer and lead younge developers."
+                            UserGoal = "To teach a seasoned software engineer and lead young developers."
                         },
                         new
                         {
