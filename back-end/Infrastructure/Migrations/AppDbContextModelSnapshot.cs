@@ -1835,7 +1835,8 @@ namespace Infrastructure.Migrations
                             PrivacyProfile = false,
                             ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
                             SessionDurationId = 4,
-                            SessionFrequencyId = 2
+                            SessionFrequencyId = 2,
+                            UserGoal = "To teach a seasoned software engineer and lead younge developers."
                         },
                         new
                         {
@@ -1848,7 +1849,8 @@ namespace Infrastructure.Migrations
                             PrivacyProfile = true,
                             ProfessionalSkill = "Python, TensorFlow, PyTorch, NLP, Big Data",
                             SessionDurationId = 3,
-                            SessionFrequencyId = 1
+                            SessionFrequencyId = 1,
+                            UserGoal = "To share knowledge and expertise in data science and machine learning."
                         },
                         new
                         {
@@ -1861,7 +1863,8 @@ namespace Infrastructure.Migrations
                             PrivacyProfile = false,
                             ProfessionalSkill = "React, Vue.js, Angular, SCSS, Accessibility",
                             SessionDurationId = 2,
-                            SessionFrequencyId = 4
+                            SessionFrequencyId = 4,
+                            UserGoal = "To share knowledge and expertise in frontend development and UI/UX design."
                         });
                 });
 
