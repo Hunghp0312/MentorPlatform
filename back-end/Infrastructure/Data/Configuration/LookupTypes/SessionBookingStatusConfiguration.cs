@@ -10,7 +10,7 @@ namespace Infrastructure.Data.Configuration.LookupTypes
             base.Configure(builder);
 
             builder.HasData(
-                new SessionBookingStatus { Id = 1, Name = "Penind" },
+                new SessionBookingStatus { Id = 1, Name = "Pending" },
                 new SessionBookingStatus { Id = 2, Name = "Confirmed" },
                 new SessionBookingStatus { Id = 3, Name = "Declined" },
                 new SessionBookingStatus { Id = 4, Name = "Completed" },
