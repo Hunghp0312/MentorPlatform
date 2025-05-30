@@ -6,6 +6,7 @@ namespace Infrastructure.Entities
     {
         public Guid Id { get; set; }
         public string? LearnerMessage { get; set; }
+        public string? CancelReason { get; set; }
         public DateTime CreatedAt { get; set; }
         public Guid LearnerId { get; set; }
         public Guid MentorId { get; set; }

@@ -98,6 +98,6 @@
             "At least one learning style must be selected for learners.";
         public const string TEACHING_APPROACH_AT_LEAST_ONE_REQUIRED =
             "At least one teaching approach must be selected for mentors.";
-
+        public const string SessionTypeIdInvalidRange = "Session type must be between 1 to 3.";
     }
 }

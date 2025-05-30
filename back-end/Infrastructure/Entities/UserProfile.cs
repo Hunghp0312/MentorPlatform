@@ -25,5 +25,7 @@ namespace Infrastructure.Entities
         public bool? NotificationsEnabled { get; set; } = true;
         public virtual ICollection<UserCommunicationMethod> UserCommunicationMethods { get; set; } = new List<UserCommunicationMethod>();
         public virtual User User { get; set; } = null!;
+        public TimeOnly? WorkdayStartTime { get; set; }
+        public TimeOnly? WorkdayEndTime { get; set; }
     }
 }

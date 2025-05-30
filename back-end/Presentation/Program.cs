@@ -75,6 +75,7 @@ builder.Services.AddScoped<IMentorEducationRepository, MentorEducationRepository
 builder.Services.AddScoped<IMentorCertificationRepository, MentorCertificationRepository>();
 builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository>();
 builder.Services.AddScoped<ISupportingDocumentService, SupportingDocumentService>();
+builder.Services.AddScoped<IMentorAvailabilitySlotRepository, MentorAvailabilitySlotRepository>();
 builder.Services.AddScoped<ISessionBookingRepository, SessionBookingRepository>();
 builder.Services.AddScoped<ISessionBookingService, SessionBookingService>();
 builder.Services.AddScoped<
