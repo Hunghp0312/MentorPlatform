@@ -888,12 +888,13 @@ const MentorStatusProfile = () => {
                         ? "bg-green-500"
                         : mentorData.status === "Rejected"
                         ? "bg-red-500"
-                        : mentorData.status === "Submitted" ||
-                          mentorData.status === "Under Review"
+                        : mentorData.status === "Submitted"
                         ? "bg-yellow-500"
                         : mentorData.status === "Request Info"
                         ? "bg-blue-500"
-                        : ""
+                        : mentorData.status === "Under Review"
+                        ? "bg-purple-500"
+                        : "bg-gray-500"
                     }`}
                   >
                     {mentorData.status}

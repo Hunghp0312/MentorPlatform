@@ -26,6 +26,10 @@ namespace Infrastructure.Data.Configuration
             builder.Property(up => up.ProfessionalSkill).HasMaxLength(1000).IsRequired(false);
             builder.Property(up => up.IndustryExperience).HasMaxLength(1000).IsRequired(false);
             builder.Property(up => up.UserGoal).HasMaxLength(1000).IsRequired(false);
+            builder.HasOne(up => up.CommunicationMethod)
+                     .WithMany()
+                     .HasForeignKey(up => up.CommunicationMethodId)
+                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasData(UserProfileSeeding.SeedUserProfiles());
         }

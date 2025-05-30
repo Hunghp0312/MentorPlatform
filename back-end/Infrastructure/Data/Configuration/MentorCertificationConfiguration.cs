@@ -10,8 +10,8 @@ namespace Infrastructure.Data.Configuration
         {
             builder.HasKey(mc => mc.Id);
             builder.Property(mc => mc.MentorApplicationId).IsRequired();
-            builder.Property(mc => mc.CertificationName).IsRequired().HasMaxLength(255);
-            builder.Property(mc => mc.IssuingOrganization).IsRequired().HasMaxLength(255);
+            builder.Property(mc => mc.CertificationName).IsRequired().HasMaxLength(150);
+            builder.Property(mc => mc.IssuingOrganization).IsRequired().HasMaxLength(150);
 
             builder.HasOne(mc => mc.MentorApplication)
                 .WithMany(ma => ma.MentorCertifications)

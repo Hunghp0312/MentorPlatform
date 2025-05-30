@@ -23,6 +23,10 @@ import MentorStatusProfile from "../pages/mentor/MentorStatusProfile";
 import PrivateRoute from "./PrivateRoute";
 import { RequireRole } from "./RequiredRoute";
 import UnauthorizedPage from "../pages/auth/Unauthorized";
+import EditUserPage from "../pages/user/EditUserPage";
+import BookingSession from "../pages/session/BookingSession";
+import MentorDashBoard from "../pages/mentor/MentorDashBoard";
+import SessionManagement from "../pages/session/SessionManagement";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -39,6 +43,7 @@ const AppRouter = () => {
         { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
         { path: pathName.oauthcallback, element: <OAuthCallback /> },
         { path: pathName.unauthorized, element: <UnauthorizedPage /> },
+        { path: "edit-profile", element: <EditUserPage /> },
       ],
     },
 
@@ -52,7 +57,6 @@ const AppRouter = () => {
       ),
       children: [{ path: pathName.home, element: HomePage }],
     },
-
     {
       element: (
         <PrivateRoute>
@@ -94,6 +98,9 @@ const AppRouter = () => {
       ),
       children: [],
     },
+    { path: pathName.bookingSession, element: <BookingSession /> },
+    { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
+    { path: pathName.sessionManagement, element: <SessionManagement /> },
   ]);
 
   return routes;
