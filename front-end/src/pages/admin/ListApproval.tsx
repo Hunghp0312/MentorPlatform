@@ -3,7 +3,6 @@ import { Search, ClipboardList, FileText, Eye } from "lucide-react";
 import { toast } from "react-toastify";
 import DataTable, { DataColumn } from "../../components/table/CustomTable";
 import InputCustom from "../../components/input/InputCustom";
-import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import useDebounce from "../../hooks/usedebounce";
 import { approvalService } from "../../services/approval.service";
 import { handleAxiosError } from "../../utils/handlerError";
@@ -18,6 +17,7 @@ import {
 import CustomModal from "../../components/ui/Modal";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
+import SmallLoadingSpinner from "../../components/loading/SmallLoadingSpinner";
 
 interface ApprovalType {
   applicantUserId: string;
@@ -52,7 +52,7 @@ const ListApproval = () => {
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
   );
-  type ConfirmActionType = "approve" | "reject" | "requestInfo";
+  type ConfirmActionType = "approve" | "reject" | "requestInfo" | "underreview";
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,6 +64,9 @@ const ListApproval = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmActionType | null>(
     null
+  );
+  const [statusCounts, setStatusCounts] = useState<{ [key: string]: number }>(
+    {}
   );
   const [rejectionComment, setRejectionComment] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
@@ -119,6 +122,25 @@ const ListApproval = () => {
       console.log("API Response:", res);
       setTotalItems(res.totalItems);
       setApprovals(res.items);
+      const counts = await Promise.all(
+        ["", "pending", "approved", "rejected", "request-info"].map(
+          async (status) => {
+            const filter = statusToFilter[status] || 0;
+            const response = await approvalService.getAllMentorApplications(
+              "",
+              filter,
+              1,
+              1
+            );
+            return { status, count: response.totalItems };
+          }
+        )
+      );
+      const countsMap = counts.reduce((acc, { status, count }) => {
+        acc[status] = count;
+        return acc;
+      }, {} as { [key: string]: number });
+      setStatusCounts(countsMap);
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -136,6 +158,7 @@ const ListApproval = () => {
       const res = await approvalService.getMentorApplicationDetail(
         mentorApplicationId
       );
+      console.log("API Response Detail:", res);
       setSelectedApproval({
         ...res,
         documents: res.documents.map((doc: SupportingDocument) => ({
@@ -143,7 +166,7 @@ const ListApproval = () => {
           documentContent: {
             fileName: doc.fileName,
             fileType: doc.fileType,
-            fileContent: doc.documentContent?.fileContent || "",
+            fileContent: doc.fileContent || "",
           },
         })),
       });
@@ -325,7 +348,9 @@ const ListApproval = () => {
           status: "Approved",
           approvalDate: new Date().toISOString(),
         });
-        toast.success(`Application for ${selectedApproval.fullName} approved`);
+        toast.success(
+          `Application for ${selectedApproval.fullName} change to approved`
+        );
       } else if (confirmAction === "reject") {
         request = {
           mentorId: selectedApproval.applicantUserId,
@@ -351,7 +376,30 @@ const ListApproval = () => {
           rejectionReason: rejectionComment.trim() || null,
           lastStatusUpdateDate: new Date().toISOString(),
         });
-        toast.success(`Application for ${selectedApproval.fullName} rejected`);
+        toast.success(
+          `Application for ${selectedApproval.fullName} change to rejected`
+        );
+      } else if (confirmAction === "underreview") {
+        request = {
+          mentorId: selectedApproval.applicantUserId,
+          statusId: 6,
+          adminComments: null,
+        };
+        await approvalService.updateMentorApplicationStatus(request);
+        setApprovals((prev = []) =>
+          prev.map((item) =>
+            item.applicantUserId === selectedApproval.applicantUserId
+              ? {
+                  ...item,
+                  status: "Under Review",
+                  rejectionReason: null,
+                }
+              : item
+          )
+        );
+        toast.success(
+          `Application for ${selectedApproval.fullName} set to under review`
+        );
       } else if (confirmAction === "requestInfo") {
         request = {
           mentorId: selectedApproval.applicantUserId,
@@ -377,7 +425,9 @@ const ListApproval = () => {
           requestInfoDate: new Date().toISOString(),
           adminComments: adminNotes.trim() || null,
         });
-        toast.success(`Info requested for ${selectedApproval.fullName}`);
+        toast.success(
+          `Info requested for ${selectedApproval.fullName} successfully`
+        );
       }
     } catch (error) {
       console.error(`Error ${confirmAction} application:`, error);
@@ -425,10 +475,6 @@ const ListApproval = () => {
     if (action.includes("Request Info")) return "bg-blue-500";
     return "bg-orange-500";
   };
-
-  if (isLoading) {
-    return <LoadingOverlay />;
-  }
 
   const additionalSettingsContent = (
     <div>
@@ -553,7 +599,7 @@ const ListApproval = () => {
             >
               {statusOptions.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {option.label} ({statusCounts[option.value] || 0})
                 </option>
               ))}
             </select>
@@ -563,7 +609,15 @@ const ListApproval = () => {
             <div className="w-1/2">
               <div className="bg-gray-700 rounded-lg overflow-hidden">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-                  <h3 className="font-medium">Applications Awaiting Review</h3>
+                  <h3 className="font-medium">
+                    {statusFilter === "pending"
+                      ? "Applications Awaiting Review"
+                      : statusFilter === "rejected"
+                      ? "Rejected Applications"
+                      : statusFilter === "approved"
+                      ? "Approved Mentors"
+                      : "All Applications"}
+                  </h3>
                 </div>
                 <div className="max-h-[600px] overflow-y-auto pb-4">
                   <DataTable
@@ -822,12 +876,16 @@ const ListApproval = () => {
                 </div>
               ) : (
                 <div className="bg-gray-700 rounded-lg p-8 text-center text-gray-400">
-                  <div className="flex flex-col items-center pb-2">
-                    <ClipboardList size={40} className="text-gray-500" />
-                    <p className="pt-3 text-[14px]">
-                      Select an application to view details
-                    </p>
-                  </div>
+                  {isLoading ? (
+                    <SmallLoadingSpinner />
+                  ) : (
+                    <div className="flex flex-col items-center pb-2">
+                      <ClipboardList size={40} className="text-gray-500" />
+                      <p className="pt-3 text-[14px]">
+                        Select an application to view details
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
