@@ -12,6 +12,6 @@ namespace ApplicationCore.DTOs.Responses.Registration
         public List<PreferenceItemDto> Availability { get; set; } = new List<PreferenceItemDto>();
         public string? ProfessionalSkills { get; set; }
         public string? IndustryExperience { get; set; }
-        public List<PreferenceItemDto> CommunicationMethod { get; set; } = new List<PreferenceItemDto>();
+        public PreferenceItemDto CommunicationMethod { get; set; } = new PreferenceItemDto();
     }
 }
