@@ -159,8 +159,11 @@ namespace ApplicationCore.Extensions
             userProfile.PrivacyProfile = dto.PrivacyProfile;
             userProfile.MessagePermission = dto.MessagePermission;
             userProfile.NotificationsEnabled = dto.NotificationsEnabled;
+
+            // Remove old communication methods and add the new one if provided
             if (dto.CommunicationMethod != 0)
             {
+                // Remove existing UserCommunicationMethods from the database
                 userProfile.UserCommunicationMethods.Clear();
                 userProfile.UserCommunicationMethods.Add(new UserCommunicationMethod
                 {
