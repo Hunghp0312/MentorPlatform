@@ -7,7 +7,7 @@ export interface MentorWorkExperience {
   companyName: string;
   position: string;
   startDate: string;
-  endDate: string | null;
+  endDate?: string | null;
 }
 
 export interface MentorEducation {
@@ -27,6 +27,7 @@ export interface SupportingDocument {
   fileType: string;
   fileSize: number;
   uploadedAt: string;
+  fileContent?: string;
   documentContent: {
     fileName: string;
     fileType: string;

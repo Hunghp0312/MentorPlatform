@@ -23,7 +23,8 @@ namespace Infrastructure.Entities
         public bool? PrivacyProfile { get; set; }
         public bool? MessagePermission { get; set; } = true;
         public bool? NotificationsEnabled { get; set; } = true;
-        public virtual ICollection<UserCommunicationMethod> UserCommunicationMethods { get; set; } = new List<UserCommunicationMethod>();
+        public int CommunicationMethodId { get; set; }
+        public virtual CommunicationMethod CommunicationMethod { get; set; } = null!;
         public virtual User User { get; set; } = null!;
         public TimeOnly? WorkdayStartTime { get; set; }
         public TimeOnly? WorkdayEndTime { get; set; }

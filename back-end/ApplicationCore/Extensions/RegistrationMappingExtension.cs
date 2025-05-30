@@ -7,17 +7,6 @@ namespace ApplicationCore.Extensions
 {
     public static class RegistrationMappingExtension
     {
-        public static User ToUserEntity(this RegistrationProfileRequest dto, string passwordHash, int roleId)
-        {
-            return new User
-            {
-                Id = Guid.NewGuid(),
-                Email = dto.Email,
-                PasswordHash = passwordHash,
-                RoleId = roleId
-            };
-        }
-
         public static UserProfile ToUserProfileEntity(this RegistrationProfileRequest dto, Guid userId, byte[]? photoData)
         {
             var userProfile = new UserProfile
@@ -34,13 +23,7 @@ namespace ApplicationCore.Extensions
                     UserId = userId,
                     AvailabilityId = a
                 }).ToList() ?? new List<UserProfileAvailability>(),
-                UserCommunicationMethods = dto.CommunicationMethod?
-                    .Where(cmId => cmId > 0)
-                    .Select(cmId => new UserCommunicationMethod
-                    {
-                        UserProfileId = userId,
-                        CommunicationMethodId = cmId
-                    }).ToList() ?? new List<UserCommunicationMethod>()
+                CommunicationMethodId = dto.CommunicationMethod
             };
 
 
@@ -101,7 +84,7 @@ namespace ApplicationCore.Extensions
                 ProfessionalSkill = userProfile.ProfessionalSkill,
                 IndustryExperience = userProfile.IndustryExperience,
                 PhotoData = userProfile.PhotoData != null ? Convert.ToBase64String(userProfile.PhotoData) : string.Empty,
-                CommunicationMethod = userProfile.UserCommunicationMethods?.Select(cm => cm.CommunicationMethod?.Name ?? string.Empty).FirstOrDefault() ?? string.Empty,
+                CommunicationMethod = userProfile.CommunicationMethod.Name ?? string.Empty,
                 SessionFrequency = userProfile.SessionFrequency != null ? userProfile.SessionFrequency.Name : string.Empty,
                 SessionDuration = userProfile.SessionDuration != null ? userProfile.SessionDuration.Name : string.Empty,
                 PrivacyProfile = userProfile.PrivacyProfile ?? false,
@@ -132,7 +115,7 @@ namespace ApplicationCore.Extensions
                 userProfile.PhotoData = ms.ToArray();
             }
 
-            // Update collections properly
+
             if (dto.UserProfileAvailabilities != null)
                 UpdateUserProfileAvailabilities(userProfile, dto.UserProfileAvailabilities);
 
@@ -145,7 +128,7 @@ namespace ApplicationCore.Extensions
             if (dto.TeachingApproaches != null)
                 UpdateMentorTeachingApproaches(userProfile, dto.TeachingApproaches);
 
-            // Update scalar properties
+
             if (dto.SessionFrequencyId != 0)
             {
                 userProfile.SessionFrequencyId = dto.SessionFrequencyId;
@@ -159,37 +142,30 @@ namespace ApplicationCore.Extensions
             userProfile.PrivacyProfile = dto.PrivacyProfile;
             userProfile.MessagePermission = dto.MessagePermission;
             userProfile.NotificationsEnabled = dto.NotificationsEnabled;
+
             if (dto.CommunicationMethod != 0)
             {
-                userProfile.UserCommunicationMethods.Clear();
-                userProfile.UserCommunicationMethods.Add(new UserCommunicationMethod
-                {
-                    UserProfileId = userProfile.Id,
-                    CommunicationMethodId = dto.CommunicationMethod
-                });
+                userProfile.CommunicationMethodId = dto.CommunicationMethod;
             }
 
             if (dto.UserAreaExpertises != null)
                 UpdateUserAreaExpertises(userEntity, dto.UserAreaExpertises);
         }
 
-        // Fixed helper methods that properly handle entity tracking
+
         private static void UpdateUserProfileAvailabilities(UserProfile userProfile, IEnumerable<int> availabilityIds)
         {
             var newIds = availabilityIds.ToList();
 
-            // Find items to remove
             var toRemove = userProfile.UserProfileAvailabilities
                 .Where(a => !newIds.Contains(a.AvailabilityId))
                 .ToList();
 
-            // Remove items
             foreach (var item in toRemove)
             {
                 userProfile.UserProfileAvailabilities.Remove(item);
             }
 
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userProfile.UserProfileAvailabilities.Any(a => a.AvailabilityId == id))
@@ -207,18 +183,17 @@ namespace ApplicationCore.Extensions
         {
             var newIds = topicIds.ToList();
 
-            // Find items to remove
+
             var toRemove = userProfile.UserTopicOfInterests
                 .Where(t => !newIds.Contains(t.TopicId))
                 .ToList();
 
-            // Remove items
+
             foreach (var item in toRemove)
             {
                 userProfile.UserTopicOfInterests.Remove(item);
             }
 
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userProfile.UserTopicOfInterests.Any(t => t.TopicId == id))
@@ -236,18 +211,15 @@ namespace ApplicationCore.Extensions
         {
             var newIds = styleIds.ToList();
 
-            // Find items to remove
             var toRemove = userProfile.UserLearningStyles
                 .Where(s => !newIds.Contains(s.LearningStyleId))
                 .ToList();
 
-            // Remove items
             foreach (var item in toRemove)
             {
                 userProfile.UserLearningStyles.Remove(item);
             }
 
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userProfile.UserLearningStyles.Any(s => s.LearningStyleId == id))
@@ -265,18 +237,14 @@ namespace ApplicationCore.Extensions
         {
             var newIds = teachingApproachIds.ToList();
 
-            // Find items to remove
             var toRemove = userProfile.TeachingApproaches
                 .Where(a => !newIds.Contains(a.TeachingApproachId))
                 .ToList();
 
-            // Remove items
             foreach (var item in toRemove)
             {
                 userProfile.TeachingApproaches.Remove(item);
             }
-
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userProfile.TeachingApproaches.Any(a => a.TeachingApproachId == id))
@@ -294,18 +262,15 @@ namespace ApplicationCore.Extensions
         {
             var newIds = areaExpertiseIds.ToList();
 
-            // Find items to remove
             var toRemove = userEntity.UserAreaOfExpertises
                 .Where(a => !newIds.Contains(a.AreaOfExpertiseId))
                 .ToList();
 
-            // Remove items
             foreach (var item in toRemove)
             {
                 userEntity.UserAreaOfExpertises.Remove(item);
             }
 
-            // Find and add new items
             foreach (var id in newIds)
             {
                 if (!userEntity.UserAreaOfExpertises.Any(a => a.AreaOfExpertiseId == id))
@@ -318,6 +283,6 @@ namespace ApplicationCore.Extensions
                 }
             }
         }
-
+        
     }
 }

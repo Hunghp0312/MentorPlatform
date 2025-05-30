@@ -8,5 +8,6 @@ namespace ApplicationCore.Services.ServiceInterfaces
     {
         Task<OperationResult<UserProfileResponse>> CreateProfileAsync(RegistrationProfileRequest request);
         Task<OperationResult<UserPreferenceResponse>> SetUserPreferencesAsync(Guid userId, SetPreferenceRequest request);
+        Task<OperationResult<CheckEmailResponse>> CheckEmailExistsAsync(string email);
     }
 }

@@ -19,7 +19,8 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = true,
                     NotificationsEnabled = true,
                     SessionFrequencyId = 4,
-                    SessionDurationId = 3
+                    SessionDurationId = 3,
+                    CommunicationMethodId = 1
                 },
                 new UserProfile
                 {
@@ -32,7 +33,8 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = true,
                     NotificationsEnabled = true,
                     SessionFrequencyId = 4,
-                    SessionDurationId = 3
+                    SessionDurationId = 3,
+                    CommunicationMethodId = 2
                 },
                 new UserProfile
                 {
@@ -45,7 +47,9 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = true,
                     NotificationsEnabled = true,
                     SessionFrequencyId = 4,
-                    SessionDurationId = 3
+                    SessionDurationId = 3,
+                    CommunicationMethodId = 3
+
                 },
                 new UserProfile
                 {
@@ -59,7 +63,8 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = true,
                     NotificationsEnabled = true,
                     SessionFrequencyId = 1,
-                    SessionDurationId = 2
+                    SessionDurationId = 2,
+                    CommunicationMethodId = 1
                 },
                 new UserProfile
                 {
@@ -73,7 +78,8 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = true,
                     NotificationsEnabled = true,
                     SessionFrequencyId = 2,
-                    SessionDurationId = 3
+                    SessionDurationId = 3,
+                    CommunicationMethodId = 2
                 },
                 new UserProfile
                 {
@@ -87,7 +93,8 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = false,
                     NotificationsEnabled = false,
                     SessionFrequencyId = 3,
-                    SessionDurationId = 1
+                    SessionDurationId = 1,
+                    CommunicationMethodId = 3
                 },
                 new UserProfile
                 {
@@ -102,7 +109,8 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = true,
                     NotificationsEnabled = true,
                     SessionFrequencyId = 1,
-                    SessionDurationId = 5
+                    SessionDurationId = 5,
+                    CommunicationMethodId = 1
                 },
 
                 new UserProfile
@@ -112,12 +120,13 @@ namespace Infrastructure.Data.Seeding
                     Bio = "Senior software engineer with 8+ years of experience in full-stack development.",
                     ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
                     IndustryExperience = "Fintech, E-commerce, Enterprise applications",
-                    UserGoal = "To teach a seasoned software engineer and lead younge developers.",
+                    UserGoal = "To teach a seasoned software engineer and lead young developers.",
                     PrivacyProfile = false,
                     MessagePermission = true,
                     NotificationsEnabled = true,
                     SessionFrequencyId = 2,
-                    SessionDurationId = 4
+                    SessionDurationId = 4,
+                    CommunicationMethodId = 1
                 },
                 new UserProfile
                 {
@@ -131,7 +140,8 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = true,
                     NotificationsEnabled = true,
                     SessionFrequencyId = 1,
-                    SessionDurationId = 3
+                    SessionDurationId = 3,
+                    CommunicationMethodId = 2
                 },
                 new UserProfile
                 {
@@ -145,7 +155,8 @@ namespace Infrastructure.Data.Seeding
                     MessagePermission = true,
                     NotificationsEnabled = false,
                     SessionFrequencyId = 4,
-                    SessionDurationId = 2
+                    SessionDurationId = 2,
+                    CommunicationMethodId = 3
                 }
             };
         }
