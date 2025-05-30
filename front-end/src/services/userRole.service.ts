@@ -22,12 +22,7 @@ export const userService = {
     return response.data as userListPage;
   },
   async UpdateStatus(payload: userChangeStatusRequest) {
-    const response = await axiosInstance.put(
-      `/Users/${payload.UserId}/status`,
-      {
-        statusId: payload.StatusId,
-      }
-    );
+    const response = await axiosInstance.put(`/Users/${payload.UserId}/status`);
 
     return response.data as userType;
   },

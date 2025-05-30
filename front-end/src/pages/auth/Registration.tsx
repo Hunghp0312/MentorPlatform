@@ -23,6 +23,11 @@ import { useNavigate } from "react-router-dom";
 import { pathName } from "../../constants/pathName";
 import { AxiosError } from "axios";
 
+interface ErrorResponse {
+  message?: string;
+  errors?: Record<string, string>;
+}
+
 const Registration = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
@@ -122,13 +127,18 @@ const Registration = () => {
       setUserId(response.userId);
       return true;
     } catch (error) {
-      const axiosError = error as AxiosError;
+      const axiosError = error as AxiosError<ErrorResponse>;
       setStep(1);
+      if (axiosError?.response?.data?.message) {
+        alert(axiosError.response.data.message);
+      }
+      if (axiosError?.response?.data?.errors) {
+        for (const key in axiosError.response.data.errors) {
+          const errorMessage = axiosError.response.data.errors[key];
+          alert(`${errorMessage}`);
+        }
+      }
       window.location.reload();
-      console.error("Registration submission failed:", axiosError);
-      alert(
-        `Registration failed: ${axiosError.response?.data} Please try again.`
-      );
       return false;
     }
   };

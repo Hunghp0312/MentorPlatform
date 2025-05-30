@@ -61,14 +61,15 @@ const RegistrationPanel: React.FC<Props> = ({
     }
     if (!confirm) {
       errs.confirm = "Please fill in this field";
-    } else if (confirm.length > 100) {
-      errs.confirm = "System block user from entering more character";
+    } else if (confirm.length < 8 || confirm.length > 100) {
+      errs.confirm = "Please enter between 8-100 characters.";
     } else if (password !== confirm) {
       errs.confirm = "Passwords don’t match";
     }
 
     if (!agreed) {
-      errs.agreed = "You must agree";
+      errs.agreed =
+        "Please read and agree to our terms of service and privacy policies.";
     }
 
     setErrors(errs);
@@ -89,7 +90,15 @@ const RegistrationPanel: React.FC<Props> = ({
         name="email"
         type="text"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value.length <= 100) {
+            setEmail(value);
+            setErrors({ email: "" });
+          } else {
+            setErrors({ email: "Please enter between 6-100 characters." });
+          }
+        }}
         errorMessage={errors.email}
       />
       <div className="space-y-0.5">
@@ -98,16 +107,20 @@ const RegistrationPanel: React.FC<Props> = ({
           name="password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (value.length <= 100) {
+              setPassword(value);
+              setErrors({ password: "" });
+            } else {
+              setErrors({ password: "Please enter between 8-100 characters." });
+            }
+          }}
           errorMessage={errors.password}
           placeholder=""
           showPassword={showPassword}
           setShowPassword={setShowPassword}
         />
-        <p className="text-xs text-gray-400 ml-1 mt-1">
-          Password must be at least 8 characters with a mix of letters, numbers,
-          and symbols.
-        </p>
       </div>
 
       <InputCustom
@@ -115,7 +128,16 @@ const RegistrationPanel: React.FC<Props> = ({
         name="confirm"
         type="password"
         value={confirm}
-        onChange={(e) => setConfirm(e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+
+          if (value.length <= 100) {
+            setConfirm(value);
+            setErrors({ confirm: "" });
+          } else {
+            setErrors({ confirm: "Please enter between 8-100 characters." });
+          }
+        }}
         errorMessage={errors.confirm}
         showPassword={showConfirmPassword}
         setShowPassword={setShowConfirmPassword}
@@ -139,7 +161,9 @@ const RegistrationPanel: React.FC<Props> = ({
           </a>
         </label>
       </div>
-      {errors.agreed && <p className="text-xs text-red-500">{errors.agreed}</p>}
+      {errors.agreed && (
+        <p className="text-sm text-red-500 mt-1">{errors.agreed}</p>
+      )}
       <button type="submit" className="w-full py-2 bg-orange-500 rounded">
         Continue
       </button>

@@ -179,11 +179,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       }
       handleFieldChange("profilePictureFile", file);
       handleFieldChange("profilePictureUrl", undefined); // Clear URL if new file is selected
-    } else {
-      // If no file is selected (e.g., user cancels file dialog),
-      // don't clear existing file unless explicitly deleted.
-      // If you want to clear it, uncomment below:
-      // handleFieldChange("profilePictureFile", null);
     }
   };
 
@@ -270,16 +265,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setAvailabilityError("");
     }
 
-    if (profile.preferredCommunication.length === 0) {
-      // Assuming preferred communication is required
-      // Add an error state if needed: setPreferredCommunicationError("Please select at least one method.")
-      // For now, just log or handle as per requirements if it can be empty.
-      // If it cannot be empty, add error state and message.
-      // For this example, let's assume it's required and add a visual cue if needed.
-      // setFocus("profileCommunicationMethodGroup"); // If an error message were shown
-      // isValid = false;
-    }
-
     setFirstErrorFieldId(focusTargetId);
     return isValid;
   };
@@ -309,10 +294,11 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top to see any top-of-form errors
 
-    const success = await onSubmited();
-
-    if (validateAndSetFocusTarget() && success) {
-      onNext();
+    if (validateAndSetFocusTarget()) {
+      const success = await onSubmited();
+      if (success) {
+        onNext();
+      }
     }
   };
 
