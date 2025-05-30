@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using System.Text;
-using ApplicationCore.JsonConverters;
+﻿using ApplicationCore.JsonConverters;
 using ApplicationCore.Repositories;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services;
@@ -19,6 +17,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Presentation.Configurations;
+using System.Security.Claims;
+using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -75,9 +75,11 @@ builder.Services.AddScoped<IMentorEducationRepository, MentorEducationRepository
 builder.Services.AddScoped<IMentorCertificationRepository, MentorCertificationRepository>();
 builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository>();
 builder.Services.AddScoped<ISupportingDocumentService, SupportingDocumentService>();
+builder.Services.AddScoped<ISessionBookingRepository, SessionBookingRepository>();
+builder.Services.AddScoped<ISessionBookingService, SessionBookingService>();
 builder.Services.AddScoped<
    ISupportingDocumentRepository, SupportingDocumentRepository>();
-builder.Services.AddScoped<IUserProfileRepository,UserProfileRepository>();
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IDocumentContentService, DocumentContentService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);

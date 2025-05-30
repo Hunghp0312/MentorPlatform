@@ -7,7 +7,7 @@ export interface MentorWorkExperience {
   companyName: string;
   position: string;
   startDate: string;
-  endDate: string | null;
+  endDate?: string | null;
 }
 
 export interface MentorEducation {

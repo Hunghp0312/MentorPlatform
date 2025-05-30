@@ -19,6 +19,7 @@ namespace ApplicationCore.DTOs.Responses.Mentors
         public string? RejectionReason { get; set; }
         public DateTime? ApprovalDate { get; set; }
         public string? RequestInfoDate { get; set; }
+        public string? UserGoal { get; set; }
         public ICollection<AreaOfExpertiseResponse> ExpertiseAreas { get; set; } = [];
         public required string ProfessionExperience { get; set; }
         public List<SupportingDocumentResponse>? Documents { get; set; }

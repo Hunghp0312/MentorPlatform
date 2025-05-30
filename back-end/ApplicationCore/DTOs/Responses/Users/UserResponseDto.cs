@@ -11,6 +11,7 @@ namespace ApplicationCore.DTOs.Responses.Users
         public string FullName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string? Avatar { get; set; }
+        public string? UserGoal { get; set; }
         public Role Role { get; set; } = null!;
         public UserStatus Status { get; set; } = null!;
         public DateTime? JoinDate { get; set; }

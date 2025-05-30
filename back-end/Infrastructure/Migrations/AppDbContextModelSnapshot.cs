@@ -381,6 +381,16 @@ namespace Infrastructure.Migrations
                         {
                             Id = 4,
                             Name = "Request Info"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Submited"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Under Review"
                         });
                 });
 
@@ -670,6 +680,76 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Enum.SessionAvailabilityStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SessionAvailabilityStatus", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Available"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.SessionBookingStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SessionBookingStatus", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Pending"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Confirmed"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Declined"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Completed"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Cancelled"
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Enum.SessionDuration", b =>
                 {
                     b.Property<int>("Id")
@@ -752,6 +832,41 @@ namespace Infrastructure.Migrations
                         {
                             Id = 4,
                             Name = "As needed"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.SessionType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SessionType", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Virtual Session"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "In-Person Session"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "On-Site Session"
                         });
                 });
 
@@ -945,6 +1060,75 @@ namespace Infrastructure.Migrations
                     b.ToTable("MentorApplication");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.MentorAvailabilitySlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("MentorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MentorId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("MentorAvailabilitySlot");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
+                            EndTime = new DateTime(2025, 6, 2, 10, 0, 0, 0, DateTimeKind.Utc),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            StartTime = new DateTime(2025, 6, 2, 9, 0, 0, 0, DateTimeKind.Utc),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"),
+                            EndTime = new DateTime(2025, 6, 2, 11, 0, 0, 0, DateTimeKind.Utc),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            StartTime = new DateTime(2025, 6, 2, 10, 0, 0, 0, DateTimeKind.Utc),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
+                            EndTime = new DateTime(2025, 6, 3, 15, 0, 0, 0, DateTimeKind.Utc),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            StartTime = new DateTime(2025, 6, 3, 14, 0, 0, 0, DateTimeKind.Utc),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"),
+                            EndTime = new DateTime(2025, 6, 5, 20, 0, 0, 0, DateTimeKind.Utc),
+                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            StartTime = new DateTime(2025, 6, 5, 19, 0, 0, 0, DateTimeKind.Utc),
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"),
+                            EndTime = new DateTime(2025, 6, 7, 11, 0, 0, 0, DateTimeKind.Utc),
+                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            StartTime = new DateTime(2025, 6, 7, 10, 0, 0, 0, DateTimeKind.Utc),
+                            StatusId = 1
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.MentorCertification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1119,6 +1303,73 @@ namespace Infrastructure.Migrations
                         {
                             Id = 3,
                             Name = "Mentor"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.SessionBooking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AvailabilitySlotId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LearnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LearnerMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("MentorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SessionTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AvailabilitySlotId");
+
+                    b.HasIndex("LearnerId");
+
+                    b.HasIndex("MentorId");
+
+                    b.HasIndex("SessionTypeId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("SessionBooking");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"),
+                            AvailabilitySlotId = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
+                            CreatedAt = new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc),
+                            LearnerId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
+                            LearnerMessage = "I would like to discuss about C# performance optimization.",
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            SessionTypeId = 3,
+                            StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"),
+                            AvailabilitySlotId = new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"),
+                            CreatedAt = new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc),
+                            LearnerId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
+                            LearnerMessage = "Please help me review my CV for a junior developer position.",
+                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            SessionTypeId = 3,
+                            StatusId = 1
                         });
                 });
 
@@ -1584,7 +1835,8 @@ namespace Infrastructure.Migrations
                             PrivacyProfile = false,
                             ProfessionalSkill = "Java, Spring, React, AWS, DevOps",
                             SessionDurationId = 4,
-                            SessionFrequencyId = 2
+                            SessionFrequencyId = 2,
+                            UserGoal = "To teach a seasoned software engineer and lead younge developers."
                         },
                         new
                         {
@@ -1597,7 +1849,8 @@ namespace Infrastructure.Migrations
                             PrivacyProfile = true,
                             ProfessionalSkill = "Python, TensorFlow, PyTorch, NLP, Big Data",
                             SessionDurationId = 3,
-                            SessionFrequencyId = 1
+                            SessionFrequencyId = 1,
+                            UserGoal = "To share knowledge and expertise in data science and machine learning."
                         },
                         new
                         {
@@ -1610,7 +1863,8 @@ namespace Infrastructure.Migrations
                             PrivacyProfile = false,
                             ProfessionalSkill = "React, Vue.js, Angular, SCSS, Accessibility",
                             SessionDurationId = 2,
-                            SessionFrequencyId = 4
+                            SessionFrequencyId = 4,
+                            UserGoal = "To share knowledge and expertise in frontend development and UI/UX design."
                         });
                 });
 
@@ -1712,6 +1966,25 @@ namespace Infrastructure.Migrations
                     b.Navigation("ApplicationStatus");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.MentorAvailabilitySlot", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.User", "Mentor")
+                        .WithMany("CreatedAvailabilitySlots")
+                        .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.SessionAvailabilityStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Mentor");
+
+                    b.Navigation("Status");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.MentorCertification", b =>
                 {
                     b.HasOne("Infrastructure.Entities.MentorApplication", "MentorApplication")
@@ -1778,6 +2051,49 @@ namespace Infrastructure.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("DocumentContent");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.SessionBooking", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.MentorAvailabilitySlot", "AvailabilitySlot")
+                        .WithMany("SessionBookings")
+                        .HasForeignKey("AvailabilitySlotId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.User", "Learner")
+                        .WithMany("LearnerSessions")
+                        .HasForeignKey("LearnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.User", "Mentor")
+                        .WithMany("MentorSessions")
+                        .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.SessionType", "SessionType")
+                        .WithMany()
+                        .HasForeignKey("SessionTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.SessionBookingStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("AvailabilitySlot");
+
+                    b.Navigation("Learner");
+
+                    b.Navigation("Mentor");
+
+                    b.Navigation("SessionType");
+
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
@@ -1963,8 +2279,19 @@ namespace Infrastructure.Migrations
                     b.Navigation("SupportingDocuments");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.MentorAvailabilitySlot", b =>
+                {
+                    b.Navigation("SessionBookings");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
                 {
+                    b.Navigation("CreatedAvailabilitySlots");
+
+                    b.Navigation("LearnerSessions");
+
+                    b.Navigation("MentorSessions");
+
                     b.Navigation("MentoredCourses");
 
                     b.Navigation("ReviewedMentorApplication")
