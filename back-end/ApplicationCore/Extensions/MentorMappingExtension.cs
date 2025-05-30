@@ -16,7 +16,7 @@ namespace ApplicationCore.Extensions
             {
                 ApplicantUserId = mentorApplication.ApplicantId,
                 PhotoData = mentorApplication.Applicant?.UserProfile?.PhotoData != null
-                    ? Convert.ToBase64String(mentorApplication.Applicant.UserProfile.PhotoData)
+                    ? $"data:image/png;base64,{Convert.ToBase64String(mentorApplication.Applicant.UserProfile.PhotoData)}"
                     : string.Empty,
                 FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
 
@@ -39,7 +39,7 @@ namespace ApplicationCore.Extensions
             {
                 ApplicantUserId = mentorApplication.ApplicantId,
                 PhotoData = mentorApplication.Applicant?.UserProfile?.PhotoData != null
-                    ? Convert.ToBase64String(mentorApplication.Applicant.UserProfile.PhotoData)
+                    ? $"data:image/png;base64,{Convert.ToBase64String(mentorApplication.Applicant.UserProfile.PhotoData)}"
                     : string.Empty,
                 FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
                 Email = mentorApplication.Applicant?.Email ?? string.Empty,
@@ -50,6 +50,7 @@ namespace ApplicationCore.Extensions
                 RejectionReason = mentorApplication.RejectionReason,
                 ApprovalDate = mentorApplication.ApprovalDate,
                 RequestInfoDate = mentorApplication.RequestInfoDate,
+                UserGoal = mentorApplication?.Applicant?.UserProfile.UserGoal ?? string.Empty,
                 ExpertiseAreas = mentorApplication.Applicant?.UserAreaOfExpertises.Select(x => new AreaOfExpertiseResponse
                 {
                     Name = x.AreaOfExpertise.Name,

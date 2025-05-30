@@ -5,6 +5,6 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
 {
     public interface IUserProfileRepository : IBaseRepository<UserProfile>
     {
-        Task AddAsync(UserProfile userProfile);
+        new Task AddAsync(UserProfile userProfile);
     }
 }

@@ -10,11 +10,11 @@ namespace ApplicationCore.Validators.Certifications
         {
             RuleFor(x => x.CertificationName)
                 .NotEmpty().WithMessage(ValidationMessages.CertificationNameRequired)
-                .MaximumLength(200).WithMessage(ValidationMessages.MaxLengthExceeded);
+                .MaximumLength(100).WithMessage(ValidationMessages.MaxLengthExceeded);
 
             RuleFor(x => x.IssuingOrganization)
                 .NotEmpty().WithMessage(ValidationMessages.IssuingOrganizationRequired)
-                .MaximumLength(200).WithMessage(ValidationMessages.MaxLengthExceeded);
+                .MaximumLength(100).WithMessage(ValidationMessages.MaxLengthExceeded);
         }
     }
 }
