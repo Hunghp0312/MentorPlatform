@@ -94,7 +94,7 @@ namespace ApplicationCore.Services
             var mentorApplicationEntity = new MentorApplication
             {
                 ApplicantId = applicantUserId,
-                ApplicationStatusId = 1,
+                ApplicationStatusId = 5,
                 SubmissionDate = DateTime.UtcNow.ToString(),
                 CreatedAt = DateTime.UtcNow,
                 LastStatusUpdateDate = DateTime.UtcNow
