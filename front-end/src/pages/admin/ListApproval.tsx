@@ -18,6 +18,7 @@ import {
 import CustomModal from "../../components/ui/Modal";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
+
 interface ApprovalType {
   applicantUserId: string;
   fullName: string;
@@ -39,8 +40,9 @@ interface ApprovalType {
   professionExperience: string;
   applicationTimeline: string;
   documents: SupportingDocument[];
-  status: "Pending" | "Approved" | "Rejected" | "Request Info";
+  status: string;
 }
+
 interface ExpertiseArea {
   name: string;
 }
@@ -50,6 +52,7 @@ const ListApproval = () => {
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
   );
+  type ConfirmActionType = "approve" | "reject" | "requestInfo";
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,6 +61,10 @@ const ListApproval = () => {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<ConfirmActionType | null>(
+    null
+  );
   const [rejectionComment, setRejectionComment] = useState("");
   const [adminNotes, setAdminNotes] = useState("");
   const searchDebounced = useDebounce(searchTerm, 500);
@@ -94,7 +101,7 @@ const ListApproval = () => {
     });
     setIsFetching(true);
     try {
-      setIsLoading(true);
+      // Không đặt isLoading để tránh hiển thị vòng tròn xoay khi tìm kiếm
       const statusToFilter: { [key: string]: number | undefined } = {
         "": undefined,
         pending: 1,
@@ -119,10 +126,10 @@ const ListApproval = () => {
         console.error("Error fetching applications:", error);
       }
     } finally {
-      setIsLoading(false);
       setIsFetching(false);
     }
   };
+
   const fetchApplicationDetail = async (mentorApplicationId: string) => {
     try {
       setIsLoading(true);
@@ -185,6 +192,7 @@ const ListApproval = () => {
     setOpenDocumentViewer(false);
     setDocumentData(null);
   };
+
   const handleShowDetails = (action: string, content: string | null) => {
     setDetailsContent({
       title: action.includes("Rejected") ? "Rejection Reason" : "Admin Notes",
@@ -192,6 +200,7 @@ const ListApproval = () => {
     });
     setIsDetailsModalOpen(true);
   };
+
   const columns: DataColumn<ApprovalType>[] = [
     {
       header: "",
@@ -214,7 +223,7 @@ const ListApproval = () => {
         if (row.status === "Request Info" && row.requestInfoDate) {
           dateLabel = "Request Info";
           dateValue = getLatestDate(row.requestInfoDate);
-        } else if (row.status === "Pending" && row.submissionDate) {
+        } else if (row.status === "Submitted" && row.submissionDate) {
           dateLabel = "Submission Date";
           dateValue = getLatestDate(row.submissionDate);
         } else if (row.status === "Approved" && row.approvalDate) {
@@ -240,7 +249,7 @@ const ListApproval = () => {
               <div className="flex items-center mt-1">
                 <span
                   className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                    row.status === "Pending"
+                    row.status === "Submitted"
                       ? "bg-yellow-500"
                       : row.status === "Approved"
                       ? "bg-green-500"
@@ -271,18 +280,38 @@ const ListApproval = () => {
     },
   ];
 
-  const handleApprove = async (approval: ApprovalType) => {
-    if (window.confirm(`Approve application for "${approval.fullName}"?`)) {
-      try {
-        const request: MentorUpdateStatusRequest = {
-          mentorId: approval.applicantUserId,
+  const handleApprove = (approval: ApprovalType) => {
+    setSelectedApproval(approval);
+    setConfirmAction("approve");
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleReject = (approval: ApprovalType) => {
+    setSelectedApproval(approval);
+    setIsRejectModalOpen(true);
+  };
+
+  const handleRequestInfo = () => {
+    setConfirmAction("requestInfo");
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmActions = async () => {
+    if (!selectedApproval || !confirmAction) return;
+
+    setIsLoading(true);
+    try {
+      let request: MentorUpdateStatusRequest;
+      if (confirmAction === "approve") {
+        request = {
+          mentorId: selectedApproval.applicantUserId,
           statusId: 3,
           adminComments: null,
         };
         await approvalService.updateMentorApplicationStatus(request);
         setApprovals((prev = []) =>
           prev.map((item) =>
-            item.applicantUserId === approval.applicantUserId
+            item.applicantUserId === selectedApproval.applicantUserId
               ? {
                   ...item,
                   status: "Approved",
@@ -291,29 +320,14 @@ const ListApproval = () => {
               : item
           )
         );
-        toast.success(`Application for ${approval.fullName} approved`);
-        if (selectedApproval?.applicantUserId === approval.applicantUserId) {
-          setSelectedApproval({
-            ...selectedApproval,
-            status: "Approved",
-            approvalDate: new Date().toISOString(),
-          });
-        }
-      } catch {
-        toast.error("Failed to approve application");
-      }
-    }
-  };
-
-  const handleReject = (approval: ApprovalType) => {
-    setSelectedApproval(approval);
-    setIsRejectModalOpen(true);
-  };
-
-  const confirmReject = async () => {
-    if (selectedApproval) {
-      try {
-        const request: MentorUpdateStatusRequest = {
+        setSelectedApproval({
+          ...selectedApproval,
+          status: "Approved",
+          approvalDate: new Date().toISOString(),
+        });
+        toast.success(`Application for ${selectedApproval.fullName} approved`);
+      } else if (confirmAction === "reject") {
+        request = {
           mentorId: selectedApproval.applicantUserId,
           statusId: 2,
           adminComments: rejectionComment.trim() || null,
@@ -331,30 +345,15 @@ const ListApproval = () => {
               : item
           )
         );
-        toast.success(`Application for ${selectedApproval.fullName} rejected`);
         setSelectedApproval({
           ...selectedApproval,
           status: "Rejected",
           rejectionReason: rejectionComment.trim() || null,
           lastStatusUpdateDate: new Date().toISOString(),
         });
-        setRejectionComment("");
-        setIsRejectModalOpen(false);
-      } catch {
-        toast.error("Failed to reject application");
-      }
-    }
-  };
-
-  const handleRequestInfo = async () => {
-    if (
-      selectedApproval &&
-      window.confirm(
-        `Request additional info for "${selectedApproval.fullName}"?`
-      )
-    ) {
-      try {
-        const request: MentorUpdateStatusRequest = {
+        toast.success(`Application for ${selectedApproval.fullName} rejected`);
+      } else if (confirmAction === "requestInfo") {
+        request = {
           mentorId: selectedApproval.applicantUserId,
           statusId: 4,
           adminComments: adminNotes.trim() || null,
@@ -372,17 +371,23 @@ const ListApproval = () => {
               : item
           )
         );
-        toast.success(`Info requested for ${selectedApproval.fullName}`);
         setSelectedApproval({
           ...selectedApproval,
           status: "Request Info",
           requestInfoDate: new Date().toISOString(),
           adminComments: adminNotes.trim() || null,
         });
-        setAdminNotes("");
-      } catch {
-        toast.error("Failed to request additional info");
+        toast.success(`Info requested for ${selectedApproval.fullName}`);
       }
+    } catch (error) {
+      console.error(`Error ${confirmAction} application:`, error);
+      toast.error(`Failed to ${confirmAction} application`);
+    } finally {
+      setIsLoading(false);
+      setIsConfirmModalOpen(false);
+      setIsRejectModalOpen(false);
+      setRejectionComment("");
+      setAdminNotes("");
     }
   };
 
@@ -424,6 +429,7 @@ const ListApproval = () => {
   if (isLoading) {
     return <LoadingOverlay />;
   }
+
   const additionalSettingsContent = (
     <div>
       <div>
@@ -585,7 +591,7 @@ const ListApproval = () => {
               {selectedApproval ? (
                 <div className="bg-gray-700 rounded-lg p-4 text-gray-300">
                   <div className="mb-4">
-                    {["Pending", "RequestInfo"].includes(
+                    {["Submitted", "RequestInfo", "Under Review"].includes(
                       selectedApproval.status
                     ) && (
                       <div className="flex justify-end space-x-2 mb-4">
@@ -605,7 +611,7 @@ const ListApproval = () => {
                         </button>
                         <button
                           id="requestinfo-application-button"
-                          onClick={() => handleRequestInfo}
+                          onClick={handleRequestInfo}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
                         >
                           Request Info
@@ -866,7 +872,6 @@ const ListApproval = () => {
           </div>
         </div>
       )}
-      {/* Rejection Modal */}
       {isRejectModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
@@ -901,7 +906,10 @@ const ListApproval = () => {
                 Cancel
               </button>
               <button
-                onClick={confirmReject}
+                onClick={() => {
+                  setConfirmAction("reject");
+                  setIsConfirmModalOpen(true);
+                }}
                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
                 disabled={!rejectionComment.trim()}
               >
@@ -911,7 +919,45 @@ const ListApproval = () => {
           </div>
         </div>
       )}
+      {isConfirmModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Confirm{" "}
+              {confirmAction === "approve"
+                ? "Approval"
+                : confirmAction === "reject"
+                ? "Rejection"
+                : "Request Info"}
+            </h3>
+            <p className="text-gray-300 mb-4">
+              Are you sure you want to{" "}
+              {confirmAction === "approve"
+                ? "approve"
+                : confirmAction === "reject"
+                ? "reject"
+                : "request info for"}{" "}
+              the application for <strong>{selectedApproval?.fullName}</strong>?
+            </p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsConfirmModalOpen(false)}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => confirmActions()}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
+
 export default ListApproval;
