@@ -16,7 +16,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
   onClose,
   onSubmit,
   initialData,
-  actionButtonText = "Save",
+  actionButtonText = initialData ? "Update" : "Save",
   isSubmitting = false,
 }) => {
   const [formState, setFormState] = useState<MentorWorkExperience>({

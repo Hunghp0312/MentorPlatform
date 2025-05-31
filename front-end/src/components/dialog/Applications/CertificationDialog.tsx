@@ -15,7 +15,7 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
   onClose,
   onSubmit,
   initialData,
-  actionButtonText = "Save",
+  actionButtonText = initialData ? "Update" : "Save",
   isSubmitting = false,
 }) => {
   const [formState, setFormState] = useState<MentorCertification>({
