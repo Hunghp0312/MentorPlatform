@@ -205,7 +205,9 @@ const RegistrationPanel: React.FC<Props> = ({
       {errors.agreed && (
         <p className="text-sm text-red-500 mt-1">{errors.agreed}</p>
       )}
-      <button type="submit" className="w-full py-2 bg-orange-500 rounded">
+      <button
+        type="submit"
+        className="w-full py-2 bg-orange-500 rounded hover:bg-orange-600">
         Continue to Profile Setup
       </button>
       <p className="text-sm text-center text-slate-400 mt-4">

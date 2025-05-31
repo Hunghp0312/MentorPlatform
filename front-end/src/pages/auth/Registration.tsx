@@ -78,6 +78,7 @@ const Registration = () => {
         fullName: prev.profile.fullName,
         bio: prev.profile.bio,
         profilePictureFile: prev.profile.profilePictureFile,
+        contact: prev.profile.contact,
         expertise: prev.profile.expertise,
         availability: prev.profile.availability,
         preferredCommunication: prev.profile.preferredCommunication,

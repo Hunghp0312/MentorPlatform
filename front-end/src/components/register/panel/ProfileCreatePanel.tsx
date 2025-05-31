@@ -202,14 +202,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setFullNameError("");
     }
 
-    if (!profile.bio.trim()) {
-      setBioError("Bio is required.");
-      setFocus("profileBio");
-      isValid = false;
-    } else {
-      setBioError("");
-    }
-
     if (profile.contact.trim()) {
       const phoneRegex = /^\+?\d{7,15}$/; // Basic regex, consider libphonenumber-js for robust validation
       if (!phoneRegex.test(profile.contact.trim())) {
@@ -320,7 +312,15 @@ const ProfileCreatePanel: React.FC<Props> = ({
             name="fullName"
             type="text"
             value={profile.fullName}
-            onChange={(e) => handleFieldChange("fullName", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value.length > 100) {
+                setFullNameError("Please enter between 2-100 characters.");
+              } else {
+                setFullNameError("");
+                handleFieldChange("fullName", value);
+              }
+            }}
             placeholder="Your full name"
             isRequired
             errorMessage={fullNameError}
@@ -331,16 +331,23 @@ const ProfileCreatePanel: React.FC<Props> = ({
             name="bio"
             type="textarea"
             value={profile.bio}
-            onChange={(e) => handleFieldChange("bio", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value.length > 1000) {
+                setBioError("Please enter under 1000 characters.");
+              } else {
+                setBioError("");
+                handleFieldChange("bio", value);
+              }
+            }}
             placeholder="A brief introduction about yourself..."
-            isRequired
             errorMessage={bioError}
             className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
           />
           <InputCustom
-            label="Contact (Phone Number)"
-            name="contact"
-            type="text" // Consider type="tel"
+            label="Phone Number"
+            name="phoneNumber"
+            type="text"
             value={profile.contact}
             onChange={(e) => handleFieldChange("contact", e.target.value)}
             placeholder="e.g., +1234567890"
@@ -404,7 +411,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         className="bg-gray-800 border-gray-700"
         isRequired={role === RoleEnum.Mentor}
         name="skills"
-        type="text" // Or a tag input component if skills are multiple
+        type="text"
         value={profile.skills || ""}
         onChange={(e) => handleFieldChange("skills", e.target.value)}
       />
@@ -413,7 +420,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
       <InputCustom
         label="Industry Experience"
         name="industryExperience"
-        type="text" // Or textarea if longer input is expected
+        type="text"
         value={profile.industryExperience ?? ""}
         onChange={(e) =>
           handleFieldChange("industryExperience", e.target.value)
