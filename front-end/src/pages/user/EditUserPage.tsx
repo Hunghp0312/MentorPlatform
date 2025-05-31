@@ -627,7 +627,7 @@ const EditUserPage = () => {
                       )
                     }
                     isRequired
-                    id="userProfileAvailabilities"
+                    id="userLearningStyles"
                     gridColsClass="grid-cols-2 sm:grid-cols-4"
                   />
                   {errors.userLearningStyles && (
