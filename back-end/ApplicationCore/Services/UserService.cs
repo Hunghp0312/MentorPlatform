@@ -2,13 +2,14 @@ using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Users;
-using ApplicationCore.DTOs.Responses.Users;
 using ApplicationCore.DTOs.Responses.AreaOfExpertises;
+using ApplicationCore.DTOs.Responses.Users;
 using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using Infrastructure.Entities.Enum;
 
 namespace ApplicationCore.Services
 {
@@ -197,6 +198,7 @@ namespace ApplicationCore.Services
             return OperationResult<UserResponseDto>.Ok(updatedUserDto);
         }
 
+
         public async Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);
@@ -242,7 +244,7 @@ namespace ApplicationCore.Services
                 {
                     return OperationResult<UserProfileResponseDto>.NotFound($"User profile with ID {userProfileId} not found.");
                 }
-                
+
                 await userProfile.UpdateFromDtoAsync(requestDto, userProfile.User);
                 _userProfileRepository.Update(userProfile);
                 await _unitOfWork.SaveChangesAsync();
@@ -261,6 +263,59 @@ namespace ApplicationCore.Services
                 return OperationResult<UserProfileResponseDto>.Fail($"An error occurred while updating the user profile: {ex.Message}");
             }
 
+        }
+        public async Task<OperationResult<UserFullProfileResponse>> GetFullUserProfileByIdAsync(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return OperationResult<UserFullProfileResponse>.NotFound($"User with ID {userId} not found.");
+            }
+            var userProfile = await _userProfileRepository.GetByIdAsync(userId);
+            if (userProfile == null)
+            {
+                return OperationResult<UserFullProfileResponse>.NotFound($"User profile for user ID {userId} not found.");
+            }
+            var fullProfileResponse = new UserFullProfileResponse
+            {
+                Id = user.Id,
+                FullName = userProfile.FullName,
+                Email = user.Email,
+                PhotoData = userProfile.PhotoData != null ? $"data:image/png;base64,{Convert.ToBase64String(userProfile.PhotoData)}" : string.Empty,
+                UserGoal = userProfile.UserGoal,
+                Bio = userProfile.Bio,
+                PhoneNumber = userProfile.PhoneNumber,
+                ProfessionalSkill = userProfile.ProfessionalSkill,
+                IndustryExperience = userProfile.IndustryExperience,
+                TeachingApproaches = userProfile.TeachingApproaches
+                    .Select(ta => new EnumType { Id = ta.TeachingApproach.Id, Name = ta.TeachingApproach.Name })
+                    .ToList(),
+                ProfileAvailabilities = userProfile.UserProfileAvailabilities.Select(upa => new EnumType
+                {
+                    Id = upa.Availability.Id,
+                    Name = upa.Availability.Name
+                }).ToList(),
+                TopicOfInterests = userProfile.UserTopicOfInterests
+                    .Select(uti => new EnumType { Id = uti.Topic.Id, Name = uti.Topic.Name })
+                    .ToList(),
+                LearningStyles = userProfile.UserLearningStyles.Select(uls => new EnumType
+                {
+                    Id = uls.LearningStyle.Id,
+                    Name = uls.LearningStyle.Name
+                }).ToList(),
+                SessionFrequency = userProfile.SessionFrequency ?? new EnumType { Id = 0, Name = "Unknown" },
+                SessionDuration = userProfile.SessionDuration ?? new EnumType { Id = 0, Name = "Unknown" },
+                Role = user.Role,
+                PrivacyProfile = userProfile.PrivacyProfile ?? true,
+                MessagePermission = userProfile.MessagePermission ?? true,
+                NotificationsEnabled = userProfile.NotificationsEnabled ?? true,
+                CommunicationMethod = userProfile.CommunicationMethod ?? new EnumType { Id = 0, Name = "Unknown" },
+                AreaOfExpertises = user.UserAreaOfExpertises
+                    .Select(uae => new EnumType { Id = uae.AreaOfExpertise.Id, Name = uae.AreaOfExpertise.Name })
+                    .ToList(),
+
+            };
+            return OperationResult<UserFullProfileResponse>.Ok(fullProfileResponse);
         }
     }
 }
