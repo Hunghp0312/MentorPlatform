@@ -1,4 +1,5 @@
-﻿using ApplicationCore.DTOs.Requests.Authenticates;
+﻿using ApplicationCore.Constants;
+using ApplicationCore.DTOs.Requests.Authenticates;
 using FluentValidation;
 
 namespace ApplicationCore.Validators.Authenticates
@@ -14,11 +15,15 @@ namespace ApplicationCore.Validators.Authenticates
                 .WithMessage("Invalid email format.");
             RuleFor(x => x.Password)
                 .NotEmpty()
-                .WithMessage("Password is required.")
-                .Matches(@"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
-                .WithMessage(
-                    "Password must be at least 8 characters long and include at least one letter, one number, and one special character (@$!%*?&)."
-                );
+                .WithMessage(ValidationMessages.PASSWORD_REQUIRED)
+                .MinimumLength(8)
+                .WithMessage(ValidationMessages.PASSWORD_MIN_LENGTH)
+                .Matches("[a-zA-Z]")
+                .WithMessage(ValidationMessages.PASSWORD_LETTER_REQUIRED)
+                .Matches("[0-9]")
+                .WithMessage(ValidationMessages.PASSWORD_DIGIT_REQUIRED)
+                .Matches("[^a-zA-Z0-9]")
+                .WithMessage(ValidationMessages.PASSWORD_SPECIAL_CHAR_REQUIRED);
         }
     }
 }
