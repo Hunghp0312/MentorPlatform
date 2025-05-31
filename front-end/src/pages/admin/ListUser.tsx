@@ -21,7 +21,6 @@ import userService from "../../services/userRole.service";
 import { userType, userPaginationRequest } from "../../types/userRole.d";
 
 import { RoleEnum, Status as StatusEnum } from "../../types/commonType";
-import Dropdown from "../../components/input/Dropdown";
 
 const ListUser = () => {
   const navigate = useNavigate();
@@ -48,12 +47,9 @@ const ListUser = () => {
 
   const roleOptions = [
     { value: "", label: "All Roles" },
-    { value: RoleEnum.Mentor.toString(), label: getRoleName(RoleEnum.Mentor) },
-    {
-      value: RoleEnum.Learner.toString(),
-      label: getRoleName(RoleEnum.Learner),
-    },
-    { value: RoleEnum.Admin.toString(), label: getRoleName(RoleEnum.Admin) },
+    { value: RoleEnum.Mentor, label: getRoleName(RoleEnum.Mentor) },
+    { value: RoleEnum.Learner, label: getRoleName(RoleEnum.Learner) },
+    { value: RoleEnum.Admin, label: getRoleName(RoleEnum.Admin) },
   ];
 
   const fetchUsers = useCallback(async () => {
@@ -83,11 +79,12 @@ const ListUser = () => {
     fetchUsers();
   }, [fetchUsers]);
 
-  const handleActivationUser = useCallback(
+  const handleActivate = useCallback(
     async (userId: string) => {
       try {
         await userService.UpdateStatus({
           UserId: userId,
+          StatusId: StatusEnum.Active,
         });
         toast.success("User activated successfully");
         fetchUsers();
@@ -99,9 +96,26 @@ const ListUser = () => {
     [fetchUsers]
   );
 
+  const handleDeactivate = useCallback(
+    async (userId: string) => {
+      try {
+        await userService.UpdateStatus({
+          UserId: userId,
+          StatusId: StatusEnum.Deactive,
+        });
+        toast.success("User deactivated successfully");
+        fetchUsers();
+      } catch (error) {
+        const err = error as Error;
+        toast.error(err.message || "Failed to deactivate user");
+      }
+    },
+    [fetchUsers]
+  );
+
   const confirmDeactivation = () => {
     if (selectedUserForDeactivation) {
-      handleActivationUser(selectedUserForDeactivation.id);
+      handleDeactivate(selectedUserForDeactivation.id);
       setDeactivateModalOpen(false);
       setSelectedUserForDeactivation(null);
     }
@@ -117,11 +131,6 @@ const ListUser = () => {
       .map((word) => word[0])
       .join("")
       .toUpperCase();
-  };
-
-  const handleSelect = (value: string) => {
-    setRoleFilter(value === "" ? "" : (Number(value) as RoleEnum));
-    setPageIndex(1);
   };
 
   const columns: DataColumn<userType>[] = useMemo(
@@ -193,7 +202,8 @@ const ListUser = () => {
                 navigate(`/admin/users/${row.id}`);
               }}
               title="View Details"
-              className="text-gray-500 hover:text-gray-700">
+              className="text-gray-500 hover:text-gray-700"
+            >
               <UserCog className="w-4 h-4" />
             </button>
             <button
@@ -202,10 +212,12 @@ const ListUser = () => {
                 navigate(`/admin/message/${row.id}`);
               }}
               title="Send Message"
-              className="text-purple-500 hover:text-purple-700">
+              className="text-purple-500 hover:text-purple-700"
+            >
               <MessageSquare className="w-4 h-4" />
             </button>
-            {row.status.id === StatusEnum.Active ? (
+            {row.status.id === StatusEnum.Active ||
+            row.status.id === StatusEnum.Pending ? (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -213,17 +225,19 @@ const ListUser = () => {
                   setDeactivateModalOpen(true);
                 }}
                 title="Deactivate User"
-                className="text-red-500 hover:text-red-700">
+                className="text-red-500 hover:text-red-700"
+              >
                 <XCircle className="w-4 h-4" />
               </button>
             ) : (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleActivationUser(row.id);
+                  handleActivate(row.id);
                 }}
                 title="Activate User"
-                className="text-green-500 hover:text-green-700">
+                className="text-green-500 hover:text-green-700"
+              >
                 <CheckCircle className="w-4 h-4" />
               </button>
             )}
@@ -231,15 +245,17 @@ const ListUser = () => {
         ),
       },
     ],
-    [navigate, handleActivationUser]
+    [navigate, handleActivate]
   );
 
   return (
     <main className="p-4 container mx-auto">
       {loading && <LoadingOverlay />}
-      <div className="bg-gray-800 dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h2 className="text-3xl font-bold ">User Role Managment</h2>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            User Role Management
+          </h1>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -262,15 +278,23 @@ const ListUser = () => {
               className="w-full"
             />
           </div>
-          <Dropdown
-            options={roleOptions}
-            value={roleFilter === "" ? "" : roleFilter.toString()}
-            onChange={handleSelect}
-            haveOptionAll
-            name="roleFilter"
-            dataTestId="user-filter"
-          />
+          <select
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            value={roleFilter}
+            onChange={(e) => {
+              const value = e.target.value;
+              setRoleFilter(value === "" ? "" : (Number(value) as RoleEnum));
+              setPageIndex(1);
+            }}
+          >
+            {roleOptions.map((option) => (
+              <option key={option.value.toString()} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
+
         <DataTable
           data={users}
           columns={columns}
@@ -291,7 +315,8 @@ const ListUser = () => {
           setDeactivateModalOpen(false);
           setSelectedUserForDeactivation(null);
         }}
-        title="Confirm Deactivation">
+        title="Confirm Deactivation"
+      >
         <div className="mb-4 text-gray-700 dark:text-gray-300">
           {`Are you sure you want to deactivate ${selectedUserForDeactivation?.fullName}?`}
         </div>
@@ -302,7 +327,8 @@ const ListUser = () => {
             onClick={() => {
               setDeactivateModalOpen(false);
               setSelectedUserForDeactivation(null);
-            }}>
+            }}
+          >
             Cancel
           </Button>
           <Button type="button" variant="danger" onClick={confirmDeactivation}>

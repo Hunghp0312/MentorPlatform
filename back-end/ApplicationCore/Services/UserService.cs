@@ -242,6 +242,7 @@ namespace ApplicationCore.Services
                 {
                     return OperationResult<UserProfileResponseDto>.NotFound($"User profile with ID {userProfileId} not found.");
                 }
+                
                 await userProfile.UpdateFromDtoAsync(requestDto, userProfile.User);
                 _userProfileRepository.Update(userProfile);
                 await _unitOfWork.SaveChangesAsync();

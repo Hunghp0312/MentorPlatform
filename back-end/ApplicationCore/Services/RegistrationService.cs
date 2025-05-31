@@ -20,13 +20,14 @@ namespace ApplicationCore.Services
         private readonly IUnitOfWork _unitOfWork;
 
         public RegistrationService(
+
             IValidator<RegistrationProfileRequest> profileValidator,
             IValidator<SetPreferenceRequest> preferenceValidator,
             IRegistrationRepository registrationRepository,
             IUserRepository userRepository,
-            IUnitOfWork unitOfWork
-        )
+            IUnitOfWork unitOfWork)
         {
+
             _profileValidator = profileValidator;
             _preferenceValidator = preferenceValidator;
             _registrationRepository = registrationRepository;
@@ -34,16 +35,12 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<UserProfileResponse>> CreateProfileAsync(
-            RegistrationProfileRequest request
-        )
+        public async Task<OperationResult<UserProfileResponse>> CreateProfileAsync(RegistrationProfileRequest request)
         {
             var validationResult = await _profileValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
-                return OperationResult<UserProfileResponse>.BadRequest(
-                    string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))
-                );
+                return OperationResult<UserProfileResponse>.BadRequest(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
             }
 
             var emailCheckResult = await CheckEmailExistsAsync(request.Email);
@@ -61,6 +58,7 @@ namespace ApplicationCore.Services
                 photoBytes = ms.ToArray();
             }
 
+
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -68,11 +66,12 @@ namespace ApplicationCore.Services
                 PasswordHash = passwordHash,
                 RoleId = request.SelectedRole,
                 StatusId = 2,
-                UserAreaOfExpertises =
-                    request
-                        .AreaOfExpertise?.Where(aoeId => aoeId > 0)
-                        .Select(aoeId => new UserAreaOfExpertise { AreaOfExpertiseId = aoeId })
-                        .ToList() ?? new List<UserAreaOfExpertise>(),
+                UserAreaOfExpertises = request.AreaOfExpertise?
+                .Where(aoeId => aoeId > 0)
+                    .Select(aoeId => new UserAreaOfExpertise
+                    {
+                        AreaOfExpertiseId = aoeId
+                    }).ToList() ?? new List<UserAreaOfExpertise>(),
             };
 
             var userProfile = new UserProfile
@@ -80,35 +79,18 @@ namespace ApplicationCore.Services
                 Id = user.Id,
                 FullName = request.FullName ?? string.Empty,
                 Bio = request.Bio ?? string.Empty,
-                ProfessionalSkill =
-                    (request.SelectedRole == 2 || request.SelectedRole == 3)
-                        ? request.ProfessionalSkill
-                        : null,
-                IndustryExperience =
-                    (request.SelectedRole == 2 || request.SelectedRole == 3)
-                        ? request.IndustryExperience
-                        : null,
+                ProfessionalSkill = (request.SelectedRole == 2 || request.SelectedRole == 3) ? request.ProfessionalSkill : null,
+                IndustryExperience = (request.SelectedRole == 2 || request.SelectedRole == 3) ? request.IndustryExperience : null,
                 PhotoData = photoBytes,
                 PhoneNumber = request.PhoneNumber,
 
-                UserCommunicationMethods =
-                    request
-                        .CommunicationMethod?.Where(cmId => cmId > 0)
-                        .Select(cmId => new UserCommunicationMethod
-                        {
-                            UserProfileId = user.Id,
-                            CommunicationMethodId = cmId,
-                        })
-                        .ToList() ?? new List<UserCommunicationMethod>(),
-                UserProfileAvailabilities =
-                    request
-                        .Availability?.Select(a => new UserProfileAvailability
-                        {
-                            UserId = user.Id,
-                            AvailabilityId = a,
-                        })
-                        .ToList() ?? new List<UserProfileAvailability>(),
-                User = user,
+                CommunicationMethodId = request.CommunicationMethod,
+                UserProfileAvailabilities = request.Availability?.Select(a => new UserProfileAvailability
+                {
+                    UserId = user.Id,
+                    AvailabilityId = a
+                }).ToList() ?? new List<UserProfileAvailability>(),
+                User = user
             };
 
             await _registrationRepository.AddUserAsync(user);
@@ -131,11 +113,8 @@ namespace ApplicationCore.Services
                 var expertiseIds = request.AreaOfExpertise.Where(id => id > 0).Distinct().ToList();
                 if (expertiseIds.Any())
                 {
-                    var expertiseEntities =
-                        await _registrationRepository.GetAreaOfExpertisesByIdsAsync(expertiseIds);
-                    expertiseAreaDtos = expertiseEntities
-                        .Select(e => new PreferenceItemDto { Id = e.Id, Name = e.Name })
-                        .ToList();
+                    var expertiseEntities = await _registrationRepository.GetAreaOfExpertisesByIdsAsync(expertiseIds);
+                    expertiseAreaDtos = expertiseEntities.Select(e => new PreferenceItemDto { Id = e.Id, Name = e.Name }).ToList();
                 }
             }
 
@@ -145,32 +124,12 @@ namespace ApplicationCore.Services
                 var availabilityIds = request.Availability.Where(id => id > 0).Distinct().ToList();
                 if (availabilityIds.Any())
                 {
-                    var availabilityEntities =
-                        await _registrationRepository.GetAvailabilitiesByIdsAsync(availabilityIds);
-                    availabilityDtos = availabilityEntities
-                        .Select(a => new PreferenceItemDto { Id = a.Id, Name = a.Name })
-                        .ToList();
+                    var availabilityEntities = await _registrationRepository.GetAvailabilitiesByIdsAsync(availabilityIds);
+                    availabilityDtos = availabilityEntities.Select(a => new PreferenceItemDto { Id = a.Id, Name = a.Name }).ToList();
                 }
             }
 
-            var communicationMethodDtos = new List<PreferenceItemDto>();
-            if (request.CommunicationMethod != null && request.CommunicationMethod.Any())
-            {
-                var validMethodIds = request
-                    .CommunicationMethod.Where(id => id > 0)
-                    .Distinct()
-                    .ToList();
-                if (validMethodIds.Any())
-                {
-                    var methodEntities =
-                        await _registrationRepository.GetCommunicationMethodsByIdsAsync(
-                            validMethodIds
-                        );
-                    communicationMethodDtos = methodEntities
-                        .Select(m => new PreferenceItemDto { Id = m.Id, Name = m.Name })
-                        .ToList();
-                }
-            }
+        
 
             var response = new UserProfileResponse
             {
@@ -184,23 +143,21 @@ namespace ApplicationCore.Services
                 ProfessionalSkills = userProfile.ProfessionalSkill,
                 IndustryExperience = userProfile.IndustryExperience,
                 Availability = availabilityDtos,
-                CommunicationMethod = communicationMethodDtos,
+                CommunicationMethod = new PreferenceItemDto
+                {
+                    Id = userProfile.CommunicationMethodId,
+                    Name = userProfile.CommunicationMethod?.Name ?? "Not specified"
+                }
             };
-
             return OperationResult<UserProfileResponse>.Ok(response);
         }
 
-        public async Task<OperationResult<UserPreferenceResponse>> SetUserPreferencesAsync(
-            Guid userId,
-            SetPreferenceRequest request
-        )
+        public async Task<OperationResult<UserPreferenceResponse>> SetUserPreferencesAsync(Guid userId, SetPreferenceRequest request)
         {
             var validationResult = await _preferenceValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
-                return OperationResult<UserPreferenceResponse>.BadRequest(
-                    string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage))
-                );
+                return OperationResult<UserPreferenceResponse>.BadRequest(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
             }
 
             var user = await _userRepository.GetByIdAsync(userId);
@@ -215,6 +172,7 @@ namespace ApplicationCore.Services
                 return OperationResult<UserPreferenceResponse>.NotFound("User profile not found.");
             }
 
+
             userProfile.UserTopicOfInterests ??= new List<UserTopicOfInterest>();
             userProfile.UserLearningStyles ??= new List<UserLearningStyle>();
             userProfile.TeachingApproaches ??= new List<MentorTeachingApproach>();
@@ -225,76 +183,46 @@ namespace ApplicationCore.Services
             await _unitOfWork.SaveChangesAsync();
 
             var topicsOfInterestDtos = new List<PreferenceItemDto>();
-            var topicIds =
-                userProfile.UserTopicOfInterests?.Select(t => t.TopicId).Distinct().ToList()
-                ?? new List<int>();
+            var topicIds = userProfile.UserTopicOfInterests?.Select(t => t.TopicId).Distinct().ToList() ?? new List<int>();
             if (topicIds.Any())
             {
                 var topicEntities = await _registrationRepository.GetTopicsByIdsAsync(topicIds);
-                topicsOfInterestDtos = topicEntities
-                    .Select(t => new PreferenceItemDto { Id = t.Id, Name = t.Name })
-                    .ToList();
+                topicsOfInterestDtos = topicEntities.Select(t => new PreferenceItemDto { Id = t.Id, Name = t.Name }).ToList();
             }
 
             var learningStylesDtos = new List<PreferenceItemDto>();
-            var learningStyleIds =
-                userProfile.UserLearningStyles?.Select(ls => ls.LearningStyleId).Distinct().ToList()
-                ?? new List<int>();
+            var learningStyleIds = userProfile.UserLearningStyles?.Select(ls => ls.LearningStyleId).Distinct().ToList() ?? new List<int>();
             if (learningStyleIds.Any())
             {
-                var learningStyleEntities =
-                    await _registrationRepository.GetLearningStylesByIdsAsync(learningStyleIds);
-                learningStylesDtos = learningStyleEntities
-                    .Select(ls => new PreferenceItemDto { Id = ls.Id, Name = ls.Name })
-                    .ToList();
+                var learningStyleEntities = await _registrationRepository.GetLearningStylesByIdsAsync(learningStyleIds);
+                learningStylesDtos = learningStyleEntities.Select(ls => new PreferenceItemDto { Id = ls.Id, Name = ls.Name }).ToList();
             }
 
             var teachingApproachesDtos = new List<PreferenceItemDto>();
-            var teachingApproachIds =
-                userProfile
-                    .TeachingApproaches?.Select(ta => ta.TeachingApproachId)
-                    .Distinct()
-                    .ToList() ?? new List<int>();
+            var teachingApproachIds = userProfile.TeachingApproaches?.Select(ta => ta.TeachingApproachId).Distinct().ToList() ?? new List<int>();
             if (teachingApproachIds.Any())
             {
-                var teachingApproachEntities =
-                    await _registrationRepository.GetTeachingApproachesByIdsAsync(
-                        teachingApproachIds
-                    );
-                teachingApproachesDtos = teachingApproachEntities
-                    .Select(ta => new PreferenceItemDto { Id = ta.Id, Name = ta.Name })
-                    .ToList();
+                var teachingApproachEntities = await _registrationRepository.GetTeachingApproachesByIdsAsync(teachingApproachIds);
+                teachingApproachesDtos = teachingApproachEntities.Select(ta => new PreferenceItemDto { Id = ta.Id, Name = ta.Name }).ToList();
             }
 
             PreferenceItemDto? sessionFrequencyDto = null;
             if (userProfile.SessionFrequencyId.HasValue)
             {
-                var frequencyEntity = await _registrationRepository.GetSessionFrequencyByIdAsync(
-                    userProfile.SessionFrequencyId.Value
-                );
+                var frequencyEntity = await _registrationRepository.GetSessionFrequencyByIdAsync(userProfile.SessionFrequencyId.Value);
                 if (frequencyEntity != null)
                 {
-                    sessionFrequencyDto = new PreferenceItemDto
-                    {
-                        Id = frequencyEntity.Id,
-                        Name = frequencyEntity.Name,
-                    };
+                    sessionFrequencyDto = new PreferenceItemDto { Id = frequencyEntity.Id, Name = frequencyEntity.Name };
                 }
             }
 
             PreferenceItemDto? sessionDurationDto = null;
             if (userProfile.SessionDurationId.HasValue)
             {
-                var durationEntity = await _registrationRepository.GetSessionDurationByIdAsync(
-                    userProfile.SessionDurationId.Value
-                );
+                var durationEntity = await _registrationRepository.GetSessionDurationByIdAsync(userProfile.SessionDurationId.Value);
                 if (durationEntity != null)
                 {
-                    sessionDurationDto = new PreferenceItemDto
-                    {
-                        Id = durationEntity.Id,
-                        Name = durationEntity.Name,
-                    };
+                    sessionDurationDto = new PreferenceItemDto { Id = durationEntity.Id, Name = durationEntity.Name };
                 }
             }
 
@@ -322,8 +250,8 @@ namespace ApplicationCore.Services
                 {
                     Profile = userProfile.PrivacyProfile,
                     Messages = userProfile.MessagePermission,
-                    Notifications = userProfile.NotificationsEnabled,
-                },
+                    Notifications = userProfile.NotificationsEnabled
+                }
             };
 
             return OperationResult<UserPreferenceResponse>.Ok(response);
@@ -334,13 +262,9 @@ namespace ApplicationCore.Services
             var existingUser = await _registrationRepository.GetByEmailAsync(email);
             if (existingUser != null)
             {
-                return OperationResult<CheckEmailResponse>.Ok(
-                    new CheckEmailResponse { Exists = true, Message = "Email already exists." }
-                );
+                return OperationResult<CheckEmailResponse>.Ok(new CheckEmailResponse { Exists = true, Message = "Email already exists." });
             }
-            return OperationResult<CheckEmailResponse>.Ok(
-                new CheckEmailResponse { Exists = false, Message = "Email is available." }
-            );
+            return OperationResult<CheckEmailResponse>.Ok(new CheckEmailResponse { Exists = false, Message = "Email is available." });
         }
     }
 }

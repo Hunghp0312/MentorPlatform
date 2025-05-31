@@ -9,7 +9,7 @@ namespace ApplicationCore.Validators.Authenticates
         {
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .WithMessage("Email is required.")
+                .WithMessage("Please fill out this field")
                 .EmailAddress()
                 .WithMessage("Invalid email format.");
             RuleFor(x => x.Password)

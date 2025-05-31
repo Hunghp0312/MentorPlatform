@@ -47,18 +47,18 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
     if (!formState.certificationName.trim()) {
       newErrors.certificationName = "Certification name is required.";
       isValid = false;
-    } else if (formState.certificationName.length > 100) {
+    } else if (formState.certificationName.length > 150) {
       newErrors.certificationName =
-        "Certification name must not exceed 100 characters.";
+        "Certification name must not exceed 150 characters.";
       isValid = false;
     }
 
     if (!formState.issuingOrganization.trim()) {
       newErrors.issuingOrganization = "Organization is required.";
       isValid = false;
-    } else if (formState.issuingOrganization.length > 100) {
+    } else if (formState.issuingOrganization.length > 150) {
       newErrors.issuingOrganization =
-        "Organization must not exceed 100 characters.";
+        "Organization must not exceed 150 characters.";
       isValid = false;
     }
 

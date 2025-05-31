@@ -1,4 +1,6 @@
-﻿using ApplicationCore.DTOs.Requests.Authenticates;
+﻿using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.Requests.Authenticates;
+using ApplicationCore.DTOs.Responses.Authenticates;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +19,10 @@ public class AuthController : BaseController
     }
 
     [HttpPost("login")]
+    [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
         var result = await _authService.LoginAsync(request);
@@ -24,6 +30,10 @@ public class AuthController : BaseController
     }
 
     [HttpPost("forgot-password")]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
         var result = await _authService.ForgotPasswordAsync(request);
@@ -31,6 +41,10 @@ public class AuthController : BaseController
     }
 
     [HttpPost("reset-password")]
+    [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
         var result = await _authService.ResetPasswordAsync(request);
@@ -38,6 +52,10 @@ public class AuthController : BaseController
     }
 
     [HttpPost("refresh-token")]
+    [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshRequest request)
     {
         var result = await _authService.RetrieveAccessToken(request);

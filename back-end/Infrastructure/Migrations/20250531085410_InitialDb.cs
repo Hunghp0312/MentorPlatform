@@ -448,11 +448,18 @@ namespace Infrastructure.Migrations
                     SessionDurationId = table.Column<int>(type: "int", nullable: true),
                     PrivacyProfile = table.Column<bool>(type: "bit", nullable: true),
                     MessagePermission = table.Column<bool>(type: "bit", nullable: true),
-                    NotificationsEnabled = table.Column<bool>(type: "bit", nullable: true)
+                    NotificationsEnabled = table.Column<bool>(type: "bit", nullable: true),
+                    CommunicationMethodId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserProfile", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserProfile_CommunicationMethod_CommunicationMethodId",
+                        column: x => x.CommunicationMethodId,
+                        principalTable: "CommunicationMethod",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_UserProfile_SessionDuration_SessionDurationId",
                         column: x => x.SessionDurationId,
@@ -505,8 +512,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CertificationName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    IssuingOrganization = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                    CertificationName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    IssuingOrganization = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -525,8 +532,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    InstitutionName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    FieldOfStudy = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    InstitutionName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FieldOfStudy = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     GraduationYear = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -546,8 +553,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CompanyName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Position = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CompanyName = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
+                    Position = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -637,30 +644,6 @@ namespace Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_MentorTeachingApproach_UserProfile_UserProfileId",
-                        column: x => x.UserProfileId,
-                        principalTable: "UserProfile",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserCommunicationMethod",
-                columns: table => new
-                {
-                    UserProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CommunicationMethodId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserCommunicationMethod", x => new { x.UserProfileId, x.CommunicationMethodId });
-                    table.ForeignKey(
-                        name: "FK_UserCommunicationMethod_CommunicationMethod_CommunicationMethodId",
-                        column: x => x.CommunicationMethodId,
-                        principalTable: "CommunicationMethod",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_UserCommunicationMethod_UserProfile_UserProfileId",
                         column: x => x.UserProfileId,
                         principalTable: "UserProfile",
                         principalColumn: "Id",
@@ -1059,19 +1042,19 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "UserProfile",
-                columns: new[] { "Id", "Bio", "FullName", "IndustryExperience", "MessagePermission", "NotificationsEnabled", "PhoneNumber", "PhotoData", "PrivacyProfile", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
+                columns: new[] { "Id", "Bio", "CommunicationMethodId", "FullName", "IndustryExperience", "MessagePermission", "NotificationsEnabled", "PhoneNumber", "PhotoData", "PrivacyProfile", "ProfessionalSkill", "SessionDurationId", "SessionFrequencyId", "UserGoal" },
                 values: new object[,]
                 {
-                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "Senior administrator overseeing platform development and technical operations.", "Minh Chau Admin", "Experienced in project management, system architecture, and team leadership, with expertise in platform development and technical operations.", true, true, null, null, true, "Project management, System architecture, Team leadership", 3, 4, null },
-                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "Senior software engineer with 8+ years of experience in full-stack development.", "Huy Nguyen Mentor", "Fintech, E-commerce, Enterprise applications", true, true, null, null, false, "Java, Spring, React, AWS, DevOps", 4, 2, "To teach a seasoned software engineer and lead young developers." },
-                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), "Full-stack developer with interest in blockchain and distributed systems.", "Dan Cega", "Full-stack developer with interest in blockchain and distributed systems, with expertise in blockchain, distributed systems, and problem-solving.", true, true, null, null, false, "Blockchain, Distributed systems, Problem-solving", 5, 1, "To build scalable decentralized applications and smart contracts." },
-                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "Experienced tech administrator with background in education platforms.", "Huy Nguyen Admin", "Experienced in education platforms, with expertise in system administration, DevOps, and cloud infrastructure.", true, true, null, null, true, "System administration, DevOps, Cloud infrastructure", 3, 4, null },
-                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "Platform administrator with focus on user experience and system reliability.", "Huy Khuong Admin", "Experienced in user experience and system reliability, with expertise in user management, technical support, and data analytics.", true, true, null, null, true, "User management, Technical support, Data analytics", 3, 4, null },
-                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), "Frontend specialist with expertise in modern JavaScript frameworks and UI/UX principles.", "Minh Chau Mentor", "SaaS products, E-learning platforms, Creative agencies", true, false, null, null, false, "React, Vue.js, Angular, SCSS, Accessibility", 2, 4, "To share knowledge and expertise in frontend development and UI/UX design." },
-                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "Data scientist specializing in predictive analytics and natural language processing.", "Huy Khuong Mentor", "Healthcare, Research, Marketing analytics", true, true, null, null, true, "Python, TensorFlow, PyTorch, NLP, Big Data", 3, 1, "To share knowledge and expertise in data science and machine learning." },
-                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "Aspiring software developer interested in web technologies and cloud computing.", "Huy Nguyen Learner", "Aspiring software developer interested in web technologies and cloud computing, with expertise in web development, cloud computing, and problem-solving.", true, true, null, null, true, "Web development, Cloud computing, Problem-solving", 2, 1, "To master modern web development frameworks and secure a developer position." },
-                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Data science enthusiast with background in statistics and mathematics.", "Huy Khuong Learner", "Data science enthusiast with background in statistics and mathematics, with expertise in machine learning algorithms and data visualization.", true, true, null, null, false, "Statistics, Mathematics, Machine learning", 3, 2, "To develop expertise in machine learning algorithms and data visualization." },
-                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "UX/UI designer looking to expand skills in frontend development.", "Minh Chau Learner", "UX/UI designer looking to expand skills in frontend development, with expertise in UX/UI design, frontend development, and problem-solving.", false, false, null, null, true, "UX/UI design, Frontend development, Problem-solving", 1, 3, "To combine design expertise with technical implementation skills." }
+                    { new Guid("00a063ca-1414-4425-bf4e-6d48abf2474a"), "Senior administrator overseeing platform development and technical operations.", 3, "Minh Chau Admin", "Experienced in project management, system architecture, and team leadership, with expertise in platform development and technical operations.", true, true, null, null, true, "Project management, System architecture, Team leadership", 3, 4, null },
+                    { new Guid("03ea823d-d625-448d-901d-411c5028b769"), "Senior software engineer with 8+ years of experience in full-stack development.", 1, "Huy Nguyen Mentor", "Fintech, E-commerce, Enterprise applications", true, true, null, null, false, "Java, Spring, React, AWS, DevOps", 4, 2, "To teach a seasoned software engineer and lead young developers." },
+                    { new Guid("0dd85da0-9214-419e-aa02-adefac68c264"), "Full-stack developer with interest in blockchain and distributed systems.", 1, "Dan Cega", "Full-stack developer with interest in blockchain and distributed systems, with expertise in blockchain, distributed systems, and problem-solving.", true, true, null, null, false, "Blockchain, Distributed systems, Problem-solving", 5, 1, "To build scalable decentralized applications and smart contracts." },
+                    { new Guid("148b5a81-90d6-476d-9fee-747b834011ee"), "Experienced tech administrator with background in education platforms.", 1, "Huy Nguyen Admin", "Experienced in education platforms, with expertise in system administration, DevOps, and cloud infrastructure.", true, true, null, null, true, "System administration, DevOps, Cloud infrastructure", 3, 4, null },
+                    { new Guid("237e3ce5-ccde-4d3b-aaa7-02866073d526"), "Platform administrator with focus on user experience and system reliability.", 2, "Huy Khuong Admin", "Experienced in user experience and system reliability, with expertise in user management, technical support, and data analytics.", true, true, null, null, true, "User management, Technical support, Data analytics", 3, 4, null },
+                    { new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), "Frontend specialist with expertise in modern JavaScript frameworks and UI/UX principles.", 3, "Minh Chau Mentor", "SaaS products, E-learning platforms, Creative agencies", true, false, null, null, false, "React, Vue.js, Angular, SCSS, Accessibility", 2, 4, "To share knowledge and expertise in frontend development and UI/UX design." },
+                    { new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "Data scientist specializing in predictive analytics and natural language processing.", 2, "Huy Khuong Mentor", "Healthcare, Research, Marketing analytics", true, true, null, null, true, "Python, TensorFlow, PyTorch, NLP, Big Data", 3, 1, "To share knowledge and expertise in data science and machine learning." },
+                    { new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "Aspiring software developer interested in web technologies and cloud computing.", 1, "Huy Nguyen Learner", "Aspiring software developer interested in web technologies and cloud computing, with expertise in web development, cloud computing, and problem-solving.", true, true, null, null, true, "Web development, Cloud computing, Problem-solving", 2, 1, "To master modern web development frameworks and secure a developer position." },
+                    { new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Data science enthusiast with background in statistics and mathematics.", 2, "Huy Khuong Learner", "Data science enthusiast with background in statistics and mathematics, with expertise in machine learning algorithms and data visualization.", true, true, null, null, false, "Statistics, Mathematics, Machine learning", 3, 2, "To develop expertise in machine learning algorithms and data visualization." },
+                    { new Guid("f75ff929-94dd-4d03-b1dd-c0f75e70df10"), "UX/UI designer looking to expand skills in frontend development.", 3, "Minh Chau Learner", "UX/UI designer looking to expand skills in frontend development, with expertise in UX/UI design, frontend development, and problem-solving.", false, false, null, null, true, "UX/UI design, Frontend development, Problem-solving", 1, 3, "To combine design expertise with technical implementation skills." }
                 });
 
             migrationBuilder.InsertData(
@@ -1262,14 +1245,14 @@ namespace Infrastructure.Migrations
                 column: "AreaOfExpertiseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserCommunicationMethod_CommunicationMethodId",
-                table: "UserCommunicationMethod",
-                column: "CommunicationMethodId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserLearningStyle_LearningStyleId",
                 table: "UserLearningStyle",
                 column: "LearningStyleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserProfile_CommunicationMethodId",
+                table: "UserProfile",
+                column: "CommunicationMethodId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserProfile_SessionDurationId",
@@ -1320,9 +1303,6 @@ namespace Infrastructure.Migrations
                 name: "UserAreaOfExpertise");
 
             migrationBuilder.DropTable(
-                name: "UserCommunicationMethod");
-
-            migrationBuilder.DropTable(
                 name: "UserLearningStyle");
 
             migrationBuilder.DropTable(
@@ -1356,9 +1336,6 @@ namespace Infrastructure.Migrations
                 name: "AreaOfExpertise");
 
             migrationBuilder.DropTable(
-                name: "CommunicationMethod");
-
-            migrationBuilder.DropTable(
                 name: "LearningStyle");
 
             migrationBuilder.DropTable(
@@ -1387,6 +1364,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ApplicationStatus");
+
+            migrationBuilder.DropTable(
+                name: "CommunicationMethod");
 
             migrationBuilder.DropTable(
                 name: "SessionDuration");

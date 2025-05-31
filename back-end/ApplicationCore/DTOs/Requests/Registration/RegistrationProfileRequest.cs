@@ -16,6 +16,6 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public string? ProfessionalSkill { get; set; }
         public string? IndustryExperience { get; set; }
         public List<int>? Availability { get; set; }
-        public List<int>? CommunicationMethod { get; set; }
+        public int CommunicationMethod { get; set; }
     }
 }

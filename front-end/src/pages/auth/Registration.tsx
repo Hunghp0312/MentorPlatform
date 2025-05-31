@@ -192,8 +192,6 @@ const Registration = () => {
 
   const handleFinalSubmit = async () => {
     try {
-      setFormData(createInitialData(RoleEnum.Learner));
-
       const userId = await createProfile();
 
       await setPreferences(userId);
@@ -201,6 +199,7 @@ const Registration = () => {
       alert("Registration success.");
       setStep(1);
       navigation(pathName.login);
+      setFormData(createInitialData(RoleEnum.Learner));
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
       if (axiosError?.response?.data?.message) {

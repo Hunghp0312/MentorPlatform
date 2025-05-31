@@ -4,18 +4,6 @@ import { toast } from "react-toastify";
 import { handleAxiosError } from "../utils/handlerError";
 import { authService } from "../services/login.service";
 
-declare module "axios" {
-  export interface AxiosRequestConfig {
-    _retry?: boolean;
-  }
-}
-
-// Type for queueing failed requests
-type FailedRequest = {
-  resolve: (token: string) => void;
-  reject: (err: any) => void;
-};
-
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_BASE_URL,
   headers: {
@@ -26,26 +14,23 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use((config) => {
   const localToken = localStorage.getItem("accessToken");
-  const sessionToken = sessionStorage.getItem("accessToken");
-
-  const token = localToken ?? sessionToken;
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const sessionsToken = sessionStorage.getItem("accessToken");
+  if (localToken || sessionsToken) {
+    config.headers.Authorization = `Bearer ${localToken ?? sessionsToken}`;
   }
 
   return config;
 });
 
 let isRefreshing = false;
-let failedQueue: FailedRequest[] = [];
+let failedQueue: any[] = [];
 
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token!);
+      prom.resolve(token);
     }
   });
   failedQueue = [];
@@ -76,8 +61,12 @@ axiosInstance.interceptors.response.use(
       }
 
       isRefreshing = true;
-
-      const isRemembered = Boolean(localStorage.getItem("accessToken"));
+      let isRemembered = false;
+      if (localStorage.getItem("accessToken")) {
+        isRemembered = true;
+      } else if (sessionStorage.getItem("accessToken")) {
+        isRemembered = false;
+      }
       const refreshToken =
         localStorage.getItem("refreshToken") ||
         sessionStorage.getItem("refreshToken");
@@ -85,15 +74,11 @@ axiosInstance.interceptors.response.use(
         localStorage.getItem("accessToken") ||
         sessionStorage.getItem("accessToken");
 
-      if (!refreshToken || !accessToken) {
-        isRefreshing = false;
-        return Promise.reject(error);
-      }
-
       try {
+        if (!refreshToken || !accessToken) return;
+
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
           await authService.refreshToken({ accessToken, refreshToken });
-
         if (isRemembered) {
           localStorage.setItem("accessToken", newAccessToken);
           localStorage.setItem("refreshToken", newRefreshToken);
@@ -101,15 +86,13 @@ axiosInstance.interceptors.response.use(
           sessionStorage.setItem("accessToken", newAccessToken);
           sessionStorage.setItem("refreshToken", newRefreshToken);
         }
+        axiosInstance.defaults.headers.Authorization = `Bearer ${accessToken}`;
 
-        axiosInstance.defaults.headers.Authorization = `Bearer ${newAccessToken}`;
-        processQueue(null, newAccessToken);
-
-        originalRequest.headers.Authorization = "Bearer " + newAccessToken;
+        processQueue(null, accessToken);
+        originalRequest.headers.Authorization = "Bearer " + accessToken;
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
-
         if (isRemembered) {
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
@@ -117,7 +100,6 @@ axiosInstance.interceptors.response.use(
           sessionStorage.removeItem("accessToken");
           sessionStorage.removeItem("refreshToken");
         }
-
         window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {
@@ -125,13 +107,11 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // Handle other errors
     if (error.response?.status === 400) {
       handleAxiosError(error);
     }
-
     if (error.response?.status === 404 || error.response?.status === 409) {
-      toast.error(error.response?.data?.message || "An error occurred.");
+      toast.error(error.response?.data.message);
     }
 
     return Promise.reject(error);

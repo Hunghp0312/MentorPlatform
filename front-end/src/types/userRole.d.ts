@@ -31,4 +31,5 @@ export interface userPaginationRequest {
 
 export interface userChangeStatusRequest {
   UserId: string;
+  StatusId: int;
 }

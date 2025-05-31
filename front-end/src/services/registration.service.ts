@@ -30,9 +30,10 @@ export const registrionService = {
     payload.profile.availability.forEach((availability) => {
       formData.append("Availability", String(availability));
     });
-    payload.profile.preferredCommunication.forEach((communication) => {
-      formData.append("CommunicationMethods", String(communication));
-    });
+    formData.append(
+      "CommunicationMethod",
+      payload.profile.preferredCommunication.toString()
+    );
 
     const response = await axiosInstance.post(
       "/Registration/create-profile",

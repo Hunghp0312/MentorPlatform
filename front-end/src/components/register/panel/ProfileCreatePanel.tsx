@@ -469,9 +469,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
           {communicationMethodOptions.map((option) => {
-            const isSelected = profile.preferredCommunication?.includes(
-              option.value
-            );
+            const isSelected = profile.preferredCommunication === option.value;
 
             return (
               <button
@@ -483,11 +481,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
                     : "bg-gray-700 border-gray-600 hover:bg-gray-650 text-gray-300 hover:text-white ring-gray-600 focus:ring-orange-500"
                 }`}
                 onClick={() => {
-                  const currentMethods = profile.preferredCommunication || [];
-                  const updatedMethods = isSelected
-                    ? currentMethods.filter((m) => m !== option.value)
-                    : [...currentMethods, option.value];
-                  handleFieldChange("preferredCommunication", updatedMethods);
+                  handleFieldChange("preferredCommunication", option.value);
                 }}>
                 <option.IconComponent size={18} />
                 <span>{option.label}</span>
