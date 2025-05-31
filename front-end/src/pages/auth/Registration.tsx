@@ -3,10 +3,7 @@ import StepProgressBar from "../../components/progress/StepProgressBar";
 import RegistrationPanel from "../../components/register/panel/RegistrationPanel";
 import ProfileCreatePanel from "../../components/register/panel/ProfileCreatePanel";
 import PreferenceSetupPanel from "../../components/register/panel/PreferenceSetupPanel";
-import {
-  registrionService,
-  submitRegistration,
-} from "../../services/registration.service";
+import { registrionService } from "../../services/registration.service";
 import {
   UserRegistrationRequest,
   SharedProfileDetails,
@@ -23,13 +20,17 @@ import { useNavigate } from "react-router-dom";
 import { pathName } from "../../constants/pathName";
 import { AxiosError } from "axios";
 
+interface ErrorResponse {
+  message?: string;
+  errors?: Record<string, string>;
+}
+
 const Registration = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 3;
   const [formData, setFormData] = useState<UserRegistrationRequest>(
     createInitialData(RoleEnum.Learner)
   );
-  const [userId, setUserId] = useState<string>("");
 
   const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
@@ -77,6 +78,7 @@ const Registration = () => {
         fullName: prev.profile.fullName,
         bio: prev.profile.bio,
         profilePictureFile: prev.profile.profilePictureFile,
+        contact: prev.profile.contact,
         expertise: prev.profile.expertise,
         availability: prev.profile.availability,
         preferredCommunication: prev.profile.preferredCommunication,
@@ -116,27 +118,21 @@ const Registration = () => {
 
   const createProfile = async () => {
     try {
-      console.log(formData);
-
       const response = await registrionService.createProfile(formData);
-      setUserId(response.userId);
-      return true;
+      return response.userId;
     } catch (error) {
-      const axiosError = error as AxiosError;
-      setStep(1);
-      window.location.reload();
-      console.error("Registration submission failed:", axiosError);
-      alert(
-        `Registration failed: ${axiosError.response?.data} Please try again.`
-      );
-      return false;
+      setStep(2);
+      throw error;
     }
   };
 
-  const setPreferences = async () => {
-    const response = await registrionService.setPreference(formData, userId);
-
-    console.log(response);
+  const setPreferences = async (userId: string) => {
+    try {
+      await registrionService.setPreference(formData, userId);
+    } catch (error) {
+      setStep(3);
+      throw error;
+    }
   };
 
   const handlePreferencesAndRoleEnumSpecificDetailsUpdate = (
@@ -180,7 +176,6 @@ const Registration = () => {
         updatedFormData.role === RoleEnum.Mentor &&
         teachingApproach !== undefined
       ) {
-        // Type guard to ensure mentorDetails exists
         if (
           "mentorDetails" in updatedFormData &&
           updatedFormData.mentorDetails
@@ -196,26 +191,30 @@ const Registration = () => {
   };
 
   const handleFinalSubmit = async () => {
-    console.log("Final Registration Data to Submit:", formData);
     try {
-      const { account, profile, preferences } = formData;
-      await submitRegistration(
-        account.email,
-        account.password,
-        JSON.stringify(profile),
-        JSON.stringify(preferences)
-      );
+      const userId = await createProfile();
 
-      setFormData(createInitialData(RoleEnum.Learner));
-      await setPreferences();
+      await setPreferences(userId);
+
       alert("Registration success.");
       setStep(1);
-      navigation(pathName.home);
+      navigation(pathName.login);
+      setFormData(createInitialData(RoleEnum.Learner));
     } catch (error) {
-      setStep(1);
-      window.location.reload();
-      console.error("Registration submission failed:", error);
-      alert("Registration failed. Please try again.");
+      const axiosError = error as AxiosError<ErrorResponse>;
+      if (axiosError?.response?.data?.message) {
+        alert(axiosError.response.data.message);
+        return;
+      }
+      if (axiosError?.response?.data?.errors) {
+        for (const key in axiosError.response.data.errors) {
+          const errorMessage = axiosError.response.data.errors[key];
+          alert(`${errorMessage}`);
+          return;
+        }
+      }
+      console.error("Registration error:", error);
+      alert("An unexpected error occurred. Please try again later.");
     }
   };
 
@@ -226,6 +225,8 @@ const Registration = () => {
           <RegistrationPanel
             initialEmail={formData.account.email}
             initialPassword={formData.account.password}
+            initialConfirm={formData.account.confirmPassword}
+            initialAgreed={formData.account.agreedToTerms}
             onAccountSubmit={handleAccountSubmit}
           />
         );
@@ -237,7 +238,6 @@ const Registration = () => {
             onRoleChange={handleRoleEnumChange}
             onNext={nextStep}
             onBack={prevStep}
-            onSubmited={createProfile}
           />
         );
       case 3:

@@ -3,6 +3,8 @@ import * as common from "./commonType";
 export interface AccountDetails {
   email: string;
   password: string;
+  confirmPassword: string;
+  agreedToTerms: boolean; // Optional, used for registration
 }
 
 export interface CreateProfileResponse {
@@ -16,12 +18,11 @@ export interface CreateProfileResponse {
   bio: string;
   photoData: string;
   phoneNumber: string;
-  expertiseAreas: string[];
+  expertiseAreas: common.EnumType[];
   professionalSkills: string;
   industryExperience: string;
-  availability: string[];
-  communicationMethods: string[];
-  userGoals: string;
+  availability: common.EnumType[];
+  communicationMethods: common.EnumType;
 }
 
 export interface SharedProfileDetails {
@@ -34,7 +35,7 @@ export interface SharedProfileDetails {
   skills?: string;
   industryExperience?: string;
   availability: common.Availability[];
-  preferredCommunication: common.CommunicationMethod[];
+  preferredCommunication: common.CommunicationMethod;
 }
 
 export interface LearnerDetails {
@@ -77,6 +78,8 @@ export type UserRegistrationRequest =
 const baseAccount: AccountDetails = {
   email: "",
   password: "",
+  confirmPassword: "",
+  agreedToTerms: false,
 };
 
 const baseProfile: SharedProfileDetails = {
@@ -88,7 +91,7 @@ const baseProfile: SharedProfileDetails = {
   skills: "",
   industryExperience: "",
   availability: [],
-  preferredCommunication: [common.CommunicationMethod.VideoCall],
+  preferredCommunication: common.CommunicationMethod.VideoCall,
 };
 
 const basePreferences: UserPreferences = {
