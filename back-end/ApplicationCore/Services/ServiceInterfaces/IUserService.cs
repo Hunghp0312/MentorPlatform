@@ -13,5 +13,6 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<UserResponseDto>> UpdateUserStatusAsync(Guid userId);
         Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId);
         Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto);
+        Task<OperationResult<UserFullProfileResponse>> GetFullUserProfileByIdAsync(Guid userId);
     }
 }

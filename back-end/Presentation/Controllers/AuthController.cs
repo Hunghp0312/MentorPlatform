@@ -71,13 +71,22 @@ public class AuthController : BaseController
     }
 
     [HttpGet("github/callback")]
-    public async Task<IActionResult> GitHubCallback([FromQuery] string code)
+    public async Task<IActionResult> GitHubCallback([FromQuery] string? code, [FromQuery] string? error)
     {
+        var frontendUrl = _config["FrontendUrl"];
+        if (!string.IsNullOrEmpty(error))
+        {
+            var failRedirectUrl = $"{frontendUrl}/login?oauth_error={error}";
+            return Redirect(failRedirectUrl);
+        }
+        if (string.IsNullOrEmpty(code))
+        {
+            return Redirect($"{frontendUrl}/login");
+        }
         var result = await _authService.GitHubLoginAsync(code);
         if (result.Data == null)
-            return BadRequest(result.Message);
+            return Redirect($"{frontendUrl}/login?oauth_error={result.Message}");
 
-        var frontendUrl = _config["FrontendUrl"];
         var redirectUrl = $"{frontendUrl}/oauth-callback?accessToken={Uri.EscapeDataString(result.Data.AccessToken)}&refreshToken={Uri.EscapeDataString(result.Data.RefreshToken)}";
         return Redirect(redirectUrl);
 
@@ -102,13 +111,23 @@ public class AuthController : BaseController
     }
 
     [HttpGet("google/callback")]
-    public async Task<IActionResult> GoogleCallback([FromQuery] string code)
+    public async Task<IActionResult> GoogleCallback([FromQuery] string? code, [FromQuery] string? error)
     {
+        var frontendUrl = _config["FrontendUrl"];
+        if (!string.IsNullOrEmpty(error))
+        {
+            var failRedirectUrl = $"{frontendUrl}/login?oauth_error={error}";
+            return Redirect(failRedirectUrl);
+        }
+        if (string.IsNullOrEmpty(code))
+        {
+            return Redirect($"{frontendUrl}/login");
+        }
+
         var result = await _authService.GoogleLoginAsync(code);
         if (result.Data == null)
-            return BadRequest(result.Message);
+            return Redirect($"{frontendUrl}/login?oauth_error={result.Message}");
 
-        var frontendUrl = _config["FrontendUrl"];
         var redirectUrl = $"{frontendUrl}/oauth-callback?accessToken={Uri.EscapeDataString(result.Data.AccessToken)}&refreshToken={Uri.EscapeDataString(result.Data.RefreshToken)}";
         return Redirect(redirectUrl);
     }

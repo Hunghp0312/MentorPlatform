@@ -1,11 +1,12 @@
+using System.Security.Claims;
+using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Users;
 using ApplicationCore.DTOs.Responses.Users;
 using ApplicationCore.Services.ServiceInterfaces;
-using Microsoft.AspNetCore.Mvc;
-using ApplicationCore.DTOs.QueryParameters;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
 {
@@ -36,7 +37,15 @@ namespace Presentation.Controllers
             var result = await _userService.GetUsersAsync(queryParameters);
             return ToActionResult(result);
         }
-
+        [HttpGet("{userId}")]
+        [ProducesResponseType(typeof(OperationResult<UserFullProfileResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetUserById(Guid userId)
+        {
+            var result = await _userService.GetFullUserProfileByIdAsync(userId);
+            return ToActionResult(result);
+        }
         [HttpPut("{userId}/status")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]

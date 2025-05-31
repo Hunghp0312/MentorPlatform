@@ -1,9 +1,9 @@
-﻿using ApplicationCore.Repositories.RepositoryInterfaces;
+﻿using System.Linq.Expressions;
+using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
 using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace ApplicationCore.Repositories;
 
@@ -108,7 +108,6 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 
         return (users, totalCount);
     }
-
     public async Task<User?> GetUserByIdAsync(Guid userId)
     {
         return await _dbSet
