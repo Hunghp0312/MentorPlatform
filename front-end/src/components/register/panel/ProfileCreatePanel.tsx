@@ -21,7 +21,6 @@ interface Props {
   onRoleChange: (newRole: RoleEnum) => void;
   onNext: () => void;
   onBack: () => void;
-  onSubmited: () => Promise<boolean>; // Assuming this is for debugging or other purposes
 }
 
 const rolesData = [
@@ -79,7 +78,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
   onRoleChange,
   onNext,
   onBack,
-  onSubmited,
 }) => {
   const { role, profile } = currentUserData;
 
@@ -179,11 +177,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       }
       handleFieldChange("profilePictureFile", file);
       handleFieldChange("profilePictureUrl", undefined); // Clear URL if new file is selected
-    } else {
-      // If no file is selected (e.g., user cancels file dialog),
-      // don't clear existing file unless explicitly deleted.
-      // If you want to clear it, uncomment below:
-      // handleFieldChange("profilePictureFile", null);
     }
   };
 
@@ -207,14 +200,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       isValid = false;
     } else {
       setFullNameError("");
-    }
-
-    if (!profile.bio.trim()) {
-      setBioError("Bio is required.");
-      setFocus("profileBio");
-      isValid = false;
-    } else {
-      setBioError("");
     }
 
     if (profile.contact.trim()) {
@@ -270,16 +255,6 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setAvailabilityError("");
     }
 
-    if (profile.preferredCommunication.length === 0) {
-      // Assuming preferred communication is required
-      // Add an error state if needed: setPreferredCommunicationError("Please select at least one method.")
-      // For now, just log or handle as per requirements if it can be empty.
-      // If it cannot be empty, add error state and message.
-      // For this example, let's assume it's required and add a visual cue if needed.
-      // setFocus("profileCommunicationMethodGroup"); // If an error message were shown
-      // isValid = false;
-    }
-
     setFirstErrorFieldId(focusTargetId);
     return isValid;
   };
@@ -309,9 +284,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top to see any top-of-form errors
 
-    const success = await onSubmited();
-
-    if (validateAndSetFocusTarget() && success) {
+    if (validateAndSetFocusTarget()) {
       onNext();
     }
   };
@@ -339,7 +312,15 @@ const ProfileCreatePanel: React.FC<Props> = ({
             name="fullName"
             type="text"
             value={profile.fullName}
-            onChange={(e) => handleFieldChange("fullName", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value.length > 100) {
+                setFullNameError("Please enter between 2-100 characters.");
+              } else {
+                setFullNameError("");
+                handleFieldChange("fullName", value);
+              }
+            }}
             placeholder="Your full name"
             isRequired
             errorMessage={fullNameError}
@@ -350,16 +331,23 @@ const ProfileCreatePanel: React.FC<Props> = ({
             name="bio"
             type="textarea"
             value={profile.bio}
-            onChange={(e) => handleFieldChange("bio", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value.length > 1000) {
+                setBioError("Please enter under 1000 characters.");
+              } else {
+                setBioError("");
+                handleFieldChange("bio", value);
+              }
+            }}
             placeholder="A brief introduction about yourself..."
-            isRequired
             errorMessage={bioError}
             className="min-h-[100px] bg-gray-800 border-gray-700 p-3"
           />
           <InputCustom
-            label="Contact (Phone Number)"
-            name="contact"
-            type="text" // Consider type="tel"
+            label="Phone Number"
+            name="phoneNumber"
+            type="text"
             value={profile.contact}
             onChange={(e) => handleFieldChange("contact", e.target.value)}
             placeholder="e.g., +1234567890"
@@ -423,7 +411,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         className="bg-gray-800 border-gray-700"
         isRequired={role === RoleEnum.Mentor}
         name="skills"
-        type="text" // Or a tag input component if skills are multiple
+        type="text"
         value={profile.skills || ""}
         onChange={(e) => handleFieldChange("skills", e.target.value)}
       />
@@ -432,7 +420,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
       <InputCustom
         label="Industry Experience"
         name="industryExperience"
-        type="text" // Or textarea if longer input is expected
+        type="text"
         value={profile.industryExperience ?? ""}
         onChange={(e) =>
           handleFieldChange("industryExperience", e.target.value)
@@ -481,9 +469,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
           {communicationMethodOptions.map((option) => {
-            const isSelected = profile.preferredCommunication?.includes(
-              option.value
-            );
+            const isSelected = profile.preferredCommunication === option.value;
 
             return (
               <button
@@ -495,11 +481,7 @@ const ProfileCreatePanel: React.FC<Props> = ({
                     : "bg-gray-700 border-gray-600 hover:bg-gray-650 text-gray-300 hover:text-white ring-gray-600 focus:ring-orange-500"
                 }`}
                 onClick={() => {
-                  const currentMethods = profile.preferredCommunication || [];
-                  const updatedMethods = isSelected
-                    ? currentMethods.filter((m) => m !== option.value)
-                    : [...currentMethods, option.value];
-                  handleFieldChange("preferredCommunication", updatedMethods);
+                  handleFieldChange("preferredCommunication", option.value);
                 }}>
                 <option.IconComponent size={18} />
                 <span>{option.label}</span>

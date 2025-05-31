@@ -64,13 +64,10 @@ const Login: React.FC = () => {
     e.preventDefault();
     if (!validate()) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
-    console.log("Login attempt:", { email, password, rememberMe });
 
     try {
       setIsLoading(true);
       const response = await authService.login({ email, password });
-
-      console.log(response);
 
       setIsAuthenticated(true);
 
@@ -159,8 +156,7 @@ const Login: React.FC = () => {
             <div className="text-right mt-1">
               <Link
                 to={pathName.forgotPassword}
-                className="text-sm text-orange-400 hover:underline"
-              >
+                className="text-sm text-orange-400 hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -175,8 +171,7 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500 disabled:opacity-60"
-          >
+            className="w-full py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500 disabled:opacity-60">
             {" "}
             {/* Reduced py-3 to py-2.5 */}
             {loading ? "Signing In..." : "Sign In"}
@@ -187,8 +182,7 @@ const Login: React.FC = () => {
           <div className="relative">
             <div
               className="absolute inset-0 flex items-center"
-              aria-hidden="true"
-            >
+              aria-hidden="true">
               <div className="w-full border-t border-slate-700" />
             </div>
             <div className="relative flex justify-center text-sm">
@@ -202,23 +196,20 @@ const Login: React.FC = () => {
           <button
             type="button"
             className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500"
-            onClick={handleGoogleLogin}
-          >
+            onClick={handleGoogleLogin}>
             <FaGoogle size={18} />
             <span className="hidden sm:inline">Google</span>
           </button>
           <button
             type="button"
             className="w-full flex items-center justify-center gap-2 bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500"
-            onClick={handleGitHubLogin}
-          >
+            onClick={handleGitHubLogin}>
             <FaGithub size={18} />
             <span className="hidden sm:inline">GitHub</span>
           </button>
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500"
-          >
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500">
             <FaLinkedin size={18} />
             <span className="hidden sm:inline">LinkedIn</span>
           </button>
@@ -228,8 +219,7 @@ const Login: React.FC = () => {
           Don’t have an account?{" "}
           <Link
             to={pathName.register}
-            className="font-medium text-orange-400 hover:underline"
-          >
+            className="font-medium text-orange-400 hover:underline">
             Sign up
           </Link>
         </div>
@@ -239,15 +229,13 @@ const Login: React.FC = () => {
           By continuing, you agree to our{" "}
           <Link
             to="/terms"
-            className="font-medium text-orange-400 hover:underline"
-          >
+            className="font-medium text-orange-400 hover:underline">
             Terms of Service
           </Link>{" "}
           and{" "}
           <Link
             to="/privacy"
-            className="font-medium text-orange-400 hover:underline"
-          >
+            className="font-medium text-orange-400 hover:underline">
             Privacy Policy
           </Link>
           .
