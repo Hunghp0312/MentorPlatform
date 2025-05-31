@@ -13,10 +13,9 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public required int SelectedRole { get; set; }
         public IFormFile? PhotoData { get; set; }
         public List<int>? AreaOfExpertise { get; set; }
-        public required string ProfessionalSkill { get; set; }
-        public required string IndustryExperience { get; set; }
+        public string? ProfessionalSkill { get; set; }
+        public string? IndustryExperience { get; set; }
         public List<int>? Availability { get; set; }
         public int CommunicationMethod { get; set; }
-
     }
 }

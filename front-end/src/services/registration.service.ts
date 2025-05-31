@@ -5,22 +5,6 @@ import {
 } from "../types/userRegister";
 import { TopicOfInterest } from "../types/commonType";
 
-export const submitRegistration = async (
-  email: string,
-  password: string,
-  profile: string,
-  preferences: string
-) => {
-  const payload = {
-    email,
-    password,
-    profile,
-    preferences,
-  };
-
-  console.log("Submitting registration:", payload);
-};
-
 export const registrionService = {
   async createProfile(
     payload: UserRegistrationRequest
@@ -46,11 +30,10 @@ export const registrionService = {
     payload.profile.availability.forEach((availability) => {
       formData.append("Availability", String(availability));
     });
-    payload.profile.preferredCommunication.forEach((communication) => {
-      formData.append("CommunicationMethods", String(communication));
-    });
-
-    console.log("Creating profile with data:", formData);
+    formData.append(
+      "CommunicationMethod",
+      payload.profile.preferredCommunication.toString()
+    );
 
     const response = await axiosInstance.post(
       "/Registration/create-profile",
@@ -61,7 +44,6 @@ export const registrionService = {
         },
       }
     );
-    console.log("Profile created successfully:", response.data);
     return response.data as CreateProfileResponse;
   },
 
@@ -91,7 +73,13 @@ export const registrionService = {
       `/Registration/${userId}/set-preferences`,
       request
     );
-    console.log("Preferences set successfully:", response.data);
+    return response.data;
+  },
+
+  async checkEmail(payload: { email: string }) {
+    const response = await axiosInstance.get("/Registration/check-email", {
+      params: payload,
+    });
     return response.data;
   },
 };
