@@ -95,6 +95,18 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 gap-6">
+          <InputCustom
+            label="Degree Name"
+            name="fieldOfStudy"
+            type="text"
+            value={formState.fieldOfStudy}
+            onChange={handleChange}
+            isRequired
+            placeholder="Enter Degree name"
+            errorMessage={errors.fieldOfStudy}
+          />
+        </div>
         <InputCustom
           label="University Name"
           name="institutionName"
@@ -104,18 +116,6 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
           isRequired
           placeholder="Enter University name"
           errorMessage={errors.institutionName}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-6">
-        <InputCustom
-          label="Degree Name"
-          name="fieldOfStudy"
-          type="text"
-          value={formState.fieldOfStudy}
-          onChange={handleChange}
-          isRequired
-          placeholder="Enter Degree name"
-          errorMessage={errors.fieldOfStudy}
         />
       </div>
       <div className="grid grid-cols-1 gap-6">
