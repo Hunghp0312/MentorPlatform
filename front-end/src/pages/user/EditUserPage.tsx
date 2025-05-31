@@ -350,8 +350,7 @@ const EditUserPage = () => {
           <div className="mb-8">
             <button
               onClick={() => navigate(pathName.profile)}
-              className="flex items-center text-gray-300 mb-4 hover:text-white transition-colors"
-            >
+              className="flex items-center text-gray-300 mb-4 hover:text-white transition-colors">
               <ArrowLeft className="h-4 w-4 mr-1" />
               <span>Back to Profile</span>
             </button>
@@ -387,8 +386,7 @@ const EditUserPage = () => {
                     <div className="flex flex-col gap-2 w-full">
                       <label
                         htmlFor="photoData"
-                        className="py-2 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded-md cursor-pointer text-center transition-colors"
-                      >
+                        className="py-2 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded-md cursor-pointer text-center transition-colors">
                         Choose Photo
                       </label>
                       <input
@@ -403,8 +401,7 @@ const EditUserPage = () => {
                         <button
                           type="button"
                           onClick={handleRemoveImage}
-                          className="py-2 px-4 border border-red-400 text-red-400 text-sm rounded-md hover:bg-red-900 hover:border-red-300 hover:text-red-300 transition-colors"
-                        >
+                          className="py-2 px-4 border border-red-400 text-red-400 text-sm rounded-md hover:bg-red-900 hover:border-red-300 hover:text-red-300 transition-colors">
                           Remove Photo
                         </button>
                       )}
@@ -591,8 +588,7 @@ const EditUserPage = () => {
                             "communicationMethod",
                             option.value
                           )
-                        }
-                      >
+                        }>
                         <div className="flex items-center">
                           <input
                             type="radio"
@@ -726,16 +722,14 @@ const EditUserPage = () => {
               <button
                 type="button"
                 onClick={() => navigate(pathName.profile)}
-                className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold transition-colors"
-              >
+                className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold transition-colors">
                 Cancel
               </button>
 
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold transition-colors disabled:opacity-70"
-              >
+                className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold transition-colors disabled:opacity-70">
                 {isSaving ? (
                   <>
                     <Loader2 className="animate-spin h-4 w-4 mr-2 inline-block" />
