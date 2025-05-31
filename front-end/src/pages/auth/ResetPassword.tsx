@@ -49,7 +49,7 @@ const ResetPasswordPage: React.FC = () => {
     if (!confirmPassword) {
       errs.confirmPassword = "Please enter confirm password";
     } else if (newPassword !== confirmPassword) {
-      errs.confirmPassword = "Confirm password must be the same";
+      errs.confirmPassword = "The confirm password must match the password";
     }
 
     setError(errs);
@@ -111,13 +111,12 @@ const ResetPasswordPage: React.FC = () => {
         </>
       ) : (
         <>
-          {email && (
+          {email && !successMessage && (
             <p className="text-sm text-center text-slate-400">
               Enter a new password for{" "}
               <span className="text-orange-400 font-medium">{email}</span>.
             </p>
           )}
-
           {!successMessage ? (
             <form className="space-y-6" onSubmit={handleSubmit}>
               {error.api && (
@@ -158,6 +157,13 @@ const ResetPasswordPage: React.FC = () => {
                 className="w-full py-2.5 px-4 text-sm font-medium rounded-md text-white bg-orange-500 hover:bg-orange-600 disabled:opacity-50">
                 {loading ? "Resetting..." : "Reset Password"}
               </button>
+              <div className="text-sm text-center mt-6">
+                <button
+                  onClick={() => navigate(pathName.login)}
+                  className="text-orange-500 hover:text-orange-400 font-medium">
+                  Back to Login
+                </button>
+              </div>
             </form>
           ) : (
             <div className="text-center space-y-4">
@@ -169,14 +175,6 @@ const ResetPasswordPage: React.FC = () => {
               </button>
             </div>
           )}
-
-          <div className="text-sm text-center mt-6">
-            <button
-              onClick={() => navigate(pathName.login)}
-              className="text-orange-500 hover:text-orange-400 font-medium">
-              Back to Login
-            </button>
-          </div>
         </>
       )}
     </div>

@@ -1,4 +1,3 @@
-// LoginPage.tsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import InputCustom from "../../components/input/InputCustom";
@@ -22,9 +21,9 @@ const Login: React.FC = () => {
 
   const validate = () => {
     const errs: Record<string, string> = {};
-
     const trimmedEmail = email.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!trimmedEmail) {
       errs.email = "Please fill in this field";
     } else if (trimmedEmail.length < 6 || trimmedEmail.length > 100) {
@@ -86,7 +85,7 @@ const Login: React.FC = () => {
       if (apiError instanceof AxiosError) {
         const message =
           apiError.response?.data?.message ?? "Something went wrong";
-        setError({ api: message }); // store under key 'api'
+        setError({ api: message });
       }
       console.error("Forgot password error:", apiError);
     } finally {
@@ -112,17 +111,13 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8 justify-start">
-      {" "}
       <div className="w-full max-w-md px-6 py-8 bg-slate-800 rounded-2xl shadow-2xl mt-8">
-        {" "}
-        {/* Reduced mt-16 to mt-8, py-10 to py-8 */}
         <h2 className="text-3xl font-bold mb-2 text-white text-center">
           Welcome Back
         </h2>
         <p className="text-slate-400 mb-6 text-center">
           Sign in to continue to your account
         </p>
-        {/* Reduced space between form elements (space-y-4) */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {error.api && (
             <p id="ApiError" className="text-red-400 text-sm text-center">
@@ -152,7 +147,6 @@ const Login: React.FC = () => {
               showPassword={showPasswordInput}
               setShowPassword={setShowPasswordInput}
             />
-
             <div className="text-right mt-1">
               <Link
                 to={pathName.forgotPassword}
@@ -167,17 +161,13 @@ const Login: React.FC = () => {
             checked={rememberMe}
             onChange={(e) => setRememberMe(e.target.checked)}
           />
-
           <button
             type="submit"
             disabled={loading}
             className="w-full py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500 disabled:opacity-60">
-            {" "}
-            {/* Reduced py-3 to py-2.5 */}
             {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
-        {/* Reduced margin (my-4) */}
         <div className="my-4 text-center">
           <div className="relative">
             <div
@@ -214,7 +204,6 @@ const Login: React.FC = () => {
             <span className="hidden sm:inline">LinkedIn</span>
           </button>
         </div>
-        {/* Reduced margin (mt-6) */}
         <div className="mt-6 text-center text-sm text-slate-400">
           Don’t have an account?{" "}
           <Link
@@ -224,7 +213,8 @@ const Login: React.FC = () => {
           </Link>
         </div>
       </div>
-      <div className="absolute bottom-8 text-center w-full px-4">
+
+      <div className="mt-6 text-center w-full px-4">
         <p className="text-xs text-slate-500">
           By continuing, you agree to our{" "}
           <Link
