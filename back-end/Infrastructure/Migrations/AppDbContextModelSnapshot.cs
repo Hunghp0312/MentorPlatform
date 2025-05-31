@@ -702,6 +702,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 1,
                             Name = "Available"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Booked"
                         });
                 });
 
@@ -1073,13 +1078,13 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("CertificationName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("IssuingOrganization")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<Guid>("MentorApplicationId")
                         .HasColumnType("uniqueidentifier");
@@ -1192,16 +1197,16 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("FieldOfStudy")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("GraduationYear")
                         .HasColumnType("int");
 
                     b.Property<string>("InstitutionName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<Guid>("MentorApplicationId")
                         .HasColumnType("uniqueidentifier");
@@ -1313,8 +1318,8 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("CompanyName")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -1327,8 +1332,8 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Position")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -1417,6 +1422,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CancelReason")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1813,12 +1821,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("UserGoal")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<TimeOnly?>("WorkdayEndTime")
-                        .HasColumnType("time");
-
-                    b.Property<TimeOnly?>("WorkdayStartTime")
-                        .HasColumnType("time");
 
                     b.HasKey("Id");
 

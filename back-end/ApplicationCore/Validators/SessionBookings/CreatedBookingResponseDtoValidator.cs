@@ -1,12 +1,12 @@
 ﻿using ApplicationCore.Constants;
-using ApplicationCore.DTOs.Responses.SessionBookings;
+using ApplicationCore.DTOs.Requests.Sessions;
 using FluentValidation;
 
 namespace ApplicationCore.Validators.SessionBookings
 {
-    public class CreatedBookingResponseDtoValidator : AbstractValidator<CreatedBookingResponseDto>
+    public class CreateBookingRequestDtoValidator : AbstractValidator<CreateBookingRequestDto>
     {
-        public CreatedBookingResponseDtoValidator()
+        public CreateBookingRequestDtoValidator()
         {
             RuleFor(x => x.SessionTypeId)
               .InclusiveBetween(1, 3)

@@ -10,7 +10,8 @@ namespace Infrastructure.Data.Configuration.LookupTypes
             base.Configure(builder);
 
             builder.HasData(
-                new SessionAvailabilityStatus { Id = 1, Name = "Available" }
+                new SessionAvailabilityStatus { Id = 1, Name = "Available" },
+                new SessionAvailabilityStatus { Id = 2, Name = "Booked" }
             );
         }
     }

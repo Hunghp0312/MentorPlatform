@@ -1,5 +1,6 @@
-﻿using ApplicationCore.DTOs.Requests.SessionBookings;
+﻿using ApplicationCore.DTOs.Requests.Sessions;
 using ApplicationCore.Services.ServiceInterfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -17,6 +18,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost("booking")]
+        [Authorize(Roles = "Learner")]
         public async Task<IActionResult> CreateBooking([FromBody] CreateBookingRequestDto bookingRequest)
         {
             var learnerIdString = User.FindFirstValue("id")!;

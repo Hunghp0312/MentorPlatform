@@ -1,4 +1,4 @@
-﻿using ApplicationCore.DTOs.Responses.SessionBookings;
+﻿using ApplicationCore.DTOs.Responses.Sessions;
 using Infrastructure.Entities;
 
 namespace ApplicationCore.Extensions
@@ -13,9 +13,9 @@ namespace ApplicationCore.Extensions
                 LearnerId = sessionBooking.LearnerId,
                 MentorId = sessionBooking.MentorId!,
                 MentorFullName = sessionBooking.Mentor.UserProfile.FullName,
-                AvailabilitySlotId = sessionBooking.AvailabilitySlotId,
-                SlotStartTime = sessionBooking.AvailabilitySlot.StartTime,
-                SlotEndTime = sessionBooking.AvailabilitySlot.EndTime,
+                AvailabilitySlotId = sessionBooking.MentorTimeAvailableId,
+                SlotStartTime = sessionBooking.MentorTimeAvailable.Start,
+                SlotEndTime = sessionBooking.MentorTimeAvailable.End,
                 LearnerMessage = sessionBooking.LearnerMessage,
                 StatusId = sessionBooking.StatusId,
                 StatusName = sessionBooking.Status.Name,

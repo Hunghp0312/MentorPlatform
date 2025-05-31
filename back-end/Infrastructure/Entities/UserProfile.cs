@@ -26,7 +26,5 @@ namespace Infrastructure.Entities
         public int CommunicationMethodId { get; set; }
         public virtual CommunicationMethod CommunicationMethod { get; set; } = null!;
         public virtual User User { get; set; } = null!;
-        public TimeOnly? WorkdayStartTime { get; set; }
-        public TimeOnly? WorkdayEndTime { get; set; }
     }
 }

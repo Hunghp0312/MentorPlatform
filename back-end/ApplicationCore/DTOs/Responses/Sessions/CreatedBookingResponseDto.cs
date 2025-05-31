@@ -1,4 +1,4 @@
-﻿namespace ApplicationCore.DTOs.Responses.SessionBookings
+﻿namespace ApplicationCore.DTOs.Responses.Sessions
 {
     public class CreatedBookingResponseDto
     {
@@ -7,8 +7,8 @@
         public Guid MentorId { get; set; }
         public string MentorFullName { get; set; } = string.Empty;
         public Guid AvailabilitySlotId { get; set; }
-        public DateTime SlotStartTime { get; set; }
-        public DateTime SlotEndTime { get; set; }
+        public TimeOnly SlotStartTime { get; set; }
+        public TimeOnly SlotEndTime { get; set; }
         public string? LearnerMessage { get; set; }
         public int StatusId { get; set; }
         public string StatusName { get; set; } = string.Empty;

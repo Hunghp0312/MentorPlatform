@@ -14,14 +14,14 @@ namespace ApplicationCore.Repositories
 
         public async Task<bool> ExistsBookingForSlotAsync(Guid learnerId, Guid mentorId, Guid availabilitySlotId)
         {
-            return await _dbSet.AnyAsync(s => s.LearnerId == learnerId && s.MentorId == mentorId && s.AvailabilitySlotId == availabilitySlotId);
+            return await _dbSet.AnyAsync(s => s.LearnerId == learnerId && s.MentorId == mentorId && s.MentorTimeAvailableId == availabilitySlotId);
         }
 
         public override async Task<SessionBooking?> GetByIdAsync(Guid id)
         {
             var query = await _dbSet.Include(a => a.SessionType)
                 .Include(a => a.Status)
-                .Include(x => x.AvailabilitySlot)
+                .Include(x => x.MentorTimeAvailable)
                 .Include(x => x.Mentor)
                     .ThenInclude(x => x.UserProfile)
                 .Include(x => x.Learner)
