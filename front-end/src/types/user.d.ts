@@ -43,3 +43,23 @@ export interface AreaOfExpertise {
   name: string;
   userArenaOfExpertises?: UserAreaOfExpertise[];
 }
+
+export interface UserUpdateRequest {
+  photoData?: File;
+  fullName: string;
+  bio?: string | null;
+  professionalSkill: string | null;
+  industryExperience: string | null;
+  teachingApproaches: number[];
+  userProfileAvailabilities: number[];
+  userTopicOfInterests: number[];
+  userLearningStyles: number[];
+  userGoal: string | null;
+  sessionFrequencyId: number;
+  sessionDurationId: number;
+  privacyProfile: boolean;
+  messagePermission: boolean;
+  notificationsEnabled: boolean;
+  communicationMethod: number;
+  userAreaExpertises: number[];
+}

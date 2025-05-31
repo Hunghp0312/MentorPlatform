@@ -1,10 +1,10 @@
-﻿using ApplicationCore.Services.ServiceInterfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using ApplicationCore.Services.ServiceInterfaces;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ApplicationCore.Services
 {
@@ -21,11 +21,20 @@ namespace ApplicationCore.Services
             var issuer = _configuration["JwtSettings:Issuer"] ?? "localhost";
             var audience = _configuration["JwtSettings:Audience"] ?? "localhost";
             var secretKey = _configuration["JwtSettings:SecretKey"] ?? "Hungprono1caobangcittisthepasskey@123";
+            int expireTime;
+            if (int.TryParse(_configuration["JwtSettings:ExpireTime"], out int result))
+            {
+                expireTime = result;
+            }
+            else
+            {
+                expireTime = 5;
+            }
             var token = new JwtSecurityToken(
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(60),
+                expires: DateTime.UtcNow.AddMinutes(expireTime),
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                     SecurityAlgorithms.HmacSha256)
             );
