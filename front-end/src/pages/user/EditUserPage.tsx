@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Loader2, Save, ArrowLeft } from "lucide-react";
 
 // Components
@@ -15,7 +15,9 @@ import { UserUpdateRequest } from "../../types/user";
 // Services
 import { userService } from "../../services/user.service";
 import { pathName } from "../../constants/pathName";
+import { EnumType } from "../../types/commonType";
 import { getUserFromToken } from "../../utils/auth";
+import LoadingOverlay from "../../components/loading/LoadingOverlay";
 
 // Constants for form options
 const teachingApproachOptions = [
@@ -88,8 +90,6 @@ const EditUserPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const decodeToken = getUserFromToken();
-  const userId = decodeToken?.id;
   // Form errors state
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -112,23 +112,44 @@ const EditUserPage = () => {
     communicationMethod: 1, // Default to video call
     userAreaExpertises: [],
   });
-
+  const decodedToken = getUserFromToken();
+  const { id } = useParams<{ id: string }>();
   // Load user data on component mount
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setIsLoading(true);
-        const response = await userService.getCurrentUser();
+        const response = await userService.getUserById(id!);
 
         // Map API response to form state
         setUserData({
           ...userData,
           ...response,
         });
-
+        setUserData((prevData) => ({
+          ...prevData,
+          userAreaExpertises: response.areaOfExpertises.map(
+            (expertise: EnumType) => expertise.id
+          ),
+          userProfileAvailabilities: response.profileAvailabilities.map(
+            (availability: EnumType) => availability.id
+          ),
+          userTopicOfInterests: response.topicOfInterests.map(
+            (topic: EnumType) => topic.id
+          ),
+          userLearningStyles: response.learningStyles.map(
+            (style: EnumType) => style.id
+          ),
+          teachingApproaches: response.teachingApproaches.map(
+            (approach: EnumType) => approach.id
+          ),
+          sessionFrequencyId: response.sessionFrequency.id || 1,
+          communicationMethod: response.communicationMethod.id || 1,
+          sessionDurationId: response.sessionDuration.id || 3,
+        }));
         // Set image preview if user has a profile photo
-        if (response.avatar) {
-          setImagePreview(response.avatar);
+        if (response.photoData) {
+          setImagePreview(response.photoData);
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -198,7 +219,11 @@ const EditUserPage = () => {
       }
 
       if (file.size > maxSize) {
-        setErrors({ ...errors, photoData: "Image must be less than 5MB." });
+        setErrors({
+          ...errors,
+          photoData:
+            "Please select a .png, jpeg, or .jpg file with a maximum of 5MB",
+        });
         return;
       }
 
@@ -234,10 +259,38 @@ const EditUserPage = () => {
     const newErrors: Record<string, string> = {};
 
     // Validate required fields
-    if (!userData.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    }
 
+    if (
+      userData.fullName.trim().length < 2 ||
+      userData.fullName.trim().length > 100
+    ) {
+      newErrors.fullName = "Full name must be between 2-100 characters.";
+    }
+    if (!userData.fullName.trim()) {
+      newErrors.fullName = "Please fill in your full name";
+    }
+    if (!userData.bio?.trim()) {
+      newErrors.bio = "Bio is required";
+    }
+    if (!userData.professionalSkill?.trim()) {
+      newErrors.professionalSkill = "Professional skills are required";
+    }
+    if (!userData.industryExperience?.trim()) {
+      newErrors.industryExperience = "Industry experience is required";
+    }
+    if (!userData.communicationMethod) {
+      newErrors.communicationMethod =
+        "Preferred communication method is required";
+    }
+    if (!userData.sessionFrequencyId || userData.sessionFrequencyId <= 0) {
+      newErrors.sessionFrequencyId = "Session frequency is required";
+    }
+    if (!userData.sessionDurationId || userData.sessionDurationId <= 0) {
+      newErrors.sessionDurationId = "Session duration is required";
+    }
+    if (!userData.userGoal?.trim()) {
+      newErrors.userGoal = "Your goals are required";
+    }
     // Validate arrays that must have at least one item
     if (userData.userProfileAvailabilities.length === 0) {
       newErrors.userProfileAvailabilities =
@@ -251,8 +304,16 @@ const EditUserPage = () => {
     if (userData.userAreaExpertises.length === 0) {
       newErrors.userAreaExpertises = "Select at least one area of expertise";
     }
-
-    if (userData.teachingApproaches.length === 0) {
+    if (
+      userData.userLearningStyles.length === 0 &&
+      decodedToken?.role === "Learner"
+    ) {
+      newErrors.userLearningStyles = "Select at least one learning style";
+    }
+    if (
+      userData.teachingApproaches.length === 0 &&
+      decodedToken?.role === "Mentor"
+    ) {
       newErrors.teachingApproaches = "Select at least one teaching approach";
     }
 
@@ -268,8 +329,21 @@ const EditUserPage = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error("Please fix the errors before saving.");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Scroll to the first field with an error
+      const errorFields = Object.keys(errors);
+      if (errorFields.length > 0) {
+        const firstErrorField = document.querySelector(
+          `#${CSS.escape(errorFields[0])}`
+        );
+        if (firstErrorField) {
+          firstErrorField.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        } else {
+          window.scrollTo(0, 0); // Fallback if element not found
+        }
+      }
       return;
     }
 
@@ -297,10 +371,10 @@ const EditUserPage = () => {
       });
 
       // Send update request
-      await userService.updateUserProfile(formData, userId!);
+      await userService.updateUserProfile(formData, id!);
 
       toast.success("Profile updated successfully!");
-      navigate(pathName.profile);
+      navigate(pathName.home);
     } catch (error) {
       console.error("Failed to update profile:", error);
       toast.error("Failed to update your profile. Please try again.");
@@ -310,14 +384,7 @@ const EditUserPage = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-orange-500 mx-auto" />
-          <p className="mt-4 text-gray-300">Loading your profile...</p>
-        </div>
-      </div>
-    );
+    return <LoadingOverlay />;
   }
   const handleToggleSelect = (
     label: string,
@@ -349,11 +416,11 @@ const EditUserPage = () => {
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
           <div className="mb-8">
             <button
-              onClick={() => navigate(pathName.profile)}
+              onClick={() => navigate(pathName.home)}
               className="flex items-center text-gray-300 mb-4 hover:text-white transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
-              <span>Back to Profile</span>
+              <span>Back</span>
             </button>
             <h1 className="text-2xl font-bold text-white">Edit Your Profile</h1>
           </div>
@@ -438,6 +505,7 @@ const EditUserPage = () => {
                     onChange={handleInputChange}
                     placeholder="Tell us about yourself..."
                     className="min-h-[100px] bg-gray-700 border-gray-600"
+                    errorMessage={errors.bio}
                   />
 
                   <InputCustom
@@ -448,6 +516,7 @@ const EditUserPage = () => {
                     onChange={handleInputChange}
                     placeholder="e.g. JavaScript, Python, Project Management"
                     className="bg-gray-700 border-gray-600"
+                    errorMessage={errors.professionalSkill}
                   />
 
                   <InputCustom
@@ -458,17 +527,23 @@ const EditUserPage = () => {
                     onChange={handleInputChange}
                     placeholder="e.g. 5 years in Software Development"
                     className="bg-gray-700 border-gray-600"
+                    errorMessage={errors.industryExperience}
                   />
                 </div>
               </div>
             </section>
-
+            {/* <div className="grid grid-cols-2 gap-4 w-full">
+              {rolesData.map((roleOpt) => (
+                <RoleSelectionCard
+                  key={roleOpt.name} // Role enum values are numbers, good for keys
+                  role={roleOpt}
+                  isSelected={role === roleOpt.name}
+                  onClick={() => onRoleChange(roleOpt.name)}
+                />
+              ))}
+            </div> */}
             {/* Areas of Expertise Section */}
-            <section>
-              <h2 className="text-xl font-semibold border-b border-gray-700 pb-2 mb-6">
-                Areas of Expertise
-              </h2>
-
+            <div>
               <MultiSelectButtons
                 label="Areas of Expertise"
                 options={areaExpertiseOptions.map((option) => option.label)}
@@ -488,65 +563,81 @@ const EditUserPage = () => {
                   )
                 }
                 isRequired
-                id="area-expertise"
+                id="userAreaExpertises"
               />
-            </section>
+              {errors.userAreaExpertises && (
+                <p className="text-sm text-red-400 mt-1">
+                  {errors.userAreaExpertises}
+                </p>
+              )}
+            </div>
 
-            {/* Teaching and Learning Preferences Section */}
-            <section>
-              <h2 className="text-xl font-semibold border-b border-gray-700 pb-2 mb-6">
-                Teaching & Learning Preferences
-              </h2>
-
-              <div className="space-y-6">
-                <MultiSelectButtons
-                  label="Teaching Approaches"
-                  options={teachingApproachOptions.map(
-                    (option) => option.label
+            <div className="space-y-6">
+              {decodedToken?.role === "Mentor" && (
+                <div>
+                  <MultiSelectButtons
+                    label="Teaching Approaches"
+                    options={teachingApproachOptions.map(
+                      (option) => option.label
+                    )}
+                    selectedOptions={userData.teachingApproaches
+                      .map((val) => {
+                        const option = teachingApproachOptions.find(
+                          (opt) => opt.value === val.toString()
+                        );
+                        return option?.label || "";
+                      })
+                      .filter(Boolean)}
+                    onToggleSelect={(label) =>
+                      handleToggleSelect(
+                        label,
+                        teachingApproachOptions,
+                        "teachingApproaches"
+                      )
+                    }
+                    isRequired
+                    id="teachingApproaches"
+                    gridColsClass="grid-cols-2 sm:grid-cols-4"
+                  />
+                  {errors.teachingApproaches && (
+                    <p className="text-sm text-red-400 mt-1">
+                      {errors.teachingApproaches}
+                    </p>
                   )}
-                  selectedOptions={userData.teachingApproaches
-                    .map((val) => {
-                      const option = teachingApproachOptions.find(
-                        (opt) => opt.value === val.toString()
-                      );
-                      return option?.label || "";
-                    })
-                    .filter(Boolean)}
-                  onToggleSelect={(label) =>
-                    handleToggleSelect(
-                      label,
-                      teachingApproachOptions,
-                      "teachingApproaches"
-                    )
-                  }
-                  isRequired
-                  id="teaching-approaches"
-                  gridColsClass="grid-cols-2 sm:grid-cols-4"
-                />
-
-                <MultiSelectButtons
-                  label="Learning Styles"
-                  options={learningStyleOptions.map((option) => option.label)}
-                  selectedOptions={userData.userLearningStyles
-                    .map((val) => {
-                      const option = learningStyleOptions.find(
-                        (opt) => opt.value === val.toString()
-                      );
-                      return option?.label || "";
-                    })
-                    .filter(Boolean)}
-                  onToggleSelect={(label) =>
-                    handleToggleSelect(
-                      label,
-                      learningStyleOptions,
-                      "userLearningStyles"
-                    )
-                  }
-                  isRequired
-                  id="user-learning-styles"
-                  gridColsClass="grid-cols-2 sm:grid-cols-4"
-                />
-
+                </div>
+              )}
+              {decodedToken?.role === "Learner" && (
+                <div>
+                  <MultiSelectButtons
+                    label="Learning Styles"
+                    options={learningStyleOptions.map((option) => option.label)}
+                    selectedOptions={userData.userLearningStyles
+                      .map((val) => {
+                        const option = learningStyleOptions.find(
+                          (opt) => opt.value === val.toString()
+                        );
+                        return option?.label || "";
+                      })
+                      .filter(Boolean)}
+                    onToggleSelect={(label) =>
+                      handleToggleSelect(
+                        label,
+                        learningStyleOptions,
+                        "userLearningStyles"
+                      )
+                    }
+                    isRequired
+                    id="userProfileAvailabilities"
+                    gridColsClass="grid-cols-2 sm:grid-cols-4"
+                  />
+                  {errors.userLearningStyles && (
+                    <p className="text-sm text-red-400 mt-1">
+                      {errors.userLearningStyles}
+                    </p>
+                  )}
+                </div>
+              )}
+              <div>
                 <MultiSelectButtons
                   label="Availability"
                   options={availabilityOptions.map((option) => option.label)}
@@ -566,160 +657,145 @@ const EditUserPage = () => {
                     )
                   }
                   isRequired
-                  id="availability"
+                  id="userProfileAvailabilities"
                   gridColsClass="grid-cols-2 sm:grid-cols-4"
                 />
-
-                <div>
-                  <label className="block text-base font-medium text-gray-300 mb-2">
-                    Communication Method <span className="text-red-500">*</span>
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {communicationMethodOptions.map((option) => (
-                      <div
-                        key={option.value}
-                        className={`
-                          border rounded-md p-3 cursor-pointer transition-colors
-                          ${
-                            userData.communicationMethod === option.value
-                              ? "bg-orange-500/20 border-orange-500 text-white"
-                              : "border-gray-600 hover:border-orange-400 text-gray-300 hover:text-white"
-                          }
-                        `}
-                        onClick={() =>
-                          handleSelectChange(
-                            "communicationMethod",
-                            option.value
-                          )
-                        }
-                      >
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            name="communicationMethod"
-                            checked={
-                              userData.communicationMethod === option.value
-                            }
-                            onChange={() => {}}
-                            className="h-4 w-4 text-orange-500 focus:ring-orange-500 border-gray-600"
-                          />
-                          <label className="ml-2 block text-sm font-medium">
-                            {option.label}
-                          </label>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                {errors.userProfileAvailabilities && (
+                  <p className="text-sm text-red-400 mt-1">
+                    {errors.userProfileAvailabilities}
+                  </p>
+                )}
               </div>
-            </section>
 
-            {/* Topics and Goals Section */}
-            <section>
-              <h2 className="text-xl font-semibold border-b border-gray-700 pb-2 mb-6">
-                Topics & Goals
-              </h2>
+              <div className="mb-4">
+                <label className="block text-base font-medium text-gray-300 mb-2">
+                  Preferred Communication Method{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <div
+                  className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+                  id="communicationMethod"
+                >
+                  {communicationMethodOptions.map((option) => (
+                    <button
+                      type="button"
+                      key={option.value}
+                      className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border font-medium transition-colors text-sm focus:outline-none focus:ring-2 ${
+                        userData.communicationMethod === option.value
+                          ? "bg-orange-500 text-white border-orange-500 ring-orange-500"
+                          : "bg-gray-700 border-gray-600 hover:bg-gray-650 text-gray-300 hover:text-white ring-gray-600 focus:ring-orange-500"
+                      }`}
+                      onClick={() =>
+                        handleSelectChange("communicationMethod", option.value)
+                      }
+                    >
+                      {/* If option has IconComponent property, uncomment the following line */}
+                      {/* {option.IconComponent && <option.IconComponent size={18} />} */}
+                      <span>{option.label}</span>
+                    </button>
+                  ))}
+                </div>
+                {errors.communicationMethod && (
+                  <p className="text-sm text-red-400 mt-1">
+                    {errors.communicationMethod}
+                  </p>
+                )}
+              </div>
+              {/* {preferredCommunicationError && <p className="text-sm text-red-500 mt-1">{preferredCommunicationError}</p>} */}
+            </div>
 
-              <div className="space-y-6">
-                <MultiSelectButtons
-                  label="Topics of Interest"
-                  options={topicOptions.map((option) => option.label)}
-                  selectedOptions={userData.userTopicOfInterests
-                    .map((val) => {
-                      const option = topicOptions.find(
-                        (opt) => opt.value === val.toString()
-                      );
-                      return option?.label || "";
-                    })
-                    .filter(Boolean)}
-                  onToggleSelect={(label) =>
-                    handleToggleSelect(
-                      label,
-                      topicOptions,
-                      "userTopicOfInterests"
-                    )
+            <div className="space-y-6">
+              <MultiSelectButtons
+                label="Topics of Interest"
+                options={topicOptions.map((option) => option.label)}
+                selectedOptions={userData.userTopicOfInterests
+                  .map((val) => {
+                    const option = topicOptions.find(
+                      (opt) => opt.value === val.toString()
+                    );
+                    return option?.label || "";
+                  })
+                  .filter(Boolean)}
+                onToggleSelect={(label) =>
+                  handleToggleSelect(
+                    label,
+                    topicOptions,
+                    "userTopicOfInterests"
+                  )
+                }
+                isRequired
+                id="availability"
+                gridColsClass="grid-cols-2 sm:grid-cols-4"
+              />
+              <InputCustom
+                label="Your Goals"
+                name="userGoal"
+                type="textarea"
+                value={userData.userGoal || ""}
+                onChange={handleInputChange}
+                placeholder="What are you hoping to achieve?"
+                className="min-h-[100px] bg-gray-700 border-gray-600"
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Dropdown
+                  label="Session Frequency"
+                  name="sessionFrequencyId"
+                  options={sessionFrequencyOptions}
+                  value={userData.sessionFrequencyId.toString()}
+                  onChange={(value) =>
+                    handleSelectChange("sessionFrequencyId", value)
                   }
                   isRequired
-                  id="availability"
-                  gridColsClass="grid-cols-2 sm:grid-cols-4"
-                />
-                <InputCustom
-                  label="Your Goals"
-                  name="userGoal"
-                  type="textarea"
-                  value={userData.userGoal || ""}
-                  onChange={handleInputChange}
-                  placeholder="What are you hoping to achieve?"
-                  className="min-h-[100px] bg-gray-700 border-gray-600"
+                  className="bg-gray-700 border-gray-600"
                 />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Dropdown
-                    label="Session Frequency"
-                    name="sessionFrequencyId"
-                    options={sessionFrequencyOptions}
-                    value={userData.sessionFrequencyId.toString()}
-                    onChange={(value) =>
-                      handleSelectChange("sessionFrequencyId", value)
-                    }
-                    isRequired
-                    className="bg-gray-700 border-gray-600"
-                  />
-
-                  <Dropdown
-                    label="Session Duration"
-                    name="sessionDurationId"
-                    options={sessionDurationOptions}
-                    value={userData.sessionDurationId.toString()}
-                    onChange={(value) =>
-                      handleSelectChange("sessionDurationId", value)
-                    }
-                    isRequired
-                    className="bg-gray-700 border-gray-600"
-                  />
-                </div>
+                <Dropdown
+                  label="Session Duration"
+                  name="sessionDurationId"
+                  options={sessionDurationOptions}
+                  value={userData.sessionDurationId.toString()}
+                  onChange={(value) =>
+                    handleSelectChange("sessionDurationId", value)
+                  }
+                  isRequired
+                  className="bg-gray-700 border-gray-600"
+                />
               </div>
-            </section>
+            </div>
 
-            {/* Privacy and Communication Section */}
-            <section>
-              <h2 className="text-xl font-semibold border-b border-gray-700 pb-2 mb-6">
-                Privacy & Communication
-              </h2>
+            <div className="space-y-5 pt-3">
+              <InputCheckbox
+                label="Make profile private (only visible to connections)"
+                name="privacyProfile"
+                checked={userData.privacyProfile}
+                onChange={handleCheckboxChange}
+              />
+              <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
+                Only approved connections can view your full profile details
+              </p>
 
-              <div className="space-y-5 pt-3">
-                <InputCheckbox
-                  label="Make profile private (only visible to connections)"
-                  name="privacyProfile"
-                  checked={userData.privacyProfile}
-                  onChange={handleCheckboxChange}
-                />
-                <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
-                  Only approved connections can view your full profile details
-                </p>
+              <InputCheckbox
+                label="Allow others to message me"
+                name="messagePermission"
+                checked={userData.messagePermission}
+                onChange={handleCheckboxChange}
+              />
+              <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
+                Let others initiate contact with you through messages
+              </p>
 
-                <InputCheckbox
-                  label="Allow others to message me"
-                  name="messagePermission"
-                  checked={userData.messagePermission}
-                  onChange={handleCheckboxChange}
-                />
-                <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
-                  Let others initiate contact with you through messages
-                </p>
-
-                <InputCheckbox
-                  label="Enable notifications"
-                  name="notificationsEnabled"
-                  checked={userData.notificationsEnabled}
-                  onChange={handleCheckboxChange}
-                />
-                <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
-                  Get email and in-app notifications for messages, session
-                  requests, and updates
-                </p>
-              </div>
-            </section>
+              <InputCheckbox
+                label="Enable notifications"
+                name="notificationsEnabled"
+                checked={userData.notificationsEnabled}
+                onChange={handleCheckboxChange}
+              />
+              <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
+                Get email and in-app notifications for messages, session
+                requests, and updates
+              </p>
+            </div>
 
             {/* Form Actions */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-700">

@@ -63,3 +63,24 @@ export interface UserUpdateRequest {
   communicationMethod: number;
   userAreaExpertises: number[];
 }
+export interface UserViewResponse {
+  id: string;
+  photoData?: string;
+  role: EnumType;
+  fullName: string;
+  bio?: string | null;
+  professionalSkill: string | null;
+  industryExperience: string | null;
+  teachingApproaches: EnumType[];
+  profileAvailabilities: EnumType[];
+  topicOfInterests: EnumType[];
+  learningStyles: EnumType[];
+  userGoal: string | null;
+  sessionFrequency: EnumType;
+  sessionDuration: EnumType;
+  privacyProfile: boolean;
+  messagePermission: boolean;
+  notificationsEnabled: boolean;
+  communicationMethod: EnumType;
+  areaOfExpertises: EnumType[];
+}
