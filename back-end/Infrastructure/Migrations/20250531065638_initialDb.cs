@@ -8,11 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-<<<<<<<< HEAD:back-end/Infrastructure/Migrations/20250531062535_initialDb.cs
     public partial class initialDb : Migration
-========
-    public partial class Init : Migration
->>>>>>>> development:back-end/Infrastructure/Migrations/20250530105036_Init.cs
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
