@@ -7,11 +7,10 @@ namespace Infrastructure.Data.Seeding
         public static List<SessionBooking> SeedSessionBookings()
         {
             var mentor1Id = Guid.Parse("03EA823D-D625-448D-901D-411C5028B769");
-            var mentor2Id = Guid.Parse("862B702E-2C59-46F7-8C06-5349D769E237");
             var learner1Id = Guid.Parse("F052ECF6-7646-4FA6-8DEB-3E991A1E4E16");
 
             var slotFromMentor1 = Guid.Parse("10000000-0000-0000-0000-000000000001");
-            var slotFromMentor2 = Guid.Parse("10000000-0000-0000-0000-000000000002");
+            var slot2FromMentor1 = Guid.Parse("10000000-0000-0000-0000-000000000002");
             int pendingStatusId = 1;
             int onlineVideoTypeId = 3;
 
@@ -32,8 +31,8 @@ namespace Infrastructure.Data.Seeding
                 {
                     Id = Guid.Parse("305d81fd-ad60-4a28-8262-dea62b7aa589"),
                     LearnerId = learner1Id,
-                    MentorId = mentor2Id,
-                    MentorTimeAvailableId = slotFromMentor2,
+                    MentorId = mentor1Id,
+                    MentorTimeAvailableId = slot2FromMentor1,
                     StatusId = pendingStatusId,
                     SessionTypeId = onlineVideoTypeId,
                     LearnerMessage = "Please help me review my CV for a junior developer position.",

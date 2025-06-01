@@ -5,5 +5,6 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
 {
     public interface ISessionBookingRepository : IBaseRepository<SessionBooking>
     {
+        Task<bool> ExistsBookingForSlotAsync(Guid learnerId, Guid mentorId, Guid availabilitySlotId);
     }
 }

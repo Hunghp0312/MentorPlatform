@@ -6,6 +6,9 @@ namespace ApplicationCore.Services.ServiceInterfaces
 {
     public interface ISessionBookingService
     {
+        Task<OperationResult<CreatedBookingResponseDto>> CreateNewBookingAsync(Guid learnerId, CreateBookingRequestDto bookingRequest);
+
         Task<OperationResult<SessionStatusResponse>> UpdateSessionStatus(SessionUpdateStatusRequest request);
+
     }
 }
