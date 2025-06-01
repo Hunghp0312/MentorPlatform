@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Mentors;
 using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.Services.ServiceInterfaces;
@@ -90,6 +91,16 @@ namespace Presentation.Controllers
         {
             var result = await _mentorService.GettMentoApplicationDetailAsync(mentorApplicationId);
             return ToActionResult(result);
+        }
+
+        [HttpGet("available-mentors")]
+        [ProducesResponseType(typeof(PagedResult<MentorCardDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAvailableMentors(
+      [FromQuery] AvailableMentorQueryParameters queryParameters)
+        {
+            var pagedMentorCards = await _mentorService.GetAvailableMentorsAsync(queryParameters);
+
+            return ToActionResult(pagedMentorCards);
         }
     }
 }

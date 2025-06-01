@@ -1,10 +1,10 @@
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Users;
 using ApplicationCore.DTOs.Responses.Users;
 using ApplicationCore.Services.ServiceInterfaces;
-using Microsoft.AspNetCore.Mvc;
-using ApplicationCore.DTOs.QueryParameters;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace Presentation.Controllers
