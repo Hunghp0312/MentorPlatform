@@ -37,7 +37,6 @@ public class AvailabilityService : IAvailabilityService
             Days = days.Select(day => day.MapToDayDto()).ToList(),
         };
 
-        // Ensure all 7 days are present
         for (int i = 0; i < 7; i++)
         {
             var currentDate = weekStartDate.AddDays(i);

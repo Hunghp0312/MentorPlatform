@@ -1,5 +1,4 @@
 using ApplicationCore.DTOs.Requests.Availability;
-using ApplicationCore.DTOs.Responses.Availability;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
@@ -41,7 +40,6 @@ public class MentorDayAvailableRepository
     )
     {
         var mentorId = request.MentorId;
-        // Convert requestedDates to List<DateOnly> for proper comparison
         var requestedDates = request.Days.Select(d => DateOnly.Parse(d.Date)).ToList();
 
         var days = await _dbSet
