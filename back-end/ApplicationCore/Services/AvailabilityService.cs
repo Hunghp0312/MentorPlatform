@@ -1,11 +1,18 @@
 using ApplicationCore.Common;
+using ApplicationCore.Constants;
 using ApplicationCore.DTOs.Requests.Availability;
 using ApplicationCore.DTOs.Responses.Availability;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
+using Infrastructure.BaseRepository;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace ApplicationCore.Services;
 
@@ -13,11 +20,19 @@ public class AvailabilityService : IAvailabilityService
 {
     private readonly IMentorDayAvailableRepository _dayRepo;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ISessionBookingRepository _sessionBookingRepository;
+    private readonly IBaseRepository<MentorTimeAvailable> _timeSlotRepository;
 
-    public AvailabilityService(IMentorDayAvailableRepository dayRepo, IUnitOfWork unitOfWork)
+    public AvailabilityService(
+        IMentorDayAvailableRepository dayRepo,
+        IUnitOfWork unitOfWork,
+        ISessionBookingRepository sessionBookingRepository,
+        IBaseRepository<MentorTimeAvailable> timeSlotRepository)
     {
         _dayRepo = dayRepo;
         _unitOfWork = unitOfWork;
+        _sessionBookingRepository = sessionBookingRepository;
+        _timeSlotRepository = timeSlotRepository;
     }
 
     public async Task<OperationResult<WeekAvailabilityResponseDto>> GetWeekAvailabilityAsync(Guid mentorId, DateOnly weekStartDate)
@@ -120,6 +135,142 @@ public class AvailabilityService : IAvailabilityService
         {
             await _unitOfWork.RollbackAsync();
             return OperationResult<WeekAvailabilityResponseDto>.Fail($"Failed to save availability: {ex.Message}");
+        }
+    }
+
+    public async Task<OperationResult<ScheduleConfigurationResponseDto>> UpdateScheduleConfigurationAsync(Guid mentorId, UpdateScheduleConfigurationRequestDto requestDto)
+    {
+        var validationErrors = new List<string>();
+
+        TimeOnly workDayStartTime = default;
+        TimeOnly workDayEndTime = default;
+
+        if (string.IsNullOrWhiteSpace(requestDto.WorkDayStartTime))
+        {
+            validationErrors.Add(ValidationMessages.WorkDayStartTimeRequired);
+        }
+        else if (!TimeOnly.TryParse(requestDto.WorkDayStartTime, out workDayStartTime))
+        {
+            validationErrors.Add("Invalid format for WorkDayStartTime. Use HH:mm format."); // Consider adding to ValidationMessages
+        }
+
+        if (string.IsNullOrWhiteSpace(requestDto.WorkDayEndTime))
+        {
+            validationErrors.Add(ValidationMessages.WorkDayEndTimeRequired);
+        }
+        else if (!TimeOnly.TryParse(requestDto.WorkDayEndTime, out workDayEndTime))
+        {
+            validationErrors.Add("Invalid format for WorkDayEndTime. Use HH:mm format."); // Consider adding to ValidationMessages
+        }
+
+        if (requestDto.SessionDurationInMinutes <= 0)
+        {
+            validationErrors.Add(ValidationMessages.SessionDurationRequired); // Or more specific: "Session duration must be a positive number of minutes."
+        }
+
+        if (requestDto.BufferTimeInMinutes < 0)
+        {
+            validationErrors.Add(ValidationMessages.BufferTimeRequired); // Consider adding to ValidationMessages
+        }
+
+        // Perform this check only if both times were parsed successfully
+        if (workDayStartTime != default && workDayEndTime != default && workDayEndTime <= workDayStartTime)
+        {
+            validationErrors.Add(ValidationMessages.EndTimeAfterStartTime);
+        }
+
+        if (validationErrors.Any())
+        {
+            return OperationResult<ScheduleConfigurationResponseDto>.BadRequest(string.Join(" ", validationErrors));
+        }
+
+        var sessionDuration = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(requestDto.SessionDurationInMinutes));
+        var bufferTime = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(requestDto.BufferTimeInMinutes));
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var hasFutureBookings = await _sessionBookingRepository.AnyAsync(sb =>
+            sb.MentorTimeAvailable.MentorDayAvailable.MentorId == mentorId &&
+            sb.MentorTimeAvailable.MentorDayAvailable.Day >= today &&
+            (sb.StatusId == 1 || sb.StatusId == 2)); // 1 for Confirmed, 2 for Pending
+
+        if (hasFutureBookings)
+        {
+            return OperationResult<ScheduleConfigurationResponseDto>.Conflict(ValidationMessages.CONFLICT_EXISTING_BOOKED_SESSIONS);
+        }
+
+        try
+        {
+            await _unitOfWork.BeginTransactionAsync();
+
+            var effectiveStartDate = today;
+            var effectiveEndDate = today.AddYears(1); // Define the range for updates, e.g., next year
+
+            var updatedDays = await _dayRepo.UpdateScheduleSettingsAndGetUpdatedDaysAsync(
+                mentorId,
+                effectiveStartDate,
+                effectiveEndDate,
+                workDayStartTime,
+                workDayEndTime,
+                sessionDuration,
+                bufferTime
+            );
+
+            foreach (var day in updatedDays)
+            {
+                var existingSlots = day.MentorTimeAvailables.ToList();
+                if (existingSlots.Any())
+                {
+                    _timeSlotRepository.DeleteRange(existingSlots);
+                    day.MentorTimeAvailables.Clear();
+                }
+
+                var currentTime = day.StartWorkTime;
+                while (currentTime < day.EndWorkTime)
+                {
+                    var slotEnd = currentTime.Add(day.SessionDuration.ToTimeSpan());
+                    if (slotEnd > day.EndWorkTime) break;
+
+                    var newSlot = new MentorTimeAvailable
+                    {
+                        Id = Guid.NewGuid(),
+                        DayId = day.Id,
+                        Start = currentTime,
+                        End = slotEnd,
+                        StatusId = 1, // 1 for Available (SessionAvailabilityStatus.Available)
+                    };
+                    day.MentorTimeAvailables.Add(newSlot);
+                    currentTime = slotEnd.Add(day.BufferTime.ToTimeSpan());
+                }
+                _dayRepo.Update(day);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitAsync();
+
+            var responseDto = new ScheduleConfigurationResponseDto
+            {
+                MentorId = mentorId,
+                WorkDayStartTime = workDayStartTime.ToString("HH:mm"),
+                WorkDayEndTime = workDayEndTime.ToString("HH:mm"),
+                SessionDurationInMinutes = requestDto.SessionDurationInMinutes,
+                BufferTimeInMinutes = requestDto.BufferTimeInMinutes,
+                LastUpdatedAt = DateTime.UtcNow
+            };
+            // The OperationResult.Ok method does not take a message. 
+            // The ValidationMessages.SCHEDULE_CONFIG_UPDATE_SUCCESS can be used by the controller/client if needed.
+            return OperationResult<ScheduleConfigurationResponseDto>.Ok(responseDto);
+        }
+        catch (DbUpdateException ex) // More specific exception
+        {
+            await _unitOfWork.RollbackAsync();
+            // Log ex.InnerException or ex.ToString()
+            return OperationResult<ScheduleConfigurationResponseDto>.Fail($"Database error while updating schedule: {ex.Message}", HttpStatusCode.InternalServerError);
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackAsync();
+            // Log ex.ToString()
+            return OperationResult<ScheduleConfigurationResponseDto>.Fail($"An error occurred while updating schedule configuration: {ex.Message}", HttpStatusCode.InternalServerError);
         }
     }
 

@@ -19,13 +19,6 @@ public class AvailabilityController : BaseController
     {
         _availabilityService = availabilityService;
     }
-
-    /// <summary>
-    /// Get weekly availability for mentor.
-    /// </summary>
-    /// <param name="mentorId">Mentor Id</param>
-    /// <param name="weekStartDate">Start date of week (Sunday) ISO format yyyy-MM-dd</param>
-    /// <returns></returns>
     [HttpGet("week")]
     [ProducesResponseType(typeof(WeekAvailabilityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -46,6 +39,22 @@ public class AvailabilityController : BaseController
     public async Task<IActionResult> SaveWeekAvailability([FromBody] SaveWeekAvailabilityRequestDto request)
     {
         var result = await _availabilityService.SaveWeekAvailabilityAsync(request);
+        return ToActionResult(result);
+    }
+
+    [HttpPut("schedule-configuration/{mentorId}")]
+    [ProducesResponseType(typeof(ScheduleConfigurationResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateScheduleConfiguration(Guid mentorId, [FromBody] UpdateScheduleConfigurationRequestDto requestDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        var result = await _availabilityService.UpdateScheduleConfigurationAsync(mentorId, requestDto);
         return ToActionResult(result);
     }
 }
