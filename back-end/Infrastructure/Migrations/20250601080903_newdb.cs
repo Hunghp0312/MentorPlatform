@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDb : Migration
+    public partial class newdb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -1119,9 +1119,7 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MentorApplication_AdminReviewerId",
                 table: "MentorApplication",
-                column: "AdminReviewerId",
-                unique: true,
-                filter: "[AdminReviewerId] IS NOT NULL");
+                column: "AdminReviewerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MentorApplication_ApplicationStatusId",

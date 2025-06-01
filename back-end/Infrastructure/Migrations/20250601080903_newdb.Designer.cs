@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250531085410_InitialDb")]
-    partial class InitialDb
+    [Migration("20250601080903_newdb")]
+    partial class newdb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1059,9 +1059,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("ApplicantId");
 
-                    b.HasIndex("AdminReviewerId")
-                        .IsUnique()
-                        .HasFilter("[AdminReviewerId] IS NOT NULL");
+                    b.HasIndex("AdminReviewerId");
 
                     b.HasIndex("ApplicationStatusId");
 
@@ -2052,8 +2050,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
-                        .WithOne("ReviewedMentorApplication")
-                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "AdminReviewerId")
+                        .WithMany("ReviewedMentorApplications")
+                        .HasForeignKey("AdminReviewerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Infrastructure.Entities.User", "Applicant")
@@ -2408,8 +2406,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("MentoredCourses");
 
-                    b.Navigation("ReviewedMentorApplication")
-                        .IsRequired();
+                    b.Navigation("ReviewedMentorApplications");
 
                     b.Navigation("SubmittedMentorApplication")
                         .IsRequired();
