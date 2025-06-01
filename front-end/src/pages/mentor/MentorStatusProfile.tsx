@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { CirclePlus, CircleMinus, Eye } from "lucide-react";
+import { CirclePlus, CircleMinus, Eye, Pencil } from "lucide-react";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import { mentorService } from "../../services/mentorapplication.service";
 import { userService } from "../../services/user.service";
@@ -18,6 +18,7 @@ import EducationAddDialog from "../../components/dialog/Applications/EducationDi
 import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkExperienceDialog";
 import CertificationAddDialog from "../../components/dialog/Applications/CertificationDialog";
 import { EnumType } from "../../types/commonType";
+import { toast } from "react-toastify";
 
 interface MentorStatusType {
   mentorEducation: MentorEducation[];
@@ -83,6 +84,15 @@ const MentorStatusProfile = () => {
     fileType: string;
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editEducationIndex, setEditEducationIndex] = useState<number | null>(
+    null
+  );
+  const [editWorkExperienceIndex, setEditWorkExperienceIndex] = useState<
+    number | null
+  >(null);
+  const [editCertificationIndex, setEditCertificationIndex] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     const fetchUserData = async (): Promise<UserApplication | null> => {
@@ -179,7 +189,7 @@ const MentorStatusProfile = () => {
         setSaveState(emptyState);
         setMentorData((prev) => ({ ...prev, ...emptyState }));
         setEditedMentor((prev) => ({ ...prev, ...emptyState }));
-        setError("Failed to load application data");
+        toast.error("Failed to load application data");
       } finally {
         setLoading(false);
       }
@@ -222,19 +232,12 @@ const MentorStatusProfile = () => {
       const maxFileSize = 5 * 1024 * 1024;
 
       if (!allowedFileTypes.includes(file.type)) {
-        setError("Chỉ hỗ trợ các định dạng PDF, JPEG, hoặc PNG.");
-        alert("Error: Only support PDF, JPEG or PNG.");
+        toast.error("Only support PDF, JPEG, or PNG.");
         return;
       }
 
       if (file.size > maxFileSize) {
-        setError("Kích thước file không được vượt quá 5MB.");
-        alert("Error: File size must not exceed 5MB.");
-        return;
-      }
-
-      if (mentorData.mentorDocuments.length >= 5) {
-        setError("Bạn chỉ có thể upload tối đa 5 file.");
+        toast.error("Error: File size must not exceed 5MB.");
         return;
       }
 
@@ -250,6 +253,7 @@ const MentorStatusProfile = () => {
         },
       };
 
+      toast.success("File uploaded successfully.");
       setSelectedFiles((prev) => [...prev, file]);
       setEditedMentor((prev) => ({
         ...prev,
@@ -285,7 +289,7 @@ const MentorStatusProfile = () => {
         setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
       } catch (error) {
         console.error("Error deleting file:", error);
-        setError("Lỗi khi xóa tài liệu. Vui lòng thử lại.");
+        toast.error("Error: Failed to delete file.");
       }
     } else {
       setEditedMentor((prev) => ({
@@ -310,32 +314,110 @@ const MentorStatusProfile = () => {
       newEducation.fieldOfStudy &&
       newEducation.graduationYear
     ) {
-      setEditedMentor((prev) => ({
-        ...prev,
-        mentorEducation: [...(prev.mentorEducation || []), newEducation],
-      }));
-      setMentorData((prev) => ({
-        ...prev,
-        mentorEducation: [...(prev.mentorEducation || []), newEducation],
-      }));
+      setEditedMentor((prev) => {
+        const updatedEducation = [...(prev.mentorEducation || [])];
+        if (editEducationIndex !== null) {
+          updatedEducation[editEducationIndex] = newEducation;
+        } else {
+          updatedEducation.push(newEducation);
+        }
+        return { ...prev, mentorEducation: updatedEducation };
+      });
+      setMentorData((prev) => {
+        const updatedEducation = [...(prev.mentorEducation || [])];
+        if (editEducationIndex !== null) {
+          updatedEducation[editEducationIndex] = newEducation;
+        } else {
+          updatedEducation.push(newEducation);
+        }
+        return { ...prev, mentorEducation: updatedEducation };
+      });
+      toast.success("Education Add/Edit successfully.");
       setNewEducation({});
+      setEditEducationIndex(null);
       setOpenEducationDialog(false);
+    }
+  };
+  const handleAddWorkExperience = async (
+    newWorkExperience: MentorWorkExperience
+  ) => {
+    if (
+      newWorkExperience.companyName &&
+      newWorkExperience.position &&
+      newWorkExperience.startDate
+    ) {
+      setEditedMentor((prev) => {
+        const updatedWorkExperience = [...(prev.mentorWorkExperience || [])];
+        if (editWorkExperienceIndex !== null) {
+          updatedWorkExperience[editWorkExperienceIndex] = newWorkExperience;
+        } else {
+          updatedWorkExperience.push(newWorkExperience);
+        }
+        return { ...prev, mentorWorkExperience: updatedWorkExperience };
+      });
+      setMentorData((prev) => {
+        const updatedWorkExperience = [...(prev.mentorWorkExperience || [])];
+        if (editWorkExperienceIndex !== null) {
+          updatedWorkExperience[editWorkExperienceIndex] = newWorkExperience;
+        } else {
+          updatedWorkExperience.push(newWorkExperience);
+        }
+        return { ...prev, mentorWorkExperience: updatedWorkExperience };
+      });
+      toast.success("Work Experience Add/Edit successfully.");
+      setNewWorkExperience({});
+      setEditWorkExperienceIndex(null);
+      setOpenWorkExperienceDialog(false);
+    }
+  };
+  const handleAddCertification = async (
+    newCertification: MentorCertification
+  ) => {
+    if (
+      newCertification.certificationName &&
+      newCertification.issuingOrganization
+    ) {
+      setEditedMentor((prev) => {
+        const updatedCertifications = [...(prev.certifications || [])];
+        if (editCertificationIndex !== null) {
+          updatedCertifications[editCertificationIndex] = newCertification;
+        } else {
+          updatedCertifications.push(newCertification);
+        }
+        return { ...prev, certifications: updatedCertifications };
+      });
+      setMentorData((prev) => {
+        const updatedCertifications = [...(prev.certifications || [])];
+        if (editCertificationIndex !== null) {
+          updatedCertifications[editCertificationIndex] = newCertification;
+        } else {
+          updatedCertifications.push(newCertification);
+        }
+        return { ...prev, certifications: updatedCertifications };
+      });
+      toast.success("Certification Add/Edit successfully.");
+      setNewCertification({});
+      setEditCertificationIndex(null);
+      setOpenCertificationDialog(false);
     }
   };
 
   const handleOnEducationClose = () => {
     setOpenEducationDialog(false);
     setNewEducation({});
+    setEditEducationIndex(null);
   };
 
   const handleOnWorkExperienceClose = () => {
     setOpenWorkExperienceDialog(false);
     setNewWorkExperience({});
+    setEditWorkExperienceIndex(null);
   };
 
   const handleOnCertificationClose = () => {
     setOpenCertificationDialog(false);
     setNewCertification({});
+    setEditCertificationIndex(null);
   };
 
   const handleViewDocument = (fileContent: string, fileType: string) => {
@@ -345,79 +427,32 @@ const MentorStatusProfile = () => {
     });
     if (!fileContent) {
       console.error("File content is missing or empty");
-      setError("Không thể mở tài liệu: Không có nội dung tài liệu.");
+      toast.error("Error: File content is missing or empty.");
       return;
     }
     if (!fileType) {
       console.error("File type is missing");
-      setError("Không thể mở tài liệu: Thiếu loại tệp.");
+      toast.error("Error: File type is missing.");
       return;
     }
     try {
       const isValidBase64 = /^[A-Za-z0-9+/=]+$/.test(fileContent);
       if (!isValidBase64) {
         console.error("Invalid Base64 string detected");
-        setError("Không thể mở tài liệu: Dữ liệu Base64 không hợp lệ.");
+        toast.error("Error: Invalid Base64 string detected.");
         return;
       }
       setDocumentData({ fileContent, fileType });
       setOpenDocumentViewer(true);
     } catch (error) {
       console.error("Error in handleViewDocument:", error);
-      setError("Lỗi khi mở tài liệu: Vui lòng thử lại.");
+      toast.error("Error in handle view document.");
     }
   };
 
   const handleCloseDocumentViewer = () => {
     setOpenDocumentViewer(false);
     setDocumentData(null);
-  };
-
-  const handleAddWorkExperience = async (
-    newWorkExperience: MentorWorkExperience
-  ) => {
-    if (
-      newWorkExperience.companyName &&
-      newWorkExperience.position &&
-      newWorkExperience.startDate
-    ) {
-      setEditedMentor((prev) => ({
-        ...prev,
-        mentorWorkExperience: [
-          ...(prev.mentorWorkExperience || []),
-          newWorkExperience,
-        ],
-      }));
-      setMentorData((prev) => ({
-        ...prev,
-        mentorWorkExperience: [
-          ...(prev.mentorWorkExperience || []),
-          newWorkExperience,
-        ],
-      }));
-      setNewWorkExperience({});
-      setOpenWorkExperienceDialog(false);
-    }
-  };
-
-  const handleAddCertification = async (
-    newCertification: MentorCertification
-  ) => {
-    if (
-      newCertification.certificationName &&
-      newCertification.issuingOrganization
-    ) {
-      setEditedMentor((prev) => ({
-        ...prev,
-        certifications: [...(prev.certifications || []), newCertification],
-      }));
-      setMentorData((prev) => ({
-        ...prev,
-        certifications: [...(prev.certifications || []), newCertification],
-      }));
-      setNewCertification({});
-      setOpenCertificationDialog(false);
-    }
   };
 
   const handleRemoveEducation = (index: number) => {
@@ -459,7 +494,7 @@ const MentorStatusProfile = () => {
 
   const handleSubmitApplication = async () => {
     if (!editedMentor || editedMentor.mentorDocuments.length === 0) {
-      setError("Vui lòng chọn ít nhất một tài liệu.");
+      toast.error("Error: Please select at least one document.");
       return;
     }
 
@@ -483,8 +518,7 @@ const MentorStatusProfile = () => {
         for (const file of selectedFiles) {
           await mentorService.uploadFile(file);
         }
-
-        alert("Đã gửi đơn đăng ký thành công!");
+        toast.success("Upload application successfully.");
       } else if (mentorData.status === "Request Info") {
         await mentorService.updateMyApplication(application);
 
@@ -494,8 +528,7 @@ const MentorStatusProfile = () => {
         for (const file of newFiles) {
           await mentorService.uploadFile(file);
         }
-
-        alert("Đã cập nhật đơn đăng ký thành công!");
+        toast.success("Update application successfully.");
       }
 
       setIsEditing(false);
@@ -529,7 +562,7 @@ const MentorStatusProfile = () => {
       setEditedMentor({ ...mappedData });
     } catch (error) {
       console.error("Error submitting application:", error);
-      setError("Lỗi khi gửi đơn đăng ký. Vui lòng thử lại.");
+      toast.error("Error submitting application");
       throw error;
     }
   };
@@ -557,7 +590,7 @@ const MentorStatusProfile = () => {
       setError(null);
     }
   };
-  //
+
   const handleCancel = () => {
     const restoredData = {
       ...mentorData,
@@ -589,7 +622,7 @@ const MentorStatusProfile = () => {
     <div className="space-y-4">
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
-          Education
+          Education(s)
           {isEditing && (
             <button
               id="open-education-dialog-icon"
@@ -615,7 +648,7 @@ const MentorStatusProfile = () => {
                     <h5 className="font-medium break-words overflow-wrap-anywhere">
                       {education.fieldOfStudy}
                     </h5>
-                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
+                    <p className="text-[12px] text-gray-400">
                       {education.institutionName}
                     </p>
                   </div>
@@ -624,15 +657,30 @@ const MentorStatusProfile = () => {
                       {education.graduationYear ?? "N/A"}
                     </span>
                     {isEditing && (
-                      <button
-                        id={`remove-education-icon-${index}`}
-                        onClick={() => handleRemoveEducation(index)}
-                      >
-                        <CircleMinus
-                          size={20}
-                          className="text-red-500 hover:text-red-600"
-                        />
-                      </button>
+                      <>
+                        <button
+                          id={`edit-education-icon-${index}`}
+                          onClick={() => {
+                            setEditEducationIndex(index);
+                            setNewEducation(education);
+                            setOpenEducationDialog(true);
+                          }}
+                        >
+                          <Pencil
+                            size={20}
+                            className="text-blue-500 hover:text-blue-600"
+                          />
+                        </button>
+                        <button
+                          id={`remove-education-icon-${index}`}
+                          onClick={() => handleRemoveEducation(index)}
+                        >
+                          <CircleMinus
+                            size={20}
+                            className="text-red-500 hover:text-red-600"
+                          />
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -645,7 +693,7 @@ const MentorStatusProfile = () => {
       </div>
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
-          Work Experience
+          Work Experience(s)
           {isEditing && (
             <button
               id="open-work-experience-dialog-icon"
@@ -671,14 +719,14 @@ const MentorStatusProfile = () => {
                     <h5 className="font-medium break-words overflow-wrap-anywhere">
                       {experience.position}
                     </h5>
-                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
+                    <p className="text-[12px] text-gray-400">
                       {experience.companyName}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">
                       {new Date(experience.startDate).toISOString().slice(5, 7)}
-                      /{new Date(experience.startDate).getFullYear()}–
+                      /{new Date(experience.startDate).getFullYear()} –{" "}
                       {experience.endDate
                         ? `${new Date(experience.endDate)
                             .toISOString()
@@ -688,15 +736,44 @@ const MentorStatusProfile = () => {
                         : "Present"}
                     </span>
                     {isEditing && (
-                      <button
-                        id={`remove-workexperience-icon-${index}`}
-                        onClick={() => handleRemoveWorkExperience(index)}
-                      >
-                        <CircleMinus
-                          size={20}
-                          className="text-red-500 hover:text-red-600"
-                        />
-                      </button>
+                      <>
+                        <button
+                          id={`edit-workexperience-icon-${index}`}
+                          onClick={() => {
+                            setEditWorkExperienceIndex(index);
+                            setNewWorkExperience({
+                              ...experience,
+                              startDate: `${new Date(experience.startDate)
+                                .toISOString()
+                                .slice(5, 7)}/${new Date(
+                                experience.startDate
+                              ).getFullYear()}`,
+                              endDate: experience.endDate
+                                ? `${new Date(experience.endDate)
+                                    .toISOString()
+                                    .slice(5, 7)}/${new Date(
+                                    experience.endDate
+                                  ).getFullYear()}`
+                                : "",
+                            });
+                            setOpenWorkExperienceDialog(true);
+                          }}
+                        >
+                          <Pencil
+                            size={20}
+                            className="text-blue-500 hover:text-blue-600"
+                          />
+                        </button>
+                        <button
+                          id={`remove-workexperience-icon-${index}`}
+                          onClick={() => handleRemoveWorkExperience(index)}
+                        >
+                          <CircleMinus
+                            size={20}
+                            className="text-red-500 hover:text-red-600"
+                          />
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -711,7 +788,7 @@ const MentorStatusProfile = () => {
       </div>
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
-          Certifications
+          Certification(s)
           {isEditing && (
             <button
               id="open-certification-dialog-icon"
@@ -737,21 +814,36 @@ const MentorStatusProfile = () => {
                     <h5 className="font-medium break-words overflow-wrap-anywhere">
                       {certificate.certificationName}
                     </h5>
-                    <p className="text-[12px] text-gray-400 max-w-[70%] break-words overflow-wrap-anywhere">
+                    <p className="text-[12px] text-gray-400">
                       {certificate.issuingOrganization}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     {isEditing && (
-                      <button
-                        id={`remove-certification-icon-${index}`}
-                        onClick={() => handleRemoveCertification(index)}
-                      >
-                        <CircleMinus
-                          size={20}
-                          className="text-red-500 hover:text-red-600"
-                        />
-                      </button>
+                      <>
+                        <button
+                          id={`edit-certification-icon-${index}`}
+                          onClick={() => {
+                            setEditCertificationIndex(index);
+                            setNewCertification(certificate);
+                            setOpenCertificationDialog(true);
+                          }}
+                        >
+                          <Pencil
+                            size={20}
+                            className="text-blue-500 hover:text-blue-600"
+                          />
+                        </button>
+                        <button
+                          id={`remove-certification-icon-${index}`}
+                          onClick={() => handleRemoveCertification(index)}
+                        >
+                          <CircleMinus
+                            size={20}
+                            className="text-red-500 hover:text-red-600"
+                          />
+                        </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -795,11 +887,11 @@ const MentorStatusProfile = () => {
                 <div className="flex flex-col">
                   <h5 className="font-medium">{document.fileName}</h5>
                   <p className="text-[12px] text-gray-400">
-                    {document.fileType}
+                    {document.fileType.split("/")[1] || document.fileType}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  {mentorData.status !== "" && (
+                  {mentorData.status !== "" && document.id && (
                     <button
                       id={`view-document-icon-${index}`}
                       onClick={() =>
@@ -888,11 +980,12 @@ const MentorStatusProfile = () => {
                         ? "bg-green-500"
                         : mentorData.status === "Rejected"
                         ? "bg-red-500"
-                        : mentorData.status === "Submitted" ||
-                          mentorData.status === "Under Review"
+                        : mentorData.status === "Submitted"
                         ? "bg-yellow-500"
                         : mentorData.status === "Request Info"
                         ? "bg-blue-500"
+                        : mentorData.status === "Under Review"
+                        ? "bg-purple-500"
                         : ""
                     }`}
                   >
@@ -954,59 +1047,76 @@ const MentorStatusProfile = () => {
             <CustomModal
               isOpen={openEducationDialog}
               onClose={handleOnEducationClose}
-              title="Add Education"
+              title={
+                editEducationIndex !== null ? "Edit Education" : "Add Education"
+              }
               size="md"
             >
               <EducationAddDialog
                 onClose={handleOnEducationClose}
                 onSubmit={handleAddNewEducation}
                 initialData={
-                  newEducation.institutionName &&
-                  newEducation.fieldOfStudy &&
-                  newEducation.graduationYear
+                  editEducationIndex !== null
                     ? (newEducation as MentorEducation)
                     : undefined
                 }
-                actionButtonText="Add Education"
+                actionButtonText={
+                  editEducationIndex !== null
+                    ? "Update Education"
+                    : "Add Education"
+                }
                 isSubmitting={false}
               />
             </CustomModal>
             <CustomModal
               isOpen={openCertificationDialog}
               onClose={handleOnCertificationClose}
-              title="Add Certification"
+              title={
+                editCertificationIndex !== null
+                  ? "Edit Certification"
+                  : "Add Certification"
+              }
               size="md"
             >
               <CertificationAddDialog
                 onClose={handleOnCertificationClose}
                 onSubmit={handleAddCertification}
                 initialData={
-                  newCertification.certificationName &&
-                  newCertification.issuingOrganization
+                  editCertificationIndex !== null
                     ? (newCertification as MentorCertification)
                     : undefined
                 }
-                actionButtonText="Add Certification"
+                actionButtonText={
+                  editCertificationIndex !== null
+                    ? "Update Certification"
+                    : "Add Certification"
+                }
                 isSubmitting={false}
               />
             </CustomModal>
             <CustomModal
               isOpen={openWorkExperienceDialog}
               onClose={handleOnWorkExperienceClose}
-              title="Add Work Experience"
+              title={
+                editWorkExperienceIndex !== null
+                  ? "Edit Work Experience"
+                  : "Add Work Experience"
+              }
               size="md"
             >
               <WorkExperienceAddDialog
                 onClose={handleOnWorkExperienceClose}
                 onSubmit={handleAddWorkExperience}
                 initialData={
-                  newWorkExperience.companyName &&
-                  newWorkExperience.position &&
-                  newWorkExperience.startDate
+                  editWorkExperienceIndex !== null
                     ? (newWorkExperience as MentorWorkExperience)
                     : undefined
                 }
-                actionButtonText="Add Work Experience"
+                actionButtonText={
+                  editWorkExperienceIndex !== null
+                    ? "Update Work Experience"
+                    : "Add Work Experience"
+                }
                 isSubmitting={false}
               />
             </CustomModal>

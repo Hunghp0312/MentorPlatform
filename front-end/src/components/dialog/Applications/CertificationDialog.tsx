@@ -15,7 +15,7 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
   onClose,
   onSubmit,
   initialData,
-  actionButtonText = "Save",
+  actionButtonText = initialData ? "Update" : "Save",
   isSubmitting = false,
 }) => {
   const [formState, setFormState] = useState<MentorCertification>({
@@ -47,18 +47,18 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
     if (!formState.certificationName.trim()) {
       newErrors.certificationName = "Certification name is required.";
       isValid = false;
-    } else if (formState.certificationName.length > 100) {
+    } else if (formState.certificationName.length > 150) {
       newErrors.certificationName =
-        "Certification name must not exceed 100 characters.";
+        "Certification name must not exceed 150 characters.";
       isValid = false;
     }
 
     if (!formState.issuingOrganization.trim()) {
       newErrors.issuingOrganization = "Organization is required.";
       isValid = false;
-    } else if (formState.issuingOrganization.length > 100) {
+    } else if (formState.issuingOrganization.length > 150) {
       newErrors.issuingOrganization =
-        "Organization must not exceed 100 characters.";
+        "Organization must not exceed 150 characters.";
       isValid = false;
     }
 
@@ -78,7 +78,6 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 gap-6">
-        {/* School Name Field */}
         <InputCustom
           label="Certification Name"
           name="certificationName"
@@ -91,7 +90,6 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
         />
       </div>
       <div className="grid grid-cols-1 gap-6">
-        {/* Major Field */}
         <InputCustom
           label="Organization"
           name="issuingOrganization"
@@ -104,7 +102,6 @@ const CertificationAddDialog: React.FC<CertificationAddDialogProps> = ({
         />
       </div>
 
-      {/* Form Actions */}
       <div className="flex justify-end space-x-4 pt-4">
         <Button
           id="cancel-certification-button"

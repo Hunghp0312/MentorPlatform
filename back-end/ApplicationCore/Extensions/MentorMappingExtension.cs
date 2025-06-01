@@ -25,7 +25,9 @@ namespace ApplicationCore.Extensions
                     Name = x.AreaOfExpertise.Name,
                 }).ToList() ?? new List<AreaOfExpertiseResponse>(),
 
-                Status = mentorApplication.ApplicationStatus.Name
+                Status = mentorApplication.ApplicationStatus.Name,
+                SubmissionDate = mentorApplication.SubmissionDate,
+                RequestInfoDate = mentorApplication.RequestInfoDate ?? string.Empty,
 
             };
         }

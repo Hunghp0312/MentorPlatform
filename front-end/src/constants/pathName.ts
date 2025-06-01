@@ -11,8 +11,10 @@ export const pathName = {
   userList: "/users-listing",
   mentorStatus: "/status",
   unauthorized: "/unauthorized",
+  profile: "/profile",
   bookingSession: "/booking-session",
   mentorDashboard: "/mentor-dashboard",
   sessionManagement: "/session-management",
   mentorProfile: "/mentor-profile",
+  editProfile: "/edit-profile",
 };

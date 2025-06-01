@@ -56,13 +56,15 @@ namespace ApplicationCore.Validators
                 .NotEmpty()
                 .WithMessage(ValidationMessages.PROFESSIONAL_SKILL_REQUIRED)
                 .MaximumLength(200)
-                .WithMessage(ValidationMessages.PROFESSIONAL_SKILL_MAX_LENGTH);
+                .WithMessage(ValidationMessages.PROFESSIONAL_SKILL_MAX_LENGTH)
+                .When(x => x.SelectedRole == 3);
 
             RuleFor(x => x.IndustryExperience)
                 .NotEmpty()
                 .WithMessage(ValidationMessages.INDUSTRY_EXPERIENCE_REQUIRED)
                 .MaximumLength(200)
-                .WithMessage(ValidationMessages.INDUSTRY_EXPERIENCE_MAX_LENGTH);
+                .WithMessage(ValidationMessages.INDUSTRY_EXPERIENCE_MAX_LENGTH)
+                .When(x => x.SelectedRole == 3);
         }
     }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, KeyboardEvent } from "react";
 import { ChevronDown } from "lucide-react";
 
-type Option = {
+export type Option = {
   value: string;
   label: string;
 };

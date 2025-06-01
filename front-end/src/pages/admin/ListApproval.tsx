@@ -3,7 +3,6 @@ import { Search, ClipboardList, FileText, Eye } from "lucide-react";
 import { toast } from "react-toastify";
 import DataTable, { DataColumn } from "../../components/table/CustomTable";
 import InputCustom from "../../components/input/InputCustom";
-import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import useDebounce from "../../hooks/usedebounce";
 import { approvalService } from "../../services/approval.service";
 import { handleAxiosError } from "../../utils/handlerError";
@@ -18,6 +17,8 @@ import {
 import CustomModal from "../../components/ui/Modal";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
+import SmallLoadingSpinner from "../../components/loading/SmallLoadingSpinner";
+
 interface ApprovalType {
   applicantUserId: string;
   fullName: string;
@@ -39,8 +40,9 @@ interface ApprovalType {
   professionExperience: string;
   applicationTimeline: string;
   documents: SupportingDocument[];
-  status: "Pending" | "Approved" | "Rejected" | "Request Info";
+  status: string;
 }
+
 interface ExpertiseArea {
   name: string;
 }
@@ -50,6 +52,7 @@ const ListApproval = () => {
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
   );
+  type ConfirmActionType = "approve" | "reject" | "requestInfo" | "underreview";
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,8 +60,13 @@ const ListApproval = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  const [rejectionComment, setRejectionComment] = useState("");
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<ConfirmActionType | null>(
+    null
+  );
+  const [statusCounts, setStatusCounts] = useState<{ [key: string]: number }>(
+    {}
+  );
   const [adminNotes, setAdminNotes] = useState("");
   const searchDebounced = useDebounce(searchTerm, 500);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -94,7 +102,7 @@ const ListApproval = () => {
     });
     setIsFetching(true);
     try {
-      setIsLoading(true);
+      // Không đặt isLoading để tránh hiển thị vòng tròn xoay khi tìm kiếm
       const statusToFilter: { [key: string]: number | undefined } = {
         "": undefined,
         pending: 1,
@@ -112,6 +120,25 @@ const ListApproval = () => {
       console.log("API Response:", res);
       setTotalItems(res.totalItems);
       setApprovals(res.items);
+      const counts = await Promise.all(
+        ["", "pending", "approved", "rejected", "request-info"].map(
+          async (status) => {
+            const filter = statusToFilter[status] || 0;
+            const response = await approvalService.getAllMentorApplications(
+              "",
+              filter,
+              1,
+              1
+            );
+            return { status, count: response.totalItems };
+          }
+        )
+      );
+      const countsMap = counts.reduce((acc, { status, count }) => {
+        acc[status] = count;
+        return acc;
+      }, {} as { [key: string]: number });
+      setStatusCounts(countsMap);
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
@@ -119,16 +146,17 @@ const ListApproval = () => {
         console.error("Error fetching applications:", error);
       }
     } finally {
-      setIsLoading(false);
       setIsFetching(false);
     }
   };
+
   const fetchApplicationDetail = async (mentorApplicationId: string) => {
     try {
       setIsLoading(true);
       const res = await approvalService.getMentorApplicationDetail(
         mentorApplicationId
       );
+      console.log("API Response Detail:", res);
       setSelectedApproval({
         ...res,
         documents: res.documents.map((doc: SupportingDocument) => ({
@@ -136,7 +164,7 @@ const ListApproval = () => {
           documentContent: {
             fileName: doc.fileName,
             fileType: doc.fileType,
-            fileContent: doc.documentContent?.fileContent || "",
+            fileContent: doc.fileContent || "",
           },
         })),
       });
@@ -185,6 +213,7 @@ const ListApproval = () => {
     setOpenDocumentViewer(false);
     setDocumentData(null);
   };
+
   const handleShowDetails = (action: string, content: string | null) => {
     setDetailsContent({
       title: action.includes("Rejected") ? "Rejection Reason" : "Admin Notes",
@@ -192,6 +221,7 @@ const ListApproval = () => {
     });
     setIsDetailsModalOpen(true);
   };
+
   const columns: DataColumn<ApprovalType>[] = [
     {
       header: "",
@@ -214,7 +244,10 @@ const ListApproval = () => {
         if (row.status === "Request Info" && row.requestInfoDate) {
           dateLabel = "Request Info";
           dateValue = getLatestDate(row.requestInfoDate);
-        } else if (row.status === "Pending" && row.submissionDate) {
+        } else if (row.status === "Submitted" && row.submissionDate) {
+          dateLabel = "Submission Date";
+          dateValue = getLatestDate(row.submissionDate);
+        } else if (row.status === "Under Review" && row.submissionDate) {
           dateLabel = "Submission Date";
           dateValue = getLatestDate(row.submissionDate);
         } else if (row.status === "Approved" && row.approvalDate) {
@@ -240,7 +273,7 @@ const ListApproval = () => {
               <div className="flex items-center mt-1">
                 <span
                   className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                    row.status === "Pending"
+                    row.status === "Submitted"
                       ? "bg-yellow-500"
                       : row.status === "Approved"
                       ? "bg-green-500"
@@ -271,18 +304,44 @@ const ListApproval = () => {
     },
   ];
 
-  const handleApprove = async (approval: ApprovalType) => {
-    if (window.confirm(`Approve application for "${approval.fullName}"?`)) {
-      try {
-        const request: MentorUpdateStatusRequest = {
-          mentorId: approval.applicantUserId,
+  const HandleUnderRevie = (approval: ApprovalType) => {
+    setSelectedApproval(approval);
+    setConfirmAction("underreview");
+    setIsConfirmModalOpen(true);
+  };
+  const handleApprove = (approval: ApprovalType) => {
+    setSelectedApproval(approval);
+    setConfirmAction("approve");
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleReject = (approval: ApprovalType) => {
+    setSelectedApproval(approval);
+    setConfirmAction("reject");
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleRequestInfo = () => {
+    setConfirmAction("requestInfo");
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmActions = async () => {
+    if (!selectedApproval || !confirmAction) return;
+
+    setIsLoading(true);
+    try {
+      let request: MentorUpdateStatusRequest;
+      if (confirmAction === "approve") {
+        request = {
+          mentorId: selectedApproval.applicantUserId,
           statusId: 3,
           adminComments: null,
         };
         await approvalService.updateMentorApplicationStatus(request);
         setApprovals((prev = []) =>
           prev.map((item) =>
-            item.applicantUserId === approval.applicantUserId
+            item.applicantUserId === selectedApproval.applicantUserId
               ? {
                   ...item,
                   status: "Approved",
@@ -291,32 +350,19 @@ const ListApproval = () => {
               : item
           )
         );
-        toast.success(`Application for ${approval.fullName} approved`);
-        if (selectedApproval?.applicantUserId === approval.applicantUserId) {
-          setSelectedApproval({
-            ...selectedApproval,
-            status: "Approved",
-            approvalDate: new Date().toISOString(),
-          });
-        }
-      } catch {
-        toast.error("Failed to approve application");
-      }
-    }
-  };
-
-  const handleReject = (approval: ApprovalType) => {
-    setSelectedApproval(approval);
-    setIsRejectModalOpen(true);
-  };
-
-  const confirmReject = async () => {
-    if (selectedApproval) {
-      try {
-        const request: MentorUpdateStatusRequest = {
+        setSelectedApproval({
+          ...selectedApproval,
+          status: "Approved",
+          approvalDate: new Date().toISOString(),
+        });
+        toast.success(
+          `Application for ${selectedApproval.fullName} change to approved`
+        );
+      } else if (confirmAction === "reject") {
+        request = {
           mentorId: selectedApproval.applicantUserId,
           statusId: 2,
-          adminComments: rejectionComment.trim() || null,
+          adminComments: adminNotes.trim(),
         };
         await approvalService.updateMentorApplicationStatus(request);
         setApprovals((prev = []) =>
@@ -325,39 +371,47 @@ const ListApproval = () => {
               ? {
                   ...item,
                   status: "Rejected",
-                  rejectionReason: rejectionComment.trim() || null,
+                  rejectionReason: adminNotes.trim(),
                   lastStatusUpdateDate: new Date().toISOString(),
                 }
               : item
           )
         );
-        toast.success(`Application for ${selectedApproval.fullName} rejected`);
         setSelectedApproval({
           ...selectedApproval,
           status: "Rejected",
-          rejectionReason: rejectionComment.trim() || null,
+          rejectionReason: adminNotes.trim(),
           lastStatusUpdateDate: new Date().toISOString(),
         });
-        setRejectionComment("");
-        setIsRejectModalOpen(false);
-      } catch {
-        toast.error("Failed to reject application");
-      }
-    }
-  };
-
-  const handleRequestInfo = async () => {
-    if (
-      selectedApproval &&
-      window.confirm(
-        `Request additional info for "${selectedApproval.fullName}"?`
-      )
-    ) {
-      try {
-        const request: MentorUpdateStatusRequest = {
+        toast.success(
+          `Application for ${selectedApproval.fullName} change to rejected`
+        );
+      } else if (confirmAction === "underreview") {
+        request = {
+          mentorId: selectedApproval.applicantUserId,
+          statusId: 6,
+          adminComments: null,
+        };
+        await approvalService.updateMentorApplicationStatus(request);
+        setApprovals((prev = []) =>
+          prev.map((item) =>
+            item.applicantUserId === selectedApproval.applicantUserId
+              ? {
+                  ...item,
+                  status: "Under Review",
+                  rejectionReason: null,
+                }
+              : item
+          )
+        );
+        toast.success(
+          `Application for ${selectedApproval.fullName} set to under review`
+        );
+      } else if (confirmAction === "requestInfo") {
+        request = {
           mentorId: selectedApproval.applicantUserId,
           statusId: 4,
-          adminComments: adminNotes.trim() || null,
+          adminComments: adminNotes.trim(),
         };
         await approvalService.updateMentorApplicationStatus(request);
         setApprovals((prev = []) =>
@@ -367,22 +421,28 @@ const ListApproval = () => {
                   ...item,
                   status: "Request Info",
                   requestInfoDate: new Date().toISOString(),
-                  adminComments: adminNotes.trim() || null,
+                  adminComments: adminNotes.trim(),
                 }
               : item
           )
         );
-        toast.success(`Info requested for ${selectedApproval.fullName}`);
         setSelectedApproval({
           ...selectedApproval,
           status: "Request Info",
           requestInfoDate: new Date().toISOString(),
-          adminComments: adminNotes.trim() || null,
+          adminComments: adminNotes.trim(),
         });
-        setAdminNotes("");
-      } catch {
-        toast.error("Failed to request additional info");
+        toast.success(
+          `Info requested for ${selectedApproval.fullName} successfully`
+        );
       }
+    } catch (error) {
+      console.error(`Error ${confirmAction} application:`, error);
+      toast.error(`Failed to ${confirmAction} application`);
+    } finally {
+      setIsLoading(false);
+      setIsConfirmModalOpen(false);
+      setAdminNotes("");
     }
   };
 
@@ -421,9 +481,6 @@ const ListApproval = () => {
     return "bg-orange-500";
   };
 
-  if (isLoading) {
-    return <LoadingOverlay />;
-  }
   const additionalSettingsContent = (
     <div>
       <div>
@@ -475,7 +532,7 @@ const ListApproval = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">
-                      {new Date(experience.startDate).getFullYear()}–
+                      {new Date(experience.startDate).getFullYear()} –{" "}
                       {experience.endDate
                         ? new Date(experience.endDate).getFullYear()
                         : "Present"}
@@ -547,7 +604,7 @@ const ListApproval = () => {
             >
               {statusOptions.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {option.label} ({statusCounts[option.value] || 0})
                 </option>
               ))}
             </select>
@@ -557,7 +614,15 @@ const ListApproval = () => {
             <div className="w-1/2">
               <div className="bg-gray-700 rounded-lg overflow-hidden">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
-                  <h3 className="font-medium">Applications Awaiting Review</h3>
+                  <h3 className="font-medium">
+                    {statusFilter === "pending"
+                      ? "Applications Awaiting Review"
+                      : statusFilter === "rejected"
+                      ? "Rejected Applications"
+                      : statusFilter === "approved"
+                      ? "Approved Mentors"
+                      : "All Applications"}
+                  </h3>
                 </div>
                 <div className="max-h-[600px] overflow-y-auto pb-4">
                   <DataTable
@@ -582,248 +647,308 @@ const ListApproval = () => {
               </div>
             </div>
             <div className="w-1/2">
-              {selectedApproval ? (
-                <div className="bg-gray-700 rounded-lg p-4 text-gray-300">
-                  <div className="mb-4">
-                    {["Pending", "RequestInfo"].includes(
-                      selectedApproval.status
-                    ) && (
-                      <div className="flex justify-end space-x-2 mb-4">
-                        <button
-                          id="approve-application-button"
-                          onClick={() => handleApprove(selectedApproval)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          id="reject-application-button"
-                          onClick={() => handleReject(selectedApproval)}
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
-                        >
-                          Reject
-                        </button>
-                        <button
-                          id="requestinfo-application-button"
-                          onClick={() => handleRequestInfo}
-                          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
-                        >
-                          Request Info
-                        </button>
+              <div className="bg-gray-700 rounded-lg overflow-hidden">
+                <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
+                  <h3 className="font-medium">Application Details</h3>
+                </div>
+                {selectedApproval ? (
+                  <div className="bg-gray-700 rounded-lg p-4 text-gray-300">
+                    <div className="mb-4">
+                      {["Submitted", "RequestInfo", "Under Review"].includes(
+                        selectedApproval.status
+                      ) && (
+                        <div className="flex justify-end space-x-2 mb-4">
+                          <button
+                            id="approve-application-button"
+                            onClick={() => handleApprove(selectedApproval)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            id="reject-application-button"
+                            onClick={() => handleReject(selectedApproval)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
+                          >
+                            Reject
+                          </button>
+                          <button
+                            id="underreview-application-button"
+                            onClick={() => HandleUnderRevie(selectedApproval)}
+                            className="bg-purple-600 hover:bg-orange-700 text-white px-3 py-1 rounded-md"
+                          >
+                            Under Review
+                          </button>
+                          <button
+                            id="requestinfo-application-button"
+                            onClick={handleRequestInfo}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
+                          >
+                            Request Info
+                          </button>
+                        </div>
+                      )}
+                      <div className="flex items-center space-x-4">
+                        <img
+                          src={selectedApproval.photoData || DefaultImage}
+                          alt={selectedApproval.fullName}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                        <div>
+                          <h3 className="font-medium text-white">
+                            {selectedApproval.fullName}
+                          </h3>
+                          <p className="text-sm text-gray-400">
+                            {selectedApproval.email}
+                          </p>
+                        </div>
                       </div>
-                    )}
-                    <div className="flex items-center space-x-4">
-                      <img
-                        src={selectedApproval.photoData || DefaultImage}
-                        alt={selectedApproval.fullName}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
+                    </div>
+                    <div className="space-y-4">
                       <div>
-                        <h3 className="font-medium text-white">
-                          {selectedApproval.fullName}
-                        </h3>
-                        <p className="text-sm text-gray-400">
-                          {selectedApproval.email}
+                        <h4 className="text-sm font-medium text-gray-400 pb-0.5">
+                          Expertise Areas
+                        </h4>
+                        <p className="text-sm">
+                          {selectedApproval.expertiseAreas
+                            .map((area) => area.name)
+                            .join(", ")}
                         </p>
                       </div>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-400 pb-0.5">
-                        Expertise Areas
-                      </h4>
-                      <p className="text-sm">
-                        {selectedApproval.expertiseAreas
-                          .map((area) => area.name)
-                          .join(", ")}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-400 pb-0.5">
-                        Professional Experience
-                      </h4>
-                      <p className="text-sm">
-                        {selectedApproval.professionExperience}
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-400 pb-1">
-                        Application Timeline
-                      </h4>
                       <div>
-                        <div className="space-y-2">
-                          {[
-                            ...(selectedApproval?.submissionDate
-                              ? selectedApproval.submissionDate
-                                  .split(",")
-                                  .filter((date) => date.trim())
-                                  .map((timestamp) => ({
-                                    action: "Submitted",
-                                    timestamp,
-                                    content: null,
-                                  }))
-                              : []),
-                            ...(selectedApproval?.approvalDate
-                              ? [
-                                  {
-                                    action: "Approved",
-                                    timestamp: selectedApproval.approvalDate,
-                                    content: null,
-                                  },
-                                ]
-                              : []),
-                            ...(selectedApproval?.rejectionReason &&
-                            selectedApproval?.approvalDate
-                              ? [
-                                  {
-                                    action: `Rejected: ${selectedApproval.rejectionReason}`,
-                                    timestamp: selectedApproval.approvalDate,
-                                    content: selectedApproval.rejectionReason,
-                                  },
-                                ]
-                              : []),
-                            ...(selectedApproval?.requestInfoDate
-                              ? selectedApproval.requestInfoDate
-                                  .split(",")
-                                  .filter((date) => date.trim())
-                                  .map((timestamp) => ({
-                                    action: "Request Info",
-                                    timestamp,
-                                    content: selectedApproval.adminComments,
-                                  }))
-                              : []),
-                          ]
-                            .filter(
-                              (
-                                entry
-                              ): entry is {
-                                action: string;
-                                timestamp: string;
-                                content: string | null;
-                              } => entry.timestamp != null
-                            )
-                            .sort((a, b) => {
-                              const dateA = new Date(a.timestamp);
-                              const dateB = new Date(b.timestamp);
-                              return dateA.getTime() - dateB.getTime();
-                            })
-                            .map((entry, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center space-x-2 text-sm pt-1"
-                              >
-                                <span
-                                  className={`flex items-center justify-center w-5 h-5 rounded-full ${getActionColor(
-                                    entry.action
-                                  )} text-white text-xs font-medium`}
+                        <h4 className="text-sm font-medium text-gray-400 pb-0.5">
+                          Professional Experience
+                        </h4>
+                        <p className="text-sm">
+                          {selectedApproval.professionExperience}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-400 pb-1">
+                          Application Timeline
+                        </h4>
+                        <div>
+                          <div className="space-y-2">
+                            {(() => {
+                              const timelineEntries = [
+                                ...(selectedApproval?.submissionDate
+                                  ? selectedApproval.submissionDate
+                                      .split(",")
+                                      .filter((date) => date.trim())
+                                      .map((timestamp) => ({
+                                        action: "Submitted",
+                                        timestamp,
+                                        originalTimestamp: timestamp,
+                                        content: null,
+                                      }))
+                                  : []),
+                                ...(selectedApproval?.approvalDate
+                                  ? [
+                                      {
+                                        action: "Approved",
+                                        timestamp:
+                                          selectedApproval.approvalDate,
+                                        originalTimestamp:
+                                          selectedApproval.approvalDate,
+                                        content: null,
+                                      },
+                                    ]
+                                  : []),
+                                ...(selectedApproval?.rejectionReason &&
+                                selectedApproval?.approvalDate
+                                  ? [
+                                      {
+                                        action: `Rejected: ${selectedApproval.rejectionReason}`,
+                                        timestamp:
+                                          selectedApproval.approvalDate,
+                                        originalTimestamp:
+                                          selectedApproval.approvalDate,
+                                        content:
+                                          selectedApproval.rejectionReason,
+                                      },
+                                    ]
+                                  : []),
+                                ...(selectedApproval?.requestInfoDate
+                                  ? selectedApproval.requestInfoDate
+                                      .split(",")
+                                      .filter((date) => date.trim())
+                                      .map((timestamp) => ({
+                                        action: "Request Info",
+                                        timestamp: new Date(
+                                          timestamp
+                                        ).toLocaleString("en-US", {
+                                          month: "numeric",
+                                          day: "numeric",
+                                          year: "numeric",
+                                          hour: "numeric",
+                                          minute: "2-digit",
+                                          second: "2-digit",
+                                          hour12: true,
+                                        }),
+                                        originalTimestamp: timestamp,
+                                        content: selectedApproval.adminComments,
+                                      }))
+                                  : []),
+                              ].filter(
+                                (
+                                  entry
+                                ): entry is {
+                                  action: string;
+                                  timestamp: string;
+                                  originalTimestamp: string;
+                                  content: string | null;
+                                } => entry.originalTimestamp != null
+                              );
+
+                              // Find the latest Request Info entry
+                              const requestInfoEntries = timelineEntries.filter(
+                                (entry) => entry.action === "Request Info"
+                              );
+                              const latestRequestInfo =
+                                requestInfoEntries.length
+                                  ? requestInfoEntries.reduce((latest, entry) =>
+                                      new Date(
+                                        entry.originalTimestamp
+                                      ).getTime() >
+                                      new Date(
+                                        latest.originalTimestamp
+                                      ).getTime()
+                                        ? entry
+                                        : latest
+                                    )
+                                  : null;
+
+                              return timelineEntries
+                                .sort((a, b) => {
+                                  const dateA = new Date(a.originalTimestamp);
+                                  const dateB = new Date(b.originalTimestamp);
+                                  return dateA.getTime() - dateB.getTime();
+                                })
+                                .map((entry, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center space-x-2 text-sm pt-1"
+                                  >
+                                    <span
+                                      className={`flex items-center justify-center w-5 h-5 rounded-full ${getActionColor(
+                                        entry.action
+                                      )} text-white text-xs font-medium`}
+                                    >
+                                      {index + 1}
+                                    </span>
+                                    {entry.action.includes("Rejected") ||
+                                    (entry.action === "Request Info" &&
+                                      latestRequestInfo &&
+                                      entry.originalTimestamp ===
+                                        latestRequestInfo.originalTimestamp) ? (
+                                      <button
+                                        type="button"
+                                        className="text-blue-400 hover:underline bg-transparent border-none p-0 text-sm text-left"
+                                        onClick={() =>
+                                          handleShowDetails(
+                                            entry.action,
+                                            entry.content
+                                          )
+                                        }
+                                        aria-label={
+                                          entry.action.includes("Rejected")
+                                            ? "View rejection reason"
+                                            : "View admin notes"
+                                        }
+                                      >
+                                        {entry.action} on {entry.timestamp}
+                                      </button>
+                                    ) : (
+                                      <span className="text-sm">
+                                        {entry.action} on {entry.timestamp}
+                                      </span>
+                                    )}
+                                  </div>
+                                ));
+                            })()}
+                          </div>
+                        </div>
+                        {selectedApproval && (
+                          <ExpandProfileSettings
+                            title="Additional Profile"
+                            additionalSettings={additionalSettingsContent}
+                            isExpanded={isExpanded}
+                            onToggle={() => setIsExpanded((prev) => !prev)}
+                          />
+                        )}
+                        <div className="mt-4">
+                          <h4 className="text-sm font-medium text-gray-400">
+                            Uploaded Documents
+                          </h4>
+                          <div className="space-y-2">
+                            {selectedApproval.documents?.length > 0 ? (
+                              selectedApproval.documents.map((doc, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between space-x-2 bg-gray-600 p-2 rounded-md hover:bg-gray-500 transition duration-150"
                                 >
-                                  {index + 1}
-                                </span>
-                                {entry.action.includes("Rejected") ||
-                                entry.action === "Request Info" ? (
+                                  <div className="flex items-center space-x-2">
+                                    <FileText
+                                      size={16}
+                                      className="text-gray-300"
+                                    />
+                                    <span className="text-sm text-gray-300">
+                                      PDF: {doc.fileName}
+                                    </span>
+                                  </div>
                                   <button
-                                    type="button"
-                                    className="text-blue-400 hover:underline bg-transparent border-none p-0 text-sm text-left"
+                                    id={`view-document-icon-${index}`}
                                     onClick={() =>
-                                      handleShowDetails(
-                                        entry.action,
-                                        entry.content
+                                      handleViewDocument(
+                                        doc.documentContent.fileContent,
+                                        doc.fileType
                                       )
                                     }
-                                    aria-label={
-                                      entry.action.includes("Rejected")
-                                        ? "View rejection reason"
-                                        : "View admin notes"
-                                    }
+                                    className="text-blue-400 hover:text-blue-500"
+                                    aria-label={`View document ${doc.fileName}`}
                                   >
-                                    {entry.action} on {entry.timestamp}
+                                    <Eye size={20} />
                                   </button>
-                                ) : (
-                                  <span className="text-sm">
-                                    {entry.action} on {entry.timestamp}
-                                  </span>
-                                )}
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                      {selectedApproval && (
-                        <ExpandProfileSettings
-                          title="Additional Profile"
-                          additionalSettings={additionalSettingsContent}
-                          isExpanded={isExpanded}
-                          onToggle={() => setIsExpanded((prev) => !prev)}
-                        />
-                      )}
-                      <div className="mt-4">
-                        <h4 className="text-sm font-medium text-gray-400">
-                          Uploaded Documents
-                        </h4>
-                        <div className="space-y-2">
-                          {selectedApproval.documents?.length > 0 ? (
-                            selectedApproval.documents.map((doc, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center justify-between space-x-2 bg-gray-600 p-2 rounded-md hover:bg-gray-500 transition duration-150"
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <FileText
-                                    size={16}
-                                    className="text-gray-300"
-                                  />
-                                  <span className="text-sm text-gray-300">
-                                    PDF: {doc.fileName}
-                                  </span>
                                 </div>
-                                <button
-                                  id={`view-document-icon-${index}`}
-                                  onClick={() =>
-                                    handleViewDocument(
-                                      doc.documentContent.fileContent,
-                                      doc.fileType
-                                    )
-                                  }
-                                  className="text-blue-400 hover:text-blue-500"
-                                  aria-label={`View document ${doc.fileName}`}
-                                >
-                                  <Eye size={20} />
-                                </button>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-sm text-gray-300">
-                              No documents provided.
-                            </p>
-                          )}
+                              ))
+                            ) : (
+                              <p className="text-sm text-gray-300">
+                                No documents provided.
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-400">
-                        Admin Notes
-                      </h4>
-                      <textarea
-                        id="input-field-admin-notes"
-                        className="w-full bg-gray-600 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                        placeholder="Add notes about this application..."
-                        rows={3}
-                        value={adminNotes}
-                        onChange={(e) => setAdminNotes(e.target.value)}
-                      />
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-400">
+                          Admin Notes
+                        </h4>
+                        <textarea
+                          id="input-field-admin-notes"
+                          className="w-full bg-gray-600 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                          placeholder="Add notes about this application..."
+                          rows={3}
+                          value={adminNotes}
+                          onChange={(e) => setAdminNotes(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="bg-gray-700 rounded-lg p-8 text-center text-gray-400">
-                  <div className="flex flex-col items-center pb-2">
-                    <ClipboardList size={40} className="text-gray-500" />
-                    <p className="pt-3 text-[14px]">
-                      Select an application to view details
-                    </p>
+                ) : (
+                  <div className="bg-gray-700 rounded-lg p-8 text-center text-gray-400">
+                    {isLoading ? (
+                      <SmallLoadingSpinner />
+                    ) : (
+                      <div className="flex flex-col items-center pb-2">
+                        <ClipboardList size={40} className="text-gray-500" />
+                        <p className="pt-3 text-[14px]">
+                          Select an application to view details
+                        </p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -866,46 +991,38 @@ const ListApproval = () => {
           </div>
         </div>
       )}
-      {/* Rejection Modal */}
-      {isRejectModalOpen && (
+      {isConfirmModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold text-white mb-4">
-              Reject Application
+              Confirm{" "}
+              {confirmAction === "approve"
+                ? "Approval"
+                : confirmAction === "reject"
+                ? "Rejection"
+                : "Request Info"}
             </h3>
             <p className="text-gray-300 mb-4">
-              Are you sure you want to reject the application for{" "}
-              <strong>{selectedApproval?.fullName}</strong>?
+              Are you sure you want to{" "}
+              {confirmAction === "approve"
+                ? "approve"
+                : confirmAction === "reject"
+                ? "reject"
+                : "request info for"}{" "}
+              the application for <strong>{selectedApproval?.fullName}</strong>?
             </p>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-400 mb-1">
-                Rejection Comment
-              </label>
-              <textarea
-                id="input-field-rejection-comment"
-                className="w-full bg-gray-600 text-white p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Enter reason for rejection..."
-                rows={4}
-                value={rejectionComment}
-                onChange={(e) => setRejectionComment(e.target.value)}
-              />
-            </div>
             <div className="flex justify-end space-x-2">
               <button
-                onClick={() => {
-                  setIsRejectModalOpen(false);
-                  setRejectionComment("");
-                }}
+                onClick={() => setIsConfirmModalOpen(false)}
                 className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
               >
                 Cancel
               </button>
               <button
-                onClick={confirmReject}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md"
-                disabled={!rejectionComment.trim()}
+                onClick={() => confirmActions()}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
               >
-                Confirm Reject
+                Confirm
               </button>
             </div>
           </div>
@@ -914,4 +1031,5 @@ const ListApproval = () => {
     </main>
   );
 };
+
 export default ListApproval;

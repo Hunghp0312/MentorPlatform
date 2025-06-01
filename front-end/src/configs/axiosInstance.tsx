@@ -17,8 +17,6 @@ axiosInstance.interceptors.request.use((config) => {
   const sessionsToken = sessionStorage.getItem("accessToken");
   if (localToken || sessionsToken) {
     config.headers.Authorization = `Bearer ${localToken ?? sessionsToken}`;
-  } else {
-    console.warn("No access token found in localStorage or sessionStorage.");
   }
 
   return config;

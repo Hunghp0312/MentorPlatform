@@ -1,6 +1,6 @@
 import { JSX, useState } from "react";
 import Navbar from "./Navbar";
-import { Book, BookCopy, UserCheck } from "lucide-react";
+import { Book, BookCopy, User, UserCheck } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,6 +23,11 @@ export default function Layout() {
   > = {
     Admin: [
       {
+        icon: <User size={20} />,
+        label: "Profile",
+        href: `${pathName.editProfile}/${decodedToken?.id}`,
+      },
+      {
         icon: <Book size={20} />,
         label: "Categories",
         href: pathName.category,
@@ -41,12 +46,23 @@ export default function Layout() {
     ],
     Mentor: [
       {
+        icon: <User size={20} />,
+        label: "Profile",
+        href: `${pathName.editProfile}/${decodedToken?.id}`,
+      },
+      {
         icon: <UserCheck size={20} />,
-        label: "Mentor Status",
+        label: "My Application",
         href: pathName.mentorStatus,
       },
     ],
-    Learner: [],
+    Learner: [
+      {
+        icon: <User size={20} />,
+        label: "Profile",
+        href: `${pathName.editProfile}/${decodedToken?.id}`,
+      },
+    ],
   };
 
   // Fallback empty nav if no role or unknown role
@@ -62,7 +78,8 @@ export default function Layout() {
       <main
         className={`flex-1 transition-all duration-300 overflow-y-auto p-6 ${
           collapsed ? "ml-16" : "ml-64"
-        }`}>
+        }`}
+      >
         <div className="bg-gray-900 min-h-screen text-gray-200">
           <Outlet />
         </div>

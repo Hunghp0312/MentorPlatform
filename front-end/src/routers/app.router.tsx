@@ -23,10 +23,13 @@ import MentorStatusProfile from "../pages/mentor/MentorStatusProfile";
 import PrivateRoute from "./PrivateRoute";
 import { RequireRole } from "./RequiredRoute";
 import UnauthorizedPage from "../pages/auth/Unauthorized";
+import EditUserPage from "../pages/user/EditUserPage";
 import BookingSession from "../pages/session/BookingSession";
 import MentorDashBoard from "../pages/mentor/MentorDashBoard";
 import SessionManagement from "../pages/session/SessionManagement";
 import MentorProfile from "../pages/mentor/MentorProfile";
+import { EditableUserProfileRoute } from "./EditableUserProfileRoute";
+import ProfileView from "../pages/user/ProfileView";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -43,9 +46,17 @@ const AppRouter = () => {
         { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
         { path: pathName.oauthcallback, element: <OAuthCallback /> },
         { path: pathName.unauthorized, element: <UnauthorizedPage /> },
+        { path: "profile/:id", element: <ProfileView /> },
       ],
     },
-
+    {
+      element: (
+        <EditableUserProfileRoute>
+          <Layout />
+        </EditableUserProfileRoute>
+      ),
+      children: [{ path: "edit-profile/:id", element: <EditUserPage /> }],
+    },
     {
       element: (
         <PrivateRoute>
@@ -56,7 +67,6 @@ const AppRouter = () => {
       ),
       children: [{ path: pathName.home, element: HomePage }],
     },
-
     {
       element: (
         <PrivateRoute>
@@ -96,14 +106,13 @@ const AppRouter = () => {
           </RequireRole>
         </PrivateRoute>
       ),
-      children: [
-        
-      ],
+      children: [],
     },
     {path: pathName.bookingSession, element : <BookingSession/>},
     {path: pathName.mentorDashboard, element : <MentorDashBoard/>},
     {path: pathName.sessionManagement, element : <SessionManagement/>},
     {path: pathName.mentorProfile, element : <MentorProfile/>}
+
   ]);
 
   return routes;

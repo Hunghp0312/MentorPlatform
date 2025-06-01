@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250530105036_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1056,7 +1059,9 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("ApplicantId");
 
-                    b.HasIndex("AdminReviewerId");
+                    b.HasIndex("AdminReviewerId")
+                        .IsUnique()
+                        .HasFilter("[AdminReviewerId] IS NOT NULL");
 
                     b.HasIndex("ApplicationStatusId");
 
@@ -2047,8 +2052,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
-                        .WithMany("ReviewedMentorApplications")
-                        .HasForeignKey("AdminReviewerId")
+                        .WithOne("ReviewedMentorApplication")
+                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "AdminReviewerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Infrastructure.Entities.User", "Applicant")
@@ -2403,7 +2408,8 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("MentoredCourses");
 
-                    b.Navigation("ReviewedMentorApplications");
+                    b.Navigation("ReviewedMentorApplication")
+                        .IsRequired();
 
                     b.Navigation("SubmittedMentorApplication")
                         .IsRequired();

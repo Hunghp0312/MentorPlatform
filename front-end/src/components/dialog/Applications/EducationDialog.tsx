@@ -15,7 +15,7 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
   onClose,
   onSubmit,
   initialData,
-  actionButtonText = "Save",
+  actionButtonText = initialData ? "Update" : "Save",
   isSubmitting = false,
 }) => {
   const [formState, setFormState] = useState<MentorEducation>({
@@ -95,7 +95,18 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 gap-6">
-        {/* School Name Field */}
+        <div className="grid grid-cols-1 gap-6">
+          <InputCustom
+            label="Degree Name"
+            name="fieldOfStudy"
+            type="text"
+            value={formState.fieldOfStudy}
+            onChange={handleChange}
+            isRequired
+            placeholder="Enter Degree name"
+            errorMessage={errors.fieldOfStudy}
+          />
+        </div>
         <InputCustom
           label="University Name"
           name="institutionName"
@@ -108,20 +119,6 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
         />
       </div>
       <div className="grid grid-cols-1 gap-6">
-        {/* Major Field */}
-        <InputCustom
-          label="Degree Name"
-          name="fieldOfStudy"
-          type="text"
-          value={formState.fieldOfStudy}
-          onChange={handleChange}
-          isRequired
-          placeholder="Enter Degree name"
-          errorMessage={errors.fieldOfStudy}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-6">
-        {/* Year Field */}
         <InputCustom
           label="Graduation Year"
           name="graduationYear"
@@ -134,7 +131,6 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
         />
       </div>
 
-      {/* Form Actions */}
       <div className="flex justify-end space-x-4 pt-4">
         <Button
           id="cancel-education-dialog-button"
