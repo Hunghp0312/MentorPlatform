@@ -4,9 +4,7 @@ import { ArrowLeft, Star, Clock, DollarSign, MessageCircle, Calendar } from "luc
 import ExperienceCard from "../../components/feature/ExperienceCard"
 import MentorAvailability from "../../components/feature/MentorAvaibility"
 import Button from "../../components/ui/Button"
-import CustomModal from "../../components/ui/Modal"
 import BookingSessionDialog from "../../components/dialog/BookingSessionDialog"
-import { is } from "date-fns/locale"
 
 interface Mentor {
     id: string

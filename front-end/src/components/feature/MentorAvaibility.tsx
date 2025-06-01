@@ -28,7 +28,7 @@ const MentorAvailability: React.FC<MentorAvailabilityProps> = ({
 
     return (
         <div className="flex flex-col gap-4 rounded-lg text-white">
-            <h2 className="text-xl font-semibold mb-2">Availability</h2>
+            <h2 className="text-xl font-semibold mb-2"  onClick={() => setSelectedDays([])}>Availability</h2>
 
             {/* Available Days */}
             <div className="mb-4 bg-gray-700 p-4 rounded-lg ">
