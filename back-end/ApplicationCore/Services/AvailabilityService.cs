@@ -138,7 +138,7 @@ public class AvailabilityService : IAvailabilityService
                 Id = tb.Id,
                 StartTime = tb.Start.ToString("HH:mm"),
                 EndTime = tb.End.ToString("HH:mm"),
-                IsSelected = tb.StatusId == 1, // assume 1=available
+                IsSelected = tb.StatusId == 1,
                 IsBooked = tb.SessionBookings.Any()
             }).OrderBy(tb => tb.StartTime).ToList()
         };

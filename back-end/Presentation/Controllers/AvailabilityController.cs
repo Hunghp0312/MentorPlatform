@@ -1,4 +1,5 @@
 using ApplicationCore.Common;
+using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Availability;
 using ApplicationCore.DTOs.Responses.Availability;
 using ApplicationCore.Services.ServiceInterfaces;
@@ -27,6 +28,9 @@ public class AvailabilityController : BaseController
     /// <returns></returns>
     [HttpGet("week")]
     [ProducesResponseType(typeof(WeekAvailabilityResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetWeekAvailability(Guid mentorId, string weekStartDate)
     {
         var start = DateOnly.Parse(weekStartDate);
@@ -34,11 +38,11 @@ public class AvailabilityController : BaseController
         return ToActionResult(result);
     }
 
-    /// <summary>
-    /// Save weekly availability
-    /// </summary>
     [HttpPut("week")]
     [ProducesResponseType(typeof(WeekAvailabilityResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> SaveWeekAvailability([FromBody] SaveWeekAvailabilityRequestDto request)
     {
         var result = await _availabilityService.SaveWeekAvailabilityAsync(request);
