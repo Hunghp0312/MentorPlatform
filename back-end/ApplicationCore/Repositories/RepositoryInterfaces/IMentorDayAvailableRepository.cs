@@ -1,3 +1,4 @@
+using ApplicationCore.DTOs.Requests.Availability;
 using Infrastructure.BaseRepository;
 using Infrastructure.Entities;
 
@@ -5,24 +6,18 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces;
 
 public interface IMentorDayAvailableRepository : IBaseRepository<MentorDayAvailable>
 {
-    Task<MentorDayAvailable?> GetByMentorAndDateAsync(
-        Guid mentorId,
-        DateOnly day,
-        bool includeSlots = false
-    );
+    Task<MentorDayAvailable?> GetByMentorAndDateAsync(Guid mentorId, DateOnly day);
     Task<ICollection<MentorDayAvailable>> GetByMentorAndDateRangeAsync(
         Guid mentorId,
         DateOnly start,
-        DateOnly end,
-        bool includeSlots = false
+        DateOnly end
     );
-    Task<ICollection<MentorDayAvailable>> UpdateScheduleSettingsAndGetUpdatedDaysAsync(
-        Guid mentorId,
-        DateOnly startDate,
-        DateOnly endDate,
-        TimeOnly workDayStartTime,
-        TimeOnly workDayEndTime,
-        TimeOnly sessionDuration,
-        TimeOnly bufferTime
+
+    Task<ICollection<MentorDayAvailable>> GetDaysAvailabilityAsync(
+        SaveDaysAvailabilityRequestDto request
     );
+
+    Task<MentorDayAvailable?> GetDayAvailabilityAsync(Guid mentorId, DateOnly day);
+
+    Task DeleteDayAvailable(Guid mentorId, ICollection<DateOnly> days);
 }

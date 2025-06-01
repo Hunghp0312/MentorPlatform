@@ -1,6 +1,6 @@
 namespace ApplicationCore.DTOs.Requests.Availability
 {
-    public class SaveDayAvailabilityRequestDto
+    public class MentorAvailabilityRequestDto
     {
         public required string Date { get; set; } // ISO date (YYYY-MM-DD)
         public string? WorkStartTime { get; set; } // HH:mm, nullable if using default

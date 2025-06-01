@@ -1,4 +1,3 @@
-using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Availability;
 using ApplicationCore.DTOs.Responses.Availability;
@@ -19,42 +18,62 @@ public class AvailabilityController : BaseController
     {
         _availabilityService = availabilityService;
     }
-    [HttpGet("week")]
-    [ProducesResponseType(typeof(WeekAvailabilityResponseDto), StatusCodes.Status200OK)]
+
+    [HttpGet("{mentorId}/week")]
+    [ProducesResponseType(typeof(MentorDaysAvailabilityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetWeekAvailability(Guid mentorId, string weekStartDate)
+    public async Task<IActionResult> GetWeekAvailability(
+        [FromRoute] Guid mentorId,
+        [FromQuery] string weekStartDate
+    )
     {
-        var start = DateOnly.Parse(weekStartDate);
+        var start = DateOnly.Parse(
+            weekStartDate,
+            System.Globalization.CultureInfo.InvariantCulture
+        );
         var result = await _availabilityService.GetWeekAvailabilityAsync(mentorId, start);
         return ToActionResult(result);
     }
 
-    [HttpPut("week")]
-    [ProducesResponseType(typeof(WeekAvailabilityResponseDto), StatusCodes.Status200OK)]
+    [HttpGet("{mentorId}/day")]
+    [ProducesResponseType(typeof(MentorDaysAvailabilityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SaveWeekAvailability([FromBody] SaveWeekAvailabilityRequestDto request)
+    public async Task<IActionResult> GetDayAvailability(Guid mentorId, string day)
     {
-        var result = await _availabilityService.SaveWeekAvailabilityAsync(request);
+        var dayFormat = DateOnly.Parse(day, System.Globalization.CultureInfo.InvariantCulture);
+        var result = await _availabilityService.GetDayAvailabilityAsync(mentorId, dayFormat);
         return ToActionResult(result);
     }
 
-    [HttpPut("schedule-configuration/{mentorId}")]
-    [ProducesResponseType(typeof(ScheduleConfigurationResponseDto), StatusCodes.Status200OK)]
+    [HttpPut("{mentorId}/days")]
+    [ProducesResponseType(typeof(MentorDaysAvailabilityResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdateScheduleConfiguration(Guid mentorId, [FromBody] UpdateScheduleConfigurationRequestDto requestDto)
+    public async Task<IActionResult> SaveDaysAvailablility(
+        Guid mentorId,
+        [FromBody] SaveDaysAvailabilityRequestDto request
+    )
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
+        return ToActionResult(result);
+    }
 
-        var result = await _availabilityService.UpdateScheduleConfigurationAsync(mentorId, requestDto);
+    [HttpDelete("{mentorId}/days")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> DeleteDays(
+        Guid mentorId,
+        [FromBody] DaysAvailabilityDeleteRequestDto request
+    )
+    {
+        var result = await _availabilityService.DeleteDaysAsync(mentorId, request);
         return ToActionResult(result);
     }
 }

@@ -1,5 +1,6 @@
 using ApplicationCore.Constants;
 using ApplicationCore.DTOs.Responses.Availability;
+using Azure.Core;
 using Infrastructure.Entities;
 
 namespace ApplicationCore.Extensions
@@ -23,7 +24,6 @@ namespace ApplicationCore.Extensions
                         Id = tb.Id,
                         StartTime = tb.Start.ToString(DatetimeFormat.hourFormat),
                         EndTime = tb.End.ToString(DatetimeFormat.hourFormat),
-                        IsSelected = tb.StatusId == 1, // assume 1=available
                         IsBooked = tb.SessionBookings.Any(),
                     })
                     .OrderBy(tb => tb.StartTime)

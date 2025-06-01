@@ -1,3 +1,5 @@
+using ApplicationCore.DTOs.Requests.Availability;
+using ApplicationCore.DTOs.Responses.Availability;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
@@ -13,85 +15,60 @@ public class MentorDayAvailableRepository
     public MentorDayAvailableRepository(AppDbContext context)
         : base(context) { }
 
-    public async Task<MentorDayAvailable?> GetByMentorAndDateAsync(
-        Guid mentorId,
-        DateOnly day,
-        bool includeSlots = false
-    )
+    public async Task<MentorDayAvailable?> GetByMentorAndDateAsync(Guid mentorId, DateOnly day)
     {
         var query = _dbSet.Where(d => d.MentorId == mentorId && d.Day == day);
-        if (includeSlots)
-        {
-            query = query.Include(d => d.MentorTimeAvailables);
-        }
+        query = query.Include(d => d.MentorTimeAvailables);
+
         return await query.FirstOrDefaultAsync();
     }
 
     public async Task<ICollection<MentorDayAvailable>> GetByMentorAndDateRangeAsync(
         Guid mentorId,
         DateOnly start,
-        DateOnly end,
-        bool includeSlots = false
+        DateOnly end
     )
     {
         var query = _dbSet.Where(d => d.MentorId == mentorId && d.Day >= start && d.Day <= end);
-        if (includeSlots)
-        {
-            query = query.Include(d => d.MentorTimeAvailables);
-        }
+
+        query = query.Include(d => d.MentorTimeAvailables);
+
         return await query.ToListAsync();
     }
 
-    public async Task<ICollection<MentorDayAvailable>> UpdateScheduleSettingsAndGetUpdatedDaysAsync(
-        Guid mentorId,
-        DateOnly startDate,
-        DateOnly endDate,
-        TimeOnly workDayStartTime,
-        TimeOnly workDayEndTime,
-        TimeOnly sessionDuration,
-        TimeOnly bufferTime
+    public async Task<ICollection<MentorDayAvailable>> GetDaysAvailabilityAsync(
+        SaveDaysAvailabilityRequestDto request
     )
     {
-        var updatedDays = new List<MentorDayAvailable>();
-        var existingDays = await _dbSet
-            .Where(d => d.MentorId == mentorId && d.Day >= startDate && d.Day <= endDate)
+        var mentorId = request.MentorId;
+        // Convert requestedDates to List<DateOnly> for proper comparison
+        var requestedDates = request.Days.Select(d => DateOnly.Parse(d.Date)).ToList();
+
+        var days = await _dbSet
+            .Include(d => d.MentorTimeAvailables)
+            .Where(d => d.MentorId == mentorId && requestedDates.Contains(d.Day))
             .ToListAsync();
 
-        for (
-            var currentDate = startDate;
-            currentDate <= endDate;
-            currentDate = currentDate.AddDays(1)
-        )
-        {
-            var dayToUpdate = existingDays.FirstOrDefault(d => d.Day == currentDate);
+        return days;
+    }
 
-            if (dayToUpdate != null)
-            {
-                // Update existing day
-                dayToUpdate.StartWorkTime = workDayStartTime;
-                dayToUpdate.EndWorkTime = workDayEndTime;
-                dayToUpdate.SessionDuration = sessionDuration;
-                dayToUpdate.BufferTime = bufferTime;
-                // EF Core tracks changes, so no explicit _dbSet.Update needed if entity is tracked
-            }
-            else
-            {
-                // Create new day
-                dayToUpdate = new MentorDayAvailable
-                {
-                    Id = Guid.NewGuid(), // Assuming Id is generated here or by DB
-                    MentorId = mentorId,
-                    Day = currentDate,
-                    StartWorkTime = workDayStartTime,
-                    EndWorkTime = workDayEndTime,
-                    SessionDuration = sessionDuration,
-                    BufferTime = bufferTime,
-                };
-                await _dbSet.AddAsync(dayToUpdate);
-            }
-            updatedDays.Add(dayToUpdate);
+    public async Task<MentorDayAvailable?> GetDayAvailabilityAsync(Guid mentorId, DateOnly day)
+    {
+        var resDay = await _dbSet
+            .Include(d => d.MentorTimeAvailables)
+            .FirstOrDefaultAsync(d => d.MentorId == mentorId && d.Day == day);
+
+        return resDay;
+    }
+
+    public async Task DeleteDayAvailable(Guid mentorId, ICollection<DateOnly> days)
+    {
+        var dayAvailable = await _dbSet.FirstOrDefaultAsync(d =>
+            d.MentorId == mentorId && days.Contains(d.Day)
+        );
+        if (dayAvailable != null)
+        {
+            _dbSet.Remove(dayAvailable);
         }
-        // The actual saving of changes will be handled by UnitOfWork.SaveChangesAsync() in the service layer.
-        return updatedDays;
     }
 }
