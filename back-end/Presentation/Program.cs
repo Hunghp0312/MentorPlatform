@@ -77,6 +77,8 @@ builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository
 builder.Services.AddScoped<ISupportingDocumentService, SupportingDocumentService>();
 builder.Services.AddScoped<ISessionBookingRepository, SessionBookingRepository>();
 builder.Services.AddScoped<ISessionBookingService, SessionBookingService>();
+builder.Services.AddScoped<IMentorDayAvailableRepository, MentorDayAvailableRepository>();
+builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<
    ISupportingDocumentRepository, SupportingDocumentRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
