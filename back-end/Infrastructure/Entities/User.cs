@@ -19,11 +19,11 @@ namespace Infrastructure.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public virtual UserProfile UserProfile { get; set; } = default!;
         public virtual MentorApplication SubmittedMentorApplication { get; set; } = null!;
-        public virtual MentorApplication ReviewedMentorApplication { get; set; } = null!;
         public virtual ICollection<Course> MentoredCourses { get; set; } = new List<Course>();
         public virtual ICollection<UserAreaOfExpertise> UserAreaOfExpertises { get; set; } = new List<UserAreaOfExpertise>();
         public virtual ICollection<MentorAvailabilitySlot> CreatedAvailabilitySlots { get; set; } = new List<MentorAvailabilitySlot>();
         public virtual ICollection<SessionBooking> MentorSessions { get; set; } = new List<SessionBooking>();
         public virtual ICollection<SessionBooking> LearnerSessions { get; set; } = new List<SessionBooking>();
+        public virtual ICollection<MentorApplication> ReviewedMentorApplications { get; set; } = new List<MentorApplication>();
     }
 }

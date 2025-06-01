@@ -26,6 +26,7 @@ import UnauthorizedPage from "../pages/auth/Unauthorized";
 import BookingSession from "../pages/session/BookingSession";
 import MentorDashBoard from "../pages/mentor/MentorDashBoard";
 import SessionManagement from "../pages/session/SessionManagement";
+import MentorProfile from "../pages/mentor/MentorProfile";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -101,7 +102,8 @@ const AppRouter = () => {
     },
     {path: pathName.bookingSession, element : <BookingSession/>},
     {path: pathName.mentorDashboard, element : <MentorDashBoard/>},
-    {path: pathName.sessionManagement, element : <SessionManagement/>}
+    {path: pathName.sessionManagement, element : <SessionManagement/>},
+    {path: pathName.mentorProfile, element : <MentorProfile/>}
   ]);
 
   return routes;
