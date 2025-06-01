@@ -3,7 +3,7 @@ namespace ApplicationCore.DTOs.Requests.Availability;
 public class TimeBlockRequestDto
 {
     public Guid? Id { get; set; }
-    public required string StartTime { get; set; } // HH:mm format
-    public required string EndTime { get; set; }   // HH:mm format
+    public required string StartTime { get; set; }
+    public required string EndTime { get; set; }
     public bool IsSelected { get; set; }
 }

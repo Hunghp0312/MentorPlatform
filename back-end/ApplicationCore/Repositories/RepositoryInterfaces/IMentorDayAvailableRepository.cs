@@ -16,4 +16,13 @@ public interface IMentorDayAvailableRepository : IBaseRepository<MentorDayAvaila
         DateOnly end,
         bool includeSlots = false
     );
+    Task<ICollection<MentorDayAvailable>> UpdateScheduleSettingsAndGetUpdatedDaysAsync(
+        Guid mentorId,
+        DateOnly startDate,
+        DateOnly endDate,
+        TimeOnly workDayStartTime,
+        TimeOnly workDayEndTime,
+        TimeOnly sessionDuration,
+        TimeOnly bufferTime
+    );
 }
