@@ -19,5 +19,6 @@ namespace ApplicationCore.Repositories
 
             return query;
         }
+
     }
 }

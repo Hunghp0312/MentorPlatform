@@ -43,6 +43,7 @@ namespace ApplicationCore.Repositories
                     .ThenInclude(uae => uae.UserAreaOfExpertises).ThenInclude(uae => uae.AreaOfExpertise)
                 .Include(a => a.User)
                     .ThenInclude(a => a.DayAvailabilities)
+                    .ThenInclude(d => d.MentorTimeAvailables)
                 .AsQueryable();
 
 

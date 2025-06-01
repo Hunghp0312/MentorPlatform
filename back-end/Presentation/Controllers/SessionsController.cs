@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Sessions;
+using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.DTOs.Responses.Sessions;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +14,11 @@ namespace Presentation.Controllers
     public class SessionsController : BaseController
     {
         private readonly ISessionBookingService _sessionBookingService;
-
-        public SessionsController(ISessionBookingService sessionBookingService)
+        private readonly IMentorDayAvailableService _mentorDayAvailableService;
+        public SessionsController(ISessionBookingService sessionBookingService, IMentorDayAvailableService mentorDayAvailableService)
         {
             _sessionBookingService = sessionBookingService;
+            _mentorDayAvailableService = mentorDayAvailableService;
         }
 
         [HttpPost("booking")]
@@ -32,16 +34,14 @@ namespace Presentation.Controllers
             return ToActionResult(createdBookingResult);
         }
 
-        // [HttpGet("paged")]
-        // [ProducesResponseType(typeof(PagedResult<SessionBookingResponse>), StatusCodes.Status200OK)]
-        // [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        // public async Task<IActionResult> GetPagedSessionBookings(
-        //    [FromQuery] SessionBookingQueryParameters parameters
-        //)
-        // {
-        //     var result = await _sessionBookingService.GetPagedSessionBookingsAsync(parameters);
+        [HttpGet("{mentorId}/schedule-by-day")]
+        public async Task<ActionResult<MentorDayDto>> GetMentorScheduleForDay(
+        Guid mentorId,
+        [FromQuery] DateOnly date)
+        {
+            var timeSlots = await _mentorDayAvailableService.GetMentorTimeSlotsForDayAsync(mentorId, date);
 
-        //     return ToActionResult(result);
-        // }
+            return ToActionResult(timeSlots);
+        }
     }
 }
