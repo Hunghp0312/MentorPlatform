@@ -1,10 +1,19 @@
-using Infrastructure.Entities;
 using Infrastructure.BaseRepository;
+using Infrastructure.Entities;
 
 namespace ApplicationCore.Repositories.RepositoryInterfaces;
 
 public interface IMentorDayAvailableRepository : IBaseRepository<MentorDayAvailable>
 {
-    Task<MentorDayAvailable?> GetByMentorAndDateAsync(Guid mentorId, DateOnly day, bool includeSlots = false);
-    Task<ICollection<MentorDayAvailable>> GetByMentorAndDateRangeAsync(Guid mentorId, DateOnly start, DateOnly end, bool includeSlots = false);
+    Task<MentorDayAvailable?> GetByMentorAndDateAsync(
+        Guid mentorId,
+        DateOnly day,
+        bool includeSlots = false
+    );
+    Task<ICollection<MentorDayAvailable>> GetByMentorAndDateRangeAsync(
+        Guid mentorId,
+        DateOnly start,
+        DateOnly end,
+        bool includeSlots = false
+    );
 }

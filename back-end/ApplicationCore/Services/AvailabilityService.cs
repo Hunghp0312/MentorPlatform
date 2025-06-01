@@ -1,11 +1,12 @@
 using ApplicationCore.Common;
+using ApplicationCore.Constants;
 using ApplicationCore.DTOs.Requests.Availability;
 using ApplicationCore.DTOs.Responses.Availability;
+using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
-using System.Linq;
 
 namespace ApplicationCore.Services;
 
@@ -20,40 +21,58 @@ public class AvailabilityService : IAvailabilityService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<OperationResult<WeekAvailabilityResponseDto>> GetWeekAvailabilityAsync(Guid mentorId, DateOnly weekStartDate)
+    public async Task<OperationResult<WeekAvailabilityResponseDto>> GetWeekAvailabilityAsync(
+        Guid mentorId,
+        DateOnly weekStartDate
+    )
     {
         var weekEnd = weekStartDate.AddDays(6);
-        var days = await _dayRepo.GetByMentorAndDateRangeAsync(mentorId, weekStartDate, weekEnd, includeSlots: true);
+        var days = await _dayRepo.GetByMentorAndDateRangeAsync(
+            mentorId,
+            weekStartDate,
+            weekEnd,
+            includeSlots: true
+        );
 
         var weekDto = new WeekAvailabilityResponseDto
         {
-            WeekStartDate = weekStartDate.ToString("yyyy-MM-dd"),
-            WeekEndDate = weekEnd.ToString("yyyy-MM-dd"),
-            Days = days.Select(MapToDayDto).ToList()
+            WeekStartDate = weekStartDate.ToString(DatetimeFormat.dayFormat),
+            WeekEndDate = weekEnd.ToString(DatetimeFormat.dayFormat),
+            Days = days.Select(day => day.MapToDayDto()).ToList(),
         };
 
         // ensure all 7 days present
         for (int i = 0; i < 7; i++)
         {
             var currentDate = weekStartDate.AddDays(i);
-            var existing = weekDto.Days.FirstOrDefault(d => d.Date == currentDate.ToString("yyyy-MM-dd"));
+            var existing = weekDto.Days.FirstOrDefault(d =>
+                d.Date == currentDate.ToString(DatetimeFormat.dayFormat)
+            );
             if (existing == null)
             {
-                weekDto.Days.Add(new DayAvailabilityDto
-                {
-                    Date = currentDate.ToString("yyyy-MM-dd"),
-                    DayName = currentDate.DayOfWeek.ToString(),
-                    TimeBlocks = new List<TimeBlockDto>()
-                });
+                weekDto.Days.Add(
+                    new DayAvailabilityDto
+                    {
+                        Date = currentDate.ToString(DatetimeFormat.dayFormat),
+                        DayName = currentDate.DayOfWeek.ToString(),
+                        TimeBlocks = new List<TimeBlockDto>(),
+                    }
+                );
             }
         }
 
-        weekDto.Days = weekDto.Days.OrderBy(d => DateOnly.Parse(d.Date)).ToList();
+        weekDto.Days = weekDto
+            .Days.OrderBy(d =>
+                DateOnly.Parse(d.Date, System.Globalization.CultureInfo.InvariantCulture)
+            )
+            .ToList();
 
         return OperationResult<WeekAvailabilityResponseDto>.Ok(weekDto);
     }
 
-    public async Task<OperationResult<WeekAvailabilityResponseDto>> SaveWeekAvailabilityAsync(SaveWeekAvailabilityRequestDto requestDto)
+    public async Task<OperationResult<WeekAvailabilityResponseDto>> SaveWeekAvailabilityAsync(
+        SaveWeekAvailabilityRequestDto requestDto
+    )
     {
         try
         {
@@ -61,87 +80,101 @@ public class AvailabilityService : IAvailabilityService
             var mentorId = requestDto.MentorId;
             foreach (var dayDto in requestDto.Days)
             {
-                var date = DateOnly.Parse(dayDto.Date);
-                var existingDay = await _dayRepo.GetByMentorAndDateAsync(mentorId, date, includeSlots: true);
-                if (existingDay == null)
-                {
-                    existingDay = new MentorDayAvailable
-                    {
-                        Id = Guid.NewGuid(),
-                        MentorId = mentorId,
-                        Day = date,
-                    };
-                    await _dayRepo.AddAsync(existingDay);
-                }
-
-                // update work hours
-                if (!string.IsNullOrWhiteSpace(dayDto.WorkStartTime))
-                {
-                    existingDay.StartWorkTime = TimeOnly.Parse(dayDto.WorkStartTime);
-                }
-                if (!string.IsNullOrWhiteSpace(dayDto.WorkEndTime))
-                {
-                    existingDay.EndWorkTime = TimeOnly.Parse(dayDto.WorkEndTime);
-                }
-                if (dayDto.SessionDurationMinutes.HasValue)
-                {
-                    existingDay.SessionDuration = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(dayDto.SessionDurationMinutes.Value));
-                }
-                if (dayDto.BufferMinutes.HasValue)
-                {
-                    existingDay.BufferTime = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(dayDto.BufferMinutes.Value));
-                }
-
-                // handle time blocks
-                // simplistic approach: clear and recreate (optimize later)
-                existingDay.MentorTimeAvailables.Clear();
-                foreach (var blockDto in dayDto.TimeBlocks)
-                {
-                    var block = new MentorTimeAvailable
-                    {
-                        Id = blockDto.Id ?? Guid.NewGuid(),
-                        Start = TimeOnly.Parse(blockDto.StartTime),
-                        End = TimeOnly.Parse(blockDto.EndTime),
-                        DayId = existingDay.Id,
-                        StatusId = blockDto.IsSelected ? 1 : 3 // 1: available, 3: unavailable
-                    };
-                    existingDay.MentorTimeAvailables.Add(block);
-                }
-
-                _dayRepo.Update(existingDay);
+                await UpdateOrCreateMentorDayAvailableAsync(mentorId, dayDto);
             }
 
             await _unitOfWork.SaveChangesAsync();
             await _unitOfWork.CommitAsync();
 
-            return await GetWeekAvailabilityAsync(requestDto.MentorId, DateOnly.Parse(requestDto.WeekStartDate));
+            return await GetWeekAvailabilityAsync(
+                requestDto.MentorId,
+                DateOnly.Parse(
+                    requestDto.WeekStartDate,
+                    System.Globalization.CultureInfo.InvariantCulture
+                )
+            );
         }
         catch (Exception ex)
         {
             await _unitOfWork.RollbackAsync();
-            return OperationResult<WeekAvailabilityResponseDto>.Fail($"Failed to save availability: {ex.Message}");
+            return OperationResult<WeekAvailabilityResponseDto>.Fail(
+                $"Failed to save availability: {ex.Message}"
+            );
         }
     }
 
-    private static DayAvailabilityDto MapToDayDto(MentorDayAvailable entity)
+    private async Task UpdateOrCreateMentorDayAvailableAsync(
+        Guid mentorId,
+        SaveDayAvailabilityRequestDto dayDto
+    )
     {
-        var dto = new DayAvailabilityDto
+        var date = DateOnly.Parse(dayDto.Date, System.Globalization.CultureInfo.InvariantCulture);
+        var existingDay = await _dayRepo.GetByMentorAndDateAsync(
+            mentorId,
+            date,
+            includeSlots: true
+        );
+        if (existingDay == null)
         {
-            Date = entity.Day.ToString("yyyy-MM-dd"),
-            DayName = entity.Day.DayOfWeek.ToString(),
-            WorkStartTime = entity.StartWorkTime.ToString("HH:mm"),
-            WorkEndTime = entity.EndWorkTime.ToString("HH:mm"),
-            SessionDurationMinutes = (int)entity.SessionDuration.Minute + entity.SessionDuration.Hour * 60,
-            BufferMinutes = (int)entity.BufferTime.Minute + entity.BufferTime.Hour * 60,
-            TimeBlocks = entity.MentorTimeAvailables.Select(tb => new TimeBlockDto
+            existingDay = new MentorDayAvailable
             {
-                Id = tb.Id,
-                StartTime = tb.Start.ToString("HH:mm"),
-                EndTime = tb.End.ToString("HH:mm"),
-                IsSelected = tb.StatusId == 1, // assume 1=available
-                IsBooked = tb.SessionBookings.Any()
-            }).OrderBy(tb => tb.StartTime).ToList()
-        };
-        return dto;
+                Id = Guid.NewGuid(),
+                MentorId = mentorId,
+                Day = date,
+            };
+            await _dayRepo.AddAsync(existingDay);
+        }
+
+        // update work hours
+        if (!string.IsNullOrWhiteSpace(dayDto.WorkStartTime))
+        {
+            existingDay.StartWorkTime = TimeOnly.Parse(
+                dayDto.WorkStartTime,
+                System.Globalization.CultureInfo.InvariantCulture
+            );
+        }
+        if (!string.IsNullOrWhiteSpace(dayDto.WorkEndTime))
+        {
+            existingDay.EndWorkTime = TimeOnly.Parse(
+                dayDto.WorkEndTime,
+                System.Globalization.CultureInfo.InvariantCulture
+            );
+        }
+        if (dayDto.SessionDurationMinutes.HasValue)
+        {
+            existingDay.SessionDuration = TimeOnly.FromTimeSpan(
+                TimeSpan.FromMinutes(dayDto.SessionDurationMinutes.Value)
+            );
+        }
+        if (dayDto.BufferMinutes.HasValue)
+        {
+            existingDay.BufferTime = TimeOnly.FromTimeSpan(
+                TimeSpan.FromMinutes(dayDto.BufferMinutes.Value)
+            );
+        }
+
+        // handle time blocks
+        // simplistic approach: clear and recreate (optimize later)
+        existingDay.MentorTimeAvailables.Clear();
+        foreach (var blockDto in dayDto.TimeBlocks)
+        {
+            var block = new MentorTimeAvailable
+            {
+                Id = blockDto.Id ?? Guid.NewGuid(),
+                Start = TimeOnly.Parse(
+                    blockDto.StartTime,
+                    System.Globalization.CultureInfo.InvariantCulture
+                ),
+                End = TimeOnly.Parse(
+                    blockDto.EndTime,
+                    System.Globalization.CultureInfo.InvariantCulture
+                ),
+                DayId = existingDay.Id,
+                StatusId = blockDto.IsSelected ? 1 : 3, // 1: available, 3: unavailable
+            };
+            existingDay.MentorTimeAvailables.Add(block);
+        }
+
+        _dayRepo.Update(existingDay);
     }
 }

@@ -6,13 +6,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationCore.Repositories;
 
-public class MentorDayAvailableRepository : BaseRepository<MentorDayAvailable>, IMentorDayAvailableRepository
+public class MentorDayAvailableRepository
+    : BaseRepository<MentorDayAvailable>,
+        IMentorDayAvailableRepository
 {
-    public MentorDayAvailableRepository(AppDbContext context) : base(context)
-    {
-    }
+    public MentorDayAvailableRepository(AppDbContext context)
+        : base(context) { }
 
-    public async Task<MentorDayAvailable?> GetByMentorAndDateAsync(Guid mentorId, DateOnly day, bool includeSlots = false)
+    public async Task<MentorDayAvailable?> GetByMentorAndDateAsync(
+        Guid mentorId,
+        DateOnly day,
+        bool includeSlots = false
+    )
     {
         var query = _dbSet.Where(d => d.MentorId == mentorId && d.Day == day);
         if (includeSlots)
@@ -22,7 +27,12 @@ public class MentorDayAvailableRepository : BaseRepository<MentorDayAvailable>, 
         return await query.FirstOrDefaultAsync();
     }
 
-    public async Task<ICollection<MentorDayAvailable>> GetByMentorAndDateRangeAsync(Guid mentorId, DateOnly start, DateOnly end, bool includeSlots = false)
+    public async Task<ICollection<MentorDayAvailable>> GetByMentorAndDateRangeAsync(
+        Guid mentorId,
+        DateOnly start,
+        DateOnly end,
+        bool includeSlots = false
+    )
     {
         var query = _dbSet.Where(d => d.MentorId == mentorId && d.Day >= start && d.Day <= end);
         if (includeSlots)
