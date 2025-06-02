@@ -43,10 +43,29 @@ public class AuthenticateService : IAuthenticateService
         var encodedEmail = Uri.EscapeDataString(user.Email);
         var frontendUrl = _configuration["FrontendUrl"];
         await _unitOfWork.SaveChangesAsync();
+        var resetPasswordUrl = $"{frontendUrl}/reset-password?token={encodedPasswordResetToken}&email={encodedEmail}";
+        var bodyText = $@"<p>Hello,</p>
+
+        <p>We received a request to reset the password for the account associated with this email address.</p>
+
+        <p>To reset your password, please click the link below or copy and paste it into your browser:</p>
+
+        <p><a href='{resetPasswordUrl}' class='button'>{resetPasswordUrl}</a></p>
+
+        <p>This link will expire in 5 minutes for security reasons.</p>
+
+        <p>If you did not request a password reset, please ignore this email. No changes have been made to your account.</p>
+
+        <p>Thank you,<br />
+        The Dev Team</p>
+
+        <hr />
+
+        <p>If you need assistance, please contact our support at <a href='mailto:nashtech@example.com'>nashtech@example.com</a>.</p>";
         await _sendEmailService.SendEmail(
             email.Email,
             "Reset Password",
-            $"<p>Click <a href='{frontendUrl}/reset-password?token={encodedPasswordResetToken}&email={encodedEmail}'>here</a> to reset your password.</p>"
+            bodyText
         );
         return OperationResult<MessageResponse>.Ok(new MessageResponse { Message = "Reset password email sent." });
     }

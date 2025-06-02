@@ -1061,9 +1061,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("ApplicantId");
 
-                    b.HasIndex("AdminReviewerId")
-                        .IsUnique()
-                        .HasFilter("[AdminReviewerId] IS NOT NULL");
+                    b.HasIndex("AdminReviewerId");
 
                     b.HasIndex("ApplicationStatusId");
 
@@ -2057,8 +2055,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
                 {
                     b.HasOne("Infrastructure.Entities.User", "AdminReviewer")
-                        .WithOne("ReviewedMentorApplication")
-                        .HasForeignKey("Infrastructure.Entities.MentorApplication", "AdminReviewerId")
+                        .WithMany("ReviewedMentorApplications")
+                        .HasForeignKey("AdminReviewerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Infrastructure.Entities.User", "Applicant")
@@ -2413,8 +2411,7 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("MentoredCourses");
 
-                    b.Navigation("ReviewedMentorApplication")
-                        .IsRequired();
+                    b.Navigation("ReviewedMentorApplications");
 
                     b.Navigation("SubmittedMentorApplication")
                         .IsRequired();

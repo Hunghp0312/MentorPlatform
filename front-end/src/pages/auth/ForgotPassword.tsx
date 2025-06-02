@@ -31,7 +31,6 @@ const ForgotPasswordPage: React.FC = () => {
       return;
     }
 
-    console.log("Requesting password reset for:", email);
     try {
       const response = await authService.forgotPassword({ email });
       setSuccessMessage(`${response.message}`);
@@ -49,10 +48,6 @@ const ForgotPasswordPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-slate-200">
-      <div className="absolute top-8 left-8 z-10">
-        <h1 className="text-3xl font-bold text-orange-500">MentorConnect</h1>
-      </div>
-
       <div className="w-full max-w-md px-6 py-10 bg-slate-800 rounded-2xl shadow-2xl">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-slate-100">Reset Password</h2>

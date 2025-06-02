@@ -3,6 +3,9 @@ using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
 using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using System;
+using System.Threading.Tasks;
 
 namespace ApplicationCore.Repositories
 {
@@ -60,6 +63,11 @@ namespace ApplicationCore.Repositories
                 .ToListAsync();
 
             return (items, totalRecords);
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<SessionBooking, bool>> predicate)
+        {
+            return await _dbSet.AnyAsync(predicate);
         }
     }
 }

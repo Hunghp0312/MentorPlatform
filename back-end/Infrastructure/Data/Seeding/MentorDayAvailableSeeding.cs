@@ -48,7 +48,7 @@ namespace Infrastructure.Data.Seeding
                     Day = new DateOnly(2025, 6, 7),
                     StartWorkTime = new TimeOnly(10, 0),
                     EndWorkTime = new TimeOnly(12, 30),
-                    SessionDuration = new TimeOnly(0, 45), // 45 minutes sessions
+                    SessionDuration = new TimeOnly(0, 45),
                     BufferTime = new TimeOnly(0, 15),
                 },
                 new MentorDayAvailable
@@ -58,7 +58,7 @@ namespace Infrastructure.Data.Seeding
                     Day = new DateOnly(2025, 6, 8),
                     StartWorkTime = new TimeOnly(8, 30),
                     EndWorkTime = new TimeOnly(11, 0),
-                    SessionDuration = new TimeOnly(0, 30), // 30 minutes sessions
+                    SessionDuration = new TimeOnly(0, 30),
                     BufferTime = new TimeOnly(0, 10),
                 },
                 new MentorDayAvailable

@@ -6,10 +6,12 @@ export const userService = {
     const data = response.data;
     return data;
   },
+  async getUserById(userId: string) {
+    const response = await axiosInstance.get(`/Users/${userId}`);
+    const data = response.data;
+    return data;
+  },
   async updateUserProfile(userData: FormData, userId: string) {
-    userData.forEach((value, key) => {
-      console.log(`${key}:`, value);
-    });
     const response = await axiosInstance.put(
       `/Users/${userId}/profile`,
       userData,
