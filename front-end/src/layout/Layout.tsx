@@ -25,7 +25,7 @@ export default function Layout() {
       {
         icon: <User size={20} />,
         label: "Profile",
-        href: `${pathName.editProfile}/${decodedToken?.id}`,
+        href: `${pathName.profile}/${decodedToken?.id}`,
       },
       {
         icon: <Book size={20} />,
@@ -48,19 +48,24 @@ export default function Layout() {
       {
         icon: <User size={20} />,
         label: "Profile",
-        href: `${pathName.editProfile}/${decodedToken?.id}`,
+        href: `${pathName.profile}/${decodedToken?.id}`,
       },
       {
         icon: <UserCheck size={20} />,
         label: "My Application",
         href: pathName.mentorStatus,
       },
+      {
+        icon: <UserCheck size={20} />,
+        label: "Mentor Availability",
+        href: "/mentor/availability",
+      },
     ],
     Learner: [
       {
         icon: <User size={20} />,
         label: "Profile",
-        href: `${pathName.editProfile}/${decodedToken?.id}`,
+        href: `${pathName.profile}/${decodedToken?.id}`,
       },
     ],
   };

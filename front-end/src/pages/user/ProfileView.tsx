@@ -19,8 +19,8 @@ const ProfileView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState<UserViewResponse>();
   const decodedToken = getUserFromToken();
+  const isEditable = decodedToken?.id === id || decodedToken?.role === "Admin";
   const isOwnProfile = decodedToken?.id === id;
-
   // Load user data on component mount
   useEffect(() => {
     const fetchUserData = async () => {
@@ -83,9 +83,9 @@ const ProfileView = () => {
               </button>
               <h1 className="text-2xl font-bold text-white">User Profile</h1>
             </div>
-            {isOwnProfile && (
+            {isEditable && (
               <button
-                onClick={() => navigate(`${pathName.editProfile}/${id}`)}
+                onClick={() => navigate(`edit`)}
                 className="flex items-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md transition-colors"
               >
                 <Edit className="h-4 w-4 mr-2" />
@@ -119,6 +119,7 @@ const ProfileView = () => {
                       {userData.fullName}
                       <span className="block text-sm text-gray-400 font-normal mt-1"></span>
                     </h2>
+
                     {!isOwnProfile && (
                       <button className="flex items-center justify-center gap-2 w-full py-2 bg-orange-500 hover:bg-orange-600 rounded-md transition-colors">
                         <Mail className="h-4 w-4" />
@@ -130,6 +131,14 @@ const ProfileView = () => {
 
                 {/* Profile Details */}
                 <div className="md:col-span-2">
+                  {isOwnProfile && (
+                    <div>
+                      <h3 className="text-md font-medium text-gray-400">
+                        Email
+                      </h3>
+                      <p className="mt-1 text-gray-200">{userData.email}</p>
+                    </div>
+                  )}
                   <div className="space-y-4">
                     <div>
                       <h3 className="text-md font-medium text-gray-400">Bio</h3>
@@ -166,7 +175,9 @@ const ProfileView = () => {
 
             {/* Areas of Expertise Section */}
             <section className="border-b border-gray-700 pb-6">
-              <h2 className="text-xl font-semibold mb-4">Areas of Expertise</h2>
+              <h3 className="text-md font-medium text-gray-400 mb-2">
+                Areas of Expertise
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {userData.areaOfExpertises.map(
                   (label: EnumType, index: number) => (
@@ -275,8 +286,6 @@ const ProfileView = () => {
 
             {/* Topics and Goals Section */}
             <section className="border-b border-gray-700 pb-6">
-              <h2 className="text-xl font-semibold mb-4">Topics & Goals</h2>
-
               <div className="space-y-6">
                 <div>
                   <h3 className="text-md font-medium text-gray-400 mb-2">
@@ -304,7 +313,9 @@ const ProfileView = () => {
                 {userData.userGoal && (
                   <div>
                     <h3 className="text-md font-medium text-gray-400 mb-2">
-                      Goals
+                      {userData.role.name === "Mentor"
+                        ? "Motivation Statement"
+                        : "What do you hope to learn?"}
                     </h3>
                     <p className="text-gray-200">{userData.userGoal}</p>
                   </div>
