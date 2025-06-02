@@ -28,7 +28,7 @@ namespace ApplicationCore.Extensions
                 Status = mentorApplication.ApplicationStatus.Name,
                 SubmissionDate = mentorApplication.SubmissionDate,
                 RequestInfoDate = mentorApplication.RequestInfoDate ?? string.Empty,
-
+                ApprovalDate = mentorApplication.ApprovalDate
             };
         }
         public static List<MentorApplicantResponse> ToMetorApplicantResponseList(this ICollection<MentorApplication> mentorApplications)

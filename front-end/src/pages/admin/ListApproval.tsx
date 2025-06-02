@@ -189,23 +189,23 @@ const ListApproval = () => {
     fileType: string
   ) => {
     if (!fileContent) {
-      toast.error("Không thể mở tài liệu: Không có nội dung tài liệu.");
+      toast.error("Error: File content is missing or empty.");
       return;
     }
     if (!fileType) {
-      toast.error("Không thể mở tài liệu: Thiếu loại tệp.");
+      toast.error("Error: File type is missing.");
       return;
     }
     try {
       const isValidBase64 = /^[A-Za-z0-9+/=]+$/.test(fileContent);
       if (!isValidBase64) {
-        toast.error("Không thể mở tài liệu: Dữ liệu Base64 không hợp lệ.");
+        toast.error("Error: Invalid Base64 string detected.");
         return;
       }
       setDocumentData({ fileContent, fileType });
       setOpenDocumentViewer(true);
     } catch {
-      toast.error("Lỗi khi mở tài liệu: Vui lòng thử lại.");
+      toast.error("Error: plsease try again.");
     }
   };
 
@@ -364,7 +364,7 @@ const ListApproval = () => {
           approvalDate: new Date().toISOString(),
         });
         toast.success(
-          `Application for ${selectedApproval.fullName} change to approved`
+          `Application for ${selectedApproval.fullName} changed to approved`
         );
       } else if (confirmAction === "reject") {
         request = {
@@ -392,7 +392,7 @@ const ListApproval = () => {
           lastStatusUpdateDate: new Date().toISOString(),
         });
         toast.success(
-          `Application for ${selectedApproval.fullName} change to rejected`
+          `Application for ${selectedApproval.fullName} changed to rejected`
         );
       } else if (confirmAction === "underreview") {
         request = {
@@ -412,6 +412,11 @@ const ListApproval = () => {
               : item
           )
         );
+        setSelectedApproval({
+          ...selectedApproval,
+          status: "Under Review",
+          rejectionReason: null,
+        });
         toast.success(
           `Application for ${selectedApproval.fullName} set to under review`
         );
@@ -445,8 +450,12 @@ const ListApproval = () => {
         );
       }
     } catch (error) {
-      console.error(`Error ${confirmAction} application:`, error);
-      toast.error(`Failed to ${confirmAction} application`);
+      if (error instanceof AxiosError) {
+        handleAxiosError(error); // Use the existing error handler
+      } else {
+        console.error(`Error during ${confirmAction}:`, error);
+        toast.error(`Failed to ${confirmAction} application`);
+      }
     } finally {
       setIsLoading(false);
       setIsConfirmModalOpen(false);
