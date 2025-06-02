@@ -199,7 +199,7 @@ const ListUser = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/edit-profile/${row.id}`);
+                navigate(`/profile/${row.id}`);
               }}
               title="View Details"
               className="text-gray-500 hover:text-gray-700"

@@ -15,5 +15,4 @@ export const pathName = {
   bookingSession: "/booking-session",
   mentorDashboard: "/mentor-dashboard",
   sessionManagement: "/session-management",
-  editProfile: "/edit-profile",
 };

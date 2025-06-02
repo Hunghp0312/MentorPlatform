@@ -29,6 +29,7 @@ import MentorDashBoard from "../pages/mentor/MentorDashBoard";
 import SessionManagement from "../pages/session/SessionManagement";
 import { EditableUserProfileRoute } from "./EditableUserProfileRoute";
 import ProfileView from "../pages/user/ProfileView";
+import AvailabilityManager from "../pages/mentor/MentorAvailibility";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -45,7 +46,6 @@ const AppRouter = () => {
         { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
         { path: pathName.oauthcallback, element: <OAuthCallback /> },
         { path: pathName.unauthorized, element: <UnauthorizedPage /> },
-        { path: "profile/:id", element: <ProfileView /> },
       ],
     },
     {
@@ -54,7 +54,7 @@ const AppRouter = () => {
           <Layout />
         </EditableUserProfileRoute>
       ),
-      children: [{ path: "edit-profile/:id", element: <EditUserPage /> }],
+      children: [{ path: "profile/:id/edit", element: <EditUserPage /> }],
     },
     {
       element: (
@@ -64,7 +64,12 @@ const AppRouter = () => {
           </RequireRole>
         </PrivateRoute>
       ),
-      children: [{ path: pathName.home, element: HomePage }],
+
+      children: [
+        { path: pathName.home, element: HomePage },
+        { path: "mentor/availability", element: <AvailabilityManager /> },
+        { path: "profile/:id", element: <ProfileView /> },
+      ],
     },
     {
       element: (

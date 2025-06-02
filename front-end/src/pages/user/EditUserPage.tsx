@@ -96,9 +96,10 @@ const EditUserPage = () => {
   // User data state
   const [userData, setUserData] = useState<UserUpdateRequest>({
     fullName: "",
-    bio: null,
+    bio: "",
+    phoneNumber: null,
     professionalSkill: null,
-    industryExperience: null,
+    industryExperience: "",
     teachingApproaches: [],
     userProfileAvailabilities: [],
     userTopicOfInterests: [],
@@ -268,6 +269,9 @@ const EditUserPage = () => {
     }
     if (!userData.fullName.trim()) {
       newErrors.fullName = "Please fill in your full name";
+    }
+    if (userData.bio.trim().length > 1000) {
+      newErrors.bio = "Bio must be less than 1000 characters";
     }
     if (!userData.bio?.trim()) {
       newErrors.bio = "Bio is required";
@@ -492,6 +496,17 @@ const EditUserPage = () => {
                     value={userData.fullName}
                     onChange={handleInputChange}
                     placeholder="Your full name"
+                    isRequired
+                    errorMessage={errors.fullName}
+                    className="bg-gray-700 border-gray-600"
+                  />
+                  <InputCustom
+                    label="Phone Number"
+                    name="phoneNumber"
+                    type="text"
+                    value={userData.phoneNumber || ""}
+                    onChange={handleInputChange}
+                    placeholder="Your phone number"
                     isRequired
                     errorMessage={errors.fullName}
                     className="bg-gray-700 border-gray-600"
