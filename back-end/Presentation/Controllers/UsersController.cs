@@ -41,8 +41,10 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(OperationResult<UserFullProfileResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> GetUserById(Guid userId)
         {
+            var userIdString = User.FindFirstValue("id")!;
             var result = await _userService.GetFullUserProfileByIdAsync(userId);
             return ToActionResult(result);
         }

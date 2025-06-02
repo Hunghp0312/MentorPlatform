@@ -294,6 +294,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
           inputPadding="px-4 py-2.5" // Example, adjust as per your Dropdown component
           className="bg-gray-700 border-gray-600" // Example
           isRequired
+          dataTestId="sessionFrequencyDropdown"
         />
         <Dropdown
           label="Preferred session duration"
@@ -310,6 +311,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
           inputPadding="px-4 py-2.5" // Example
           className="bg-gray-700 border-gray-600" // Example
           isRequired
+          dataTestId="sessionDurationDropdown"
         />
       </div>
 
@@ -422,12 +424,14 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <button
           type="button"
           onClick={onBack}
-          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-650 rounded-lg text-gray-300 font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-650 rounded-lg text-gray-300 font-semibold"
+        >
           Back
         </button>
         <button
           type="submit"
-          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold"
+        >
           Complete Registration
         </button>
       </div>

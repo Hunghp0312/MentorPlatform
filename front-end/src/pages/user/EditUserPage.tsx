@@ -96,9 +96,10 @@ const EditUserPage = () => {
   // User data state
   const [userData, setUserData] = useState<UserUpdateRequest>({
     fullName: "",
-    bio: null,
+    bio: "",
+    phoneNumber: null,
     professionalSkill: null,
-    industryExperience: null,
+    industryExperience: "",
     teachingApproaches: [],
     userProfileAvailabilities: [],
     userTopicOfInterests: [],
@@ -268,6 +269,9 @@ const EditUserPage = () => {
     }
     if (!userData.fullName.trim()) {
       newErrors.fullName = "Please fill in your full name";
+    }
+    if (userData.bio.trim().length > 1000) {
+      newErrors.bio = "Bio must be less than 1000 characters";
     }
     if (!userData.bio?.trim()) {
       newErrors.bio = "Bio is required";
@@ -494,6 +498,17 @@ const EditUserPage = () => {
                     placeholder="Your full name"
                     isRequired
                     errorMessage={errors.fullName}
+                    className="bg-gray-700 border-gray-600"
+                  />
+                  <InputCustom
+                    label="Phone Number"
+                    name="phoneNumber"
+                    type="text"
+                    value={userData.phoneNumber || ""}
+                    onChange={handleInputChange}
+                    placeholder="Your phone number"
+                    isRequired
+                    errorMessage={errors.phoneNumber}
                     className="bg-gray-700 border-gray-600"
                   />
 
@@ -801,7 +816,7 @@ const EditUserPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-700">
               <button
                 type="button"
-                onClick={() => navigate(pathName.profile)}
+                onClick={() => navigate(pathName.home)}
                 className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold transition-colors"
               >
                 Cancel

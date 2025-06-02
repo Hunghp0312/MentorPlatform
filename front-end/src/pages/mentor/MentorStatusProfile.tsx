@@ -332,7 +332,7 @@ const MentorStatusProfile = () => {
         }
         return { ...prev, mentorEducation: updatedEducation };
       });
-      toast.success("Education Add/Edit successfully.");
+      toast.success("Data saved!");
       setNewEducation({});
       setEditEducationIndex(null);
       setOpenEducationDialog(false);
@@ -959,7 +959,10 @@ const MentorStatusProfile = () => {
             <div className="flex items-center space-x-4">
               <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
                 <img
-                  src={DefaultImage}
+                  src={
+                    mentorData.userApplicationDetails?.profile?.photoData ||
+                    DefaultImage
+                  }
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />

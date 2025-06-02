@@ -46,7 +46,6 @@ const AppRouter = () => {
         { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
         { path: pathName.oauthcallback, element: <OAuthCallback /> },
         { path: pathName.unauthorized, element: <UnauthorizedPage /> },
-        { path: "profile/:id", element: <ProfileView /> },
       ],
     },
     {
@@ -55,7 +54,7 @@ const AppRouter = () => {
           <Layout />
         </EditableUserProfileRoute>
       ),
-      children: [{ path: "edit-profile/:id", element: <EditUserPage /> }],
+      children: [{ path: "profile/:id/edit", element: <EditUserPage /> }],
     },
     {
       element: (
@@ -65,7 +64,11 @@ const AppRouter = () => {
           </RequireRole>
         </PrivateRoute>
       ),
-      children: [{ path: pathName.home, element: HomePage }],
+
+      children: [
+        { path: pathName.home, element: HomePage },
+        { path: "profile/:id", element: <ProfileView /> },
+      ],
     },
     {
       element: (
@@ -108,11 +111,10 @@ const AppRouter = () => {
       ),
       children: [],
     },
-    {path: pathName.bookingSession, element : <BookingSession/>},
-    {path: pathName.mentorDashboard, element : <MentorDashBoard/>},
-    {path: pathName.sessionManagement, element : <SessionManagement/>},
-    {path: pathName.mentorProfile, element : <MentorProfile/>}
-
+    { path: pathName.bookingSession, element: <BookingSession /> },
+    { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
+    { path: pathName.sessionManagement, element: <SessionManagement /> },
+    { path: pathName.mentorProfile, element: <MentorProfile /> },
   ]);
 
   return routes;
