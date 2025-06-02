@@ -54,6 +54,7 @@ const ListApproval = () => {
   );
   type ConfirmActionType = "approve" | "reject" | "requestInfo" | "underreview";
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -261,7 +262,7 @@ const ListApproval = () => {
         return (
           <div className="flex items-center space-x-4">
             <img
-              src={DefaultImage}
+              src={row.photoData || DefaultImage}
               alt={row.fullName}
               className="w-12 h-12 rounded-full object-cover"
             />
@@ -281,6 +282,8 @@ const ListApproval = () => {
                       ? "bg-red-500"
                       : row.status === "Request Info"
                       ? "bg-blue-500"
+                      : row.status === "Under Review"
+                      ? "bg-purple-500"
                       : "bg-gray-500"
                   }`}
                 ></span>
@@ -334,10 +337,14 @@ const ListApproval = () => {
       !adminNotes.trim()
     ) {
       toast.error("Admin notes are required for this action.");
+      setIsConfirmModalOpen(false);
       return;
     }
 
-    setIsLoading(true);
+    setIsConfirmLoading(true);
+    setIsConfirmModalOpen(false); // Close modal immediately after clicking Confirm
+    toast.info("Wait a moment for update...");
+
     try {
       let request: MentorUpdateStatusRequest;
       if (confirmAction === "approve") {
@@ -457,8 +464,7 @@ const ListApproval = () => {
         toast.error(`Failed to ${confirmAction} application`);
       }
     } finally {
-      setIsLoading(false);
-      setIsConfirmModalOpen(false);
+      setIsConfirmLoading(false);
       setAdminNotes("");
     }
   };
@@ -596,11 +602,11 @@ const ListApproval = () => {
   );
 
   return (
-    <main className="p-4 container mx-auto">
+    <main className="p-2 sm:p-4 container mx-auto max-w-7xl">
       <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
         <div className="p-6">
           <h2 className="text-2xl font-semibold">Mentor Applications</h2>
-          <div className="flex flex-col md:flex-row gap-4 mb-6 pt-6">
+          <div className="flex flex-col gap-4 mb-6 pt-6 sm:flex-row sm:items-center">
             <div className="flex-grow relative">
               <InputCustom
                 name="search"
@@ -612,7 +618,7 @@ const ListApproval = () => {
               />
             </div>
             <select
-              className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+              className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white sm:w-40"
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
@@ -627,8 +633,8 @@ const ListApproval = () => {
             </select>
           </div>
 
-          <div className="flex gap-6">
-            <div className="w-1/2">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+            <div className="w-full sm:w-1/2">
               <div className="bg-gray-700 rounded-lg overflow-hidden">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
                   <h3 className="font-medium">
@@ -644,28 +650,34 @@ const ListApproval = () => {
                   </h3>
                 </div>
                 <div className="max-h-[600px] overflow-y-auto pb-4">
-                  <DataTable
-                    data={approvals}
-                    columns={columns}
-                    keyField="applicantUserId"
-                    className="bg-gray-700"
-                    rowClassName="p-4 hover:bg-gray-600 cursor-pointer transition duration-150 border-b border-gray-600 last:border-b-0"
-                    cellClassName="p-0"
-                    headerClassName="hidden"
-                    emptyMessage="No applications available"
-                    pagination
-                    pageSize={pageSize}
-                    setPageSize={setPageSize}
-                    pageIndex={pageIndex}
-                    setPageIndex={setPageIndex}
-                    totalItems={totalItems}
-                    paginationClassName="pr-3 pl-3"
-                    onRowClick={handleSelectApplicants}
-                  />
+                  {isFetching ? (
+                    <div className="flex justify-center items-center h-[200px]">
+                      <SmallLoadingSpinner />
+                    </div>
+                  ) : (
+                    <DataTable
+                      data={approvals}
+                      columns={columns}
+                      keyField="applicantUserId"
+                      className="bg-gray-700"
+                      rowClassName="p-4 hover:bg-gray-600 cursor-pointer transition duration-150 border-b border-gray-600 last:border-b-0"
+                      cellClassName="p-0"
+                      headerClassName="hidden"
+                      emptyMessage="No applications available"
+                      pagination
+                      pageSize={pageSize}
+                      setPageSize={setPageSize}
+                      pageIndex={pageIndex}
+                      setPageIndex={setPageIndex}
+                      totalItems={totalItems}
+                      paginationClassName="pr-3 pl-3"
+                      onRowClick={handleSelectApplicants}
+                    />
+                  )}
                 </div>
               </div>
             </div>
-            <div className="w-1/2">
+            <div className="w-full sm:w-1/2">
               <div className="bg-gray-700 rounded-lg overflow-hidden">
                 <div className="px-4 py-3 bg-gray-700 border-b border-gray-600">
                   <h3 className="font-medium">Application Details</h3>
@@ -694,7 +706,7 @@ const ListApproval = () => {
                           <button
                             id="underreview-application-button"
                             onClick={() => HandleUnderRevie(selectedApproval)}
-                            className="bg-purple-600 hover:bg-orange-700 text-white px-3 py-1 rounded-md"
+                            className="bg-yellow-600 hover:bg-orange-700 text-white px-3 py-1 rounded-md"
                           >
                             Under Review
                           </button>
@@ -756,7 +768,17 @@ const ListApproval = () => {
                                       .filter((date) => date.trim())
                                       .map((timestamp) => ({
                                         action: "Submitted",
-                                        timestamp,
+                                        timestamp: new Date(
+                                          timestamp
+                                        ).toLocaleString("en-US", {
+                                          month: "numeric",
+                                          day: "numeric",
+                                          year: "numeric",
+                                          hour: "numeric",
+                                          minute: "2-digit",
+                                          second: "2-digit",
+                                          hour12: true,
+                                        }),
                                         originalTimestamp: timestamp,
                                         content: null,
                                       }))
@@ -765,8 +787,17 @@ const ListApproval = () => {
                                   ? [
                                       {
                                         action: "Approved",
-                                        timestamp:
-                                          selectedApproval.approvalDate,
+                                        timestamp: new Date(
+                                          selectedApproval.approvalDate
+                                        ).toLocaleString("en-US", {
+                                          month: "numeric",
+                                          day: "numeric",
+                                          year: "numeric",
+                                          hour: "numeric",
+                                          minute: "2-digit",
+                                          second: "2-digit",
+                                          hour12: true,
+                                        }),
                                         originalTimestamp:
                                           selectedApproval.approvalDate,
                                         content: null,
@@ -778,8 +809,17 @@ const ListApproval = () => {
                                   ? [
                                       {
                                         action: `Rejected: ${selectedApproval.rejectionReason}`,
-                                        timestamp:
-                                          selectedApproval.approvalDate,
+                                        timestamp: new Date(
+                                          selectedApproval.approvalDate
+                                        ).toLocaleString("en-US", {
+                                          month: "numeric",
+                                          day: "numeric",
+                                          year: "numeric",
+                                          hour: "numeric",
+                                          minute: "2-digit",
+                                          second: "2-digit",
+                                          hour12: true,
+                                        }),
                                         originalTimestamp:
                                           selectedApproval.approvalDate,
                                         content:
@@ -1047,9 +1087,10 @@ const ListApproval = () => {
               </button>
               <button
                 onClick={() => confirmActions()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center justify-center"
+                disabled={isConfirmLoading}
               >
-                Confirm
+                {isConfirmLoading ? <SmallLoadingSpinner /> : "Confirm"}
               </button>
             </div>
           </div>
