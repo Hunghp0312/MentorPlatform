@@ -35,39 +35,39 @@
 //     { time: "15:15 - 16:15", status: "Unavailable" },
 //   ];
 
-//   const bookedSlots = {
-//     Mon: [
-//       { time: "10:15", label: "10:15 (booked)" },
-//       { time: "14:00", label: "14:00 (booked)" },
-//     ],
-//     Wed: [
-//       { time: "09:00", label: "09:00 (booked)" },
-//       { time: "11:30", label: "11:30 (booked)" },
-//     ],
-//   };
+//   //   const bookedSlots = {
+//   //     Mon: [
+//   //       { time: "10:15", label: "10:15 (booked)" },
+//   //       { time: "14:00", label: "14:00 (booked)" },
+//   //     ],
+//   //     Wed: [
+//   //       { time: "09:00", label: "09:00 (booked)" },
+//   //       { time: "11:30", label: "11:30 (booked)" },
+//   //     ],
+//   //   };
 
-//   const toggleSlot = (slotTime) => {
-//     setSlotAvailability((prev) => ({
-//       ...prev,
-//       [slotTime]: !prev[slotTime],
-//     }));
-//   };
+//   //   const toggleSlot = (slotTime) => {
+//   //     setSlotAvailability((prev) => ({
+//   //       ...prev,
+//   //       [slotTime]: !prev[slotTime],
+//   //     }));
+//   //   };
 
-//   const selectAllSlots = () => {
-//     const newAvailability = {};
-//     timeSlots.forEach((slot) => {
-//       newAvailability[slot.time] = true;
-//     });
-//     setSlotAvailability(newAvailability);
-//   };
+//   //   const selectAllSlots = () => {
+//   //     const newAvailability = {};
+//   //     timeSlots.forEach((slot) => {
+//   //       newAvailability[slot.time] = true;
+//   //     });
+//   //     setSlotAvailability(newAvailability);
+//   //   };
 
-//   const clearAllSlots = () => {
-//     const newAvailability = {};
-//     timeSlots.forEach((slot) => {
-//       newAvailability[slot.time] = false;
-//     });
-//     setSlotAvailability(newAvailability);
-//   };
+//   //   const clearAllSlots = () => {
+//   //     const newAvailability = {};
+//   //     timeSlots.forEach((slot) => {
+//   //       newAvailability[slot.time] = false;
+//   //     });
+//   //     setSlotAvailability(newAvailability);
+//   //   };
 
 //   return (
 //     <div className="min-h-screen bg-slate-800 text-white">
@@ -237,7 +237,7 @@
 //           </div>
 
 //           {/* Time Slots */}
-//           <div className="mb-8">
+//           {/* <div className="mb-8">
 //             <h2 className="text-xl font-medium mb-4">
 //               Set your availability for{" "}
 //               {days.find((d) => d.short === selectedDay)?.full},{" "}
@@ -261,7 +261,7 @@
 //                 </div>
 //               ))}
 //             </div>
-//           </div>
+//           </div> */}
 
 //           {/* Availability Preview */}
 //           <div>
@@ -270,7 +270,7 @@
 //               This is how your availability will appear to learners:
 //             </p>
 
-//             <div className="grid grid-cols-7 gap-4 mb-4">
+//             {/* <div className="grid grid-cols-7 gap-4 mb-4">
 //               {days.map((day) => (
 //                 <div key={day.short} className="text-center">
 //                   <div className="font-medium">{day.short}</div>
@@ -287,7 +287,7 @@
 //                   </div>
 //                 </div>
 //               ))}
-//             </div>
+//             </div> */}
 
 //             <div className="flex items-center gap-6 text-sm text-slate-400">
 //               <div>
