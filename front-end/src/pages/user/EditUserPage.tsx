@@ -508,7 +508,7 @@ const EditUserPage = () => {
                     onChange={handleInputChange}
                     placeholder="Your phone number"
                     isRequired
-                    errorMessage={errors.fullName}
+                    errorMessage={errors.phoneNumber}
                     className="bg-gray-700 border-gray-600"
                   />
 
