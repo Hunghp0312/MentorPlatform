@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-<<<<<<<< HEAD:back-end/Infrastructure/Migrations/20250531065638_initialDb.Designer.cs
-    [Migration("20250531065638_initialDb")]
+    [Migration("20250602092635_initialDb")]
     partial class initialDb
-========
-    [Migration("20250601080903_newdb")]
-    partial class newdb
->>>>>>>> main:back-end/Infrastructure/Migrations/20250601080903_newdb.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
