@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Sessions;
 using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.DTOs.Responses.Sessions;
@@ -43,5 +44,30 @@ namespace Presentation.Controllers
 
             return ToActionResult(timeSlots);
         }
+
+        [HttpGet("mentor/my-bookings")]
+        [Authorize(Roles = "Learner,Mentor")]
+        public async Task<ActionResult<PagedResult<MentorBookingDetailsDto>>> GetMyMentorBookings(
+       [FromQuery] MentorBookingsQueryParameters queryParameters)
+        {
+            var mentorIdString = User.FindFirstValue("id")!;
+            Guid mentorId = Guid.Parse(mentorIdString);
+            var pagedBookings = await _sessionBookingService.GetBookingsForMentorAsync(mentorId, queryParameters);
+
+            return ToActionResult(pagedBookings);
+        }
+
+        //[HttpPut("mentor/status")]
+        //public async Task<IActionResult> AcceptBooking(Guid sessionId, [FromBody] UpdateBookingStatusRequestDto updateRequest)
+        //{
+
+        //    var mentorIdString = User.FindFirstValue("id")!;
+        //    Guid mentorId = Guid.Parse(mentorIdString);
+
+        //    var result = await _sessionBookingService.UpdateBookingStatusAsync(sessionId, mentorId, updateRequest);
+
+        //    return ToActionResult(result);
+        //}
+
     }
 }

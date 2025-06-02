@@ -1,8 +1,8 @@
 ﻿namespace ApplicationCore.DTOs.Responses.Sessions
 {
-    public class CreatedBookingResponseDto
+    public class AcceptBookingResponseDto
     {
         public Guid Id { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public int StatusId { get; set; }
     }
 }

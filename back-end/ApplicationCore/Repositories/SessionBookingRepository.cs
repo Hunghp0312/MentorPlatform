@@ -30,5 +30,36 @@ namespace ApplicationCore.Repositories
 
             return query;
         }
+
+        public override async Task<(ICollection<SessionBooking>, int)> GetPagedAsync(
+          Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>>? filter,
+          int pageIndex,
+          int pageSize
+      )
+        {
+            var queryable = _dbSet
+                .Include(a => a.SessionType)
+                .Include(a => a.Status)
+                .Include(a => a.Learner)
+                    .ThenInclude(b => b.UserProfile)
+                .Include(a => a.Mentor)
+                    .ThenInclude(b => b.UserProfile)
+                .Include(x => x.MentorTimeAvailable)
+                    .ThenInclude(y => y.MentorDayAvailable)
+                .AsQueryable();
+
+            if (filter != null)
+            {
+                queryable = filter(queryable);
+            }
+
+            var totalRecords = await queryable.CountAsync();
+            var items = await queryable
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalRecords);
+        }
     }
 }
