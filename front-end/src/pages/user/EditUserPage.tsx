@@ -816,7 +816,7 @@ const EditUserPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-700">
               <button
                 type="button"
-                onClick={() => navigate(pathName.profile)}
+                onClick={() => navigate(pathName.home)}
                 className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold transition-colors"
               >
                 Cancel
