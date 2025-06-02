@@ -12,11 +12,6 @@ public interface IMentorDayAvailableRepository : IBaseRepository<MentorDayAvaila
         DateOnly start,
         DateOnly end
     );
-
-    Task<ICollection<MentorDayAvailable>> GetDaysAvailabilityAsync(
-        SaveDaysAvailabilityRequestDto request
-    );
-
     Task<MentorDayAvailable?> GetDayAvailabilityAsync(Guid mentorId, DateOnly day);
 
     Task DeleteDayAvailable(Guid mentorId, ICollection<DateOnly> days);

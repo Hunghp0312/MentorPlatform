@@ -11,16 +11,11 @@ public interface IAvailabilityService
         DateOnly weekStartDate
     );
 
-    Task<OperationResult<MentorDaysAvailabilityResponseDto>> SaveMentorDaysAvailability(
+    Task<OperationResult<string>> SaveMentorDaysAvailability(
         Guid mentorId,
         SaveDaysAvailabilityRequestDto requestDto
     );
     Task UpdateOrCreateMentorDayAvailableAsync(Guid mentorId, MentorAvailabilityRequestDto dayDto);
 
     Task<OperationResult<DayAvailabilityDto>> GetDayAvailabilityAsync(Guid mentorId, DateOnly day);
-
-    Task<OperationResult<DayAvailabilityDto>> DeleteDaysAsync(
-        Guid mentorId,
-        DaysAvailabilityDeleteRequestDto days
-    );
 }
