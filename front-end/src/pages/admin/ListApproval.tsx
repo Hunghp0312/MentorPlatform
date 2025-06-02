@@ -329,6 +329,14 @@ const ListApproval = () => {
   const confirmActions = async () => {
     if (!selectedApproval || !confirmAction) return;
 
+    if (
+      (confirmAction === "reject" || confirmAction === "requestInfo") &&
+      !adminNotes.trim()
+    ) {
+      toast.error("Admin notes are required for this action.");
+      return;
+    }
+
     setIsLoading(true);
     try {
       let request: MentorUpdateStatusRequest;
@@ -621,6 +629,8 @@ const ListApproval = () => {
                       ? "Rejected Applications"
                       : statusFilter === "approved"
                       ? "Approved Mentors"
+                      : statusFilter === "request-info"
+                      ? "Applications with Requested Info"
                       : "All Applications"}
                   </h3>
                 </div>
@@ -1000,7 +1010,11 @@ const ListApproval = () => {
                 ? "Approval"
                 : confirmAction === "reject"
                 ? "Rejection"
-                : "Request Info"}
+                : confirmAction === "requestInfo"
+                ? "Request Info"
+                : confirmAction === "underreview"
+                ? "Under Review"
+                : "Action"}
             </h3>
             <p className="text-gray-300 mb-4">
               Are you sure you want to{" "}
@@ -1008,7 +1022,11 @@ const ListApproval = () => {
                 ? "approve"
                 : confirmAction === "reject"
                 ? "reject"
-                : "request info for"}{" "}
+                : confirmAction === "requestInfo"
+                ? "request info for"
+                : confirmAction === "underreview"
+                ? "set to under review"
+                : "perform action on"}{" "}
               the application for <strong>{selectedApproval?.fullName}</strong>?
             </p>
             <div className="flex justify-end space-x-2">
