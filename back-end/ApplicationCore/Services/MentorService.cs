@@ -207,7 +207,7 @@ namespace ApplicationCore.Services
             var emailSubject = "Mentor Application Status Update";
 
             if (applicationStatus.Equals("Approved", StringComparison.OrdinalIgnoreCase) ||
-                applicationStatus.Equals("Rejected", StringComparison.OrdinalIgnoreCase))
+                applicationStatus.Equals("Rejected", StringComparison.OrdinalIgnoreCase) || applicationStatus.Equals("Request Info", StringComparison.OrdinalIgnoreCase))
             {
                 var bodyBuilder = new StringBuilder();
                 bodyBuilder.AppendLine($"Hi {applicantName},");

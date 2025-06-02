@@ -16,7 +16,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
   onClose,
   onSubmit,
   initialData,
-  actionButtonText = "Save",
+  actionButtonText = initialData ? "Update" : "Save",
   isSubmitting = false,
 }) => {
   const [formState, setFormState] = useState<MentorWorkExperience>({
@@ -157,18 +157,6 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 gap-6">
         <InputCustom
-          label="Company Name"
-          name="companyName"
-          type="text"
-          value={formState.companyName}
-          onChange={handleChange}
-          isRequired
-          placeholder="Enter company name"
-          errorMessage={errors.companyName}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-6">
-        <InputCustom
           label="Position"
           name="position"
           type="text"
@@ -177,6 +165,18 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
           isRequired
           placeholder="Enter your position"
           errorMessage={errors.position}
+        />
+      </div>
+      <div className="grid grid-cols-1 gap-6">
+        <InputCustom
+          label="Company Name"
+          name="companyName"
+          type="text"
+          value={formState.companyName}
+          onChange={handleChange}
+          isRequired
+          placeholder="Enter company name"
+          errorMessage={errors.companyName}
         />
       </div>
       <div className="grid grid-cols-1 gap-6">

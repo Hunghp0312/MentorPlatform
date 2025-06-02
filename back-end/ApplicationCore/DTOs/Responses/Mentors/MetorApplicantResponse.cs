@@ -9,6 +9,8 @@ namespace ApplicationCore.DTOs.Responses.Mentors
                 public required string FullName { get; set; }
                 public Guid ApplicantUserId { get; set; }
                 public string SubmissionDate { get; set; } = string.Empty;
+                public string RequestInfoDate { get; set; } = string.Empty;
+                public DateTime? ApprovalDate { get; set; }
                 public ICollection<AreaOfExpertiseResponse> ExpertiseAreas { get; set; } = [];
                 public required string Status { get; set; }
 

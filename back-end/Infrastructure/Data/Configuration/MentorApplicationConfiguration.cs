@@ -38,8 +38,8 @@ namespace Infrastructure.Data.Configuration
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(ma => ma.AdminReviewer)
-                .WithOne(u => u.ReviewedMentorApplication)
-                .HasForeignKey<MentorApplication>(ma => ma.AdminReviewerId)
+                .WithMany(u => u.ReviewedMentorApplications)
+                .HasForeignKey(ma => ma.AdminReviewerId)
                 .OnDelete(DeleteBehavior.SetNull);
         }
     }

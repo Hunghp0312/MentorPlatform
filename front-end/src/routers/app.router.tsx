@@ -27,6 +27,7 @@ import EditUserPage from "../pages/user/EditUserPage";
 import BookingSession from "../pages/session/BookingSession";
 import MentorDashBoard from "../pages/mentor/MentorDashBoard";
 import SessionManagement from "../pages/session/SessionManagement";
+import MentorProfile from "../pages/mentor/MentorProfile";
 import { EditableUserProfileRoute } from "./EditableUserProfileRoute";
 import ProfileView from "../pages/user/ProfileView";
 import AvailabilityManager from "../pages/mentor/MentorAvailibility";
@@ -112,9 +113,11 @@ const AppRouter = () => {
       ),
       children: [],
     },
-    { path: pathName.bookingSession, element: <BookingSession /> },
-    { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
-    { path: pathName.sessionManagement, element: <SessionManagement /> },
+    {path: pathName.bookingSession, element : <BookingSession/>},
+    {path: pathName.mentorDashboard, element : <MentorDashBoard/>},
+    {path: pathName.sessionManagement, element : <SessionManagement/>},
+    {path: pathName.mentorProfile, element : <MentorProfile/>}
+
   ]);
 
   return routes;

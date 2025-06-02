@@ -52,7 +52,7 @@ export default function Layout() {
       },
       {
         icon: <UserCheck size={20} />,
-        label: "Mentor Status",
+        label: "My Application",
         href: pathName.mentorStatus,
       },
       {

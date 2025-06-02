@@ -19,8 +19,8 @@ namespace Infrastructure.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public virtual UserProfile UserProfile { get; set; } = default!;
         public virtual MentorApplication SubmittedMentorApplication { get; set; } = null!;
-        public virtual MentorApplication ReviewedMentorApplication { get; set; } = null!;
         public virtual ICollection<Course> MentoredCourses { get; set; } = new List<Course>();
+        public virtual ICollection<MentorApplication> ReviewedMentorApplications { get; set; } = new List<MentorApplication>();
         public virtual ICollection<UserAreaOfExpertise> UserAreaOfExpertises { get; set; } =
             new List<UserAreaOfExpertise>();
         public virtual ICollection<MentorDayAvailable> DayAvailabilities { get; set; } =
@@ -29,5 +29,6 @@ namespace Infrastructure.Entities
             new List<SessionBooking>();
         public virtual ICollection<SessionBooking> LearnerSessions { get; set; } =
             new List<SessionBooking>();
+
     }
 }
