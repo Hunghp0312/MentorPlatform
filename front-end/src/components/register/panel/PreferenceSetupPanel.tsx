@@ -320,7 +320,15 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         name="goal"
         type="textarea"
         value={currentPreferences.goal}
-        onChange={(e) => onUpdate({ goal: e.target.value })}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value.length <= 1000) {
+            onUpdate({ goal: e.target.value });
+            setGoalError("");
+          } else {
+            setGoalError("Please enter goal under 1000 characters.");
+          }
+        }}
         placeholder="Describe your main learning or mentoring goal for using this platform..."
         isRequired
         errorMessage={goalError}
@@ -424,14 +432,12 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <button
           type="button"
           onClick={onBack}
-          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-650 rounded-lg text-gray-300 font-semibold"
-        >
+          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-650 rounded-lg text-gray-300 font-semibold">
           Back
         </button>
         <button
           type="submit"
-          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold"
-        >
+          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold">
           Complete Registration
         </button>
       </div>
