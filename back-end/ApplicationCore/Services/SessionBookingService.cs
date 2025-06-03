@@ -46,7 +46,7 @@ namespace ApplicationCore.Services
         }
         private static OperationResult<SessionStatusResponse>? ValidateStatusChange(SessionBooking session, SessionUpdateStatusRequest request)
         {
-            if (request.StatusId <= 0)
+            if (request.StatusId <= 3 || request.StatusId > 6)
             {
                 return OperationResult<SessionStatusResponse>.BadRequest("Invalid status ID provided.");
             }
