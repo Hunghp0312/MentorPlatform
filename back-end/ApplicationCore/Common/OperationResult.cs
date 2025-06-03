@@ -38,6 +38,9 @@ namespace ApplicationCore.Common
         public static OperationResult<T> Conflict(string message) =>
             new OperationResult<T>(false, default, message, HttpStatusCode.Conflict);
 
+        public static OperationResult<T> Forbidden(string message) =>
+            new OperationResult<T>(false, default, message, HttpStatusCode.Forbidden);
+
         public static OperationResult<T> Unauthorized(string message) =>
             new OperationResult<T>(false, default, message, HttpStatusCode.Unauthorized);
 

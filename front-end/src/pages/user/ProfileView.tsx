@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Mail, Edit, Calendar, Clock, User } from "lucide-react";
-import { toast } from "react-toastify";
 
 // Services
 import { userService } from "../../services/user.service";
@@ -35,7 +34,6 @@ const ProfileView = () => {
         setUserData(processedData);
       } catch (error) {
         console.error("Failed to fetch user data:", error);
-        toast.error("Failed to load profile information.");
       } finally {
         setIsLoading(false);
       }
