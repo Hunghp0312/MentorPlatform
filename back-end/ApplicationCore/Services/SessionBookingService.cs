@@ -190,39 +190,154 @@ namespace ApplicationCore.Services
             return OperationResult<PagedResult<MentorBookingDetailsDto>>.Ok(pagedResult);
         }
 
-        public Task<OperationResult<MentorBookingDetailsDto>> AcceptBookingAsync(Guid sessionId, Guid mentorId)
+        public async Task<OperationResult<UpdateBookingResponseDto>> UpdateBookingStatusAsync(Guid sessionId, Guid userId, UpdateBookingStatusRequestDto updateRequest)
         {
-            throw new NotImplementedException();
+            if (updateRequest.NewStatusId == 5 && string.IsNullOrEmpty(updateRequest.CancelReason))
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("When cancel need to provide reason.");
+            }
+            var booking = await _sessionBookingRepository.GetByIdAsync(sessionId);
+
+            if (booking == null)
+            {
+                return OperationResult<UpdateBookingResponseDto>.NotFound("Booking session not found.");
+            }
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user != null && user.RoleId == 3)
+            {
+                if (booking.MentorId != userId)
+                {
+                    return OperationResult<UpdateBookingResponseDto>.Unauthorized("You are not authorized to update this booking.");
+                }
+
+                if (booking.StatusId != 1 && booking.StatusId != 7)
+                {
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be updated as it's not in a pending or rescheduled state or has already been processed.");
+                }
+
+                var isRescheduledExist = await _sessionBookingRepository.AnyAsync(s => s.MentorTimeAvailableId == booking.MentorTimeAvailableId && s.StatusId == 7 && s.Id != sessionId);
+
+                if (isRescheduledExist)
+                {
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be updated as still there is an existing rescheduled state.");
+                }
+            }
+            else
+            {
+                if (booking.LearnerId != userId)
+                {
+                    return OperationResult<UpdateBookingResponseDto>.Unauthorized("You are not authorized to update this booking.");
+                }
+
+                if (booking.StatusId != 7)
+                {
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be updated as it's not in a Rescheduled state or has already been processed.");
+                }
+
+                if (updateRequest.NewStatusId != 2 && updateRequest.NewStatusId != 3)
+                {
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest("You can only confirmed or decline for this booking session in a Rescheduled state.");
+                }
+            }
+
+            switch (updateRequest.NewStatusId)
+            {
+                case 2:
+                    var otherPendingBookings = await _sessionBookingRepository.FindAsync(sb => sb.MentorTimeAvailableId == booking.MentorTimeAvailableId &&
+                              sb.Id != sessionId &&
+                              sb.StatusId == 1);
+
+                    foreach (var otherBooking in otherPendingBookings)
+                    {
+                        otherBooking.StatusId = 3;
+                        _sessionBookingRepository.Update(otherBooking);
+                    }
+
+                    booking.StatusId = 2;
+                    booking.MentorTimeAvailable.StatusId = 2; // Slot này đã được xác nhận
+                    // await _notificationService.NotifyLearnerBookingAcceptedAsync(booking.LearnerId, booking.Id, booking.Mentor.UserProfile.FullName);
+                    break;
+
+                case 3:
+                    booking.StatusId = 3;
+                    // await _notificationService.NotifyLearnerBookingDeclinedAsync(booking.LearnerId, booking.Id, updateRequest.Reason ?? "Your booking request has been declined.");
+                    break;
+
+                case 5:
+                    booking.StatusId = 5;
+                    booking.CancelReason = updateRequest.CancelReason;
+                    // await _notificationService.NotifyLearnerBookingDeclinedAsync(booking.LearnerId, booking.Id, updateRequest.Reason ?? "Your booking request has been declined.");
+                    break;
+
+                default:
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest($"Invalid target status ID: {updateRequest.NewStatusId}.");
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            var updatedBookingStatus = await _sessionBookingRepository.GetByIdAsync(sessionId);
+
+            var response = updatedBookingStatus!.ToUpdateBookingResponseDto();
+            return OperationResult<UpdateBookingResponseDto>.Ok(response);
+
         }
 
-        //public async Task<OperationResult<MentorBookingDetailsDto>> AcceptBookingAsync(Guid sessionId, Guid mentorId)
-        //{
-        //    var booking = await _sessionBookingRepository.GetByIdAsync(sessionId);
+        public async Task<OperationResult<UpdateBookingResponseDto>> RescheduleBookingByMentorAsync(Guid sessionId, Guid mentorId, RescheduleBookingRequestDto rescheduleRequest)
+        {
+            var originalBooking = await _sessionBookingRepository.GetByIdAsync(sessionId);
 
-        //    if (booking == null)
-        //    {
-        //        return OperationResult<MentorBookingDetailsDto>.NotFound("Booking session not found.");
-        //    }
+            if (originalBooking == null)
+            {
+                return OperationResult<UpdateBookingResponseDto>.NotFound("Original booking session not found.");
+            }
 
-        //    if (booking.MentorId != mentorId)
-        //    {
-        //        return OperationResult<MentorBookingDetailsDto>.Unauthorized("You are not authorized to accept this booking.");
-        //    }
+            if (originalBooking.MentorId != mentorId)
+            {
+                return OperationResult<UpdateBookingResponseDto>.Unauthorized("You are not authorized to reschedule this booking.");
+            }
 
-        //    if (booking.StatusId != 1)
-        //    {
-        //        return OperationResult<MentorBookingDetailsDto>.BadRequest("This booking session cannot be accepted as it's not in a pending state or has already been processed.");
-        //    }
+            if (originalBooking.StatusId != 2)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest($"Only 'Confirmed' sessions can be rescheduled. Current status is '{originalBooking.Status.Name}'.");
+            }
+            var oldSlot = originalBooking.MentorTimeAvailable;
+            if (oldSlot.Id == rescheduleRequest.NewMentorTimeAvailableId)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("New slot cannot be the same as the current slot.");
+            }
 
-        //    var otherPendingBookingsForSameSlot = await _sessionBookingRepository.GetQueryable()
-        //       .Where(sb => sb.MentorTimeAvailableId == acceptedBooking.MentorTimeAvailableId &&
-        //                      sb.Id != acceptedBooking.Id && // Loại trừ booking đang được chấp nhận
-        //                      sb.StatusId == PENDING_BOOKING_STATUS_ID)
-        //       .ToListAsync();
+            var newSlot = await _mentorTimeAvailableRepository.GetByIdAsync(rescheduleRequest.NewMentorTimeAvailableId);
 
-        //    booking.StatusId = 2;
-        //    booking.MentorTimeAvailable.StatusId = 2;
-        //    await _unitOfWork.SaveChangesAsync();
-        //}
+            if (newSlot == null)
+            {
+                return OperationResult<UpdateBookingResponseDto>.NotFound("New availability slot not found.");
+            }
+
+            if (newSlot.MentorDayAvailable.MentorId != mentorId)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot does not belong to you.");
+            }
+
+            if (newSlot.StatusId != 1)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot is not available for booking.");
+            }
+
+            DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start, DateTimeKind.Utc);
+            if (fullNewSlotStartTime <= DateTime.UtcNow)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot must be in the future.");
+            }
+
+            originalBooking.StatusId = 7;
+            originalBooking.MentorTimeAvailableId = newSlot.Id;
+            oldSlot.StatusId = 3;
+
+            await _unitOfWork.SaveChangesAsync();
+            var updatedBookingStatus = await _sessionBookingRepository.GetByIdAsync(sessionId);
+            var response = updatedBookingStatus!.ToUpdateBookingResponseDto();
+
+            return OperationResult<UpdateBookingResponseDto>.Ok(response);
+        }
     }
 }

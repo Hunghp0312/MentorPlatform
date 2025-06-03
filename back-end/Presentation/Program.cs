@@ -79,6 +79,8 @@ builder.Services.AddScoped<IMentorTimeAvailableRepository, MentorTimeAvailableRe
 builder.Services.AddScoped<ISessionBookingRepository, SessionBookingRepository>();
 builder.Services.AddScoped<ISessionBookingService, SessionBookingService>();
 builder.Services.AddScoped<IMentorDayAvailableRepository, MentorDayAvailableRepository>();
+builder.Services.AddScoped<IMentorDayAvailableService, MentorDayAvailableService>();
+
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<
    ISupportingDocumentRepository, SupportingDocumentRepository>();

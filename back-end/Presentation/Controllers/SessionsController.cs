@@ -57,17 +57,29 @@ namespace Presentation.Controllers
             return ToActionResult(pagedBookings);
         }
 
-        //[HttpPut("mentor/status")]
-        //public async Task<IActionResult> AcceptBooking(Guid sessionId, [FromBody] UpdateBookingStatusRequestDto updateRequest)
-        //{
+        [HttpPut("{sessionId:guid}/status")]
+        [Authorize(Roles = "Learner,Mentor")]
+        public async Task<IActionResult> UpdateBookingStatus(Guid sessionId, [FromBody] UpdateBookingStatusRequestDto updateRequest)
+        {
 
-        //    var mentorIdString = User.FindFirstValue("id")!;
-        //    Guid mentorId = Guid.Parse(mentorIdString);
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
 
-        //    var result = await _sessionBookingService.UpdateBookingStatusAsync(sessionId, mentorId, updateRequest);
+            var result = await _sessionBookingService.UpdateBookingStatusAsync(sessionId, userId, updateRequest);
 
-        //    return ToActionResult(result);
-        //}
+            return ToActionResult(result);
+        }
 
+        [HttpPut("{sessionId:guid}/reschedule")]
+        [Authorize(Roles = "Mentor")]
+        public async Task<IActionResult> RescheduleBooking(Guid sessionId, [FromBody] RescheduleBookingRequestDto rescheduleRequest)
+        {
+            var mentorIdString = User.FindFirstValue("id")!;
+            Guid mentorId = Guid.Parse(mentorIdString);
+
+            var result = await _sessionBookingService.RescheduleBookingByMentorAsync(sessionId, mentorId, rescheduleRequest);
+
+            return ToActionResult(result);
+        }
     }
 }

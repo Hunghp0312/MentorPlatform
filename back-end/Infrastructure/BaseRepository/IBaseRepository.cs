@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace Infrastructure.BaseRepository
 {
     public interface IBaseRepository<TEntity>
@@ -8,6 +10,8 @@ namespace Infrastructure.BaseRepository
         Task<TEntity?> GetByIdAsync(Guid id);
 
         Task<ICollection<TEntity>> GetAllAsync();
+
+        Task<ICollection<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
 
         Task AddRangeAsync(ICollection<TEntity> entities);
 

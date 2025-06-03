@@ -15,7 +15,9 @@ namespace Infrastructure.Data.Configuration.LookupTypes
                 new SessionBookingStatus { Id = 3, Name = "Declined" },
                 new SessionBookingStatus { Id = 4, Name = "Completed" },
                 new SessionBookingStatus { Id = 5, Name = "Cancelled" },
-                new SessionBookingStatus { Id = 6, Name = "Scheduled" }
+                new SessionBookingStatus { Id = 6, Name = "Scheduled" },
+                new SessionBookingStatus { Id = 7, Name = "Rescheduled" }
+
             );
         }
     }

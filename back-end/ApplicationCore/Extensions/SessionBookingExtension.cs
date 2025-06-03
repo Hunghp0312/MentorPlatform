@@ -13,5 +13,14 @@ namespace ApplicationCore.Extensions
                 CreatedAt = sessionBooking.CreatedAt,
             };
         }
+
+        public static UpdateBookingResponseDto ToUpdateBookingResponseDto(this SessionBooking sessionBooking)
+        {
+            return new UpdateBookingResponseDto
+            {
+                Id = sessionBooking.Id,
+                StatusId = sessionBooking.StatusId
+            };
+        }
     }
 }
