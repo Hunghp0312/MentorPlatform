@@ -25,12 +25,33 @@ namespace ApplicationCore.Services
 
         private const string MentorRoleName = "Mentor";
         private const string LearnerRoleName = "Learner";
+        private const int MentorRoleId = 3;
 
         public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IUserProfileRepository userProfileRepository)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _userProfileRepository = userProfileRepository;
+        }
+
+        public async Task<OperationResult<IEnumerable<MentorFilterResponse>>> GetAllMentors(PaginationParameters queryParameters)
+        {
+            var predicate = PredicateBuilder.True<User>();
+            if (!string.IsNullOrWhiteSpace(queryParameters.Query))
+            {
+                var searchTermLower = queryParameters.Query;
+                predicate = predicate.And(u => u.UserProfile != null && u.UserProfile.FullName.Contains(searchTermLower));
+            }
+            predicate = predicate.And(u => u.RoleId == MentorRoleId);
+            var users = await _userRepository.GetAllMentors(
+                predicate
+            );
+            var userResponseDtos = users.Select(user => new MentorFilterResponse
+            {
+                Id = user.Id,
+                FullName = user.UserProfile?.FullName ?? string.Empty,
+            }).ToList();
+            return OperationResult<IEnumerable<MentorFilterResponse>>.Ok(userResponseDtos);
         }
 
         public async Task<OperationResult<PagedResult<UserResponseDto>>> GetUsersAsync(UserQueryParameters queryParameters)
@@ -235,7 +256,7 @@ namespace ApplicationCore.Services
 
             return OperationResult<UserResponseDto>.Ok(userResponseDto);
         }
-        public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto)
+        public async Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto, Guid requestUserId, string role)
         {
             try
             {
@@ -244,7 +265,10 @@ namespace ApplicationCore.Services
                 {
                     return OperationResult<UserProfileResponseDto>.NotFound($"User profile with ID {userProfileId} not found.");
                 }
-
+                if (userProfileId != requestUserId && role != "Admin")
+                {
+                    return OperationResult<UserProfileResponseDto>.Forbidden("You do not have permission to update this user profile.");
+                }
                 await userProfile.UpdateFromDtoAsync(requestDto, userProfile.User);
                 _userProfileRepository.Update(userProfile);
                 await _unitOfWork.SaveChangesAsync();
@@ -264,9 +288,10 @@ namespace ApplicationCore.Services
             }
 
         }
-        public async Task<OperationResult<UserFullProfileResponse>> GetFullUserProfileByIdAsync(Guid userId)
+        public async Task<OperationResult<UserFullProfileResponse>> GetFullUserProfileByIdAsync(Guid userId, Guid requestUserId, string role)
         {
             var user = await _userRepository.GetUserByIdAsync(userId);
+
             if (user == null)
             {
                 return OperationResult<UserFullProfileResponse>.NotFound($"User with ID {userId} not found.");
@@ -275,6 +300,10 @@ namespace ApplicationCore.Services
             if (userProfile == null)
             {
                 return OperationResult<UserFullProfileResponse>.NotFound($"User profile for user ID {userId} not found.");
+            }
+            if (userProfile.PrivacyProfile == true && user.Id != requestUserId && role != "Admin")
+            {
+                return OperationResult<UserFullProfileResponse>.Forbidden("This user's profile is private and cannot be accessed.");
             }
             var fullProfileResponse = new UserFullProfileResponse
             {

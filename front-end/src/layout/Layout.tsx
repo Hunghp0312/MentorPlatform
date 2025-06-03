@@ -32,7 +32,11 @@ export default function Layout() {
         label: "Categories",
         href: pathName.category,
       },
-      { icon: <BookCopy size={20} />, label: "Courses", href: pathName.course },
+      {
+        icon: <BookCopy size={20} />,
+        label: "Courses",
+        href: pathName.adminCourse,
+      },
       {
         icon: <UserCheck size={20} />,
         label: "Approvals",
@@ -54,6 +58,11 @@ export default function Layout() {
         icon: <UserCheck size={20} />,
         label: "My Application",
         href: pathName.mentorStatus,
+      },
+      {
+        icon: <BookCopy size={20} />,
+        label: "Courses",
+        href: pathName.mentorCourse,
       },
       {
         icon: <UserCheck size={20} />,
