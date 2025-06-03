@@ -68,11 +68,11 @@ namespace ApplicationCore.Services
         public async Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts()
         {
             var session = await _sessionBookingRepository.GetAllAsync();
-            var upcommingSessions = session.Count(s => s.StatusId == 6);
-            var pastSessions = session.Count(s => s.StatusId == 5 && s.StatusId == 4);
+            var upcomingSessions = session.Count(s => s.StatusId == 6);
+            var pastSessions = session.Count(s => s.StatusId == 5 || s.StatusId == 4);
             var response = new SessionStatusCountResponse
             {
-                UpcommingSessionCount = upcommingSessions,
+                UpcomingSessionCount = upcomingSessions,
                 PastSessionCount = pastSessions,
             };
 
