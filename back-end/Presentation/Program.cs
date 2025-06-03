@@ -89,6 +89,7 @@ builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IMentorTimeAvailableRepository, MentorTimeAvailableRepository>();
 builder.Services.AddScoped<IDocumentContentService, DocumentContentService>();
 builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddHostedService<SessionReminderService>();
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);
 builder
     .Services.AddControllers()
