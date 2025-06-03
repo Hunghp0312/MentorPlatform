@@ -7,6 +7,5 @@ namespace ApplicationCore.DTOs.QueryParameters
         public int? StatusId { get; set; }
         public DateOnly? FromSessionDate { get; set; }
         public DateOnly? ToSessionDate { get; set; }
-        public bool IsMentor { get; set; }
     }
 }
