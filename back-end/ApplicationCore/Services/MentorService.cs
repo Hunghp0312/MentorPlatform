@@ -180,6 +180,7 @@ namespace ApplicationCore.Services
             mentorApplication.AdminReviewerId = adminUserId;
             if (request.StatusId == 2)
             {
+                mentorApplication.ApprovalDate = DateTime.UtcNow;
                 mentorApplication.RejectionReason = request.AdminComments;
             }
             if (request.StatusId == 3)

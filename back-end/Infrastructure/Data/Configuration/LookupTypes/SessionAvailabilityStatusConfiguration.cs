@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Data.Configuration.LookupTypes
 {
-    public class SessionAvailabilityStatusConfiguration : BaseTypeConfiguration<SessionAvailabilityStatus>
+    public class SessionAvailabilityStatusConfiguration
+        : BaseTypeConfiguration<SessionAvailabilityStatus>
     {
         public override void Configure(EntityTypeBuilder<SessionAvailabilityStatus> builder)
         {

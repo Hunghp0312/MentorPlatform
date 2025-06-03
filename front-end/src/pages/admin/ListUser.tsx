@@ -193,17 +193,23 @@ const ListUser = () => {
           new Date(row.joinDate).toLocaleDateString(),
       },
       {
+        header: "Last Active",
+        accessor: (row: userType) =>
+          row.lastActiveDate
+            ? new Date(row.lastActiveDate).toLocaleDateString()
+            : "-",
+      },
+      {
         header: "Actions",
         accessor: (row: userType) => (
           <div className="flex gap-2 items-center">
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/edit-profile/${row.id}`);
+                navigate(`/profile/${row.id}`);
               }}
               title="View Details"
-              className="text-gray-500 hover:text-gray-700"
-            >
+              className="text-gray-500 hover:text-gray-700">
               <UserCog className="w-4 h-4" />
             </button>
             <button
@@ -212,8 +218,7 @@ const ListUser = () => {
                 navigate(`/admin/message/${row.id}`);
               }}
               title="Send Message"
-              className="text-purple-500 hover:text-purple-700"
-            >
+              className="text-purple-500 hover:text-purple-700">
               <MessageSquare className="w-4 h-4" />
             </button>
             {row.status.id === StatusEnum.Active ||
@@ -225,8 +230,7 @@ const ListUser = () => {
                   setDeactivateModalOpen(true);
                 }}
                 title="Deactivate User"
-                className="text-red-500 hover:text-red-700"
-              >
+                className="text-red-500 hover:text-red-700">
                 <XCircle className="w-4 h-4" />
               </button>
             ) : (
@@ -236,8 +240,7 @@ const ListUser = () => {
                   handleActivate(row.id);
                 }}
                 title="Activate User"
-                className="text-green-500 hover:text-green-700"
-              >
+                className="text-green-500 hover:text-green-700">
                 <CheckCircle className="w-4 h-4" />
               </button>
             )}
@@ -285,8 +288,7 @@ const ListUser = () => {
               const value = e.target.value;
               setRoleFilter(value === "" ? "" : (Number(value) as RoleEnum));
               setPageIndex(1);
-            }}
-          >
+            }}>
             {roleOptions.map((option) => (
               <option key={option.value.toString()} value={option.value}>
                 {option.label}
@@ -315,8 +317,7 @@ const ListUser = () => {
           setDeactivateModalOpen(false);
           setSelectedUserForDeactivation(null);
         }}
-        title="Confirm Deactivation"
-      >
+        title="Confirm Deactivation">
         <div className="mb-4 text-gray-700 dark:text-gray-300">
           {`Are you sure you want to deactivate ${selectedUserForDeactivation?.fullName}?`}
         </div>
@@ -327,8 +328,7 @@ const ListUser = () => {
             onClick={() => {
               setDeactivateModalOpen(false);
               setSelectedUserForDeactivation(null);
-            }}
-          >
+            }}>
             Cancel
           </Button>
           <Button type="button" variant="danger" onClick={confirmDeactivation}>

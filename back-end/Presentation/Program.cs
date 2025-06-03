@@ -1,4 +1,6 @@
-﻿using ApplicationCore.JsonConverters;
+﻿using System.Security.Claims;
+using System.Text;
+using ApplicationCore.JsonConverters;
 using ApplicationCore.Repositories;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services;
@@ -17,10 +19,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Presentation.Configurations;
-using System.Security.Claims;
-using System.Text;
-var builder = WebApplication.CreateBuilder(args);
 
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -35,7 +35,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 var configuration = builder.Configuration;
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -46,9 +47,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = configuration["JwtSettings:Issuer"],
             ValidAudience = configuration["JwtSettings:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:SecretKey"] ?? "hungprono1isthepasskey")),
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(
+                    configuration["JwtSettings:SecretKey"] ?? "hungprono1isthepasskey"
+                )
+            ),
             ClockSkew = TimeSpan.Zero,
-            RoleClaimType = ClaimTypes.Role
+            RoleClaimType = ClaimTypes.Role,
         };
     });
 builder.Services.Configure<EmailSettingOption>(builder.Configuration.GetSection("EmailSettings"));
@@ -82,9 +87,9 @@ builder.Services.AddScoped<IMentorDayAvailableRepository, MentorDayAvailableRepo
 builder.Services.AddScoped<IMentorDayAvailableService, MentorDayAvailableService>();
 
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
-builder.Services.AddScoped<
-   ISupportingDocumentRepository, SupportingDocumentRepository>();
+builder.Services.AddScoped<ISupportingDocumentRepository, SupportingDocumentRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped<IMentorTimeAvailableRepository, MentorTimeAvailableRepository>();
 builder.Services.AddScoped<IDocumentContentService, DocumentContentService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);
@@ -99,30 +104,36 @@ builder.Services.ConfigureApiBehavior();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGci...\"",
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+    c.AddSecurityDefinition(
+        "Bearer",
+        new OpenApiSecurityScheme
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
+            Name = "Authorization",
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description =
+                "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGci...\"",
         }
-    });
+    );
+
+    c.AddSecurityRequirement(
+        new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                },
+                new string[] { }
+            },
+        }
+    );
 });
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))

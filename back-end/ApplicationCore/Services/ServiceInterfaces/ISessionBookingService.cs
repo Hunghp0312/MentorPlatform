@@ -13,6 +13,7 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<UpdateBookingResponseDto>> RescheduleBookingByMentorAsync(Guid sessionId, Guid mentorId, RescheduleBookingRequestDto rescheduleRequest);
         Task<OperationResult<UpdateBookingResponseDto>> UpdateBookingStatusAsync(Guid sessionId, Guid userId, UpdateBookingStatusRequestDto updateRequest);
         Task<OperationResult<SessionStatusResponse>> UpdateSessionStatus(SessionUpdateStatusRequest request);
-
+        Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts();
+        Task<OperationResult<PagedResult<SessionStatusResponse>>> GetAllSessions(PaginationParameters paginationParameters, int sessionStatus);
     }
 }
