@@ -1,10 +1,11 @@
 import type React from "react"
 import { useState } from "react"
-import { ArrowLeft, Star, Clock, DollarSign, MessageCircle, Calendar } from "lucide-react"
+import { ArrowLeft, Clock, DollarSign, MessageCircle, Calendar } from "lucide-react"
 import ExperienceCard from "../../components/feature/ExperienceCard"
 import MentorAvailability from "../../components/feature/MentorAvaibility"
 import Button from "../../components/ui/Button"
 import BookingSessionDialog from "../../components/dialog/BookingSessionDialog"
+import { useNavigate } from "react-router-dom"
 
 interface Mentor {
     id: string
@@ -30,8 +31,15 @@ interface SimilarMentor {
     skills: string[]
     profileImage: string
 }
+interface BookingData {
+    mentorId: string;
+    mentorTimeAvailableId: string;
+    learnerMessage?: string;
+    sessionTypeId: string;
+}
 
 const MentorProfile: React.FC = () => {
+    const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState<"about" | "experience" | "availability">("about")
     const [openDialog, setOpenDialog] = useState(false)
     const mentor: Mentor = {
@@ -43,7 +51,7 @@ const MentorProfile: React.FC = () => {
         availability: ["Mon", "Tue", "Wed", "Thu"],
         experience: "10+ years",
         hourlyRate: 75,
-        profileImage: "/placeholder.svg?height=120&width=120",
+        profileImage: "https://randomuser.me/api/portraits/women/60.jpg",
         skills: ["Frontend Development", "React", "UX Design", "JavaScript", "CSS/SASS", "Responsive Design"],
         about:
             "I'm a passionate frontend developer with extensive experience building modern web applications. I specialize in React and have helped numerous junior developers improve their skills and advance their careers. My teaching approach focuses on practical, hands-on learning with real-world examples.",
@@ -83,22 +91,16 @@ const MentorProfile: React.FC = () => {
         },
     ]
 
-    const renderStars = (rating: number) => {
-        return Array.from({ length: 5 }, (_, i) => (
-            <Star
-                key={i}
-                className={`w-4 h-4 ${i < Math.floor(rating) ? "fill-yellow-400 text-yellow-400" : "text-gray-400"}`}
-            />
-        ))
-    }
-
-
-
     const tabs = [
         { id: "about" as const, label: "About" },
         { id: "experience" as const, label: "Experience" },
         { id: "availability" as const, label: "Availability" },
     ]
+    const handleConfirmBooking = (bookingData: BookingData) => {
+        console.log("Booking confirmed:", bookingData);
+        setOpenDialog(false);
+        // Here you would typically send the booking data to your backend
+    }
 
     return (
         <div className="min-h-screen bg-slate-800 text-white">
@@ -112,7 +114,7 @@ const MentorProfile: React.FC = () => {
             {/* Navigation Bar */}
             <div className="bg-slate-700 px-6 py-3">
                 <div className="flex items-center justify-between">
-                    <button className="flex items-center gap-2 text-blue-400 hover:text-blue-300">
+                    <button className="flex items-center gap-2 text-blue-400 hover:text-blue-300" onClick={() => navigate(-1)}>
                         <ArrowLeft className="w-4 h-4" />
                         Back to Browse
                     </button>
@@ -128,20 +130,14 @@ const MentorProfile: React.FC = () => {
                 <div className="flex flex-col lg:flex-row gap-8 mb-8">
                     <div className="flex flex-col sm:flex-row gap-6">
                         <img
-                            src={mentor.profileImage || "/placeholder.svg"}
+                            src={mentor.profileImage || "https://randomuser.me/api/portraits/men/56.jpg"}
                             alt={mentor.name}
                             className="w-32 h-32 rounded-full object-cover border-4 border-orange-500"
                         />
                         <div className="flex-1">
                             <h2 className="text-3xl font-bold mb-2">{mentor.name}</h2>
-                            <p className="text-blue-400 text-lg mb-3">{mentor.title}</p>
 
-                            <div className="flex items-center gap-2 mb-4">
-                                <div className="flex">{renderStars(mentor.rating)}</div>
-                                <span className="text-sm text-gray-300">
-                                    {mentor.rating} ({mentor.reviewCount} reviews)
-                                </span>
-                            </div>
+
 
                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-6">
                                 <div className="flex items-center gap-1">
@@ -207,7 +203,7 @@ const MentorProfile: React.FC = () => {
                             <p className="text-gray-300 leading-relaxed">{mentor.about}</p>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid md:grid-cols-1">
                             <div className="bg-slate-700 rounded-lg p-6">
                                 <h4 className="font-semibold mb-4">Mentorship Style</h4>
                                 <ul className="space-y-2">
@@ -220,17 +216,6 @@ const MentorProfile: React.FC = () => {
                                 </ul>
                             </div>
 
-                            <div className="bg-slate-700 rounded-lg p-6">
-                                <h4 className="font-semibold mb-4">Languages</h4>
-                                <ul className="space-y-2">
-                                    {mentor.languages.map((language, index) => (
-                                        <li key={index} className="text-gray-300 text-sm flex items-start gap-2">
-                                            <span className="text-orange-500 mt-1">•</span>
-                                            {language}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
                         </div>
                     </div>
                 )}
@@ -262,7 +247,6 @@ const MentorProfile: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex mb-4">{renderStars(similarMentor.rating)}</div>
 
                                 <div className="flex flex-wrap gap-2 mb-4">
                                     {similarMentor.skills.map((skill, index) => (
@@ -282,7 +266,7 @@ const MentorProfile: React.FC = () => {
             </div>
             {openDialog && (
 
-                <BookingSessionDialog onClose={() => setOpenDialog(false)} />
+                <BookingSessionDialog onClose={() => setOpenDialog(false)} onConfirm={handleConfirmBooking} />
 
             )}
         </div>

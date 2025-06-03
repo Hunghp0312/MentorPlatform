@@ -17,4 +17,5 @@ export const pathName = {
   sessionManagement: "/session-management",
   mentorProfile: "/mentor-profile",
   editProfile: "/edit-profile",
+  findmentor: "/find-mentor",
 };
