@@ -20,7 +20,7 @@ export const registrionService = {
     formData.append("SelectedRole", payload.role.toString());
     formData.append("PhotoData", payload.profile.profilePictureFile || "");
     payload.profile.expertise.forEach((expertise) => {
-      formData.append("ArenaOfExpertise", String(expertise));
+      formData.append("AreaOfExpertise", String(expertise));
     });
     formData.append("ProfessionalSkill", payload.profile.skills || "");
     formData.append(
