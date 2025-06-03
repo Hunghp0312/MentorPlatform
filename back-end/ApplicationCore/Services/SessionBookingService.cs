@@ -27,55 +27,6 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<SessionStatusResponse>> UpdateSessionStatus(SessionUpdateStatusRequest request, Guid mentorId)
-        {
-            var session = await _sessionBookingRepository.GetByIdAsync(request.SessionId);
-            if (session == null)
-            {
-                return OperationResult<SessionStatusResponse>.NotFound("Session not found");
-            }
-            if (session.MentorId != mentorId)
-            {
-                return OperationResult<SessionStatusResponse>.Fail("You are not authorized to update this session.");
-            }
-
-            var validationResult = ValidateStatusChange(session, request);
-            if (validationResult != null)
-            {
-                return validationResult;
-            }
-
-            session.Id = request.SessionId;
-            session.StatusId = request.StatusId;
-            await _unitOfWork.BeginTransactionAsync();
-            _sessionBookingRepository.Update(session);
-            await _unitOfWork.SaveChangesAsync();
-
-            var response = session.ToSessionStatusResponse();
-
-            return OperationResult<SessionStatusResponse>.Ok(response);
-        }
-        private static OperationResult<SessionStatusResponse>? ValidateStatusChange(SessionBooking session, SessionUpdateStatusRequest request)
-        {
-            if (request.StatusId <= 3 || request.StatusId > 6)
-            {
-                return OperationResult<SessionStatusResponse>.BadRequest("Invalid status ID provided.");
-            }
-
-            if (session.StatusId == request.StatusId)
-            {
-                return OperationResult<SessionStatusResponse>.BadRequest("The session is already in the requested status.");
-            }
-
-            if (session.StatusId == 5 ||
-                session.StatusId == 4)
-            {
-                return OperationResult<SessionStatusResponse>.BadRequest("Cannot change status from Completed or Cancelled.");
-            }
-
-            return null;
-        }
-
         public async Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts()
         {
             var session = await _sessionBookingRepository.GetAllAsync();
@@ -275,6 +226,11 @@ namespace ApplicationCore.Services
             if (booking == null)
             {
                 return OperationResult<UpdateBookingResponseDto>.NotFound("Booking session not found.");
+            }
+            if (booking.StatusId == 5 ||
+             booking.StatusId == 4)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("Cannot change status from Completed or Cancelled.");
             }
 
             var user = await _userRepository.GetByIdAsync(userId);

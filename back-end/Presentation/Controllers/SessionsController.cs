@@ -82,18 +82,6 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpPut("update/{sessionId:guid}/status/{statusId:int}")]
-        [Authorize(Roles = "Mentor")]
-        [ProducesResponseType(typeof(SessionStatusResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateSessionStatus([FromBody] SessionUpdateStatusRequest request)
-        {
-            var mentorId = Guid.Parse(User.FindFirstValue("id")!);
-            var result = await _sessionBookingService.UpdateSessionStatus(request, mentorId);
-
-            return ToActionResult(result);
-        }
         [HttpGet("session-count")]
         [Authorize(Roles = "Admin, Mentor")]
         public async Task<ActionResult<SessionStatusCountResponse>> GetSessionStatusCounts()

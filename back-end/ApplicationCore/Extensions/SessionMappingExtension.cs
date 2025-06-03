@@ -13,10 +13,14 @@ namespace ApplicationCore.Extensions
             }
             return new SessionStatusResponse
             {
-                MentorId = session.MentorId,
-                FullName = session.Mentor?.UserProfile?.FullName ?? string.Empty,
+                LearnerId = session.LearnerId,
+                FullName = session.Learner?.UserProfile?.FullName ?? string.Empty,
                 SessionId = session.Id,
-                SessionStatus = session.Status
+                SessionStatus = session.Status,
+                SessionType = session.SessionType,
+                SlotStartTime = session.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(session.MentorTimeAvailable.Start, DateTimeKind.Utc),
+                SlotEndTime = session.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(session.MentorTimeAvailable.End, DateTimeKind.Utc),
+                BookingRequestedAt = session.CreatedAt,
             };
         }
         public static List<SessionStatusResponse> ToSessionStatusResponseList(this ICollection<SessionBooking> session)
