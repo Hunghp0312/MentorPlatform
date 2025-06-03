@@ -11,6 +11,6 @@ namespace ApplicationCore.DTOs.Responses.Sessions
         public DateTime SlotStartTime { get; set; }
         public DateTime SlotEndTime { get; set; }
         public required SessionType SessionType { get; set; }
-        public DateTime BookingRequestedAt { get; set; }
+        public DateOnly BookingDay { get; set; }
     }
 }

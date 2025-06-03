@@ -20,7 +20,7 @@ namespace ApplicationCore.Extensions
                 SessionType = session.SessionType,
                 SlotStartTime = session.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(session.MentorTimeAvailable.Start, DateTimeKind.Utc),
                 SlotEndTime = session.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(session.MentorTimeAvailable.End, DateTimeKind.Utc),
-                BookingRequestedAt = session.CreatedAt,
+                BookingDay = session.MentorTimeAvailable.MentorDayAvailable.Day,
             };
         }
         public static List<SessionStatusResponse> ToSessionStatusResponseList(this ICollection<SessionBooking> session)
