@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250603023055_seedStatusData")]
-    partial class seedStatusData
+    [Migration("20250603063539_initialDb")]
+    partial class initialDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -744,7 +744,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            Name = "Confirmed"
+                            Name = "Rescheduled"
                         },
                         new
                         {
@@ -765,11 +765,6 @@ namespace Infrastructure.Migrations
                         {
                             Id = 6,
                             Name = "Scheduled"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Rescheduled"
                         });
                 });
 

@@ -877,7 +877,8 @@ namespace Infrastructure.Migrations
                 values: new object[,]
                 {
                     { 1, "Available" },
-                    { 2, "Booked" }
+                    { 2, "Booked" },
+                    { 3, "Rescheduled" }
                 });
 
             migrationBuilder.InsertData(
@@ -886,7 +887,7 @@ namespace Infrastructure.Migrations
                 values: new object[,]
                 {
                     { 1, "Pending" },
-                    { 2, "Confirmed" },
+                    { 2, "Rescheduled" },
                     { 3, "Declined" },
                     { 4, "Completed" },
                     { 5, "Cancelled" },
