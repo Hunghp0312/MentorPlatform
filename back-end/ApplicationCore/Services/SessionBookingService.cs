@@ -27,13 +27,18 @@ namespace ApplicationCore.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<SessionStatusResponse>> UpdateSessionStatus(SessionUpdateStatusRequest request)
+        public async Task<OperationResult<SessionStatusResponse>> UpdateSessionStatus(SessionUpdateStatusRequest request, Guid mentorId)
         {
             var session = await _sessionBookingRepository.GetByIdAsync(request.SessionId);
             if (session == null)
             {
                 return OperationResult<SessionStatusResponse>.NotFound("Session not found");
             }
+            if (session.MentorId != mentorId)
+            {
+                return OperationResult<SessionStatusResponse>.Fail("You are not authorized to update this session.");
+            }
+
             var validationResult = ValidateStatusChange(session, request);
             if (validationResult != null)
             {
@@ -85,14 +90,22 @@ namespace ApplicationCore.Services
             return OperationResult<SessionStatusCountResponse>.Ok(response);
         }
 
-        public async Task<OperationResult<PagedResult<SessionStatusResponse>>> GetAllSessions(PaginationParameters paginationParameters, int sessionStatus)
+        public async Task<OperationResult<PagedResult<SessionStatusResponse>>> GetAllSessions(SessionQueryParameters paginationParameters, Guid mentorId)
         {
-            if (sessionStatus != 4 && sessionStatus != 5 && sessionStatus != 6)
+            if (paginationParameters.StatusId.HasValue &&
+       paginationParameters.StatusId != 4 &&
+       paginationParameters.StatusId != 5 &&
+       paginationParameters.StatusId != 6)
             {
                 return OperationResult<PagedResult<SessionStatusResponse>>.BadRequest("Invalid session status. Only statuses 4 (Cancelled), 5 (Completed), or 6 (Scheduled) are allowed.");
             }
 
-            Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = q => q.Where(s => s.StatusId == sessionStatus);
+            Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = q =>
+                q.Where(s =>
+                    s.MentorId == mentorId &&
+                    (!paginationParameters.StatusId.HasValue
+                        ? s.StatusId == 4 || s.StatusId == 5 || s.StatusId == 6
+                        : s.StatusId == paginationParameters.StatusId.Value));
 
             var (sessions, totalCount) = await _sessionBookingRepository.GetPagedAsync(
                 filter,
