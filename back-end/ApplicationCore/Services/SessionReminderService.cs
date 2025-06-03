@@ -1,8 +1,6 @@
 using System.Text;
 using ApplicationCore.Repositories.RepositoryInterfaces;
-using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
-using Infrastructure.Entities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -45,6 +43,7 @@ namespace Infrastructure.Services
 
             var upcomingSessions = sessions
                 .Where(s => s.StatusId == 6 &&
+                            (s.LastReminderSent == null || s.LastReminderSent < DateTime.UtcNow.AddDays(-1)) &&
                             s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start) >= now &&
                             s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start) <= oneHourFromNow)
                 .ToList();
@@ -67,10 +66,14 @@ namespace Infrastructure.Services
                 var emailRecipient = session.Mentor.Email;
                 var emailBody = bodyBuilder.ToString();
 
+                session.LastReminderSent = DateTime.UtcNow;
+                sessionBookingRepository.Update(session);
                 await _sendEmailService.SendEmail(emailRecipient, emailSubject, emailBody);
 
                 _logger.LogInformation("Reminder email sent for session {SessionId} to {Email}.", session.Id, session.Mentor.Email);
             }
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.SaveChangesAsync();
         }
     }
 }
