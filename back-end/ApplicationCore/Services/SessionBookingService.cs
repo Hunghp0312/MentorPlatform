@@ -211,12 +211,18 @@ namespace ApplicationCore.Services
                     return OperationResult<UpdateBookingResponseDto>.Unauthorized("You are not authorized to update this booking.");
                 }
 
-                if (booking.StatusId != 1 && booking.StatusId != 7)
+                if (booking.StatusId != 1 && booking.StatusId != 2)
                 {
                     return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be updated as it's not in a pending or rescheduled state or has already been processed.");
                 }
 
-                var isRescheduledExist = await _sessionBookingRepository.AnyAsync(s => s.MentorTimeAvailableId == booking.MentorTimeAvailableId && s.StatusId == 7 && s.Id != sessionId);
+                if (booking.StatusId == 2 && updateRequest.NewStatusId == 6)
+                {
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be accepted as waiting for learner processing or you can decline the booking.");
+                }
+
+
+                var isRescheduledExist = await _sessionBookingRepository.AnyAsync(s => s.MentorTimeAvailableId == booking.MentorTimeAvailableId && s.StatusId == 2 && s.Id != sessionId);
 
                 if (isRescheduledExist)
                 {
@@ -230,20 +236,20 @@ namespace ApplicationCore.Services
                     return OperationResult<UpdateBookingResponseDto>.Unauthorized("You are not authorized to update this booking.");
                 }
 
-                if (booking.StatusId != 7)
+                if (booking.StatusId != 2)
                 {
                     return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be updated as it's not in a Rescheduled state or has already been processed.");
                 }
 
-                if (updateRequest.NewStatusId != 2 && updateRequest.NewStatusId != 3)
+                if (updateRequest.NewStatusId != 6 && updateRequest.NewStatusId != 3)
                 {
-                    return OperationResult<UpdateBookingResponseDto>.BadRequest("You can only confirmed or decline for this booking session in a Rescheduled state.");
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest("You can only scheduled or decline for this booking session in a rescheduled state.");
                 }
             }
 
             switch (updateRequest.NewStatusId)
             {
-                case 2:
+                case 6:
                     var otherPendingBookings = await _sessionBookingRepository.FindAsync(sb => sb.MentorTimeAvailableId == booking.MentorTimeAvailableId &&
                               sb.Id != sessionId &&
                               sb.StatusId == 1);
@@ -254,20 +260,20 @@ namespace ApplicationCore.Services
                         _sessionBookingRepository.Update(otherBooking);
                     }
 
-                    booking.StatusId = 2;
-                    booking.MentorTimeAvailable.StatusId = 2; // Slot này đã được xác nhận
-                    // await _notificationService.NotifyLearnerBookingAcceptedAsync(booking.LearnerId, booking.Id, booking.Mentor.UserProfile.FullName);
+                    booking.StatusId = 6;
+                    booking.MentorTimeAvailable.StatusId = 2;
+
                     break;
 
                 case 3:
                     booking.StatusId = 3;
-                    // await _notificationService.NotifyLearnerBookingDeclinedAsync(booking.LearnerId, booking.Id, updateRequest.Reason ?? "Your booking request has been declined.");
+
                     break;
 
                 case 5:
                     booking.StatusId = 5;
                     booking.CancelReason = updateRequest.CancelReason;
-                    // await _notificationService.NotifyLearnerBookingDeclinedAsync(booking.LearnerId, booking.Id, updateRequest.Reason ?? "Your booking request has been declined.");
+
                     break;
 
                 default:
@@ -296,9 +302,9 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.Unauthorized("You are not authorized to reschedule this booking.");
             }
 
-            if (originalBooking.StatusId != 2)
+            if (originalBooking.StatusId != 6)
             {
-                return OperationResult<UpdateBookingResponseDto>.BadRequest($"Only 'Confirmed' sessions can be rescheduled. Current status is '{originalBooking.Status.Name}'.");
+                return OperationResult<UpdateBookingResponseDto>.BadRequest($"Only 'Scheduled' sessions can be rescheduled. Current status is '{originalBooking.Status.Name}'.");
             }
             var oldSlot = originalBooking.MentorTimeAvailable;
             if (oldSlot.Id == rescheduleRequest.NewMentorTimeAvailableId)
@@ -329,7 +335,7 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot must be in the future.");
             }
 
-            originalBooking.StatusId = 7;
+            originalBooking.StatusId = 2;
             originalBooking.MentorTimeAvailableId = newSlot.Id;
             oldSlot.StatusId = 3;
 
