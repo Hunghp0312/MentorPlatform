@@ -185,8 +185,8 @@ const EditUserPage = () => {
       setUserData({ ...userData, [name]: value.slice(0, 1000) });
       return;
     }
-    if (name === "professionalSkill" && value.length > 100) {
-      setUserData({ ...userData, [name]: value.slice(0, 100) });
+    if (name === "professionalSkill" && value.length > 50) {
+      setUserData({ ...userData, [name]: value.slice(0, 50) });
       return;
     }
     if (name === "industryExperience" && value.length > 50) {
