@@ -113,5 +113,6 @@
         public const string BufferTimeRequired = "Buffer time is required.";
         public const string BufferTimeMin = "Buffer time must be at least 0 minutes.";
         public const string CONFLICT_EXISTING_BOOKED_SESSIONS = "Cannot update schedule due to existing booked or pending sessions in the future.";
+        public const string SessionTypeIdInvalidRange = "Session type must be between 1 to 3.";
     }
 }

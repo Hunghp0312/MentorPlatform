@@ -93,5 +93,24 @@ namespace ApplicationCore.Extensions
                 Status = mentorApplication?.ApplicationStatus.Name ?? string.Empty
             };
         }
+
+        public static MentorCardDto ToMentorCardDto(this UserProfile mentor)
+        {
+            return new MentorCardDto
+            {
+                Id = mentor.User.Id,
+                FullName = mentor.FullName,
+                PhotoData = mentor.PhotoData != null
+                    ? $"data:image/png;base64,{Convert.ToBase64String(mentor.PhotoData)}"
+                    : string.Empty,
+                ExpertiseTags = mentor.User.UserAreaOfExpertises.Select(x => x.AreaOfExpertise.Name).ToList(),
+                ShortBioOrTagline = mentor.Bio
+            };
+        }
+
+        public static List<MentorCardDto> ToMentorCardDtoList(this ICollection<UserProfile> mentorList)
+        {
+            return mentorList.Select(s => s.ToMentorCardDto()).ToList();
+        }
     }
 }

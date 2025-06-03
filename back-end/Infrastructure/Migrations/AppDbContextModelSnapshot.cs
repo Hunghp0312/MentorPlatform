@@ -702,6 +702,16 @@ namespace Infrastructure.Migrations
                         {
                             Id = 1,
                             Name = "Available"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Booked"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Rescheduled"
                         });
                 });
 
@@ -731,7 +741,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            Name = "Confirmed"
+                            Name = "Rescheduled"
                         },
                         new
                         {
@@ -1416,6 +1426,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CancelReason")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1470,7 +1483,7 @@ namespace Infrastructure.Migrations
                             CreatedAt = new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc),
                             LearnerId = new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"),
                             LearnerMessage = "Please help me review my CV for a junior developer position.",
-                            MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             MentorTimeAvailableId = new Guid("10000000-0000-0000-0000-000000000002"),
                             SessionTypeId = 3,
                             StatusId = 1

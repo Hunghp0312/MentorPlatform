@@ -37,11 +37,6 @@ namespace ApplicationCore.Extensions
 
         public static Category ToCategoryEntity(this CategoryRequest dto)
         {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto));
-            }
-
             return new Category
             {
                 Id = Guid.NewGuid(),
@@ -63,15 +58,6 @@ namespace ApplicationCore.Extensions
 
         public static void MapToCategoryEntity(this CategoryRequest dto, Category existingCategory)
         {
-            if (dto == null)
-            {
-                throw new ArgumentNullException(nameof(dto));
-            }
-            if (existingCategory == null)
-            {
-                throw new ArgumentNullException(nameof(existingCategory));
-            }
-
             existingCategory.Name = dto.Name;
             existingCategory.Description = dto.Description;
             existingCategory.StatusId = dto.StatusId;

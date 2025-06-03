@@ -12,7 +12,8 @@ namespace Infrastructure.Data.Configuration.LookupTypes
 
             builder.HasData(
                 new SessionAvailabilityStatus { Id = 1, Name = "Available" },
-                new SessionAvailabilityStatus { Id = 2, Name = "Booked" }
+                new SessionAvailabilityStatus { Id = 2, Name = "Booked" },
+                new SessionAvailabilityStatus { Id = 3, Name = "Rescheduled" }
             );
         }
     }

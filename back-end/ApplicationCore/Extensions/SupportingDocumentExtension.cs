@@ -11,6 +11,7 @@ namespace ApplicationCore.Extensions
             {
                 FileId = supportingDocument.Id,
                 FileName = supportingDocument.FileName,
+                FileType = supportingDocument.FileType,
             };
         }
     }
