@@ -154,7 +154,6 @@ const EditUserPage = () => {
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
-        toast.error("Failed to load your profile information.");
       } finally {
         setIsLoading(false);
       }
@@ -168,6 +167,32 @@ const EditUserPage = () => {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+    if (name === "phoneNumber") {
+      const isValid = /^[0-9+\s]*$/.test(value);
+      if (!isValid && value.length > 0) {
+        return;
+      }
+      if (value.length > 15) {
+        setUserData({ ...userData, [name]: value.slice(0, 15) });
+        return;
+      }
+    }
+    if (name === "fullName" && value.length > 100) {
+      setUserData({ ...userData, [name]: value.slice(0, 100) });
+      return;
+    }
+    if (name === "bio" && value.length > 1000) {
+      setUserData({ ...userData, [name]: value.slice(0, 1000) });
+      return;
+    }
+    if (name === "professionalSkill" && value.length > 100) {
+      setUserData({ ...userData, [name]: value.slice(0, 100) });
+      return;
+    }
+    if (name === "industryExperience" && value.length > 50) {
+      setUserData({ ...userData, [name]: value.slice(0, 50) });
+      return;
+    }
     setUserData({ ...userData, [name]: value });
 
     // Clear error for this field if it exists
@@ -276,12 +301,37 @@ const EditUserPage = () => {
     if (!userData.bio?.trim()) {
       newErrors.bio = "Bio is required";
     }
+    if (
+      userData.professionalSkill &&
+      userData.professionalSkill.trim().length > 50
+    ) {
+      newErrors.professionalSkill =
+        "Professional skill must be less than 50 characters";
+    }
     if (!userData.professionalSkill?.trim()) {
       newErrors.professionalSkill = "Professional skills are required";
     }
-    if (!userData.industryExperience?.trim()) {
+    if (
+      userData.phoneNumber &&
+      /^\+?[1-9]\d{1,14}$/.test(userData.phoneNumber) === false
+    ) {
+      newErrors.phoneNumber =
+        "Invalid phone number format. Use E.164 format (e.g., +1234567890)";
+    }
+    if (userData.phoneNumber && userData.phoneNumber.trim().length > 15) {
+      newErrors.phoneNumber = "Phone number must be less than 15 characters";
+    }
+    if (
+      userData.industryExperience &&
+      userData.industryExperience.trim().length > 50
+    ) {
+      newErrors.industryExperience =
+        "Industry experience must be less than 50 characters";
+    }
+    if (!userData.industryExperience || !userData.industryExperience.trim()) {
       newErrors.industryExperience = "Industry experience is required";
     }
+
     if (!userData.communicationMethod) {
       newErrors.communicationMethod =
         "Preferred communication method is required";
@@ -414,6 +464,7 @@ const EditUserPage = () => {
       handleMultiSelectChange(fieldName, currentValues);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-900 px-4 py-8">
       <div className="w-full max-w-4xl mx-auto">
@@ -507,7 +558,6 @@ const EditUserPage = () => {
                     value={userData.phoneNumber || ""}
                     onChange={handleInputChange}
                     placeholder="Your phone number"
-                    isRequired
                     errorMessage={errors.phoneNumber}
                     className="bg-gray-700 border-gray-600"
                   />
@@ -720,28 +770,36 @@ const EditUserPage = () => {
             </div>
 
             <div className="space-y-6">
-              <MultiSelectButtons
-                label="Topics of Interest"
-                options={topicOptions.map((option) => option.label)}
-                selectedOptions={userData.userTopicOfInterests
-                  .map((val) => {
-                    const option = topicOptions.find(
-                      (opt) => opt.value === val.toString()
-                    );
-                    return option?.label || "";
-                  })
-                  .filter(Boolean)}
-                onToggleSelect={(label) =>
-                  handleToggleSelect(
-                    label,
-                    topicOptions,
-                    "userTopicOfInterests"
-                  )
-                }
-                isRequired
-                id="availability"
-                gridColsClass="grid-cols-2 sm:grid-cols-4"
-              />
+              <div>
+                <MultiSelectButtons
+                  label="Topics of Interest"
+                  options={topicOptions.map((option) => option.label)}
+                  selectedOptions={userData.userTopicOfInterests
+                    .map((val) => {
+                      const option = topicOptions.find(
+                        (opt) => opt.value === val.toString()
+                      );
+                      return option?.label || "";
+                    })
+                    .filter(Boolean)}
+                  onToggleSelect={(label) =>
+                    handleToggleSelect(
+                      label,
+                      topicOptions,
+                      "userTopicOfInterests"
+                    )
+                  }
+                  isRequired
+                  id="availability"
+                  gridColsClass="grid-cols-2 sm:grid-cols-4"
+                />
+                {errors.userTopicOfInterests && (
+                  <p className="text-sm text-red-400 mt-1">
+                    {errors.userTopicOfInterests}
+                  </p>
+                )}
+              </div>
+
               <InputCustom
                 label="Your Goals"
                 name="userGoal"

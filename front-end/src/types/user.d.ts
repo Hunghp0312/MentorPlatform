@@ -87,3 +87,7 @@ export interface UserViewResponse {
   communicationMethod: EnumType;
   areaOfExpertises: EnumType[];
 }
+export interface UserComboboxFilter {
+  id: string;
+  fullName: string;
+}

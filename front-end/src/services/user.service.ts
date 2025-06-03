@@ -24,4 +24,11 @@ export const userService = {
     const data = response.data;
     return data;
   },
+  async getAllMentors(query: string = "") {
+    const response = await axiosInstance.get(
+      `/Users/mentors/paged?query=${query}`
+    );
+    const data = response.data;
+    return data;
+  },
 };
