@@ -37,13 +37,26 @@ namespace Presentation.Controllers
             var result = await _userService.GetUsersAsync(queryParameters);
             return ToActionResult(result);
         }
+        [HttpGet("mentors/paged")]
+        [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "Admin, Mentor")]
+        public async Task<IActionResult> GetAllMentor([FromQuery] PaginationParameters queryParameters)
+        {
+            var result = await _userService.GetAllMentors(queryParameters);
+            return ToActionResult(result);
+        }
         [HttpGet("{userId}")]
         [ProducesResponseType(typeof(OperationResult<UserFullProfileResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [Authorize]
         public async Task<IActionResult> GetUserById(Guid userId)
         {
-            var result = await _userService.GetFullUserProfileByIdAsync(userId);
+            var requestUserIdString = User.FindFirstValue("id")!;
+            var requestUserId = Guid.Parse(requestUserIdString);
+            var role = User.FindFirstValue(ClaimTypes.Role)!;
+            var result = await _userService.GetFullUserProfileByIdAsync(userId, requestUserId, role);
             return ToActionResult(result);
         }
         [HttpPut("{userId}/status")]
@@ -75,7 +88,10 @@ namespace Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateUserProfile(Guid userProfileId, [FromForm] UpdateUserProfileRequestDto request)
         {
-            var result = await _userService.UpdateUserProfile(userProfileId, request);
+            var requestUserIdString = User.FindFirstValue("id")!;
+            var requestUserId = Guid.Parse(requestUserIdString);
+            var role = User.FindFirstValue(ClaimTypes.Role)!;
+            var result = await _userService.UpdateUserProfile(userProfileId, request, requestUserId, role);
             return ToActionResult(result);
         }
     }

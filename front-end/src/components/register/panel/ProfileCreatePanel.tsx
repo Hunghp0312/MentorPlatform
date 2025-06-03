@@ -198,6 +198,13 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setFullNameError("Full name is required.");
       setFocus("profileFullName");
       isValid = false;
+    } else if (
+      profile.fullName.trim().length < 2 &&
+      profile.fullName.trim().length > 100
+    ) {
+      setFullNameError("Full name must be between 2-100 characters.");
+      setFocus("profileFullName");
+      isValid = false;
     } else {
       setFullNameError("");
     }
@@ -272,19 +279,21 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Clear all errors before re-validating
-    setProfilePictureError("");
-    setFullNameError("");
-    setBioError("");
-    setExpertiseError("");
-    setSkillsError("");
-    setContactError("");
-    setIndustryExperienceError("");
-    setAvailabilityError("");
 
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top to see any top-of-form errors
 
-    if (validateAndSetFocusTarget()) {
+    // Check all error states are empty before proceeding
+    if (
+      validateAndSetFocusTarget() &&
+      !profilePictureError &&
+      !fullNameError &&
+      !bioError &&
+      !expertiseError &&
+      !skillsError &&
+      !contactError &&
+      !industryExperienceError &&
+      !availabilityError
+    ) {
       onNext();
     }
   };
@@ -349,7 +358,17 @@ const ProfileCreatePanel: React.FC<Props> = ({
             name="phoneNumber"
             type="text"
             value={profile.contact}
-            onChange={(e) => handleFieldChange("contact", e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value.length <= 15) {
+                handleFieldChange("contact", e.target.value);
+                setContactError("");
+              } else {
+                setContactError(
+                  "Please enter a valid phone number under 15 character."
+                );
+              }
+            }}
             placeholder="e.g., +1234567890"
             errorMessage={contactError}
             className="bg-gray-800 border-gray-700"
@@ -413,7 +432,17 @@ const ProfileCreatePanel: React.FC<Props> = ({
         name="skills"
         type="text"
         value={profile.skills || ""}
-        onChange={(e) => handleFieldChange("skills", e.target.value)}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value.length <= 100) {
+            handleFieldChange("skills", e.target.value);
+            setSkillsError("");
+          } else {
+            setSkillsError(
+              "Please enter professional skills under 100 characters."
+            );
+          }
+        }}
       />
 
       {/* Industry Experience */}
@@ -422,9 +451,17 @@ const ProfileCreatePanel: React.FC<Props> = ({
         name="industryExperience"
         type="text"
         value={profile.industryExperience ?? ""}
-        onChange={(e) =>
-          handleFieldChange("industryExperience", e.target.value)
-        }
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value.length <= 100) {
+            handleFieldChange("industryExperience", e.target.value);
+            setIndustryExperienceError("");
+          } else {
+            setIndustryExperienceError(
+              "Please enter industry experience under 100 characters."
+            );
+          }
+        }}
         placeholder="e.g., 5 years in Software Development"
         isRequired={role === RoleEnum.Mentor}
         errorMessage={industryExperienceError}

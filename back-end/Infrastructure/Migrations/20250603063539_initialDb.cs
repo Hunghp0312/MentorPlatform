@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class newdb : Migration
+    public partial class initialDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -728,6 +728,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LearnerMessage = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CancelReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LearnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -873,7 +874,12 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "SessionAvailabilityStatus",
                 columns: new[] { "Id", "Name" },
-                values: new object[] { 1, "Available" });
+                values: new object[,]
+                {
+                    { 1, "Available" },
+                    { 2, "Booked" },
+                    { 3, "Rescheduled" }
+                });
 
             migrationBuilder.InsertData(
                 table: "SessionBookingStatus",
@@ -881,7 +887,7 @@ namespace Infrastructure.Migrations
                 values: new object[,]
                 {
                     { 1, "Pending" },
-                    { 2, "Confirmed" },
+                    { 2, "Rescheduled" },
                     { 3, "Declined" },
                     { 4, "Completed" },
                     { 5, "Cancelled" },
@@ -1072,11 +1078,11 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "SessionBooking",
-                columns: new[] { "Id", "CreatedAt", "LearnerId", "LearnerMessage", "MentorId", "MentorTimeAvailableId", "SessionTypeId", "StatusId" },
+                columns: new[] { "Id", "CancelReason", "CreatedAt", "LearnerId", "LearnerMessage", "MentorId", "MentorTimeAvailableId", "SessionTypeId", "StatusId" },
                 values: new object[,]
                 {
-                    { new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"), new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Please help me review my CV for a junior developer position.", new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new Guid("10000000-0000-0000-0000-000000000002"), 3, 1 },
-                    { new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"), new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "I would like to discuss about C# performance optimization.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), new Guid("10000000-0000-0000-0000-000000000001"), 3, 1 }
+                    { new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"), null, new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Please help me review my CV for a junior developer position.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), new Guid("10000000-0000-0000-0000-000000000002"), 3, 1 },
+                    { new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"), null, new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc), new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "I would like to discuss about C# performance optimization.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), new Guid("10000000-0000-0000-0000-000000000001"), 3, 1 }
                 });
 
             migrationBuilder.CreateIndex(

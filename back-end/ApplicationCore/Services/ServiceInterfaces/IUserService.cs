@@ -12,7 +12,8 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<IEnumerable<UserResponseDto>>> GetAllUsersAsync();
         Task<OperationResult<UserResponseDto>> UpdateUserStatusAsync(Guid userId);
         Task<OperationResult<UserResponseDto>> GetUserByIdAsync(Guid userId);
-        Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto);
-        Task<OperationResult<UserFullProfileResponse>> GetFullUserProfileByIdAsync(Guid userId);
+        Task<OperationResult<UserProfileResponseDto>> UpdateUserProfile(Guid userProfileId, UpdateUserProfileRequestDto requestDto, Guid requestUserId, string role);
+        Task<OperationResult<UserFullProfileResponse>> GetFullUserProfileByIdAsync(Guid userId, Guid requestUserId, string role);
+        Task<OperationResult<IEnumerable<MentorFilterResponse>>> GetAllMentors(PaginationParameters queryParameters);
     }
 }

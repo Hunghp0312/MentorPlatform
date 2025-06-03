@@ -253,7 +253,6 @@ const MentorStatusProfile = () => {
         },
       };
 
-      toast.success("File uploaded successfully.");
       setSelectedFiles((prev) => [...prev, file]);
       setEditedMentor((prev) => ({
         ...prev,
@@ -286,6 +285,10 @@ const MentorStatusProfile = () => {
           ...prev,
           mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
         }));
+        setSaveState((prev) => ({
+          ...prev,
+          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        }));
         setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
       } catch (error) {
         console.error("Error deleting file:", error);
@@ -297,6 +300,10 @@ const MentorStatusProfile = () => {
         mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
       }));
       setMentorData((prev) => ({
+        ...prev,
+        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+      }));
+      setSaveState((prev) => ({
         ...prev,
         mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
       }));
@@ -332,7 +339,6 @@ const MentorStatusProfile = () => {
         }
         return { ...prev, mentorEducation: updatedEducation };
       });
-      toast.success("Education Add/Edit successfully.");
       setNewEducation({});
       setEditEducationIndex(null);
       setOpenEducationDialog(false);
@@ -364,7 +370,6 @@ const MentorStatusProfile = () => {
         }
         return { ...prev, mentorWorkExperience: updatedWorkExperience };
       });
-      toast.success("Work Experience Add/Edit successfully.");
       setNewWorkExperience({});
       setEditWorkExperienceIndex(null);
       setOpenWorkExperienceDialog(false);
@@ -395,7 +400,6 @@ const MentorStatusProfile = () => {
         }
         return { ...prev, certifications: updatedCertifications };
       });
-      toast.success("Certification Add/Edit successfully.");
       setNewCertification({});
       setEditCertificationIndex(null);
       setOpenCertificationDialog(false);
@@ -493,8 +497,14 @@ const MentorStatusProfile = () => {
   };
 
   const handleSubmitApplication = async () => {
-    if (!editedMentor || editedMentor.mentorDocuments.length === 0) {
-      toast.error("Error: Please select at least one document.");
+    if (
+      !editedMentor ||
+      editedMentor.mentorDocuments.length === 0 ||
+      editedMentor.mentorEducation.length === 0 ||
+      editedMentor.mentorWorkExperience.length === 0 ||
+      editedMentor.certifications.length === 0
+    ) {
+      toast.error("Error: Application data is missing.");
       return;
     }
 
@@ -592,24 +602,14 @@ const MentorStatusProfile = () => {
   };
 
   const handleCancel = () => {
-    const restoredData = {
-      ...mentorData,
-      mentorEducation: [...(saveState.mentorEducation || [])],
-      mentorWorkExperience: [...(saveState.mentorWorkExperience || [])],
-      certifications: [...(saveState.certifications || [])],
-      mentorDocuments: [...(saveState.mentorDocuments || [])],
-    };
-
-    setMentorData(restoredData);
-
-    setEditedMentor({
+    setMentorData((prev) => ({
       ...saveState,
-      mentorEducation: [...(saveState.mentorEducation || [])],
-      mentorWorkExperience: [...(saveState.mentorWorkExperience || [])],
-      certifications: [...(saveState.certifications || [])],
-      mentorDocuments: [...(saveState.mentorDocuments || [])],
-    });
-
+      userApplicationDetails: prev.userApplicationDetails,
+    }));
+    setEditedMentor((prev) => ({
+      ...saveState,
+      userApplicationDetails: prev.userApplicationDetails,
+    }));
     setIsEditing(false);
     setError(null);
     setNewEducation({});
@@ -870,6 +870,7 @@ const MentorStatusProfile = () => {
             </button>
           )}
           <input
+            id="document-file-input"
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
@@ -959,7 +960,10 @@ const MentorStatusProfile = () => {
             <div className="flex items-center space-x-4">
               <div className="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden">
                 <img
-                  src={DefaultImage}
+                  src={
+                    mentorData.userApplicationDetails?.profile?.photoData ||
+                    DefaultImage
+                  }
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />

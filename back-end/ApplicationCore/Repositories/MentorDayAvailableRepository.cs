@@ -1,4 +1,4 @@
-using ApplicationCore.DTOs.Requests.Availability;
+﻿using ApplicationCore.DTOs.Requests.Availability;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
@@ -35,21 +35,6 @@ public class MentorDayAvailableRepository
         return await query.ToListAsync();
     }
 
-    public async Task<ICollection<MentorDayAvailable>> GetDaysAvailabilityAsync(
-        SaveDaysAvailabilityRequestDto request
-    )
-    {
-        var mentorId = request.MentorId;
-        var requestedDates = request.Days.Select(d => DateOnly.Parse(d.Date)).ToList();
-
-        var days = await _dbSet
-            .Include(d => d.MentorTimeAvailables)
-            .Where(d => d.MentorId == mentorId && requestedDates.Contains(d.Day))
-            .ToListAsync();
-
-        return days;
-    }
-
     public async Task<MentorDayAvailable?> GetDayAvailabilityAsync(Guid mentorId, DateOnly day)
     {
         var resDay = await _dbSet
@@ -66,7 +51,14 @@ public class MentorDayAvailableRepository
         );
         if (dayAvailable != null)
         {
-            _dbSet.Remove(dayAvailable);
+            Delete(dayAvailable);
         }
+    }
+
+    public async Task<MentorDayAvailable?> GetTimeSlotOfDayAsync(Guid mentorId, DateOnly date)
+    {
+        return await _dbSet
+            .Include(a => a.MentorTimeAvailables)
+            .FirstOrDefaultAsync(up => up.MentorId == mentorId && up.Day == date);
     }
 }

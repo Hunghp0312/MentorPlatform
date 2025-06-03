@@ -31,5 +31,21 @@ namespace ApplicationCore.Extensions
             };
             return dto;
         }
+
+        public static DayAvailabilityDto DefaultReponse(DateOnly day)
+        {
+            var response = new DayAvailabilityDto
+            {
+                Date = day.ToString(DatetimeFormat.dayFormat),
+                DayName = day.DayOfWeek.ToString(),
+                WorkStartTime = "09:00",
+                WorkEndTime = "17:00",
+                SessionDurationMinutes = 45,
+                BufferMinutes = 15,
+                TimeBlocks = [],
+            };
+
+            return response;
+        }
     }
 }

@@ -47,9 +47,10 @@ export interface AreaOfExpertise {
 export interface UserUpdateRequest {
   photoData?: File;
   fullName: string;
-  bio?: string | null;
-  professionalSkill: string | null;
-  industryExperience: string | null;
+  bio: string;
+  phoneNumber?: string | null;
+  professionalSkill?: string | null;
+  industryExperience?: string;
   teachingApproaches: number[];
   userProfileAvailabilities: number[];
   userTopicOfInterests: number[];
@@ -68,6 +69,8 @@ export interface UserViewResponse {
   photoData?: string;
   role: EnumType;
   fullName: string;
+  phoneNumber?: string;
+  email: string;
   bio?: string | null;
   professionalSkill: string | null;
   industryExperience: string | null;
@@ -83,4 +86,8 @@ export interface UserViewResponse {
   notificationsEnabled: boolean;
   communicationMethod: EnumType;
   areaOfExpertises: EnumType[];
+}
+export interface UserComboboxFilter {
+  id: string;
+  fullName: string;
 }

@@ -50,7 +50,7 @@ public class AvailabilityController : BaseController
     }
 
     [HttpPut("{mentorId}/days")]
-    [ProducesResponseType(typeof(MentorDaysAvailabilityResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -60,20 +60,6 @@ public class AvailabilityController : BaseController
     )
     {
         var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
-        return ToActionResult(result);
-    }
-
-    [HttpDelete("{mentorId}/days")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteDays(
-        Guid mentorId,
-        [FromBody] DaysAvailabilityDeleteRequestDto request
-    )
-    {
-        var result = await _availabilityService.DeleteDaysAsync(mentorId, request);
         return ToActionResult(result);
     }
 }

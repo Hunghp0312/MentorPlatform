@@ -294,6 +294,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
           inputPadding="px-4 py-2.5" // Example, adjust as per your Dropdown component
           className="bg-gray-700 border-gray-600" // Example
           isRequired
+          dataTestId="sessionFrequencyDropdown"
         />
         <Dropdown
           label="Preferred session duration"
@@ -310,6 +311,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
           inputPadding="px-4 py-2.5" // Example
           className="bg-gray-700 border-gray-600" // Example
           isRequired
+          dataTestId="sessionDurationDropdown"
         />
       </div>
 
@@ -318,7 +320,15 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         name="goal"
         type="textarea"
         value={currentPreferences.goal}
-        onChange={(e) => onUpdate({ goal: e.target.value })}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value.length <= 1000) {
+            onUpdate({ goal: e.target.value });
+            setGoalError("");
+          } else {
+            setGoalError("Please enter goal under 1000 characters.");
+          }
+        }}
         placeholder="Describe your main learning or mentoring goal for using this platform..."
         isRequired
         errorMessage={goalError}

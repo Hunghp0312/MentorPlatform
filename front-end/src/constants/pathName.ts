@@ -1,7 +1,8 @@
 export const pathName = {
   home: "/",
   category: "/category",
-  course: "/course",
+  adminCourse: "/admin/course",
+  mentorCourse: "/mentor/course",
   register: "/register",
   login: "/login",
   approval: "/approval",
