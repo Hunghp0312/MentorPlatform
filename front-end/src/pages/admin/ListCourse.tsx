@@ -27,6 +27,8 @@ import {
 import { CategoryType } from "../../types/category";
 import { handleAxiosError } from "../../utils/handlerError";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
+import { userService } from "../../services/user.service";
+import { UserComboboxFilter } from "../../types/user";
 
 enum Level {
   Beginner = "1",
@@ -47,7 +49,7 @@ const ListCourse = () => {
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryType[]>();
   const isSubmitting = false;
-
+  const [mentors, setMentors] = useState<UserComboboxFilter[]>([]);
   // Pagination
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
@@ -60,14 +62,6 @@ const ListCourse = () => {
     levelId: "",
   });
   const searchDebounced = useDebounce(query.trim(), 500);
-
-  // Constants
-  const optionTest = [
-    { id: "", name: "All mentors" },
-    { id: "73fba208-a6bf-481c-8c82-24fd5ba9a531", name: "Uncle Bob" },
-    { id: "4e28540d-6b6b-44da-bc92-7989bcc20201", name: "Mark Zuckerberg" },
-    { id: "ca4f1d7d-ced8-473a-bfd0-c7900a098153", name: "Bill Gate" },
-  ];
 
   const levelOptions = [
     { value: "", label: "All levels" },
@@ -120,9 +114,31 @@ const ListCourse = () => {
     }
   };
 
+  const fetchMentors = async () => {
+    try {
+      setIsPageLoading(true);
+      const res = await userService.getAllMentors();
+      setMentors([
+        { id: "", fullName: "All mentors" },
+        ...res.sort((a: UserComboboxFilter, b: UserComboboxFilter) =>
+          a.fullName.localeCompare(b.fullName)
+        ),
+      ]);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        handleAxiosError(error);
+      } else {
+        console.error("Error fetching categories:", error);
+      }
+    } finally {
+      setIsPageLoading(false);
+    }
+  };
+
   // Effects
   useEffect(() => {
     fetchCategories();
+    fetchMentors();
   }, []);
 
   useEffect(() => {
@@ -385,9 +401,9 @@ const ListCourse = () => {
               value={filter.mentorId}
               onChange={handleSelect}
               options={
-                optionTest?.map((item) => ({
+                mentors?.map((item) => ({
                   value: item.id,
-                  label: item.name,
+                  label: item.fullName,
                 })) || []
               }
               haveOptionAll
