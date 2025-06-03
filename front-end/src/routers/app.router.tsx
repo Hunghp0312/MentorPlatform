@@ -47,7 +47,6 @@ const AppRouter = () => {
         { path: pathName.forgotPassword, element: <ForgotPasswordPage /> },
         { path: pathName.oauthcallback, element: <OAuthCallback /> },
         { path: pathName.unauthorized, element: <UnauthorizedPage /> },
-        { path: "profile/:id", element: <ProfileView /> },
       ],
     },
     {
@@ -56,7 +55,7 @@ const AppRouter = () => {
           <Layout />
         </EditableUserProfileRoute>
       ),
-      children: [{ path: "edit-profile/:id", element: <EditUserPage /> }],
+      children: [{ path: "profile/:id/edit", element: <EditUserPage /> }],
     },
     {
       element: (
@@ -66,7 +65,11 @@ const AppRouter = () => {
           </RequireRole>
         </PrivateRoute>
       ),
-      children: [{ path: pathName.home, element: HomePage }],
+
+      children: [
+        { path: pathName.home, element: HomePage },
+        { path: "profile/:id", element: <ProfileView /> },
+      ],
     },
     {
       element: (
@@ -78,7 +81,7 @@ const AppRouter = () => {
       ),
       children: [
         { path: pathName.category, element: <ListCategory /> },
-        { path: pathName.course, element: <ListCourse /> },
+        { path: pathName.adminCourse, element: <ListCourse /> },
         { path: pathName.approval, element: <ListApproval /> },
         { path: pathName.userList, element: <ListUser /> },
       ],
@@ -95,6 +98,7 @@ const AppRouter = () => {
       ),
       children: [
         { path: pathName.mentorStatus, element: <MentorStatusProfile /> },
+        { path: pathName.mentorCourse, element: <ListCourse /> },
       ],
     },
 

@@ -1,5 +1,6 @@
 using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Infrastructure.BaseRepository
 {
@@ -82,6 +83,11 @@ namespace Infrastructure.BaseRepository
         public virtual async Task AddRangeAsync(ICollection<TEntity> entities)
         {
             await _dbSet.AddRangeAsync(entities);
+        }
+
+        public virtual async Task<ICollection<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).ToListAsync();
         }
     }
 }

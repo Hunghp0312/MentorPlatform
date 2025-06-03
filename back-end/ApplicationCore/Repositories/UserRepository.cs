@@ -42,7 +42,17 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         _dbSet.Update(user);
         await Task.CompletedTask;
     }
-
+    public async Task<IEnumerable<User>> GetAllMentors(Expression<Func<User, bool>> predicate)
+    {
+        IQueryable<User> query = _dbSet
+            .Include(u => u.UserProfile);
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+        var users = await query.Take(10).ToListAsync();
+        return (users);
+    }
     public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersWithDetailsAsync(
         Expression<Func<User, bool>> predicate,
         int pageIndex,

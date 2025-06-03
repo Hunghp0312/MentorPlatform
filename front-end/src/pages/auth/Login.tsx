@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import InputCustom from "../../components/input/InputCustom";
 import InputCheckbox from "../../components/input/InputCheckbox";
@@ -13,11 +13,17 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const { setIsAuthenticated } = useAuthContext();
+  const { isAuthenticated, setIsAuthenticated } = useAuthContext();
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [error, setError] = useState<Record<string, string>>({});
   const [loading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(pathName.home, { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const validate = () => {
     const errs: Record<string, string> = {};
@@ -80,7 +86,7 @@ const Login: React.FC = () => {
 
       toast.dismiss();
 
-      navigate(pathName.home);
+      navigate(pathName.home, { replace: true });
     } catch (apiError: unknown) {
       if (apiError instanceof AxiosError) {
         const message =

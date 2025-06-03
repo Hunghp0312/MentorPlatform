@@ -3,6 +3,7 @@ using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Courses;
 using ApplicationCore.DTOs.Responses.Courses;
 using ApplicationCore.Services.ServiceInterfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -27,6 +28,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        [Authorize]
         public async Task<IActionResult> GetCoursePagination(
             [FromQuery] CourseQueryParameters request
         )
@@ -41,6 +43,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Mentor")]
         public async Task<IActionResult> CreateCourse(
             [FromBody] CreateUpdateCourseRequest createDto
         )
@@ -55,6 +58,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        [Authorize]
         public async Task<IActionResult> GetCourseById(Guid id)
         {
             var result = await _courseService.GetCourseDetailsByIdAsync(id);
@@ -68,6 +72,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Mentor")]
         public async Task<IActionResult> UpdateCourse(
             Guid id,
             [FromBody] CreateUpdateCourseRequest updateDto
@@ -82,6 +87,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        [Authorize(Roles = "Admin, Mentor")]
         public async Task<IActionResult> DeleteCourse(Guid id)
         {
             var result = await _courseService.DeleteCourseAsync(id);
