@@ -9,7 +9,7 @@ namespace ApplicationCore.Extensions
         {
             return new SupportingDocumentResponse()
             {
-                FileId = supportingDocument.Id,
+                FileId = supportingDocument.DocumentContentId,
                 FileName = supportingDocument.FileName,
                 FileType = supportingDocument.FileType,
             };
