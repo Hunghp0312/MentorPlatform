@@ -36,6 +36,8 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("{mentorId}/schedule-by-day")]
+        [ProducesResponseType(typeof(MentorDayDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MentorDayDto>> GetMentorScheduleForDay(
         Guid mentorId,
         [FromQuery] DateOnly date)
@@ -47,6 +49,7 @@ namespace Presentation.Controllers
 
         [HttpGet("mentor/my-bookings")]
         [Authorize(Roles = "Learner,Mentor")]
+        [ProducesResponseType(typeof(PagedResult<MentorBookingDetailsDto>), StatusCodes.Status200OK)]
         public async Task<ActionResult<PagedResult<MentorBookingDetailsDto>>> GetMyMentorBookings(
        [FromQuery] MentorBookingsQueryParameters queryParameters)
         {
@@ -58,6 +61,10 @@ namespace Presentation.Controllers
         }
 
         [HttpPut("{sessionId:guid}/status")]
+        [ProducesResponseType(typeof(UpdateBookingResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status401Unauthorized)]
         [Authorize(Roles = "Learner,Mentor")]
         public async Task<IActionResult> UpdateBookingStatus(Guid sessionId, [FromBody] UpdateBookingStatusRequestDto updateRequest)
         {
@@ -72,6 +79,10 @@ namespace Presentation.Controllers
 
         [HttpPut("{sessionId:guid}/reschedule")]
         [Authorize(Roles = "Mentor")]
+        [ProducesResponseType(typeof(UpdateBookingResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> RescheduleBooking(Guid sessionId, [FromBody] RescheduleBookingRequestDto rescheduleRequest)
         {
             var mentorIdString = User.FindFirstValue("id")!;
