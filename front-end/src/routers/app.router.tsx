@@ -30,6 +30,7 @@ import SessionManagement from "../pages/session/SessionManagement";
 import MentorProfile from "../pages/mentor/MentorProfile";
 import { EditableUserProfileRoute } from "./EditableUserProfileRoute";
 import ProfileView from "../pages/user/ProfileView";
+import AvailabilityManager from "../pages/mentor/MentorAvailability";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -98,6 +99,7 @@ const AppRouter = () => {
       children: [
         { path: pathName.mentorStatus, element: <MentorStatusProfile /> },
         { path: pathName.mentorCourse, element: <ListCourse /> },
+        { path: pathName.mentorAvailability, element: <AvailabilityManager /> },
       ],
     },
 
