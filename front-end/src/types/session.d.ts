@@ -9,4 +9,5 @@ export interface TimeSlot {
     id: string;
     startTime: string; 
     endTime: string;
+    statusId : number
 }

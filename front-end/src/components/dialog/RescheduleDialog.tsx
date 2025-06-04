@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, {  useState } from 'react';
 import InputCustom from '../input/InputCustom';
 import { TimeSlot } from '../../types/session';
+import { sessionService } from '../../services/session.service';
+import { useParams } from 'react-router-dom';
 
 
 interface RescheduleDialogProps {
@@ -14,17 +16,22 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
     onClose,
     onConfirm,
 }) => {
+    const { id } = useParams<string>();
     const [date, setDate] = useState<string>('');
     const [timeSlot, setTimeSlot] = useState<TimeSlot[]>([]);
     const [reason, setReason] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [selectedSlot, setSelectedSlot] = useState<string>('');
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setDate(e.target.value);
-        setTimeSlot([{ id: 's', startTime: 'a', endTime: '1' },
-        { id: '3', startTime: '2', endTime: '1' }
-        ]);
+
+        try {
+            const res = await sessionService.getSessionSlots(id as string, e.target.value);
+            setTimeSlot(res.mentorTimeSlots)
+        } catch (error) {
+            console.error("Error fetching time slots:", error);
+        }
 
     }
     const handleConfirm = () => {
@@ -34,16 +41,15 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
             setTimeout(() => {
                 setIsSubmitting(false);
                 onConfirm(sessionId, selectedSlot);
-
-            }, 2000); // Simulate a network request
+            }, 2000);
         }
         // Reset form
         setDate('');
         setTimeSlot([]);
         setReason('');
     };
-    
-    const timeSlotOption  =  timeSlot.map(slot => ({
+
+    const timeSlotOption = timeSlot.map(slot => ({
         id: slot.id,
         name: `${slot.startTime} - ${slot.endTime}`,
     }));

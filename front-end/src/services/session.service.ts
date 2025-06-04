@@ -26,16 +26,16 @@ export const sessionService = {
             throw error;
         }
     },
-    async getAllBookingSessions (mentorId: string) {
+    async getAllBookingSessions (fromDate: string, toDate: string, statusId: number, pageIndex: number, pageSize: number, query: string) {
         try {
-            const response = await axiosInstance.get(`/Sessions/mentor/${mentorId}/my-bookings`,{
+            const response = await axiosInstance.get(`/Sessions/mentor/my-bookings`,{
                 params: {
-                    FromSessionDate: new Date().toISOString(), // Fetch bookings from today onwards
-                    ToSessionDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(), // Fetch bookings for the next year
-                    StatusId: 1, // Assuming 1 is the status for active bookings
-                    PageIndex: 1,
-                    PageSize: 100, // Adjust as needed
-                    Query: "", // Optional query parameter for filtering
+                    FromSessionDate: fromDate, 
+                    ToSessionDate: toDate, 
+                    PageIndex: pageIndex, 
+                    PageSize: pageSize, 
+                    StatusId: statusId,
+                    Query: query, 
                 },
 
             });
@@ -70,5 +70,20 @@ export const sessionService = {
             console.error("Error rescheduling booking session:", error);
             throw error;
         }
+    },
+    async getAvaibilityTime(mentorId : string, date: string) {
+        try {
+            const res = await axiosInstance.get(`/Availability/${mentorId}/week`, {
+                params: {
+                    weekStartDate: date,
+                },
+            });
+            return res.data;
+        }
+        catch (error) {
+            console.error("Error fetching availability time:", error);
+            throw error;
+        }   
+        
     }
 }
