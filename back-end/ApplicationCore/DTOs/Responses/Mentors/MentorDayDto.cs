@@ -3,6 +3,7 @@
     public class MentorDayDto
     {
         public Guid Id { get; set; }
+        public required string PhotoData { get; set; }
         public TimeOnly StartWorkTime { get; set; }
         public TimeOnly EndWorkTime { get; set; }
         public List<string> ExpertiseTags { get; set; } = new List<string>();

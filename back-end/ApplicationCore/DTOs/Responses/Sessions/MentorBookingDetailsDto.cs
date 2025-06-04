@@ -4,7 +4,8 @@
     {
         public Guid BookingId { get; set; }
         public Guid LearnerId { get; set; }
-        public required string PhotoData { get; set; }
+        public required string LearnerPhotoData { get; set; }
+        public required string MentorPhotoData { get; set; }
         public string LearnerFullName { get; set; } = string.Empty;
         public Guid MentorId { get; set; }
         public string MentorFullName { get; set; } = string.Empty;
