@@ -60,6 +60,7 @@ namespace ApplicationCore.Services
                 await request.PhotoData.CopyToAsync(ms);
                 photoBytes = ms.ToArray();
             }
+            int initialStatusId = request.SelectedRole == 2 ? 1 : 2;
 
             var user = new User
             {
@@ -67,7 +68,7 @@ namespace ApplicationCore.Services
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 RoleId = request.SelectedRole,
-                StatusId = 2,
+                StatusId = initialStatusId,
                 UserAreaOfExpertises =
                     request
                         .AreaOfExpertise?.Where(aoeId => aoeId > 0)

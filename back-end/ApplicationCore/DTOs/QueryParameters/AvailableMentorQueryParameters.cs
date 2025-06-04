@@ -4,6 +4,7 @@ namespace ApplicationCore.DTOs.QueryParameters
 {
     public class AvailableMentorQueryParameters : PaginationParameters
     {
-        public int ExpertiseId { get; set; }
+        public int TopicId { get; set; }
+        public List<int> ExpertiseIds { get; set; } = new List<int>();
     }
 }
