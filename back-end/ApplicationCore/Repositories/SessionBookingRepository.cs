@@ -68,6 +68,21 @@ namespace ApplicationCore.Repositories
             return await _dbSet.AnyAsync(predicate);
         }
 
+        public override async Task<ICollection<SessionBooking>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(a => a.SessionType)
+                .Include(a => a.Status)
+                .Include(a => a.Learner)
+                    .ThenInclude(b => b.UserProfile)
+                .Include(a => a.Mentor)
+                    .ThenInclude(b => b.UserProfile)
+                .Include(x => x.MentorTimeAvailable)
+                    .ThenInclude(y => y.MentorDayAvailable)
+                .Where(s => s.StatusId == 6)
+                .ToListAsync();
+
+
         public async Task<SessionBooking?> GetBookingDetailsForDtoAsync(Guid id)
         {
             var query = await _dbSet

@@ -18,5 +18,6 @@ namespace Infrastructure.Entities
         public virtual MentorTimeAvailable MentorTimeAvailable { get; set; } = null!;
         public SessionBookingStatus Status { get; set; } = null!;
         public SessionType SessionType { get; set; } = null!;
+        public DateTime? LastReminderSent { get; set; }
     }
 }
