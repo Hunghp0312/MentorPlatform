@@ -30,14 +30,16 @@ export default function Navbar({
       className={`
         fixed left-0 top-0 h-full bg-gray-800 text-white transition-all duration-300 z-10
         ${collapsed ? "w-16" : "w-64"}
-      `}>
+      `}
+    >
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-800">
         {!collapsed && (
           <h1 className="text-xl font-bold text-orange-500">Mentor Connect</h1>
         )}
         <button
           onClick={toggleSidebar}
-          className="p-1 rounded-md hover:bg-gray-800">
+          className="p-1 rounded-md hover:bg-gray-800"
+        >
           {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
       </div>
@@ -62,7 +64,8 @@ export default function Navbar({
 
               text-gray-300 hover:bg-gray-800 hover:text-white
           ${collapsed ? "justify-center" : ""}
-        `}>
+        `}
+        >
           <div>
             <LogOut size={20} />
           </div>
