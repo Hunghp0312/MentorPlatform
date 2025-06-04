@@ -170,6 +170,10 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<MentorApplicantResponse>.BadRequest("Cannot change status from Approved and Reject to any other status ");
             }
+            if ((request.StatusId == 4 || request.StatusId == 2) && string.IsNullOrWhiteSpace(request.AdminComments))
+            {
+                return OperationResult<MentorApplicantResponse>.BadRequest("Admin comments are required for Request Info and Rejection status.");
+            }
             return null;
         }
 
