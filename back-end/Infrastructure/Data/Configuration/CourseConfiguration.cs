@@ -24,7 +24,7 @@ namespace Infrastructure.Data.Configuration
             builder.Property(c => c.MentorId).IsRequired();
 
             builder.Property(c => c.Tags).IsRequired().HasMaxLength(100);
-            builder.Property(c => c.Resources).IsRequired(false);
+
 
             builder
                 .HasOne(c => c.Status)
