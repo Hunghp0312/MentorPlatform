@@ -340,10 +340,17 @@ namespace ApplicationCore.Services
             Func<IQueryable<UserProfile>, IQueryable<UserProfile>> filter = query =>
             {
                 query = query.Where(up => up.User.RoleId == 3);
-                if (queryParameters.ExpertiseId != 0)
+                if (queryParameters.ExpertiseIds.Any())
                 {
                     query = query.Where(up =>
-                        up.User.UserAreaOfExpertises.Any(uae => queryParameters.ExpertiseId.Equals(uae.AreaOfExpertiseId))
+                        up.User.UserAreaOfExpertises.Any(uae => queryParameters.ExpertiseIds.Contains(uae.AreaOfExpertiseId))
+                    );
+                }
+
+                if (queryParameters.TopicId != 0)
+                {
+                    query = query.Where(up =>
+                        up.UserTopicOfInterests.Any(uae => queryParameters.TopicId == uae.TopicId)
                     );
                 }
 

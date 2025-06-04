@@ -171,52 +171,55 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<PagedResult<MentorBookingDetailsDto>>> GetBookingsForMentorAsync(Guid userId, MentorBookingsQueryParameters queryParameters)
         {
+            var user = await _userRepository.GetByIdAsync(userId);
+            bool IsMentor = user!.RoleId == 3;
+
             Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = query =>
+        {
+            if (queryParameters.StatusId.HasValue && queryParameters.StatusId > 0 && queryParameters.StatusId < 7)
             {
-                if (queryParameters.StatusId.HasValue && queryParameters.StatusId > 0 && queryParameters.StatusId < 7)
-                {
-                    query = query.Where(sb => sb.StatusId == queryParameters.StatusId.Value);
-                }
+                query = query.Where(sb => sb.StatusId == queryParameters.StatusId.Value);
+            }
 
-                if (queryParameters.FromSessionDate.HasValue)
-                {
-                    query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day >= queryParameters.FromSessionDate.Value);
-                }
+            if (queryParameters.FromSessionDate.HasValue)
+            {
+                query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day >= queryParameters.FromSessionDate.Value);
+            }
 
-                if (queryParameters.IsMentor)
+            if (IsMentor)
+            {
+                query = query.Where(sb => sb.MentorId == userId);
+            }
+            else
+            {
+                query = query.Where(sb => sb.LearnerId == userId);
+            }
+
+            if (queryParameters.ToSessionDate.HasValue)
+            {
+                query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day <= queryParameters.ToSessionDate.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryParameters.Query))
+            {
+                string searchTerm = queryParameters.Query.ToLower().Trim();
+                if (IsMentor)
                 {
-                    query = query.Where(sb => sb.MentorId == userId);
+                    query = query.Where(up =>
+                  up.Learner.UserProfile.FullName.ToLower().Contains(searchTerm)
+                    );
                 }
                 else
                 {
-                    query = query.Where(sb => sb.LearnerId == userId);
+                    query = query.Where(up =>
+                up.Mentor.UserProfile.FullName.ToLower().Contains(searchTerm)
+                  );
                 }
 
-                if (queryParameters.ToSessionDate.HasValue)
-                {
-                    query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day <= queryParameters.ToSessionDate.Value);
-                }
+            }
 
-                if (!string.IsNullOrWhiteSpace(queryParameters.Query))
-                {
-                    string searchTerm = queryParameters.Query.ToLower().Trim();
-                    if (queryParameters.IsMentor)
-                    {
-                        query = query.Where(up =>
-                      up.Learner.UserProfile.FullName.ToLower().Contains(searchTerm)
-                        );
-                    }
-                    else
-                    {
-                        query = query.Where(up =>
-                    up.Mentor.UserProfile.FullName.ToLower().Contains(searchTerm)
-                      );
-                    }
-
-                }
-
-                return query;
-            };
+            return query;
+        };
 
             var (mentorBookings, totalItems) = await _sessionBookingRepository.GetPagedAsync(
                 filter,
@@ -282,12 +285,11 @@ namespace ApplicationCore.Services
                     return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be accepted as waiting for learner processing or you can decline the booking.");
                 }
 
-
                 var isRescheduledExist = await _sessionBookingRepository.AnyAsync(s => s.MentorTimeAvailableId == booking.MentorTimeAvailableId && s.StatusId == 2 && s.Id != sessionId);
 
-                if (isRescheduledExist)
+                if (isRescheduledExist && updateRequest.NewStatusId != 5 && updateRequest.NewStatusId != 3)
                 {
-                    return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be updated as still there is an existing rescheduled state.");
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be scheduled as still there is an existing rescheduled state.");
                 }
             }
             else
