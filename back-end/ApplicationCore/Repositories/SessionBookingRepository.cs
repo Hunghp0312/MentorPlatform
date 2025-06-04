@@ -81,6 +81,7 @@ namespace ApplicationCore.Repositories
                     .ThenInclude(y => y.MentorDayAvailable)
                 .Where(s => s.StatusId == 6)
                 .ToListAsync();
+        }
 
 
         public async Task<SessionBooking?> GetBookingDetailsForDtoAsync(Guid id)
