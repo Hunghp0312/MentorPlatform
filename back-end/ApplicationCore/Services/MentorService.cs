@@ -386,5 +386,16 @@ namespace ApplicationCore.Services
             return OperationResult<PagedResult<MentorCardDto>>.Ok(pagedResult);
         }
 
+        public async Task<OperationResult<MentorProfileDto>> GetMentorProfileDetailAsync(Guid mentorApplicationId)
+        {
+            var mentorApplicationEntity = await _mentorRepository.GetMentorProfileByIdAsync(mentorApplicationId);
+            if (mentorApplicationEntity == null)
+            {
+                return OperationResult<MentorProfileDto>.NotFound($"No mentor application found for ID '{mentorApplicationId}'.");
+            }
+            var responseDto = mentorApplicationEntity.ToMentorProfileDtoDto();
+
+            return OperationResult<MentorProfileDto>.Ok(responseDto);
+        }
     }
 }
