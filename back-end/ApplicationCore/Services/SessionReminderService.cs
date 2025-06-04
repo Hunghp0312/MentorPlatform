@@ -11,7 +11,7 @@ namespace Infrastructure.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ISendEmailService _sendEmailService;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(5); // Check every 5 minutes
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(5);
 
         public SessionReminderService(IServiceProvider serviceProvider, ISendEmailService sendEmailService)
         {
@@ -34,7 +34,7 @@ namespace Infrastructure.Services
             var sessionBookingRepository = scope.ServiceProvider.GetRequiredService<ISessionBookingRepository>();
 
             var now = DateTime.UtcNow;
-            var oneHourFromNow = now.AddHours(24);
+            var oneHourFromNow = now.AddHours(1);
             var sessions = await sessionBookingRepository.GetAllAsync();
             if (sessions == null || !sessions.Any())
             {
@@ -47,7 +47,7 @@ namespace Infrastructure.Services
                       s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start) is var sessionTime &&
                       sessionTime >= now &&
                       sessionTime <= oneHourFromNow &&
-                      (s.LastReminderSent == null || s.LastReminderSent < sessionTime.AddHours(-24)))
+                      (s.LastReminderSent == null || s.LastReminderSent < sessionTime.AddHours(-1)))
           .ToList();
             if (!upcomingSessions.Any())
             {
