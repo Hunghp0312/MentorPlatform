@@ -10,6 +10,9 @@ namespace ApplicationCore.Extensions
             return new MentorDayDto
             {
                 Id = mentorDay.Id,
+                PhotoData = mentorDay.Mentor.UserProfile.PhotoData != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(mentorDay.Mentor.UserProfile.PhotoData)}"
+                : string.Empty,
                 Date = mentorDay.Day,
                 StartWorkTime = mentorDay.StartWorkTime,
                 EndWorkTime = mentorDay.EndWorkTime,
