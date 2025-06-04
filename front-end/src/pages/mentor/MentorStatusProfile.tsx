@@ -273,21 +273,24 @@ const MentorStatusProfile = () => {
 
   const handleRemoveDocument = async (index: number) => {
     const document = mentorData.mentorDocuments[index];
+    const updatedDocuments = mentorData.mentorDocuments.filter(
+      (_, i) => i !== index
+    );
 
     if (mentorData.status === "Request Info" && document.id) {
       try {
         await mentorService.deleteFile(document.id);
         setEditedMentor((prev) => ({
           ...prev,
-          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+          mentorDocuments: updatedDocuments,
         }));
         setMentorData((prev) => ({
           ...prev,
-          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+          mentorDocuments: updatedDocuments,
         }));
         setSaveState((prev) => ({
           ...prev,
-          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+          mentorDocuments: updatedDocuments,
         }));
         setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
       } catch (error) {
@@ -297,15 +300,15 @@ const MentorStatusProfile = () => {
     } else {
       setEditedMentor((prev) => ({
         ...prev,
-        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        mentorDocuments: updatedDocuments,
       }));
       setMentorData((prev) => ({
         ...prev,
-        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        mentorDocuments: updatedDocuments,
       }));
       setSaveState((prev) => ({
         ...prev,
-        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        mentorDocuments: updatedDocuments,
       }));
       setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     }
@@ -602,14 +605,24 @@ const MentorStatusProfile = () => {
   };
 
   const handleCancel = () => {
-    setMentorData((prev) => ({
+    const restoredData = {
+      ...mentorData,
+      mentorEducation: [...(saveState.mentorEducation || [])],
+      mentorWorkExperience: [...(saveState.mentorWorkExperience || [])],
+      certifications: [...(saveState.certifications || [])],
+      mentorDocuments: [...(saveState.mentorDocuments || [])],
+    };
+
+    setMentorData(restoredData);
+
+    setEditedMentor({
       ...saveState,
-      userApplicationDetails: prev.userApplicationDetails,
-    }));
-    setEditedMentor((prev) => ({
-      ...saveState,
-      userApplicationDetails: prev.userApplicationDetails,
-    }));
+      mentorEducation: [...(saveState.mentorEducation || [])],
+      mentorWorkExperience: [...(saveState.mentorWorkExperience || [])],
+      certifications: [...(saveState.certifications || [])],
+      mentorDocuments: [...(saveState.mentorDocuments || [])],
+    });
+
     setIsEditing(false);
     setError(null);
     setNewEducation({});
@@ -1003,9 +1016,16 @@ const MentorStatusProfile = () => {
                 Areas of expertise
               </h3>
               <p className="text-sm text-gray-200">
-                {mentorData.userApplicationDetails?.userAreaOfExpertises
-                  ?.map((expertise) => expertise.arenaOfExpertise?.name)
-                  .join(", ") || "No expertise provided"}
+                {mentorData.userApplicationDetails?.userAreaOfExpertises?.map(
+                  (expertise, index) => (
+                    <span
+                      key={index}
+                      className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mr-2"
+                    >
+                      {expertise.arenaOfExpertise?.name}
+                    </span>
+                  )
+                )}
               </p>
             </div>
             <div>
