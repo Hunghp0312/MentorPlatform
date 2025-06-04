@@ -16,7 +16,7 @@ export const pathName = {
   bookingSession: "/booking-session",
   mentorDashboard: "/mentor-dashboard",
   sessionManagement: "/session-management",
-  mentorProfile: "/mentor-profile",
+  mentorProfile: "/mentor-profile/:id",
   editProfile: "/edit-profile",
   findmentor: "/find-mentor",
 };

@@ -5,7 +5,10 @@ import ExperienceCard from "../../components/feature/ExperienceCard"
 import MentorAvailability from "../../components/feature/MentorAvaibility"
 import Button from "../../components/ui/Button"
 import BookingSessionDialog from "../../components/dialog/BookingSessionDialog"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
+import { sessionService } from "../../services/session.service"
+import { BookingRequest } from "../../types/session"
+import { toast } from "react-toastify"
 
 interface Mentor {
     id: string
@@ -31,14 +34,10 @@ interface SimilarMentor {
     skills: string[]
     profileImage: string
 }
-interface BookingData {
-    mentorId: string;
-    mentorTimeAvailableId: string;
-    learnerMessage?: string;
-    sessionTypeId: string;
-}
+
 
 const MentorProfile: React.FC = () => {
+    const { id } =  useParams();
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState<"about" | "experience" | "availability">("about")
     const [openDialog, setOpenDialog] = useState(false)
@@ -96,10 +95,17 @@ const MentorProfile: React.FC = () => {
         { id: "experience" as const, label: "Experience" },
         { id: "availability" as const, label: "Availability" },
     ]
-    const handleConfirmBooking = (bookingData: BookingData) => {
-        console.log("Booking confirmed:", bookingData);
-        setOpenDialog(false);
-        // Here you would typically send the booking data to your backend
+    const handleConfirmBooking = async (bookingData: BookingRequest) => {
+        try {
+            await sessionService.bookSession(bookingData);
+            toast.success("Session booked successfully!");
+            navigate("/mentor-profile");
+        }
+        catch (error) {
+            console.error("Error booking session:", error);
+        } finally {
+            setOpenDialog(false);
+        }
     }
 
     return (
@@ -266,7 +272,7 @@ const MentorProfile: React.FC = () => {
             </div>
             {openDialog && (
 
-                <BookingSessionDialog onClose={() => setOpenDialog(false)} onConfirm={handleConfirmBooking} />
+                <BookingSessionDialog mentorId={id as string} onClose={() => setOpenDialog(false)} onConfirm={handleConfirmBooking} />
 
             )}
         </div>

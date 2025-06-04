@@ -2,85 +2,198 @@ import React from 'react';
 import { Calendar, Video, MessageSquare, Users, Star, Zap, User, Upload, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+interface Session {
+    id: number;
+    title: string;
+    time: string;
+    date: string;
+    mentee: string;
+    type: string;
+    typeIcon: React.ReactNode;
+    sessionIcon: React.ReactNode;
+    iconBg: string;
+    borderColor: string;
+    actions: string[];
+}
 const MentorDashBoard: React.FC = () => {
     // Fake data for upcoming sessions
     const upcomingSessions = [
         {
             id: 1,
             title: "JavaScript Fundamentals",
-            time: "10:30 AM - 11:30 AM",
-            date: "Today",
-            startsIn: "0h 29m",
+            time: "10:30 PM - 11:30 PM",
+            date: "2025-06-03",
             mentee: "Alex Johnson",
             type: "Video Call",
             typeIcon: <Video className="w-4 h-4 mr-1" />,
             sessionIcon: <Video className="w-5 h-5 text-blue-500" />,
             iconBg: "bg-blue-500/20",
             borderColor: "border-blue-500",
-            isToday: true,
             actions: ["Join Now", "Session Materials"]
         },
         {
             id: 2,
             title: "Career Guidance Session",
             time: "1:00 PM - 2:00 PM",
-            date: "May 7",
-            startsIn: "In 2 days",
+            date: "2025-06-05",
             mentee: "Sophia Chen",
             type: "Chat Session",
             typeIcon: <MessageSquare className="w-4 h-4 mr-1" />,
             sessionIcon: <MessageSquare className="w-5 h-5 text-purple-500" />,
             iconBg: "bg-purple-500/20",
             borderColor: "border-gray-700",
-            isToday: false,
             actions: ["Prepare Materials", "Message Learner"]
         },
         {
             id: 3,
             title: "Project Review",
             time: "3:30 PM - 4:30 PM",
-            date: "May 9",
-            startsIn: "In 4 days",
+            date: "2025-06-07",
             mentee: "James Wilson",
             type: "In-Person",
             typeIcon: <Users className="w-4 h-4 mr-1" />,
             sessionIcon: <Users className="w-5 h-5 text-green-500" />,
             iconBg: "bg-green-500/20",
             borderColor: "border-gray-700",
-            isToday: false,
             actions: ["View Details"]
         },
         {
             id: 4,
             title: "React Advanced Concepts",
             time: "9:00 AM - 10:30 AM",
-            date: "May 10",
-            startsIn: "In 5 days",
+            date: "2025-06-10",
             mentee: "Emma Roberts",
             type: "Video Call",
             typeIcon: <Video className="w-4 h-4 mr-1" />,
             sessionIcon: <Video className="w-5 h-5 text-indigo-500" />,
             iconBg: "bg-indigo-500/20",
             borderColor: "border-gray-700",
-            isToday: false,
             actions: ["View Details", "Prepare Materials"]
         },
         {
             id: 5,
             title: "Code Review: Backend API",
             time: "2:00 PM - 3:00 PM",
-            date: "May 12",
-            startsIn: "In 7 days",
+            date: "2025-06-12",
             mentee: "David Kim",
             type: "Screen Share",
             typeIcon: <MessageSquare className="w-4 h-4 mr-1" />,
             sessionIcon: <MessageSquare className="w-5 h-5 text-pink-500" />,
             iconBg: "bg-pink-500/20",
             borderColor: "border-gray-700",
-            isToday: false,
             actions: ["Message Learner"]
         }
     ];
+
+    // create a function to countdown the time left to meeting if it today and the time count below 10 minutes
+
+    const dateLeftToMeeting = (date: string) => {
+        // Check if the date is today
+        const currentDate = new Date();
+        const meetingDate = new Date(date);
+
+        // Compare if it's the same day
+        const isSameDay =
+            meetingDate.getDate() === currentDate.getDate() &&
+            meetingDate.getMonth() === currentDate.getMonth() &&
+            meetingDate.getFullYear() === currentDate.getFullYear();
+
+        if (isSameDay) {
+            return "Today";
+        }
+
+        // Calculate difference in days
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const daysLeft = Math.ceil((meetingDate.getTime() - currentDate.getTime()) / msPerDay);
+
+        return `In ${daysLeft} Day${daysLeft === 1 ? '' : 's'}`;
+    }
+
+
+    const formatSessionDisplayInfo = (session: Session) => {
+        // Check if the session is today based on date
+        const todayDate = new Date().toISOString().split('T')[0];
+        const isToday = session.date === todayDate;
+
+        // Parse the display time info
+        let isStartingSoon = false;
+        let isVeryClose = false;
+        let displayTime = '';
+
+        // Handle today's sessions
+        if (isToday) {
+            // Extract start time from session.time (format: "10:30 AM - 11:30 AM")
+            const startTimeStr = session.time.split(' - ')[0];
+
+            // Create a date object for the session start time today
+            const startTime = new Date();
+            const [timeStr, period] = startTimeStr.split(' ');
+            const timeArray = timeStr.split(':').map(Number);
+            let hours = timeArray[0];
+            const minutes = timeArray[1];
+
+            // Convert to 24-hour format
+            if (period === 'PM' && hours !== 12) hours += 12;
+            if (period === 'AM' && hours === 12) hours = 0;
+
+            startTime.setHours(hours, minutes, 0, 0);
+
+            // Get current time
+            const currentTime = new Date();
+
+            // Calculate difference in minutes
+            const diffMs = startTime.getTime() - currentTime.getTime();
+            const diffMinutes = Math.floor(diffMs / 60000);
+
+            if (diffMinutes < 0) {
+                // Session has already started
+                displayTime = `Started ${Math.abs(diffMinutes)} min ago`;
+            } else if (diffMinutes < 60) {
+                // Less than an hour left
+                isStartingSoon = diffMinutes < 30;
+                isVeryClose = diffMinutes < 5;
+                displayTime = `In ${diffMinutes} min`;
+            } else {
+                // More than an hour left
+                const hours = Math.floor(diffMinutes / 60);
+                const mins = diffMinutes % 60;
+                displayTime = `In ${hours}h ${mins}m`;
+            }
+        } else {
+            // Use dateLeftToMeeting for non-today sessions
+            displayTime = dateLeftToMeeting(session.date);
+        }
+
+        return { isToday, isStartingSoon, isVeryClose, displayTime };
+    };
+    const getSessionIcon = (type: string) => {
+        switch (type) {
+            case 'Video Call':
+                return <Video className="w-5 h-5 text-blue-500 " />;
+            case 'Chat Session':
+                return <MessageSquare className="w-5 h-5 text-purple-500 " />;
+            case 'In-Person':
+                return <Users className="w-5 h-5 text-green-500 " />;
+            case 'Screen Share':
+                return <MessageSquare className="w-5 h-5 text-pink-500 " />;
+            default:
+                return <Users className="w-5 h-5 text-gray-500 " />;
+        }
+    }
+    const getColorOfSessionType = (type: string) => {
+        switch (type) {
+            case 'Video Call':
+                return 'bg-blue-500/20';
+            case 'Chat Session':
+                return 'bg-purple-500/20';
+            case 'In-Person':
+                return 'bg-green-500/20';
+            case 'Screen Share':
+                return 'bg-pink-500/20';
+            default:
+                return 'bg-gray-500/20';
+        }
+    }
 
     return (
         <div className="min-h-screen p-4">
@@ -100,82 +213,61 @@ const MentorDashBoard: React.FC = () => {
 
                         {/* Dynamic Sessions */}
                         {upcomingSessions.map(session => {
-                            // Parse time more precisely
-                            const isToday = session.isToday;
-                            let timeValue = 0;
-                            let timeUnit = "";
-                            
-                            // Extract numeric value and unit
-                            if (session.startsIn.includes('h')) {
-                                timeValue = parseInt(session.startsIn.split('h')[0], 10);
-                                timeUnit = "hours";
-                            } else if (session.startsIn.includes('m')) {
-                                timeValue = parseInt(session.startsIn.split('m')[0].replace(/\D/g, ''), 10);
-                                timeUnit = "minutes";
-                            }
-                            
-                            // Define time thresholds
-                            const isStartingSoon = isToday && timeUnit === "minutes" && timeValue < 30;
-                            const isVeryClose = isToday && timeUnit === "minutes" && timeValue < 5;
-                            
-                            // Format display time
-                            let displayTime = session.startsIn;
-                            if (isVeryClose) {
-                                // Convert to seconds for very close sessions
-                                const secondsRemaining = timeValue * 60;
-                                displayTime = `${secondsRemaining} seconds`;
-                            }
-                            
+                            const { isToday, isStartingSoon, isVeryClose, displayTime } = formatSessionDisplayInfo(session);
+
+                            const statusClass = isVeryClose ? "text-red-500 font-bold " :
+                                isStartingSoon ? "text-orange-400 font-semibold animate-pulse" :
+                                    isToday ? "text-orange-400" : "text-gray-400 ";
+
+                            const statusText = isVeryClose ? `Imminent: ${displayTime}` :
+                                isStartingSoon ? `Starting soon: ${displayTime}` : displayTime;
+
                             return (
-                            <div 
-                                key={session.id}
-                                className={`border ${session.borderColor} rounded-lg p-4 mb-4 relative ${isStartingSoon ? 'border-orange-500 border-2' : ''}`}
-                            >
-                                <div className="flex items-start">
-                                    <div className={`p-2 ${session.iconBg} rounded-lg mr-3`}>
-                                        {session.sessionIcon}
+                                <div
+                                    key={session.id}
+                                    className={`border ${session.borderColor} rounded-lg p-4 mb-4 relative ${isStartingSoon ? 'border-orange-500 border-2' : ''}`}
+                                >
+                                    <div className="flex items-start">
+                                        <div className={`p-2 ${getColorOfSessionType(session.type)} rounded-lg mr-3`}>
+                                            {getSessionIcon(session.type)}
+
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold">Meeting with {session.mentee}</h3>
+                                            <p className="text-sm text-gray-400 mt-2">
+                                                {session.time}
+                                            </p>
+                                            <div className="flex items-center mt-1 text-sm text-gray-400">
+                                                {session.typeIcon}
+                                                <span>{session.type}</span>
+                                            </div>
+                                            <div className="mt-3 flex justify-between items-center">
+                                                <div className="flex items-center space-x-2">
+                                                    {session.actions.map((action) => (
+                                                        <button
+                                                            key={`${session.id}-${action}`}
+                                                            className={`${action === "Join Now" ? "bg-blue-500" : "bg-gray-600"
+                                                                } text-white text-xs py-1 px-3 rounded`}
+                                                        >
+                                                            {action}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <div className={`text-right ${statusClass} text-sm animate-pulse`}>
+                                                    {statusText}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {isToday && (
+                                            <div className="absolute top-4 right-4 bg-blue-500 text-xs py-1 px-2 rounded">
+                                                Today
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold">{session.title}</h3>
-                                        <p className="text-sm text-gray-400">
-                                            {session.date !== "Today" ? `${session.date} • ` : ''}{session.time}
-                                        </p>
-                                        <div className="flex items-center mt-1 text-sm text-gray-400">
-                                            <User className="w-4 h-4 mr-1" />
-                                            <span>{session.mentee}</span>
-                                            <span className="mx-2">•</span>
-                                            {session.typeIcon}
-                                            <span>{session.type}</span>
-                                        </div>
-                                        <div className="mt-3 flex space-x-2">
-                                            {session.actions.map((action, index) => (
-                                                <button 
-                                                    key={index}
-                                                    className={`${
-                                                        action === "Join Now" ? "bg-blue-500" : "bg-gray-600"
-                                                    } text-white text-xs py-1 px-3 rounded`}
-                                                >
-                                                    {action}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    {session.isToday && (
-                                        <div className="absolute top-4 right-4 bg-blue-500 text-xs py-1 px-2 rounded">
-                                            Today
-                                        </div>
-                                    )}
+
                                 </div>
-                                <div className={`text-right mt-2 ${
-                                    isVeryClose ? "text-red-500 font-bold animate-pulse" : 
-                                    isStartingSoon ? "text-orange-400 font-semibold" : 
-                                    session.isToday ? "text-orange-400" : "text-gray-400"
-                                } text-sm`}>
-                                    {isVeryClose ? `Imminent: ${displayTime}` : 
-                                     isStartingSoon ? `Starting soon: ${displayTime}` : displayTime}
-                                </div>
-                            </div>
-                        )})}
+                            )
+                        })}
                         {upcomingSessions.length === 0 && (
                             <p className="text-gray-400 text-center">No upcoming sessions scheduled.</p>
                         )}

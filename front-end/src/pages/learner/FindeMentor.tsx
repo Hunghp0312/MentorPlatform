@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 import InputCustom from '../../components/input/InputCustom';
 import { useNavigate } from 'react-router-dom';
-
+import { mentorService } from '../../services/mentorapplication.service';
+import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 interface Mentor {
     id: number;
     fullName: string;
@@ -11,13 +12,38 @@ interface Mentor {
     shortBioOrTagline: string;
 }
 
+const expertiseOptions = [
+    "Frontend",
+    "Backend",
+    "Data Science",
+    "Machine Learning",
+    "DevOps",
+    "UI/UX Design",
+    "Cybersecurity",
+    "Cloud Computing",
+    "Mobile Development"
+];
+
+const areaOfExpertise = [
+    "All Areas",
+    "Frontend",
+    "Backend",
+    "Data Science",
+    "Machine Learning",
+    "DevOps",
+    "UI/UX Design",
+    "Cybersecurity",
+    "Cloud Computing",
+    "Mobile Development"
+]
+
 const MentorFinder: React.FC = () => {
     const navigate = useNavigate();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [selectAreaOfExpertise, setSelectAreaOfExpertise] = useState<string>('');
     const [selectedExpertise, setSelectedExpertise] = useState<string[]>([]);
-
+    const [mentors, setMentors] = useState<Mentor[]>([])
     const handleExpertiseChange = (expertise: string) => {
         setSelectAreaOfExpertise(expertise);
     }
@@ -31,75 +57,22 @@ const MentorFinder: React.FC = () => {
             }
         }
     }
-
-    const expertiseOptions = [
-        "Frontend",
-        "Backend",
-        "Data Science",
-        "Machine Learning",
-        "DevOps",
-        "UI/UX Design",
-        "Cybersecurity",
-        "Cloud Computing",
-        "Mobile Development"
-    ];
-
-    const areaOfExpertise = [
-        "All Areas",
-        "Frontend",
-        "Backend",
-        "Data Science",
-        "Machine Learning",
-        "DevOps",
-        "UI/UX Design",
-        "Cybersecurity",
-        "Cloud Computing",
-        "Mobile Development"
-    ]
-    const mentors: Mentor[] = [
-        {
-            id: 1,
-            fullName: "Sarah Johnson",
-            photoData: "https://randomuser.me/api/portraits/women/44.jpg",
-            expertiseTags: ["Frontend", "React", "UI Design"],
-            shortBioOrTagline: "Helping new developers master React and modern UI frameworks"
-        },
-        {
-            id: 2,
-            fullName: "Michael Chen",
-            photoData: "https://randomuser.me/api/portraits/men/22.jpg",
-            expertiseTags: ["Analytics", "Machine Learning", "Python"],
-            shortBioOrTagline: "Bridging the gap between data science theory and practical applications"
-        },
-        {
-            id: 3,
-            fullName: "Aisha Patel",
-            photoData: "https://randomuser.me/api/portraits/women/29.jpg",
-            expertiseTags: ["Problem Solving", "System Design", "Java"],
-            shortBioOrTagline: "Specialized in scaling distributed systems and solving complex backend challenges"
-        },
-        {
-            id: 4,
-            fullName: "Daniel Rodriguez",
-            photoData: "https://randomuser.me/api/portraits/men/56.jpg",
-            expertiseTags: ["Networking", "Cybersecurity", "Cloud Infrastructure"],
-            shortBioOrTagline: "Securing networks and teaching best practices in cybersecurity"
-        },
-        {
-            id: 5,
-            fullName: "Emma Wilson",
-            photoData: "https://randomuser.me/api/portraits/women/33.jpg",
-            expertiseTags: ["Frontend", "UX Research", "Design Systems"],
-            shortBioOrTagline: "Creating beautiful, accessible, and user-friendly interfaces"
-        },
-        {
-            id: 6,
-            fullName: "Jamal Williams",
-            photoData: "https://randomuser.me/api/portraits/men/32.jpg",
-            expertiseTags: ["Problem Solving", "AWS", "CI/CD"],
-            shortBioOrTagline: "Automating infrastructure and optimizing deployment pipelines "
+    const fetchMentors = async () => {
+        try {
+            const res = await mentorService.getAvailableMentors(searchTerm, 1, 10)
+            setMentors(res.items);
         }
-    ];
+        catch (error) {
+            console.error("Error fetching mentors:", error);
+            setMentors([]);
+        }
+
+    }
+    useEffect(() => {
+        fetchMentors();
+    }, [searchTerm])
+
+
 
     return (
         <div className="min-h-screen bg-slate-800 text-white p-6">
@@ -163,7 +136,7 @@ const MentorFinder: React.FC = () => {
                                 {/* Mentor Header */}
                                 <div className="flex items-center gap-3 mb-4 ">
                                     <img
-                                        src={mentor.photoData || "/placeholder.svg"}
+                                        src={mentor.photoData || DefaultImage}
                                         alt={mentor.fullName}
                                         className="w-12 h-12 rounded-full object-cover"
                                     />
@@ -184,7 +157,7 @@ const MentorFinder: React.FC = () => {
                                                 {skill}
                                             </span>
                                         ))}
-                                    </div>
+                                </div>
                                 </div>
 
 
@@ -194,7 +167,7 @@ const MentorFinder: React.FC = () => {
 
 
                                 <div className="flex gap-2">
-                                    <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition-colors" onClick={() => navigate("/mentor-profile")} >
+                                    <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition-colors" onClick={() => navigate(`/mentor-profile/${mentor.id}`)} >
                                         View Profile
                                     </button>
                                     <button className="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2 px-4 rounded-lg font-medium transition-colors">

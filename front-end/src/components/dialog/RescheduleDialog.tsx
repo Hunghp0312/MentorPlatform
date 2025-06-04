@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import InputCustom from '../input/InputCustom';
+import { TimeSlot } from '../../types/session';
 
 
 interface RescheduleDialogProps {
     sessionId: string | null;
     onClose: () => void;
-    onConfirm: (sessionId: string, date: string, time: string, reason: string) => void;
-}
-interface TimeSlot {
-    id: string;
-    time: string;
-    available: boolean;
+    onConfirm: (sessionId: string, mentorTimeAvailableId: string) => void;
 }
 
 const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
@@ -21,29 +17,37 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
     const [date, setDate] = useState<string>('');
     const [timeSlot, setTimeSlot] = useState<TimeSlot[]>([]);
     const [reason, setReason] = useState<string>('');
-    const [selectedTime, setSelectedTime] = useState<string>('');
-    
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [selectedSlot, setSelectedSlot] = useState<string>('');
+
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setDate(e.target.value);
-        // Reset time slot when date changes
-        setSelectedTime('');
-        // Simulate fetching available time slots for the selected date
-        const availableSlots: TimeSlot[] = [
-            { id: '1', time: '9:00-10:00', available: true },
-            { id: '2', time: '10:00-11:00', available: true },
-            { id: '3', time: '14:00-15:00', available: false }, // Example of an unavailable slot
-        ];
-        setTimeSlot(availableSlots.filter(slot => slot.available));
+        setTimeSlot([{ id: 's', startTime: 'a', endTime: '1' },
+        { id: '3', startTime: '2', endTime: '1' }
+        ]);
+
     }
     const handleConfirm = () => {
+        setIsSubmitting(true);
+
         if (sessionId) {
-            onConfirm(sessionId, date, selectedTime, reason);
+            setTimeout(() => {
+                setIsSubmitting(false);
+                onConfirm(sessionId, selectedSlot);
+
+            }, 2000); // Simulate a network request
         }
         // Reset form
         setDate('');
         setTimeSlot([]);
         setReason('');
     };
+    
+    const timeSlotOption  =  timeSlot.map(slot => ({
+        id: slot.id,
+        name: `${slot.startTime} - ${slot.endTime}`,
+    }));
+    timeSlotOption.unshift({ id: '', name: 'Select Time Slot' });
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -70,12 +74,9 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
                         <InputCustom
                             type='select'
                             name="timeSlot"
-                            value={selectedTime}
-                            onChange={(e) => setSelectedTime(e.target.value)}
-                            optionList={timeSlot.map(slot => ({
-                                id: slot.id,
-                                name: slot.time,
-                            }))}
+                            value={selectedSlot}
+                            onChange={(e) => setSelectedSlot(e.target.value)}
+                            optionList={timeSlotOption}
 
                         />
                     </div>
@@ -104,9 +105,10 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
                     </button>
                     <button
                         onClick={handleConfirm}
-                        className="flex-1 px-4 py-2 bg-[#f47521] hover:bg-[#e06a1e] text-white rounded-lg"
+                        disabled={isSubmitting}
+                        className={`flex-1 px-4 py-2 ${isSubmitting ? 'bg-gray-500' : 'bg-[#f47521] hover:bg-[#e06a1e]'} text-white rounded-lg`}
                     >
-                        Send Reschedule Request
+                        {isSubmitting ? 'Submitting...' : 'Send Reschedule Request'}
                     </button>
                 </div>
             </div>

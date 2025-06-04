@@ -1,64 +1,52 @@
-import React, { useState } from 'react';
-import {  X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
+import { sessionService } from '../../services/session.service';
+import { BookingRequest, TimeSlot } from '../../types/session';
 
 interface BookingDialogProps {
+    mentorId: string;
     mentorName?: string;
     hourlyRate?: number;
     onClose?: () => void;
-    onConfirm?: (bookingData: BookingData) => void;
+    onConfirm?: (bookingData: BookingRequest) => void;
 }
 
-interface TimeSlot {
-    id: string;
-    time: string;
-    available: boolean;
-}
-
-interface BookingData {
-    mentorId: string;
-    mentorTimeAvailableId: string;
-    learnerMessage?: string;
-    sessionTypeId: string;
-}
 const BookingSessionDialog: React.FC<BookingDialogProps> = ({
+    mentorId ,
     mentorName = "Sarah Johnson",
     hourlyRate = 75,
     onClose,
     onConfirm,
 }) => {
-    const [slot,setSlot] = useState<TimeSlot[]>([])
+    const [slots, setSlots] = useState<TimeSlot[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [bookingData, setBookingData] = useState<BookingData>({
-        mentorId: "1",
+    const [bookingData, setBookingData] = useState<BookingRequest>({
+        mentorId: mentorId,
         mentorTimeAvailableId: "",
         learnerMessage: "",
         sessionTypeId: "1",
     })
+
     const [selectedDate, setSelectedDate] = useState<string>('');
 
     // In a real app, you would check actual mentor availability
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        
+    const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+
         setSelectedDate(e.target.value);
         setBookingData(prev => ({
             ...prev,
             mentorTimeAvailableId: '', // Reset time slot when date changes
         }));
         try {
-            // Simulate fetching available time slots for the selected date
-            const availableSlots: TimeSlot[] = [
-                { id: '1', time: '9:00-10:00', available: true },
-                { id: '2', time: '10:00-11:00', available: true },
-                { id: '3', time: '14:00-15:00', available: false }, // Example of an unavailable slot
-            ];
-            setSlot(availableSlots.filter(slot => slot.available));
+            const res = await sessionService.getSessionSlots(bookingData.mentorId, e.target.value);
+            setSlots(res.mentorTimeSlots)
         }
         catch (error) {
             console.error("Error fetching available slots:", error);
-            setSlot([]);
+            setSlots([]);
         }
-        
+
     }
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -76,6 +64,21 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
             sessionTypeId: value,
         }));
     };
+    useEffect(() => {
+        const fetchSlots = async () => {
+            const today = new Date().toISOString().split('T')[0];
+            try {
+                setSelectedDate(today);
+                const res = await sessionService.getSessionSlots(mentorId, today);
+                setSlots(res.mentorTimeSlots);
+            } catch (error) {
+                console.error("Error fetching initial slots:", error);
+                setSlots([]);
+            }
+
+        };
+        fetchSlots();
+    }, [mentorId]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -83,8 +86,8 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
         setTimeout(() => {
             setIsSubmitting(false);
             onConfirm?.(bookingData);
-        }, 2000); // Simulate a network request
-        
+        }, 1000);
+
     };
 
     return (
@@ -127,13 +130,13 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                             style={{ backgroundImage: "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E\")", backgroundPosition: "right 0.5rem center", backgroundRepeat: "no-repeat", backgroundSize: "1.5em 1.5em", paddingRight: "2.5rem" }}
                         >
                             <option value="">Select a time slot</option>
-                            {slot?.map((timeSlot) => (
+                            {slots?.map((timeSlot) => (
                                 <option key={timeSlot.id} value={timeSlot.id}>
-                                    {timeSlot.time}
+                                    {timeSlot.startTime} - {timeSlot.endTime}
                                 </option>
                             ))}
                         </select>
-                        {slot.length === 0 && (
+                        {slots.length === 0 && (
                             <p className="text-orange-500 text-xs mt-1">
                                 Mentor is not available on this day. Please select another date.
                             </p>

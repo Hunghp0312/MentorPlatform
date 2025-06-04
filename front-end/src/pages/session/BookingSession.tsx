@@ -1,12 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Video, Users, Building, Mail, Calendar, Plus } from 'lucide-react';
 import { toast } from 'react-toastify';
-
-interface TimeSlot {
-    id: string;
-    time: string;
-    available: boolean;
-}
+import { TimeSlot } from '../../types/session';
+import { sessionService } from '../../services/session.service';
 
 interface SessionType {
     id: string;
@@ -14,110 +10,83 @@ interface SessionType {
     icon: React.ReactNode;
 }
 
-interface SlotSelection {
-    date: { year: number; month: number; day: number };
-    id: string; // Optional ID for the slot
-}
+const sessionTypes: SessionType[] = [
+    { id: '1', name: 'Virtual Session', icon: <Video className="w-5 h-5 mx-auto mb-2" /> },
+    { id: '2', name: 'In-Person Session', icon: <Users className="w-5 h-5 mx-auto mb-2" /> },
+    { id: '3', name: 'On-Site Session', icon: <Building className="w-5 h-5 mx-auto mb-2" /> },
+];
+
+const weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 const BookingSession: React.FC = () => {
-    const [selectedDate, setSelectedDate] = useState<number>(17);
-    const [selectedTime, setSelectedTime] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState<number>();
     const [selectedSessionType, setSelectedSessionType] = useState<string | null>(null);
+    const [slots, setSlots] = useState<TimeSlot[] | undefined>(undefined);
+    const [selectedSlot, setSelectedSlot] = useState<string>('');
 
-    // New: slots state to keep track of selected slots - initialized as undefined
-    const [slots, setSlots] = useState<SlotSelection | undefined>(undefined);
-
-    // Calendar month state
     const today = new Date();
     const [currentMonth, setCurrentMonth] = useState<{ month: number; year: number }>({
         month: today.getMonth(),
         year: today.getFullYear(),
     });
 
-    // Time slots
-    const timeSlots: TimeSlot[] = [
-        { id: 'slot-1', time: '9:00 AM - 10:00 AM', available: true },
-        { id: 'slot-2', time: '10:00 AM - 10:30 AM', available: true },
-        { id: 'slot-3', time: '11:00 AM - 11:30 AM', available: true },
-        { id: 'slot-4', time: '12:00 PM - 12:30 PM', available: true },
-        { id: 'slot-5', time: '1:00 PM : 1:30 PM', available: true },
-    ];
 
-    // Session types
-    const sessionTypes: SessionType[] = [
-        { id: 'virtual', name: 'Virtual Session', icon: <Video className="w-5 h-5 mx-auto mb-2" /> },
-        { id: 'in-person', name: 'In-Person Session', icon: <Users className="w-5 h-5 mx-auto mb-2" /> },
-        { id: 'on-site', name: 'On-Site Session', icon: <Building className="w-5 h-5 mx-auto mb-2" /> },
-    ];
 
-    // Week days
-    const weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-
-    // Helper to add or update slot selection
-    const handleSlotSelection = (day: number, time: string) => {
+    const handleDateChange = async (day: number) => {
         setSelectedDate(day);
-        setSelectedTime(time);
-
-        const slotDate = { year: currentMonth.year, month: currentMonth.month, day };
-        const slot = timeSlots.find(s => s.time === time);
-        
-        // Directly set the new slot
-        setSlots({ 
-            date: slotDate, 
-            id: slot?.id ?? 'slot-1' 
-        });
-    };
-
-    // Optionally, update slot if user changes date or time
-    const handleDateChange = (day: number) => {
-        //TODO:call api to get all slot of that day
         const date = new Date(currentMonth.year, currentMonth.month, day);
         const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-        console.log(formattedDate);  
-        
-        // Reset time selection when changing date
-        setSelectedDate(day);
-        setSelectedTime(null);
-        
-        // Clear any previously selected slots for other days
-        setSlots(undefined);
-    };
-    
-    const handleTimeChange = (time: string) => {
-        setSelectedTime(time);
-        
-        // Create a new single slot selection for current date and time
-        const slotDate = { year: currentMonth.year, month: currentMonth.month, day: selectedDate };
-        const slot = timeSlots.find(s => s.time === time);
-        
-        // Set the new slot
-        setSlots({ 
-            date: slotDate, 
-            id: slot?.id ?? 'slot-1' 
-        });
-    }
 
-    function handleBooking(): void {
-        if(slots === undefined) {
+        try {
+            const res = await sessionService.getSessionSlots('03EA823D-D625-448D-901D-411C5028B769', formattedDate);
+            setSlots(res.mentorTimeSlots);
+        }
+        catch (error) {
+            console.error("Error fetching available slots:", error);
+            setSlots([]);
+            return;
+        }
+
+    };
+
+    const handleSlotSelected = (slotId: string) => {
+        setSelectedSlot(slotId);
+    }
+    const handleBooking  = async  () => {
+        if (slots === undefined) {
             toast.error('Please select a date and time slot before booking.');
             return;
         }
-        const data  = {
-            mentorId : 'mentor-id', 
-            mentorTimeAvailableId : slots ? slots.id : 'default-slot-id',
+        const data = {
+            mentorId: '03EA823D-D625-448D-901D-411C5028B769',
+            mentorTimeAvailableId: selectedSlot,
             learnerMessage: 'Your message here',
-            sessionTypeId: selectedSessionType ?? 'virtual',
+            sessionTypeId: selectedSessionType ?? '1',
         }
-        console.log('Booking data:', data);
-        
-        // Add or update slot for current date/time
-        if (selectedDate && selectedTime) {
-            handleSlotSelection(selectedDate, selectedTime);
+        try {
+            await sessionService.bookSession(data);
+            toast.success('Session booked successfully!');
+        }catch (error) {
+            console.error("Error booking session:", error);
+            toast.error('Failed to book the session. Please try again later.');
+            return;
         }
-        // You can use the slots state here for further logic
-        console.log(slots);
     }
 
+    useEffect(() =>  {
+        const fetchSlots = async () => {
+            const today = new Date().toISOString().split('T')[0];
+            try {
+                setSelectedDate(Number(today.split('-')[2])); // Set selected date to today
+                const res = await sessionService.getSessionSlots('03EA823D-D625-448D-901D-411C5028B769', today);
+                setSlots(res.mentorTimeSlots);
+            } catch (error) {
+                console.error("Error fetching initial slots:", error);
+                setSlots([]);
+            }
+        };
+        fetchSlots();
+    },[])
 
     return (
         <div className="min-h-screen flex items-center justify-center  p-4">
@@ -242,15 +211,15 @@ const BookingSession: React.FC = () => {
                 {/* Time slots */}
                 <h3 className="text-center mb-4">Select a time slot</h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8">
-                    {timeSlots.map((slot) => (
+                    {slots?.map((slot) => (
                         <button
-                            key={slot.time}
+                            key={slot.id}
                             className={`py-2 px-4 rounded text-center text-sm
-                ${selectedTime === slot.time ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'}
+                ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'}
                     `}
-                            onClick={() => handleTimeChange(slot.time)}
+                            onClick={() => handleSlotSelected(slot.id)}
                         >
-                            {slot.time}
+                            {slot.startTime} - {slot.endTime}
                         </button>
                     ))}
                 </div>
