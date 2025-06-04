@@ -134,4 +134,29 @@ export const mentorService = {
       throw error;
     }
   },
+  async getMentorInfomation(mentorId : string) {
+    try {
+      const response = await axiosInstance.get("/MentorApplications/my-application/" + mentorId);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching mentor information:", error);
+      throw error;
+    }
+  },
+  async getAvailableMentors(query: string, pageIndex: number, pageSize: number) {
+    try {
+      const response = await axiosInstance.get("/MentorApplications/available-mentors", {
+        params: {
+          Query: query,
+          PageIndex: pageIndex,
+          PageSize: pageSize,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching available mentors:", error);
+      throw error;
+    }
+    
+  }
 };

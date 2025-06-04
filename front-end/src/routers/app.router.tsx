@@ -30,6 +30,7 @@ import SessionManagement from "../pages/session/SessionManagement";
 import MentorProfile from "../pages/mentor/MentorProfile";
 import { EditableUserProfileRoute } from "./EditableUserProfileRoute";
 import ProfileView from "../pages/user/ProfileView";
+import MentorFinder from "../pages/learner/FinderMentor";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -112,10 +113,18 @@ const AppRouter = () => {
       ),
       children: [],
     },
-    { path: pathName.bookingSession, element: <BookingSession /> },
-    { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
-    { path: pathName.sessionManagement, element: <SessionManagement /> },
-    { path: pathName.mentorProfile, element: <MentorProfile /> },
+    {
+      element: <Layout />,
+      children: [
+        { path: pathName.bookingSession, element: <BookingSession /> },
+        { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
+        { path: pathName.sessionManagement, element: <SessionManagement /> },
+        { path: pathName.mentorProfile, element: <MentorProfile /> },
+        {path: pathName.findmentor, element: <MentorFinder />},
+      ]
+    }
+
+
   ]);
 
   return routes;

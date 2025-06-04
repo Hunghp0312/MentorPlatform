@@ -170,6 +170,10 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<MentorApplicantResponse>.BadRequest("Cannot change status from Approved and Reject to any other status ");
             }
+            if ((request.StatusId == 4 || request.StatusId == 2) && string.IsNullOrWhiteSpace(request.AdminComments))
+            {
+                return OperationResult<MentorApplicantResponse>.BadRequest("Admin comments are required for Request Info and Rejection status.");
+            }
             return null;
         }
 
@@ -340,10 +344,17 @@ namespace ApplicationCore.Services
             Func<IQueryable<UserProfile>, IQueryable<UserProfile>> filter = query =>
             {
                 query = query.Where(up => up.User.RoleId == 3);
-                if (queryParameters.ExpertiseId != 0)
+                if (queryParameters.ExpertiseIds.Any())
                 {
                     query = query.Where(up =>
-                        up.User.UserAreaOfExpertises.Any(uae => queryParameters.ExpertiseId.Equals(uae.AreaOfExpertiseId))
+                        up.User.UserAreaOfExpertises.Any(uae => queryParameters.ExpertiseIds.Contains(uae.AreaOfExpertiseId))
+                    );
+                }
+
+                if (queryParameters.TopicId != 0)
+                {
+                    query = query.Where(up =>
+                        up.UserTopicOfInterests.Any(uae => queryParameters.TopicId == uae.TopicId)
                     );
                 }
 
@@ -375,5 +386,16 @@ namespace ApplicationCore.Services
             return OperationResult<PagedResult<MentorCardDto>>.Ok(pagedResult);
         }
 
+        public async Task<OperationResult<MentorProfileDto>> GetMentorProfileDetailAsync(Guid mentorApplicationId)
+        {
+            var mentorApplicationEntity = await _mentorRepository.GetMentorProfileByIdAsync(mentorApplicationId);
+            if (mentorApplicationEntity == null)
+            {
+                return OperationResult<MentorProfileDto>.NotFound($"No mentor application found for ID '{mentorApplicationId}'.");
+            }
+            var responseDto = mentorApplicationEntity.ToMentorProfileDtoDto();
+
+            return OperationResult<MentorProfileDto>.Ok(responseDto);
+        }
     }
 }

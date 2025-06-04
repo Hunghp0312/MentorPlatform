@@ -102,5 +102,14 @@ namespace Presentation.Controllers
 
             return ToActionResult(pagedMentorCards);
         }
+
+        [HttpGet("mentor-profile-detail/{mentorApplicationId}")]
+        [ProducesResponseType(typeof(MentorProfileDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMentorProfileDetail(Guid mentorApplicationId)
+        {
+            var result = await _mentorService.GetMentorProfileDetailAsync(mentorApplicationId);
+            return ToActionResult(result);
+        }
     }
 }

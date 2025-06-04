@@ -8,6 +8,8 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using Infrastructure.Services;
+using System.Text;
 
 
 namespace ApplicationCore.Services
@@ -18,13 +20,15 @@ namespace ApplicationCore.Services
         private readonly IMentorTimeAvailableRepository _mentorTimeAvailableRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ISendEmailService _sendEmailService;
 
-        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ISendEmailService sendEmailService)
         {
             _sessionBookingRepository = sessionBookingRepository;
             _mentorTimeAvailableRepository = mentorTimeAvailableRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _sendEmailService = sendEmailService;
         }
 
         public async Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts()
@@ -77,6 +81,7 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<CreatedBookingResponseDto>> CreateNewBookingAsync(Guid learnerId, CreateBookingRequestDto bookingRequest)
         {
+            var learner = await _userRepository.GetByIdWithUserProfileAsync(learnerId);
             var mentor = await _userRepository.GetByIdAsync(bookingRequest.MentorId);
             if (mentor == null || mentor.RoleId != 3)
             {
@@ -127,6 +132,8 @@ namespace ApplicationCore.Services
             await _sessionBookingRepository.AddAsync(newBooking);
             await _unitOfWork.SaveChangesAsync();
 
+            var createdBookingDetails = await _sessionBookingRepository.GetBookingDetailsForDtoAsync(newBooking.Id);
+
             var createdBooking = await _sessionBookingRepository.GetByIdAsync(newBooking.Id);
             var responseDto = createdBooking!.ToCreatedBookingResponseDto();
 
@@ -135,52 +142,55 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<PagedResult<MentorBookingDetailsDto>>> GetBookingsForMentorAsync(Guid userId, MentorBookingsQueryParameters queryParameters)
         {
+            var user = await _userRepository.GetByIdAsync(userId);
+            bool IsMentor = user!.RoleId == 3;
+
             Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = query =>
+        {
+            if (queryParameters.StatusId.HasValue && queryParameters.StatusId > 0 && queryParameters.StatusId < 7)
             {
-                if (queryParameters.StatusId.HasValue && queryParameters.StatusId > 0 && queryParameters.StatusId < 7)
-                {
-                    query = query.Where(sb => sb.StatusId == queryParameters.StatusId.Value);
-                }
+                query = query.Where(sb => sb.StatusId == queryParameters.StatusId.Value);
+            }
 
-                if (queryParameters.FromSessionDate.HasValue)
-                {
-                    query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day >= queryParameters.FromSessionDate.Value);
-                }
+            if (queryParameters.FromSessionDate.HasValue)
+            {
+                query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day >= queryParameters.FromSessionDate.Value);
+            }
 
-                if (queryParameters.IsMentor)
+            if (IsMentor)
+            {
+                query = query.Where(sb => sb.MentorId == userId);
+            }
+            else
+            {
+                query = query.Where(sb => sb.LearnerId == userId);
+            }
+
+            if (queryParameters.ToSessionDate.HasValue)
+            {
+                query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day <= queryParameters.ToSessionDate.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(queryParameters.Query))
+            {
+                string searchTerm = queryParameters.Query.ToLower().Trim();
+                if (IsMentor)
                 {
-                    query = query.Where(sb => sb.MentorId == userId);
+                    query = query.Where(up =>
+                  up.Learner.UserProfile.FullName.ToLower().Contains(searchTerm)
+                    );
                 }
                 else
                 {
-                    query = query.Where(sb => sb.LearnerId == userId);
+                    query = query.Where(up =>
+                up.Mentor.UserProfile.FullName.ToLower().Contains(searchTerm)
+                  );
                 }
 
-                if (queryParameters.ToSessionDate.HasValue)
-                {
-                    query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day <= queryParameters.ToSessionDate.Value);
-                }
+            }
 
-                if (!string.IsNullOrWhiteSpace(queryParameters.Query))
-                {
-                    string searchTerm = queryParameters.Query.ToLower().Trim();
-                    if (queryParameters.IsMentor)
-                    {
-                        query = query.Where(up =>
-                      up.Learner.UserProfile.FullName.ToLower().Contains(searchTerm)
-                        );
-                    }
-                    else
-                    {
-                        query = query.Where(up =>
-                    up.Mentor.UserProfile.FullName.ToLower().Contains(searchTerm)
-                      );
-                    }
-
-                }
-
-                return query;
-            };
+            return query;
+        };
 
             var (mentorBookings, totalItems) = await _sessionBookingRepository.GetPagedAsync(
                 filter,
@@ -192,15 +202,22 @@ namespace ApplicationCore.Services
             {
                 BookingId = sb.Id,
                 LearnerId = sb.LearnerId,
-                LearnerFullName = sb.Learner.UserProfile.FullName,
+                LearnerPhotoData = sb.Learner.UserProfile.PhotoData != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(sb.Learner.UserProfile.PhotoData)}"
+                : string.Empty,
+                MentorPhotoData = sb.Mentor.UserProfile.PhotoData != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(sb.Mentor.UserProfile.PhotoData)}"
+                : string.Empty,
+                LearnerFullName = sb.Learner!.UserProfile.FullName,
                 MentorId = sb.MentorId,
                 MentorFullName = sb.Mentor.UserProfile.FullName,
                 AvailabilityTimeSlotId = sb.MentorTimeAvailableId,
-                SlotStartTime = sb.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(sb.MentorTimeAvailable.Start, DateTimeKind.Utc),
-                SlotEndTime = sb.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(sb.MentorTimeAvailable.End, DateTimeKind.Utc),
+                Date = sb.MentorTimeAvailable.MentorDayAvailable.Day,
+                SlotStartTime = sb.MentorTimeAvailable.Start,
+                SlotEndTime = sb.MentorTimeAvailable.End,
                 LearnerMessage = sb.LearnerMessage,
-                StatusId = sb.StatusId,
-                SessionTypeId = sb.SessionTypeId,
+                StatusName = sb.Status.Name,
+                SessionTypeName = sb.SessionType.Name,
                 BookingRequestedAt = sb.CreatedAt
             }).ToList();
 
@@ -251,12 +268,11 @@ namespace ApplicationCore.Services
                     return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be accepted as waiting for learner processing or you can decline the booking.");
                 }
 
-
                 var isRescheduledExist = await _sessionBookingRepository.AnyAsync(s => s.MentorTimeAvailableId == booking.MentorTimeAvailableId && s.StatusId == 2 && s.Id != sessionId);
 
-                if (isRescheduledExist)
+                if (isRescheduledExist && updateRequest.NewStatusId != 5 && updateRequest.NewStatusId != 3)
                 {
-                    return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be updated as still there is an existing rescheduled state.");
+                    return OperationResult<UpdateBookingResponseDto>.BadRequest("This booking session cannot be scheduled as still there is an existing rescheduled state.");
                 }
             }
             else
@@ -374,6 +390,60 @@ namespace ApplicationCore.Services
             var response = updatedBookingStatus!.ToUpdateBookingResponseDto();
 
             return OperationResult<UpdateBookingResponseDto>.Ok(response);
+        }
+
+
+        private async Task SendBookingRequestConfirmationToLearner(User learner, UserProfile mentorProfile, SessionBooking bookingDetails)
+        {
+            var platformName = "MentorPlatform";
+            var emailSubject = $"Your Mentorship Session Request with {mentorProfile.FullName} is Pending";
+
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.AppendLine($"Hi {learner.UserProfile?.FullName ?? "Learner"},");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"Thank you for booking a mentorship session with {mentorProfile.FullName} on {platformName}.");
+            bodyBuilder.AppendLine("Your request has been sent and is currently awaiting confirmation from the mentor.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("Session Details:");
+            bodyBuilder.AppendLine($"- Mentor: {mentorProfile.FullName}");
+            var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Utc);
+            bodyBuilder.AppendLine($"- Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt} (UTC)");
+            if (!string.IsNullOrWhiteSpace(bookingDetails.LearnerMessage))
+            {
+                bodyBuilder.AppendLine($"- Your Message: {bookingDetails.LearnerMessage}");
+            }
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("You will receive another email once the mentor confirms or modifies your request.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"Best regards,<br>The {platformName} Team");
+
+            await _sendEmailService.SendEmail(learner.Email, emailSubject, bodyBuilder.ToString());
+        }
+
+        private async Task SendNewBookingRequestToMentor(User mentor, UserProfile learnerProfile, SessionBooking bookingDetails)
+        {
+            var platformName = "MentorPlatform";
+            var emailSubject = $"New Mentorship Session Request from {learnerProfile.FullName}";
+
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.AppendLine($"Hi {mentor.UserProfile?.FullName ?? "Mentor"},");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"You have received a new mentorship session request from {learnerProfile.FullName} on {platformName}.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("Booking Details:");
+            bodyBuilder.AppendLine($"- Learner: {learnerProfile.FullName} (Email: {bookingDetails.Learner.Email})"); // Lấy email từ bookingDetails.Learner
+            var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Utc);
+            bodyBuilder.AppendLine($"- Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt} (UTC)");
+            if (!string.IsNullOrWhiteSpace(bookingDetails.LearnerMessage))
+            {
+                bodyBuilder.AppendLine($"- Learner's Message: {bookingDetails.LearnerMessage}");
+            }
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("Please log in to your dashboard to review and respond to this request.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"Best regards,<br>The {platformName} Team");
+
+            await _sendEmailService.SendEmail(mentor.Email, emailSubject, bodyBuilder.ToString());
         }
     }
 }
