@@ -4,8 +4,6 @@ using Infrastructure.Data.Context;
 using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System;
-using System.Threading.Tasks;
 
 namespace ApplicationCore.Repositories
 {
@@ -68,6 +66,15 @@ namespace ApplicationCore.Repositories
         public async Task<bool> AnyAsync(Expression<Func<SessionBooking, bool>> predicate)
         {
             return await _dbSet.AnyAsync(predicate);
+        }
+
+        public async Task<SessionBooking?> GetBookingDetailsForDtoAsync(Guid id)
+        {
+            var query = await _dbSet
+                .Include(x => x.MentorTimeAvailable)
+                .FirstOrDefaultAsync(m => m.Id.Equals(id));
+
+            return query;
         }
     }
 }

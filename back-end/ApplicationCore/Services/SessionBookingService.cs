@@ -8,6 +8,8 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using Infrastructure.Services;
+using System.Text;
 
 
 namespace ApplicationCore.Services
@@ -18,13 +20,15 @@ namespace ApplicationCore.Services
         private readonly IMentorTimeAvailableRepository _mentorTimeAvailableRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ISendEmailService _sendEmailService;
 
-        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork)
+        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ISendEmailService sendEmailService)
         {
             _sessionBookingRepository = sessionBookingRepository;
             _mentorTimeAvailableRepository = mentorTimeAvailableRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _sendEmailService = sendEmailService;
         }
 
         public async Task<OperationResult<SessionStatusResponse>> UpdateSessionStatus(SessionUpdateStatusRequest request)
@@ -113,6 +117,7 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<CreatedBookingResponseDto>> CreateNewBookingAsync(Guid learnerId, CreateBookingRequestDto bookingRequest)
         {
+            var learner = await _userRepository.GetByIdWithUserProfileAsync(learnerId);
             var mentor = await _userRepository.GetByIdAsync(bookingRequest.MentorId);
             if (mentor == null || mentor.RoleId != 3)
             {
@@ -162,6 +167,11 @@ namespace ApplicationCore.Services
 
             await _sessionBookingRepository.AddAsync(newBooking);
             await _unitOfWork.SaveChangesAsync();
+
+            var createdBookingDetails = await _sessionBookingRepository.GetBookingDetailsForDtoAsync(newBooking.Id);
+
+            await SendBookingRequestConfirmationToLearner(learner!, mentor.UserProfile, createdBookingDetails!);
+            await SendNewBookingRequestToMentor(mentor, learner!.UserProfile, createdBookingDetails!);
 
             var createdBooking = await _sessionBookingRepository.GetByIdAsync(newBooking.Id);
             var responseDto = createdBooking!.ToCreatedBookingResponseDto();
@@ -407,6 +417,60 @@ namespace ApplicationCore.Services
             var response = updatedBookingStatus!.ToUpdateBookingResponseDto();
 
             return OperationResult<UpdateBookingResponseDto>.Ok(response);
+        }
+
+
+        private async Task SendBookingRequestConfirmationToLearner(User learner, UserProfile mentorProfile, SessionBooking bookingDetails)
+        {
+            var platformName = "MentorPlatform";
+            var emailSubject = $"Your Mentorship Session Request with {mentorProfile.FullName} is Pending";
+
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.AppendLine($"Hi {learner.UserProfile?.FullName ?? "Learner"},");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"Thank you for booking a mentorship session with {mentorProfile.FullName} on {platformName}.");
+            bodyBuilder.AppendLine("Your request has been sent and is currently awaiting confirmation from the mentor.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("Session Details:");
+            bodyBuilder.AppendLine($"- Mentor: {mentorProfile.FullName}");
+            var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Utc);
+            bodyBuilder.AppendLine($"- Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt} (UTC)");
+            if (!string.IsNullOrWhiteSpace(bookingDetails.LearnerMessage))
+            {
+                bodyBuilder.AppendLine($"- Your Message: {bookingDetails.LearnerMessage}");
+            }
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("You will receive another email once the mentor confirms or modifies your request.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"Best regards,<br>The {platformName} Team");
+
+            await _sendEmailService.SendEmail(learner.Email, emailSubject, bodyBuilder.ToString());
+        }
+
+        private async Task SendNewBookingRequestToMentor(User mentor, UserProfile learnerProfile, SessionBooking bookingDetails)
+        {
+            var platformName = "MentorPlatform";
+            var emailSubject = $"New Mentorship Session Request from {learnerProfile.FullName}";
+
+            var bodyBuilder = new StringBuilder();
+            bodyBuilder.AppendLine($"Hi {mentor.UserProfile?.FullName ?? "Mentor"},");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"You have received a new mentorship session request from {learnerProfile.FullName} on {platformName}.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("Booking Details:");
+            bodyBuilder.AppendLine($"- Learner: {learnerProfile.FullName} (Email: {bookingDetails.Learner.Email})"); // Lấy email từ bookingDetails.Learner
+            var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Utc);
+            bodyBuilder.AppendLine($"- Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt} (UTC)");
+            if (!string.IsNullOrWhiteSpace(bookingDetails.LearnerMessage))
+            {
+                bodyBuilder.AppendLine($"- Learner's Message: {bookingDetails.LearnerMessage}");
+            }
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine("Please log in to your dashboard to review and respond to this request.");
+            bodyBuilder.AppendLine();
+            bodyBuilder.AppendLine($"Best regards,<br>The {platformName} Team");
+
+            await _sendEmailService.SendEmail(mentor.Email, emailSubject, bodyBuilder.ToString());
         }
     }
 }

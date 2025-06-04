@@ -1,9 +1,9 @@
-﻿using System.Linq.Expressions;
-using ApplicationCore.Repositories.RepositoryInterfaces;
+﻿using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
 using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace ApplicationCore.Repositories;
 
@@ -135,6 +135,13 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return await _dbSet.Include(u => u.Role)
                            .Include(u => u.UserProfile)
                            .FirstOrDefaultAsync(u => u.RefreshToken == token);
+    }
+
+    public async Task<User?> GetByIdWithUserProfileAsync(Guid learnerId)
+    {
+        return await _dbSet
+                             .Include(u => u.UserProfile)
+                             .FirstOrDefaultAsync(u => u.Id == learnerId);
     }
 }
 
