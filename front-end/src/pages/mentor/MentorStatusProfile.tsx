@@ -1016,9 +1016,16 @@ const MentorStatusProfile = () => {
                 Areas of expertise
               </h3>
               <p className="text-sm text-gray-200">
-                {mentorData.userApplicationDetails?.userAreaOfExpertises
-                  ?.map((expertise) => expertise.arenaOfExpertise?.name)
-                  .join(", ") || "No expertise provided"}
+                {mentorData.userApplicationDetails?.userAreaOfExpertises?.map(
+                  (expertise, index) => (
+                    <span
+                      key={index}
+                      className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mr-2"
+                    >
+                      {expertise.arenaOfExpertise?.name}
+                    </span>
+                  )
+                )}
               </p>
             </div>
             <div>
