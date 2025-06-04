@@ -238,7 +238,10 @@ namespace ApplicationCore.Services
             {
                 BookingId = sb.Id,
                 LearnerId = sb.LearnerId,
-                LearnerFullName = sb.Learner.UserProfile.FullName,
+                PhotoData = sb.Learner.UserProfile.PhotoData != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(sb.Learner.UserProfile.PhotoData)}"
+                : string.Empty,
+                LearnerFullName = sb.Learner!.UserProfile.FullName,
                 MentorId = sb.MentorId,
                 MentorFullName = sb.Mentor.UserProfile.FullName,
                 AvailabilityTimeSlotId = sb.MentorTimeAvailableId,
