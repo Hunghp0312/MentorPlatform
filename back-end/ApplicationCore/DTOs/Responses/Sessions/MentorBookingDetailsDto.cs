@@ -8,11 +8,12 @@
         public Guid MentorId { get; set; }
         public string MentorFullName { get; set; } = string.Empty;
         public Guid AvailabilityTimeSlotId { get; set; }
-        public DateTime SlotStartTime { get; set; }
-        public DateTime SlotEndTime { get; set; }
+        public DateOnly Date { get; set; }
+        public TimeOnly SlotStartTime { get; set; }
+        public TimeOnly SlotEndTime { get; set; }
         public string? LearnerMessage { get; set; }
-        public int StatusId { get; set; }
-        public int SessionTypeId { get; set; }
+        public string StatusName { get; set; } = string.Empty;
+        public string SessionTypeName { get; set; } = string.Empty;
         public DateTime BookingRequestedAt { get; set; }
     }
 }

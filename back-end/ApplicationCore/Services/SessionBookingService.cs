@@ -170,9 +170,6 @@ namespace ApplicationCore.Services
 
             var createdBookingDetails = await _sessionBookingRepository.GetBookingDetailsForDtoAsync(newBooking.Id);
 
-            await SendBookingRequestConfirmationToLearner(learner!, mentor.UserProfile, createdBookingDetails!);
-            await SendNewBookingRequestToMentor(mentor, learner!.UserProfile, createdBookingDetails!);
-
             var createdBooking = await _sessionBookingRepository.GetByIdAsync(newBooking.Id);
             var responseDto = createdBooking!.ToCreatedBookingResponseDto();
 
@@ -245,11 +242,12 @@ namespace ApplicationCore.Services
                 MentorId = sb.MentorId,
                 MentorFullName = sb.Mentor.UserProfile.FullName,
                 AvailabilityTimeSlotId = sb.MentorTimeAvailableId,
-                SlotStartTime = sb.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(sb.MentorTimeAvailable.Start, DateTimeKind.Utc),
-                SlotEndTime = sb.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(sb.MentorTimeAvailable.End, DateTimeKind.Utc),
+                Date = sb.MentorTimeAvailable.MentorDayAvailable.Day,
+                SlotStartTime = sb.MentorTimeAvailable.Start,
+                SlotEndTime = sb.MentorTimeAvailable.End,
                 LearnerMessage = sb.LearnerMessage,
-                StatusId = sb.StatusId,
-                SessionTypeId = sb.SessionTypeId,
+                StatusName = sb.Status.Name,
+                SessionTypeName = sb.SessionType.Name,
                 BookingRequestedAt = sb.CreatedAt
             }).ToList();
 
