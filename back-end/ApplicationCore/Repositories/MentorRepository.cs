@@ -30,6 +30,26 @@ namespace ApplicationCore.Repositories
 
         }
 
+        public async Task<MentorApplication?> GetMentorProfileByIdAsync(Guid id)
+        {
+            var query = await _dbSet.Include(a => a.Applicant)
+                .ThenInclude(uae => uae.UserAreaOfExpertises).ThenInclude(uae => uae.AreaOfExpertise)
+                .Include(a => a.Applicant)
+                    .ThenInclude(uae => uae.UserProfile)
+                    .ThenInclude(up => up.TeachingApproaches)
+                    .ThenInclude(up => up.TeachingApproach)
+                .Include(x => x.AdminReviewer)
+                .Include(x => x.SupportingDocuments)
+                .ThenInclude(sd => sd.DocumentContent)
+                .Include(x => x.ApplicationStatus)
+                .Include(m => m.MentorCertifications)
+                .Include(m => m.MentorWorkExperiences)
+                .Include(m => m.MentorEducations)
+                .FirstOrDefaultAsync(m => m.ApplicantId.Equals(id));
+            return query;
+
+        }
+
         public async Task<MentorApplication?> GetDetailByIdAsync(Guid id)
         {
 

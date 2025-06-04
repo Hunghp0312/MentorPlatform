@@ -2,8 +2,8 @@ namespace ApplicationCore.DTOs.Requests.Availability
 {
     public class MentorAvailabilityRequestDto
     {
-        public required string Date { get; set; } // ISO date (YYYY-MM-DD)
-        public string? WorkStartTime { get; set; } // HH:mm, nullable if using default
+        public required string Date { get; set; }
+        public string? WorkStartTime { get; set; }
         public string? WorkEndTime { get; set; }
         public int? SessionDurationMinutes { get; set; }
         public int? BufferMinutes { get; set; }

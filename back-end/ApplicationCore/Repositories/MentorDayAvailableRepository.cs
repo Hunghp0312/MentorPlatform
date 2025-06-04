@@ -1,5 +1,4 @@
-using ApplicationCore.DTOs.Requests.Availability;
-using ApplicationCore.Repositories.RepositoryInterfaces;
+﻿using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
 using Infrastructure.Entities;
@@ -53,5 +52,28 @@ public class MentorDayAvailableRepository
         {
             Delete(dayAvailable);
         }
+    }
+
+    public async Task<MentorDayAvailable?> GetTimeSlotOfDayAsync(Guid mentorId, DateOnly date)
+    {
+        var currentDate = DateTime.UtcNow;
+        DateOnly todayUtc = DateOnly.FromDateTime(currentDate);
+        TimeOnly timeNowUtc = TimeOnly.FromDateTime(currentDate);
+        return await _dbSet
+            .Include(a => a.MentorTimeAvailables)
+            .Include(a => a.Mentor)
+                .ThenInclude(u => u.UserProfile)
+             .Include(a => a.Mentor)
+                .ThenInclude(up => up.UserAreaOfExpertises)
+                .ThenInclude(up => up.AreaOfExpertise)
+            .Where(d =>
+                    d.MentorTimeAvailables.Any(s =>
+                        s.StatusId == 1 &&
+                    (
+                        d.Day > todayUtc ||
+                        (d.Day == todayUtc && s.Start > timeNowUtc)
+                    )
+                ))
+            .FirstOrDefaultAsync(up => up.MentorId == mentorId && up.Day == date);
     }
 }

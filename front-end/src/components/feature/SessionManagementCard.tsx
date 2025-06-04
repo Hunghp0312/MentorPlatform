@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Calendar, Video, MessageSquare, Users, Clock, Star, User, Check, X, RotateCcw, ChevronLeft, AlertCircle } from 'lucide-react';
+import { Calendar, Video, MessageSquare, Users, Clock, User, Check, X, RotateCcw, ChevronLeft, AlertCircle } from 'lucide-react';
+import RescheduleDialog from '../dialog/RescheduleDialog';
+import { sessionService } from '../../services/session.service';
+import { toast } from 'react-toastify';
 
 interface SessionRequest {
     id: string;
@@ -16,7 +19,7 @@ interface SessionRequest {
 }
 
 const SessionManagementCard: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<'pending' | 'recent'>('pending');
+    const [activeTab, setActiveTab] = useState<'pending' | 'recent' | 'inpast'>('pending');
     const [showRescheduleModal, setShowRescheduleModal] = useState<string | null>(null);
     const [sessionRequests, setSessionRequests] = useState<SessionRequest[]>([
         {
@@ -99,7 +102,16 @@ const SessionManagementCard: React.FC = () => {
         }
     };
 
-    const handleAcceptSession = (sessionId: string) => {
+    const handleAcceptSession = async (sessionId: string) => {
+        //call api to accept session
+        try {
+            await sessionService.updateStatusBookingSession(sessionId, 2);
+            toast.success('Session accepted successfully!');
+        }
+        catch (error) {
+            console.error('Error accepting session:', error);
+            toast.error('Failed to accept session. Please try again.');
+        }
         setSessionRequests(prev =>
             prev.map(session =>
                 session.id === sessionId
@@ -123,7 +135,20 @@ const SessionManagementCard: React.FC = () => {
         setShowRescheduleModal(sessionId);
     };
 
-    const confirmReschedule = (sessionId: string) => {
+    const confirmReschedule = async (sessionId: string, mentorTimeAvailableId: string) => {
+        // Here you would typically call an API to update the session status
+        console.log('Rescheduling session:', sessionId, mentorTimeAvailableId);
+        try {
+            await sessionService.rescheduleBookingSession(sessionId, mentorTimeAvailableId)
+        }
+        catch (error) {
+            console.error('Error rescheduling session:', error);
+            toast.error('Failed to reschedule session. Please try again.');
+            return;
+        }
+        finally {
+            setShowRescheduleModal(null);
+        }
         setSessionRequests(prev =>
             prev.map(session =>
                 session.id === sessionId
@@ -131,15 +156,14 @@ const SessionManagementCard: React.FC = () => {
                     : session
             )
         );
-        setShowRescheduleModal(null);
     };
 
     const pendingRequests = sessionRequests.filter(req => req.status === 'pending');
     const recentRequests = sessionRequests.filter(req => req.status !== 'pending');
 
     return (
-        <div className="min-h-screen bg-gray-100 p-4">
-            <div className="max-w-7xl mx-auto bg-[#1e2432] text-white rounded-lg shadow-xl p-6">
+        <div className="min-h-screen p-4">
+            <div className="max-w-6xl mx-auto bg-[#1e2432] text-white rounded-lg shadow-xl p-6">
                 {/* Header */}
                 <div className="flex items-center mb-6">
                     <button className="mr-4 p-2 hover:bg-gray-700 rounded-lg">
@@ -152,7 +176,7 @@ const SessionManagementCard: React.FC = () => {
                 </div>
 
                 {/* Stats Overview */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div className="bg-[#252d3d] rounded-lg p-4">
                         <div className="flex items-center justify-between">
                             <div>
@@ -183,23 +207,15 @@ const SessionManagementCard: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="bg-[#252d3d] rounded-lg p-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-400 text-sm">Response Rate</p>
-                                <p className="text-2xl font-bold text-purple-400">98%</p>
-                            </div>
-                            <Star className="w-8 h-8 text-purple-400" />
-                        </div>
-                    </div>
+
                 </div>
 
                 {/* Tabs */}
                 <div className="flex space-x-1 mb-6 bg-[#252d3d] rounded-lg p-1">
                     <button
                         className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'pending'
-                                ? 'bg-[#f47521] text-white'
-                                : 'text-gray-400 hover:text-white'
+                            ? 'bg-[#f47521] text-white'
+                            : 'text-gray-400 hover:text-white'
                             }`}
                         onClick={() => setActiveTab('pending')}
                     >
@@ -207,12 +223,21 @@ const SessionManagementCard: React.FC = () => {
                     </button>
                     <button
                         className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'recent'
-                                ? 'bg-[#f47521] text-white'
-                                : 'text-gray-400 hover:text-white'
+                            ? 'bg-[#f47521] text-white'
+                            : 'text-gray-400 hover:text-white'
                             }`}
                         onClick={() => setActiveTab('recent')}
                     >
                         Recent Activity ({recentRequests.length})
+                    </button>
+                    <button
+                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'inpast'
+                            ? 'bg-[#f47521] text-white'
+                            : 'text-gray-400 hover:text-white'
+                            }`}
+                        onClick={() => setActiveTab('inpast')}
+                    >
+                        In Past ({recentRequests.length})
                     </button>
                 </div>
 
@@ -306,8 +331,54 @@ const SessionManagementCard: React.FC = () => {
                                                 {getSessionIcon(request.sessionType)}
                                             </div>
                                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${request.status === 'accepted' ? 'bg-green-500/20 text-green-400' :
-                                                    request.status === 'rescheduled' ? 'bg-blue-500/20 text-blue-400' :
-                                                        'bg-red-500/20 text-red-400'
+                                                request.status === 'rescheduled' ? 'bg-blue-500/20 text-blue-400' :
+                                                    'bg-red-500/20 text-red-400'
+                                                }`}>
+                                                {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center space-x-4 text-sm text-gray-400 mb-2">
+                                            <span className="flex items-center">
+                                                <User className="w-4 h-4 mr-1" />
+                                                {request.learnerName}
+                                            </span>
+                                            <span className="flex items-center">
+                                                <Calendar className="w-4 h-4 mr-1" />
+                                                {request.requestedDate}
+                                            </span>
+                                            <span className="flex items-center">
+                                                <Clock className="w-4 h-4 mr-1" />
+                                                {request.requestedTime}
+                                            </span>
+                                        </div>
+
+                                        <span className="text-xs text-gray-500">Requested {request.requestedAt}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {activeTab === 'inpast' && recentRequests.map((request) => (
+                        <div key={request.id} className="bg-[#252d3d] rounded-lg p-6 opacity-75">
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-start space-x-4 flex-1">
+                                    <img
+                                        src={request.learnerAvatar || "/placeholder.svg"}
+                                        alt={request.learnerName}
+                                        className="w-12 h-12 rounded-full"
+                                    />
+
+                                    <div className="flex-1">
+                                        <div className="flex items-center space-x-3 mb-2">
+                                            <h3 className="text-lg font-semibold">{request.title}</h3>
+                                            <div className={`p-2 rounded-lg ${getSessionTypeColor(request.sessionType)}`}>
+                                                {getSessionIcon(request.sessionType)}
+                                            </div>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${request.status === 'accepted' ? 'bg-green-500/20 text-green-400' :
+                                                request.status === 'rescheduled' ? 'bg-blue-500/20 text-blue-400' :
+                                                    'bg-red-500/20 text-red-400'
                                                 }`}>
                                                 {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                                             </span>
@@ -338,58 +409,11 @@ const SessionManagementCard: React.FC = () => {
 
                 {/* Reschedule Modal */}
                 {showRescheduleModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                        <div className="bg-[#252d3d] rounded-lg p-6 w-full max-w-md mx-4">
-                            <h3 className="text-lg font-semibold mb-4">Reschedule Session</h3>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">
-                                        Suggested Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        className="w-full bg-[#1e2432] border border-gray-600 rounded-lg px-3 py-2 text-white"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">
-                                        Suggested Time
-                                    </label>
-                                    <input
-                                        type="time"
-                                        className="w-full bg-[#1e2432] border border-gray-600 rounded-lg px-3 py-2 text-white"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-400 mb-2">
-                                        Reason for Reschedule (Optional)
-                                    </label>
-                                    <textarea
-                                        className="w-full bg-[#1e2432] border border-gray-600 rounded-lg px-3 py-2 text-white h-20 resize-none"
-                                        placeholder="Let the learner know why you need to reschedule..."
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex space-x-3 mt-6">
-                                <button
-                                    onClick={() => setShowRescheduleModal(null)}
-                                    className="flex-1 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => confirmReschedule(showRescheduleModal)}
-                                    className="flex-1 px-4 py-2 bg-[#f47521] hover:bg-[#e06a1e] text-white rounded-lg"
-                                >
-                                    Send Reschedule Request
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <RescheduleDialog
+                        onClose={() => setShowRescheduleModal(null)}
+                        onConfirm={confirmReschedule}
+                        sessionId={showRescheduleModal}
+                    />
                 )}
             </div>
         </div>

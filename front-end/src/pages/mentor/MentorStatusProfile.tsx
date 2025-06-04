@@ -253,7 +253,6 @@ const MentorStatusProfile = () => {
         },
       };
 
-      toast.success("File uploaded successfully.");
       setSelectedFiles((prev) => [...prev, file]);
       setEditedMentor((prev) => ({
         ...prev,
@@ -274,17 +273,24 @@ const MentorStatusProfile = () => {
 
   const handleRemoveDocument = async (index: number) => {
     const document = mentorData.mentorDocuments[index];
+    const updatedDocuments = mentorData.mentorDocuments.filter(
+      (_, i) => i !== index
+    );
 
     if (mentorData.status === "Request Info" && document.id) {
       try {
         await mentorService.deleteFile(document.id);
         setEditedMentor((prev) => ({
           ...prev,
-          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+          mentorDocuments: updatedDocuments,
         }));
         setMentorData((prev) => ({
           ...prev,
-          mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+          mentorDocuments: updatedDocuments,
+        }));
+        setSaveState((prev) => ({
+          ...prev,
+          mentorDocuments: updatedDocuments,
         }));
         setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
       } catch (error) {
@@ -294,11 +300,15 @@ const MentorStatusProfile = () => {
     } else {
       setEditedMentor((prev) => ({
         ...prev,
-        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        mentorDocuments: updatedDocuments,
       }));
       setMentorData((prev) => ({
         ...prev,
-        mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+        mentorDocuments: updatedDocuments,
+      }));
+      setSaveState((prev) => ({
+        ...prev,
+        mentorDocuments: updatedDocuments,
       }));
       setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     }
@@ -332,7 +342,6 @@ const MentorStatusProfile = () => {
         }
         return { ...prev, mentorEducation: updatedEducation };
       });
-      toast.success("Data saved!");
       setNewEducation({});
       setEditEducationIndex(null);
       setOpenEducationDialog(false);
@@ -364,7 +373,6 @@ const MentorStatusProfile = () => {
         }
         return { ...prev, mentorWorkExperience: updatedWorkExperience };
       });
-      toast.success("Work Experience Add/Edit successfully.");
       setNewWorkExperience({});
       setEditWorkExperienceIndex(null);
       setOpenWorkExperienceDialog(false);
@@ -395,7 +403,6 @@ const MentorStatusProfile = () => {
         }
         return { ...prev, certifications: updatedCertifications };
       });
-      toast.success("Certification Add/Edit successfully.");
       setNewCertification({});
       setEditCertificationIndex(null);
       setOpenCertificationDialog(false);
@@ -493,8 +500,14 @@ const MentorStatusProfile = () => {
   };
 
   const handleSubmitApplication = async () => {
-    if (!editedMentor || editedMentor.mentorDocuments.length === 0) {
-      toast.error("Error: Please select at least one document.");
+    if (
+      !editedMentor ||
+      editedMentor.mentorDocuments.length === 0 ||
+      editedMentor.mentorEducation.length === 0 ||
+      editedMentor.mentorWorkExperience.length === 0 ||
+      editedMentor.certifications.length === 0
+    ) {
+      toast.error("Error: Application data is missing.");
       return;
     }
 
@@ -870,6 +883,7 @@ const MentorStatusProfile = () => {
             </button>
           )}
           <input
+            id="document-file-input"
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
@@ -1002,9 +1016,16 @@ const MentorStatusProfile = () => {
                 Areas of expertise
               </h3>
               <p className="text-sm text-gray-200">
-                {mentorData.userApplicationDetails?.userAreaOfExpertises
-                  ?.map((expertise) => expertise.arenaOfExpertise?.name)
-                  .join(", ") || "No expertise provided"}
+                {mentorData.userApplicationDetails?.userAreaOfExpertises?.map(
+                  (expertise, index) => (
+                    <span
+                      key={index}
+                      className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mr-2"
+                    >
+                      {expertise.arenaOfExpertise?.name}
+                    </span>
+                  )
+                )}
               </p>
             </div>
             <div>

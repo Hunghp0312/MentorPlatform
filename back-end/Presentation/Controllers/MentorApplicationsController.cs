@@ -1,4 +1,5 @@
 ﻿using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Mentors;
 using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.Services.ServiceInterfaces;
@@ -89,6 +90,25 @@ namespace Presentation.Controllers
         public async Task<IActionResult> GetMentorApplicationDetail(Guid mentorApplicationId)
         {
             var result = await _mentorService.GettMentoApplicationDetailAsync(mentorApplicationId);
+            return ToActionResult(result);
+        }
+
+        [HttpGet("available-mentors")]
+        [ProducesResponseType(typeof(PagedResult<MentorCardDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAvailableMentors(
+      [FromQuery] AvailableMentorQueryParameters queryParameters)
+        {
+            var pagedMentorCards = await _mentorService.GetAvailableMentorsAsync(queryParameters);
+
+            return ToActionResult(pagedMentorCards);
+        }
+
+        [HttpGet("mentor-profile-detail/{mentorApplicationId}")]
+        [ProducesResponseType(typeof(MentorProfileDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetMentorProfileDetail(Guid mentorApplicationId)
+        {
+            var result = await _mentorService.GetMentorProfileDetailAsync(mentorApplicationId);
             return ToActionResult(result);
         }
     }

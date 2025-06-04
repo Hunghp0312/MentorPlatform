@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Mentors;
 using ApplicationCore.DTOs.Responses.Mentors;
 
@@ -18,5 +19,7 @@ namespace ApplicationCore.Services.ServiceInterfaces
           UpdateMyApplicationApiRequest apiRequest, Guid applicantUserId
       );
         Task<OperationResult<MentorApplicationDetailDto>> GettMentoApplicationDetailAsync(Guid mentorApplicationId);
+        Task<OperationResult<PagedResult<MentorCardDto>>> GetAvailableMentorsAsync(AvailableMentorQueryParameters queryParameters);
+        Task<OperationResult<MentorProfileDto>> GetMentorProfileDetailAsync(Guid mentorApplicationId);
     }
 }

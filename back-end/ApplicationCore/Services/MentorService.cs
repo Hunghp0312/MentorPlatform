@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Mentors;
 using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.Extensions;
@@ -18,11 +19,12 @@ namespace ApplicationCore.Services
         private readonly IMentorEducationRepository _mentorEducationRepository;
         private readonly IMentorWorkExperienceRepository _mentorWorkExperienceRepository;
         private readonly IMentorCertificationRepository _mentorCertificationRepository;
+        private readonly IUserProfileRepository _userProfileRepository;
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISendEmailService _sendEmailService;
 
-        public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IMentorEducationRepository mentorEducationRepository, IMentorWorkExperienceRepository mentorWorkExperienceRepository, IMentorCertificationRepository mentorCertificationRepository, ISendEmailService sendEmailService)
+        public MentorService(IMentorRepository mentorRepository, IUnitOfWork unitOfWork, IMentorEducationRepository mentorEducationRepository, IMentorWorkExperienceRepository mentorWorkExperienceRepository, IMentorCertificationRepository mentorCertificationRepository, ISendEmailService sendEmailService, IUserProfileRepository userProfileRepository)
         {
             _sendEmailService = sendEmailService;
             _mentorRepository = mentorRepository;
@@ -30,6 +32,7 @@ namespace ApplicationCore.Services
             _mentorEducationRepository = mentorEducationRepository;
             _mentorWorkExperienceRepository = mentorWorkExperienceRepository;
             _mentorCertificationRepository = mentorCertificationRepository;
+            _userProfileRepository = userProfileRepository;
         }
 
         public async Task<OperationResult<PagedResult<MentorApplicantResponse>>> GetAllMentorApplications(PaginationParameters paginationParameters, int applicationStatus)
@@ -166,6 +169,10 @@ namespace ApplicationCore.Services
             if (mentorApplication.ApplicationStatusId == 2 || mentorApplication.ApplicationStatusId == 3)
             {
                 return OperationResult<MentorApplicantResponse>.BadRequest("Cannot change status from Approved and Reject to any other status ");
+            }
+            if ((request.StatusId == 4 || request.StatusId == 2) && string.IsNullOrWhiteSpace(request.AdminComments))
+            {
+                return OperationResult<MentorApplicantResponse>.BadRequest("Admin comments are required for Request Info and Rejection status.");
             }
             return null;
         }
@@ -330,6 +337,65 @@ namespace ApplicationCore.Services
             }
             var responseDto = mentorApplicationEntity.ToMentorApplicationDetailDto();
             return OperationResult<MentorApplicationDetailDto>.Ok(responseDto);
+        }
+
+        public async Task<OperationResult<PagedResult<MentorCardDto>>> GetAvailableMentorsAsync(AvailableMentorQueryParameters queryParameters)
+        {
+            Func<IQueryable<UserProfile>, IQueryable<UserProfile>> filter = query =>
+            {
+                query = query.Where(up => up.User.RoleId == 3);
+                if (queryParameters.ExpertiseIds.Any())
+                {
+                    query = query.Where(up =>
+                        up.User.UserAreaOfExpertises.Any(uae => queryParameters.ExpertiseIds.Contains(uae.AreaOfExpertiseId))
+                    );
+                }
+
+                if (queryParameters.TopicId != 0)
+                {
+                    query = query.Where(up =>
+                        up.UserTopicOfInterests.Any(uae => queryParameters.TopicId == uae.TopicId)
+                    );
+                }
+
+                if (!string.IsNullOrWhiteSpace(queryParameters.Query))
+                {
+                    string searchTerm = queryParameters.Query.ToLower().Trim();
+                    query = query.Where(up =>
+                        up.FullName.ToLower().Contains(searchTerm)
+                    );
+                }
+
+                return query;
+            };
+
+            var (userProfiles, totalItems) = await _userProfileRepository.GetPagedAsync(
+                filter,
+                queryParameters.PageIndex,
+                queryParameters.PageSize
+            );
+
+            var pagedResult = new PagedResult<MentorCardDto>
+            {
+                TotalItems = totalItems,
+                PageIndex = queryParameters.PageIndex,
+                PageSize = queryParameters.PageSize,
+                Items = userProfiles.ToMentorCardDtoList()
+            };
+
+            return OperationResult<PagedResult<MentorCardDto>>.Ok(pagedResult);
+        }
+
+        public async Task<OperationResult<MentorProfileDto>> GetMentorProfileDetailAsync(Guid mentorApplicationId)
+        {
+            var mentorApplicationEntity = await _mentorRepository.GetMentorProfileByIdAsync(mentorApplicationId);
+            if (mentorApplicationEntity == null)
+            {
+                return OperationResult<MentorProfileDto>.NotFound($"No mentor application found for ID '{mentorApplicationId}'.");
+            }
+            var responseDto = mentorApplicationEntity.ToMentorProfileDtoDto();
+
+            return OperationResult<MentorProfileDto>.Ok(responseDto);
         }
     }
 }

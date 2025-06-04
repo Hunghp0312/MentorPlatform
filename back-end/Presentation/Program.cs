@@ -80,14 +80,18 @@ builder.Services.AddScoped<IMentorEducationRepository, MentorEducationRepository
 builder.Services.AddScoped<IMentorCertificationRepository, MentorCertificationRepository>();
 builder.Services.AddScoped<IDocumentContentRepository, DocumentContentRepository>();
 builder.Services.AddScoped<ISupportingDocumentService, SupportingDocumentService>();
+builder.Services.AddScoped<IMentorTimeAvailableRepository, MentorTimeAvailableRepository>();
 builder.Services.AddScoped<ISessionBookingRepository, SessionBookingRepository>();
 builder.Services.AddScoped<ISessionBookingService, SessionBookingService>();
 builder.Services.AddScoped<IMentorDayAvailableRepository, MentorDayAvailableRepository>();
+builder.Services.AddScoped<IMentorDayAvailableService, MentorDayAvailableService>();
+
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<ISupportingDocumentRepository, SupportingDocumentRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IMentorTimeAvailableRepository, MentorTimeAvailableRepository>();
 builder.Services.AddScoped<IDocumentContentService, DocumentContentService>();
+builder.Services.AddHostedService<SessionReminderService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);
 builder
