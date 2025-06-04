@@ -105,14 +105,7 @@ namespace ApplicationCore.Extensions
                     : string.Empty,
                 FullName = mentorApplication.Applicant?.UserProfile?.FullName ?? string.Empty,
                 Email = mentorApplication.Applicant?.Email ?? string.Empty,
-                SubmissionDate = mentorApplication.SubmissionDate,
                 LastStatusUpdateDate = mentorApplication.LastStatusUpdateDate,
-                ApproverName = mentorApplication.AdminReviewer?.UserProfile?.FullName ?? string.Empty,
-                AdminComments = mentorApplication.AdminComments,
-                RejectionReason = mentorApplication.RejectionReason,
-                ApprovalDate = mentorApplication.ApprovalDate,
-                RequestInfoDate = mentorApplication.RequestInfoDate,
-                UserGoal = mentorApplication?.Applicant?.UserProfile.UserGoal ?? string.Empty,
                 ExpertiseAreas = mentorApplication.Applicant?.UserAreaOfExpertises.Select(x => new AreaOfExpertiseResponse
                 {
                     Name = x.AreaOfExpertise.Name,
@@ -150,13 +143,13 @@ namespace ApplicationCore.Extensions
                         CertificationName = mc.CertificationName,
                         IssuingOrganization = mc.IssuingOrganization
                     }).ToList() ?? new List<MentorCertificationResponse>(),
-                Status = mentorApplication?.ApplicationStatus.Name ?? string.Empty,
                 TeachingApproachResponses = mentorApplication!.Applicant!.UserProfile.TeachingApproaches
                 .Select(x => new TeachingApproachResponse()
                 {
                     Id = x.TeachingApproach.Id,
                     Name = x.TeachingApproach.Name
-                }).ToList()
+                }).ToList(),
+                Bio = mentorApplication.Applicant.UserProfile.Bio
             };
         }
         public static MentorCardDto ToMentorCardDto(this UserProfile mentor)
