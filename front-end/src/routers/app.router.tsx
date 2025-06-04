@@ -30,7 +30,7 @@ import SessionManagement from "../pages/session/SessionManagement";
 import MentorProfile from "../pages/mentor/MentorProfile";
 import { EditableUserProfileRoute } from "./EditableUserProfileRoute";
 import ProfileView from "../pages/user/ProfileView";
-import MentorFinder from "../pages/learner/FindeMentor";
+import MentorFinder from "../pages/learner/FinderMentor";
 
 // Shared
 const HomePage = <div>Home</div>;
