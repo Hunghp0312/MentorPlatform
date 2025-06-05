@@ -9,6 +9,7 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 using Infrastructure.Services;
+using System.Globalization;
 using System.Text;
 
 
@@ -133,6 +134,8 @@ namespace ApplicationCore.Services
             await _unitOfWork.SaveChangesAsync();
 
             var createdBookingDetails = await _sessionBookingRepository.GetBookingDetailsForDtoAsync(newBooking.Id);
+            await SendBookingRequestConfirmationToLearner(learner!, mentor.UserProfile, createdBookingDetails!);
+            await SendNewBookingRequestToMentor(mentor, learner!.UserProfile, createdBookingDetails!);
 
             var createdBooking = await _sessionBookingRepository.GetByIdAsync(newBooking.Id);
             var responseDto = createdBooking!.ToCreatedBookingResponseDto();
@@ -399,28 +402,44 @@ namespace ApplicationCore.Services
         private async Task SendBookingRequestConfirmationToLearner(User learner, UserProfile mentorProfile, SessionBooking bookingDetails)
         {
             var platformName = "MentorPlatform";
-            var emailSubject = $"Your Mentorship Session Request with {mentorProfile.FullName} is Pending";
+            string mentorFullNameSafe = System.Net.WebUtility.HtmlEncode(mentorProfile.FullName);
+            string learnerFullNameSafe = System.Net.WebUtility.HtmlEncode(learner.UserProfile?.FullName ?? "Learner");
+            var emailSubject = $"Your Mentorship Session Request with {mentorFullNameSafe} is Pending";
 
-            var bodyBuilder = new StringBuilder();
-            bodyBuilder.AppendLine($"Hi {learner.UserProfile?.FullName ?? "Learner"},");
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine($"Thank you for booking a mentorship session with {mentorProfile.FullName} on {platformName}.");
-            bodyBuilder.AppendLine("Your request has been sent and is currently awaiting confirmation from the mentor.");
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine("Session Details:");
-            bodyBuilder.AppendLine($"- Mentor: {mentorProfile.FullName}");
+            var bodyHtml = new StringBuilder();
+
+            bodyHtml.Append("<html><body>");
+
+            bodyHtml.Append($"<p>Hi {learnerFullNameSafe},</p>");
+
+            bodyHtml.Append($"<p>Thank you for booking a mentorship session with <strong>{mentorFullNameSafe}</strong> on {platformName}.</p>");
+            bodyHtml.Append("<p>Your request has been sent and is currently awaiting confirmation from the mentor.</p>");
+
+            bodyHtml.Append("<p><strong>Session Details:</strong></p>");
+            bodyHtml.Append("<ul>");
+
+            bodyHtml.Append($"<li>Mentor: {mentorFullNameSafe}</li>");
+
             var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Utc);
-            bodyBuilder.AppendLine($"- Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt} (UTC)");
+            string formattedSlotStartTime = slotStartTime.ToString("dddd, MMMM d, yyyy 'at' h:mm tt", CultureInfo.InvariantCulture) + " (UTC)";
+            bodyHtml.Append($"<li>Requested Time: {formattedSlotStartTime}</li>");
+
             if (!string.IsNullOrWhiteSpace(bookingDetails.LearnerMessage))
             {
-                bodyBuilder.AppendLine($"- Your Message: {bookingDetails.LearnerMessage}");
+                bodyHtml.Append($"<li>Your Message: {System.Net.WebUtility.HtmlEncode(bookingDetails.LearnerMessage)}</li>");
             }
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine("You will receive another email once the mentor confirms or modifies your request.");
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine($"Best regards,<br>The {platformName} Team");
+            bodyHtml.Append("</ul>");
 
-            await _sendEmailService.SendEmail(learner.Email, emailSubject, bodyBuilder.ToString());
+            bodyHtml.Append("<p>You will receive another email once the mentor confirms or modifies your request.</p>");
+
+            bodyHtml.Append("<p>Best regards,<br />The MentorPlatform Team</p>");
+
+            bodyHtml.Append("<hr />");
+            bodyHtml.Append("<p>If you have any questions, feel free to contact our support team.</p>");
+
+            bodyHtml.Append("</body></html>");
+
+            await _sendEmailService.SendEmail(learner.Email, emailSubject, bodyHtml.ToString());
         }
 
         private async Task SendNewBookingRequestToMentor(User mentor, UserProfile learnerProfile, SessionBooking bookingDetails)
@@ -428,25 +447,25 @@ namespace ApplicationCore.Services
             var platformName = "MentorPlatform";
             var emailSubject = $"New Mentorship Session Request from {learnerProfile.FullName}";
 
-            var bodyBuilder = new StringBuilder();
-            bodyBuilder.AppendLine($"Hi {mentor.UserProfile?.FullName ?? "Mentor"},");
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine($"You have received a new mentorship session request from {learnerProfile.FullName} on {platformName}.");
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine("Booking Details:");
-            bodyBuilder.AppendLine($"- Learner: {learnerProfile.FullName} (Email: {bookingDetails.Learner.Email})"); // Lấy email từ bookingDetails.Learner
+            var bodyHtml = new StringBuilder();
+            bodyHtml.Append("<html><body>");
+            bodyHtml.Append($"<p>Hi {mentor.UserProfile?.FullName ?? "Mentor"},</p>");
+            bodyHtml.Append($"<p>You have received a new mentorship session request from {learnerProfile.FullName} on {platformName}.</p>");
+            bodyHtml.Append("<p><strong>Booking Details:</strong></p>");
+            bodyHtml.Append("<ul>");
+            bodyHtml.Append($"<li>Learner: {learnerProfile.FullName} (Email: {bookingDetails.Learner.Email})</li>");
             var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Utc);
-            bodyBuilder.AppendLine($"- Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt} (UTC)");
+            bodyHtml.Append($"<li>Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt} (UTC)</li>");
             if (!string.IsNullOrWhiteSpace(bookingDetails.LearnerMessage))
             {
-                bodyBuilder.AppendLine($"- Learner's Message: {bookingDetails.LearnerMessage}");
+                bodyHtml.Append($"<li>Learner's Message: {bookingDetails.LearnerMessage}</li>");
             }
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine("Please log in to your dashboard to review and respond to this request.");
-            bodyBuilder.AppendLine();
-            bodyBuilder.AppendLine($"Best regards,<br>The {platformName} Team");
+            bodyHtml.Append("</ul>");
+            bodyHtml.Append("<p>Please log in to your dashboard to review and respond to this request.</p>");
+            bodyHtml.Append("<p>Best regards,<br>The MentorPlatform Team</p>");
+            bodyHtml.Append("</body></html>");
 
-            await _sendEmailService.SendEmail(mentor.Email, emailSubject, bodyBuilder.ToString());
+            await _sendEmailService.SendEmail(mentor.Email, emailSubject, bodyHtml.ToString(), true);
         }
     }
 }

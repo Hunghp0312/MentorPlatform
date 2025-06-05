@@ -1,6 +1,6 @@
 import { JSX, useState } from "react";
 import Navbar from "./Navbar";
-import { Book, BookCopy, Search, User, UserCheck } from "lucide-react";
+import { Book, BookCopy, ChartBar,Search, User, UserCheck } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,6 +22,11 @@ export default function Layout() {
     { icon: JSX.Element; label: string; href: string }[]
   > = {
     Admin: [
+      {
+        icon: <ChartBar size={20} />,
+        label: "Dashboard",
+        href: pathName.adminDashboard,
+      },
       {
         icon: <User size={20} />,
         label: "Profile",

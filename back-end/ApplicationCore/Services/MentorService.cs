@@ -116,7 +116,7 @@ namespace ApplicationCore.Services
                 responseDto = createdMentorApplication.ToMentorApplicationResponseDto(createdMentorApplication.Applicant, createdMentorApplication.ApplicationStatus);
             }
 
-            return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
+            return OperationResult<MentorApplicationResponseDto>.Created(responseDto);
         }
 
         public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request, Guid adminUserId)

@@ -33,6 +33,7 @@ import ProfileView from "../pages/user/ProfileView";
 import MentorFinder from "../pages/learner/FinderMentor";
 import AvailabilityManager from "../pages/mentor/MentorAvailability";
 import LearnerSessionManagement from "../pages/learner/LearnerSessionManagement";
+import AdminDashboard from "../pages/admin/AdminDashboard";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -86,6 +87,7 @@ const AppRouter = () => {
         { path: pathName.adminCourse, element: <ListCourse /> },
         { path: pathName.approval, element: <ListApproval /> },
         { path: pathName.userList, element: <ListUser /> },
+        { path: pathName.adminDashboard, element: <AdminDashboard /> },
       ],
     },
 

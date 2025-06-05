@@ -103,7 +103,6 @@ const RegistrationPanel: React.FC<Props> = ({
     const isValid = await validate();
 
     if (!isValid) return;
-    window.scrollTo({ top: 0, behavior: "smooth" });
     onAccountSubmit({
       email,
       password,
