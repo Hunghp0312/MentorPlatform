@@ -264,12 +264,21 @@ const ListApproval = () => {
             <img
               src={row.photoData || DefaultImage}
               alt={row.fullName}
-              className="w-12 h-12 rounded-full object-cover"
+              className="w-12.5 h-12.5 rounded-full object-cover"
             />
             <div className="flex-1 min-w-0">
-              <p className="font-medium truncate text-white">{row.fullName}</p>
-              <p className="text-sm text-gray-400 truncate pt-0.5">
-                {row.expertiseAreas.map((area) => area.name).join(", ")}
+              <p className="font-medium truncate text-white mb-1.5">
+                {row.fullName}
+              </p>
+              <p className="text-sm text-gray-400 pt-0.5">
+                {row.expertiseAreas.map((area, index) => (
+                  <span
+                    key={index}
+                    className="bg-gray-600 text-gray-200 px-3 py-1 rounded-full text-sm mr-2"
+                  >
+                    {area.name}
+                  </span>
+                ))}
               </p>
               <div className="flex items-center mt-1">
                 <span
@@ -737,13 +746,20 @@ const ListApproval = () => {
                     </div>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="text-sm font-medium text-gray-400 pb-0.5">
+                        <h4 className="text-sm font-medium text-gray-400 pb-2.5">
                           Expertise Areas
                         </h4>
                         <p className="text-sm">
-                          {selectedApproval.expertiseAreas
-                            .map((area) => area.name)
-                            .join(", ")}
+                          {selectedApproval.expertiseAreas.map(
+                            (area, index) => (
+                              <span
+                                key={index}
+                                className="bg-gray-600 text-gray-200 px-3 py-1 rounded-full text-sm mr-2"
+                              >
+                                {area.name}
+                              </span>
+                            )
+                          )}
                         </p>
                       </div>
                       <div>

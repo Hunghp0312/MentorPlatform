@@ -32,50 +32,6 @@ namespace ApplicationCore.Services
             _sendEmailService = sendEmailService;
         }
 
-        public async Task<OperationResult<SessionStatusResponse>> UpdateSessionStatus(SessionUpdateStatusRequest request)
-        {
-            var session = await _sessionBookingRepository.GetByIdAsync(request.SessionId);
-            if (session == null)
-            {
-                return OperationResult<SessionStatusResponse>.NotFound("Session not found");
-            }
-            var validationResult = ValidateStatusChange(session, request);
-            if (validationResult != null)
-            {
-                return validationResult;
-            }
-
-            session.Id = request.SessionId;
-            session.StatusId = request.StatusId;
-            await _unitOfWork.BeginTransactionAsync();
-            _sessionBookingRepository.Update(session);
-            await _unitOfWork.SaveChangesAsync();
-
-            var response = session.ToSessionStatusResponse();
-
-            return OperationResult<SessionStatusResponse>.Ok(response);
-        }
-        private static OperationResult<SessionStatusResponse>? ValidateStatusChange(SessionBooking session, SessionUpdateStatusRequest request)
-        {
-            if (request.StatusId <= 0)
-            {
-                return OperationResult<SessionStatusResponse>.BadRequest("Invalid status ID provided.");
-            }
-
-            if (session.StatusId == request.StatusId)
-            {
-                return OperationResult<SessionStatusResponse>.BadRequest("The session is already in the requested status.");
-            }
-
-            if (session.StatusId == 5 ||
-                session.StatusId == 4)
-            {
-                return OperationResult<SessionStatusResponse>.BadRequest("Cannot change status from Completed or Cancelled.");
-            }
-
-            return null;
-        }
-
         public async Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts()
         {
             var session = await _sessionBookingRepository.GetAllAsync();
@@ -90,14 +46,22 @@ namespace ApplicationCore.Services
             return OperationResult<SessionStatusCountResponse>.Ok(response);
         }
 
-        public async Task<OperationResult<PagedResult<SessionStatusResponse>>> GetAllSessions(PaginationParameters paginationParameters, int sessionStatus)
+        public async Task<OperationResult<PagedResult<SessionStatusResponse>>> GetAllSessions(SessionQueryParameters paginationParameters, Guid mentorId)
         {
-            if (sessionStatus != 4 && sessionStatus != 5 && sessionStatus != 6)
+            if (paginationParameters.StatusId.HasValue &&
+       paginationParameters.StatusId != 4 &&
+       paginationParameters.StatusId != 5 &&
+       paginationParameters.StatusId != 6)
             {
                 return OperationResult<PagedResult<SessionStatusResponse>>.BadRequest("Invalid session status. Only statuses 4 (Cancelled), 5 (Completed), or 6 (Scheduled) are allowed.");
             }
 
-            Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = q => q.Where(s => s.StatusId == sessionStatus);
+            Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = q =>
+                q.Where(s =>
+                    s.MentorId == mentorId &&
+                    (!paginationParameters.StatusId.HasValue
+                        ? s.StatusId == 4 || s.StatusId == 5 || s.StatusId == 6
+                        : s.StatusId == paginationParameters.StatusId.Value));
 
             var (sessions, totalCount) = await _sessionBookingRepository.GetPagedAsync(
                 filter,
@@ -241,7 +205,13 @@ namespace ApplicationCore.Services
             {
                 BookingId = sb.Id,
                 LearnerId = sb.LearnerId,
-                LearnerFullName = sb.Learner.UserProfile.FullName,
+                LearnerPhotoData = sb.Learner.UserProfile.PhotoData != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(sb.Learner.UserProfile.PhotoData)}"
+                : string.Empty,
+                MentorPhotoData = sb.Mentor.UserProfile.PhotoData != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(sb.Mentor.UserProfile.PhotoData)}"
+                : string.Empty,
+                LearnerFullName = sb.Learner!.UserProfile.FullName,
                 MentorId = sb.MentorId,
                 MentorFullName = sb.Mentor.UserProfile.FullName,
                 AvailabilityTimeSlotId = sb.MentorTimeAvailableId,
@@ -276,6 +246,11 @@ namespace ApplicationCore.Services
             if (booking == null)
             {
                 return OperationResult<UpdateBookingResponseDto>.NotFound("Booking session not found.");
+            }
+            if (booking.StatusId == 5 ||
+             booking.StatusId == 4)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("Cannot change status from Completed or Cancelled.");
             }
 
             var user = await _userRepository.GetByIdAsync(userId);
