@@ -1,9 +1,7 @@
-using System.Text;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services
 {
@@ -35,9 +33,21 @@ namespace Infrastructure.Services
 
             var now = DateTime.UtcNow;
             var oneHourFromNow = now.AddHours(24);
-            var upcomingSessions = await sessionBookingRepository.GetUpcomingSessionsAsync(now, oneHourFromNow);
+            var sessions = await sessionBookingRepository.GetAllAsync();
+            if (sessions == null || !sessions.Any())
+            {
+                return;
+            }
 
-            if (upcomingSessions == null || !upcomingSessions.Any())
+
+            var upcomingSessions = sessions
+          .Where(s => s.MentorTimeAvailable?.MentorDayAvailable != null &&
+                      s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start) is var sessionTime &&
+                      sessionTime >= now &&
+                      sessionTime <= oneHourFromNow &&
+                      (s.LastReminderSent == null || s.LastReminderSent < sessionTime.AddHours(-24)))
+          .ToList();
+            if (!upcomingSessions.Any())
             {
                 return;
             }

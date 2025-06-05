@@ -92,23 +92,5 @@ namespace ApplicationCore.Repositories
 
             return query;
         }
-
-        public async Task<ICollection<SessionBooking>> GetUpcomingSessionsAsync(DateTime now, DateTime oneHourFromNow)
-        {
-            return await _dbSet
-                .Include(x => x.MentorTimeAvailable)
-                    .ThenInclude(y => y.MentorDayAvailable)
-                .Include(x => x.Mentor)
-                    .ThenInclude(m => m.UserProfile)
-                .Include(x => x.Learner)
-                    .ThenInclude(l => l.UserProfile)
-               .Where(s => s.StatusId == 6 &&
-                    s.MentorTimeAvailable != null &&
-                    s.MentorTimeAvailable.MentorDayAvailable != null &&
-                    s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start) >= now &&
-                    s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start) <= oneHourFromNow &&
-                    (s.LastReminderSent == null || s.LastReminderSent < s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start).AddHours(-12)))
-                .ToListAsync();
-        }
     }
 }
