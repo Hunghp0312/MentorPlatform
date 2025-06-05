@@ -117,10 +117,10 @@ public class CoursesController : BaseController
     }
     [HttpPost("assign/{courseId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> FinishCourse(Guid courseId, Guid mentorId)
+    public async Task<IActionResult> AssignCourse(Guid courseId, [FromBody] AssignCourseRequest assignCourseRequest)
     {
 
-        var result = await _courseService.AssignCourse(courseId, mentorId);
+        var result = await _courseService.AssignCourse(courseId, assignCourseRequest.MentorId);
         return ToActionResult(result);
     }
 }
