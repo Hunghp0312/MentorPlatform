@@ -20,4 +20,5 @@ export const pathName = {
   editProfile: "/edit-profile",
   mentorAvailability: "/mentor/availability",
   findmentor: "/find-mentor",
+  adminDashboard: "/admin/dashboard",
 };
