@@ -23,14 +23,13 @@ namespace ApplicationCore.Validators.Users
                     .Replace("{PropertyName}", "Full name").Replace("{MaxLength}", "100"));
 
             RuleFor(x => x.Bio)
-                .NotEmpty().WithMessage(ValidationMessages.FieldRequired.Replace("{PropertyName}", "Bio"))
                 .MaximumLength(1000).WithMessage(ValidationMessages.MaxLengthExceeded
-                    .Replace("{PropertyName}", "Bio").Replace("{MaxLength}", "500"));
+                    .Replace("{PropertyName}", "Bio").Replace("{MaxLength}", "1000"));
 
             RuleFor(x => x.PhoneNumber)
                 .MaximumLength(15).WithMessage(ValidationMessages.MaxLengthExceeded
                     .Replace("{PropertyName}", "Phone number").Replace("{MaxLength}", "15"))
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Invalid phone number. Please enter a valid international phone number (E.164 format).");
+                .Matches(@"^\+?[0-9]\d{1,14}$").WithMessage("Invalid phone number. Please enter a valid international phone number (E.164 format).");
             RuleFor(x => x.UserAreaExpertises)
                 .Must(x => x.Count != 0)
                 .WithMessage("Please select at least one category from the list");
@@ -51,9 +50,10 @@ namespace ApplicationCore.Validators.Users
             RuleFor(x => x.SessionFrequencyId)
                 .GreaterThan(0).WithMessage("Session frequency is required and must be a valid option.");
             RuleFor(x => x.UserGoal)
-                .MaximumLength(500).WithMessage(ValidationMessages.MaxLengthExceeded
-                    .Replace("{PropertyName}", "User goal").Replace("{MaxLength}", "500"));
-    
+                .NotEmpty().WithMessage(ValidationMessages.FieldRequired.Replace("{PropertyName}", "User goal"))
+                .MaximumLength(1000).WithMessage(ValidationMessages.MaxLengthExceeded
+                    .Replace("{PropertyName}", "User goal").Replace("{MaxLength}", "1000"));
+
         }
     }
 }

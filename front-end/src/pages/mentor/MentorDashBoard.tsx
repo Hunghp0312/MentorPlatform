@@ -1,91 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Video, MessageSquare, Users, Star, Zap, User, Upload, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Session } from '../../types/session';
+import { mentorDashboardService } from '../../services/mentorDashboard.service';
+import LoadingOverlay from '../../components/loading/LoadingOverlay';
+import { formatTime } from '../../utils/formatDate';
+import { getUserFromToken } from '../../utils/auth';
 
-interface Session {
-    id: number;
-    title: string;
-    time: string;
-    date: string;
-    mentee: string;
-    type: string;
-    typeIcon: React.ReactNode;
-    sessionIcon: React.ReactNode;
-    iconBg: string;
-    borderColor: string;
-    actions: string[];
-}
+
 const MentorDashBoard: React.FC = () => {
-    // Fake data for upcoming sessions
-    const upcomingSessions = [
-        {
-            id: 1,
-            title: "JavaScript Fundamentals",
-            time: "10:30 PM - 11:30 PM",
-            date: "2025-06-03",
-            mentee: "Alex Johnson",
-            type: "Video Call",
-            typeIcon: <Video className="w-4 h-4 mr-1" />,
-            sessionIcon: <Video className="w-5 h-5 text-blue-500" />,
-            iconBg: "bg-blue-500/20",
-            borderColor: "border-blue-500",
-            actions: ["Join Now", "Session Materials"]
-        },
-        {
-            id: 2,
-            title: "Career Guidance Session",
-            time: "1:00 PM - 2:00 PM",
-            date: "2025-06-05",
-            mentee: "Sophia Chen",
-            type: "Chat Session",
-            typeIcon: <MessageSquare className="w-4 h-4 mr-1" />,
-            sessionIcon: <MessageSquare className="w-5 h-5 text-purple-500" />,
-            iconBg: "bg-purple-500/20",
-            borderColor: "border-gray-700",
-            actions: ["Prepare Materials", "Message Learner"]
-        },
-        {
-            id: 3,
-            title: "Project Review",
-            time: "3:30 PM - 4:30 PM",
-            date: "2025-06-07",
-            mentee: "James Wilson",
-            type: "In-Person",
-            typeIcon: <Users className="w-4 h-4 mr-1" />,
-            sessionIcon: <Users className="w-5 h-5 text-green-500" />,
-            iconBg: "bg-green-500/20",
-            borderColor: "border-gray-700",
-            actions: ["View Details"]
-        },
-        {
-            id: 4,
-            title: "React Advanced Concepts",
-            time: "9:00 AM - 10:30 AM",
-            date: "2025-06-10",
-            mentee: "Emma Roberts",
-            type: "Video Call",
-            typeIcon: <Video className="w-4 h-4 mr-1" />,
-            sessionIcon: <Video className="w-5 h-5 text-indigo-500" />,
-            iconBg: "bg-indigo-500/20",
-            borderColor: "border-gray-700",
-            actions: ["View Details", "Prepare Materials"]
-        },
-        {
-            id: 5,
-            title: "Code Review: Backend API",
-            time: "2:00 PM - 3:00 PM",
-            date: "2025-06-12",
-            mentee: "David Kim",
-            type: "Screen Share",
-            typeIcon: <MessageSquare className="w-4 h-4 mr-1" />,
-            sessionIcon: <MessageSquare className="w-5 h-5 text-pink-500" />,
-            iconBg: "bg-pink-500/20",
-            borderColor: "border-gray-700",
-            actions: ["Message Learner"]
-        }
-    ];
+    const decodedToken = getUserFromToken()
+    const mentorId = decodedToken?.id;
+    const [sessions, setSessions] = useState<Session[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
 
-    // create a function to countdown the time left to meeting if it today and the time count below 10 minutes
+    useEffect(() => {
+        const fetchSessions = async () => {
+            try {
+                setLoading(true);
+                const res = await mentorDashboardService.getUpcommingSessions();
+                setSessions(res.items);
+            }
+            catch (error) {
+                console.error("Error fetching sessions:", error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchSessions();
+    }, [])
 
     const dateLeftToMeeting = (date: string) => {
         // Check if the date is today
@@ -111,40 +54,24 @@ const MentorDashBoard: React.FC = () => {
 
 
     const formatSessionDisplayInfo = (session: Session) => {
-        // Check if the session is today based on date
-        const todayDate = new Date().toISOString().split('T')[0];
-        const isToday = session.date === todayDate;
+        // Parse dates
+        const sessionDate = new Date(session.slotStartTime);
+        const sessionDay = new Date(session.bookingDay);
+        const currentDate = new Date();
 
-        // Parse the display time info
+        // Check if the session is today using bookingDay
+        const isToday = sessionDay.toDateString() === currentDate.toDateString();
+
+        // Initialize status flags
         let isStartingSoon = false;
         let isVeryClose = false;
         let displayTime = '';
 
-        // Handle today's sessions
+        // Calculate time difference in minutes
+        const diffMs = sessionDate.getTime() - currentDate.getTime();
+        const diffMinutes = Math.floor(diffMs / 60000);
+
         if (isToday) {
-            // Extract start time from session.time (format: "10:30 AM - 11:30 AM")
-            const startTimeStr = session.time.split(' - ')[0];
-
-            // Create a date object for the session start time today
-            const startTime = new Date();
-            const [timeStr, period] = startTimeStr.split(' ');
-            const timeArray = timeStr.split(':').map(Number);
-            let hours = timeArray[0];
-            const minutes = timeArray[1];
-
-            // Convert to 24-hour format
-            if (period === 'PM' && hours !== 12) hours += 12;
-            if (period === 'AM' && hours === 12) hours = 0;
-
-            startTime.setHours(hours, minutes, 0, 0);
-
-            // Get current time
-            const currentTime = new Date();
-
-            // Calculate difference in minutes
-            const diffMs = startTime.getTime() - currentTime.getTime();
-            const diffMinutes = Math.floor(diffMs / 60000);
-
             if (diffMinutes < 0) {
                 // Session has already started
                 displayTime = `Started ${Math.abs(diffMinutes)} min ago`;
@@ -161,16 +88,16 @@ const MentorDashBoard: React.FC = () => {
             }
         } else {
             // Use dateLeftToMeeting for non-today sessions
-            displayTime = dateLeftToMeeting(session.date);
+            displayTime = dateLeftToMeeting(session.bookingDay);
         }
 
         return { isToday, isStartingSoon, isVeryClose, displayTime };
     };
     const getSessionIcon = (type: string) => {
         switch (type) {
-            case 'Video Call':
+            case 'Virtual Session':
                 return <Video className="w-5 h-5 text-blue-500 " />;
-            case 'Chat Session':
+            case 'On-Site Session':
                 return <MessageSquare className="w-5 h-5 text-purple-500 " />;
             case 'In-Person':
                 return <Users className="w-5 h-5 text-green-500 " />;
@@ -182,9 +109,9 @@ const MentorDashBoard: React.FC = () => {
     }
     const getColorOfSessionType = (type: string) => {
         switch (type) {
-            case 'Video Call':
+            case 'Virtual Session':
                 return 'bg-blue-500/20';
-            case 'Chat Session':
+            case 'On-Site Session':
                 return 'bg-purple-500/20';
             case 'In-Person':
                 return 'bg-green-500/20';
@@ -193,6 +120,10 @@ const MentorDashBoard: React.FC = () => {
             default:
                 return 'bg-gray-500/20';
         }
+    }
+
+    if (loading) {
+        return <LoadingOverlay />
     }
 
     return (
@@ -206,13 +137,13 @@ const MentorDashBoard: React.FC = () => {
                     <div className="lg:col-span-2 bg-[#252d3d] rounded-lg p-4">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-semibold">Upcoming Sessions</h2>
-                            <Link to="#" className="text-blue-400 text-sm hover:underline flex items-center">
+                            <Link to={`/session-management/${mentorId}`} className="text-blue-400 text-sm hover:underline flex items-center">
                                 Manage Schedule →
                             </Link>
                         </div>
 
                         {/* Dynamic Sessions */}
-                        {upcomingSessions.map(session => {
+                        {sessions.map(session => {
                             const { isToday, isStartingSoon, isVeryClose, displayTime } = formatSessionDisplayInfo(session);
 
                             const statusClass = isVeryClose ? "text-red-500 font-bold " :
@@ -224,34 +155,33 @@ const MentorDashBoard: React.FC = () => {
 
                             return (
                                 <div
-                                    key={session.id}
-                                    className={`border ${session.borderColor} rounded-lg p-4 mb-4 relative ${isStartingSoon ? 'border-orange-500 border-2' : ''}`}
+                                    key={session.sessionId}
+                                    className={`border border-blue-500 rounded-lg p-4 mb-4 relative ${isToday ? 'border-orange-500 border-2' : ''}`}
                                 >
                                     <div className="flex items-start">
-                                        <div className={`p-2 ${getColorOfSessionType(session.type)} rounded-lg mr-3`}>
-                                            {getSessionIcon(session.type)}
+                                        <div className={`p-2 ${getColorOfSessionType(session.sessionType.name)} rounded-lg mr-3`}>
+                                            {getSessionIcon(session.sessionType.name)}
 
                                         </div>
                                         <div className="flex-1">
-                                            <h3 className="font-semibold">Meeting with {session.mentee}</h3>
-                                            <p className="text-sm text-gray-400 mt-2">
-                                                {session.time}
-                                            </p>
+                                            <h3 className="font-semibold">Meeting with {session.fullName}</h3>
+                                            <div className="text-sm text-gray-400">
+                                                <span className="font-semibold">{formatTime(new Date(session.slotStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))}</span> -
+                                                <span className="ml-1">{formatTime(new Date(session.slotEndTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))}</span>
+                                            </div>
                                             <div className="flex items-center mt-1 text-sm text-gray-400">
-                                                {session.typeIcon}
-                                                <span>{session.type}</span>
+                                                {getSessionIcon(session.sessionType.name)}
+                                                <span className='ml-2'>{session.sessionType.name}</span>
                                             </div>
                                             <div className="mt-3 flex justify-between items-center">
                                                 <div className="flex items-center space-x-2">
-                                                    {session.actions.map((action) => (
+                                                    {isStartingSoon && (
                                                         <button
-                                                            key={`${session.id}-${action}`}
-                                                            className={`${action === "Join Now" ? "bg-blue-500" : "bg-gray-600"
-                                                                } text-white text-xs py-1 px-3 rounded`}
+                                                            className={`bg-blue-500 text-white text-xs py-1 px-3 rounded`}
                                                         >
-                                                            {action}
+                                                            Join Now
                                                         </button>
-                                                    ))}
+                                                    )}
                                                 </div>
                                                 <div className={`text-right ${statusClass} text-sm animate-pulse`}>
                                                     {statusText}
@@ -268,7 +198,7 @@ const MentorDashBoard: React.FC = () => {
                                 </div>
                             )
                         })}
-                        {upcomingSessions.length === 0 && (
+                        {sessions.length === 0 && (
                             <p className="text-gray-400 text-center">No upcoming sessions scheduled.</p>
                         )}
                     </div>

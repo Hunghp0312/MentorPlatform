@@ -116,7 +116,7 @@ namespace ApplicationCore.Services
                 responseDto = createdMentorApplication.ToMentorApplicationResponseDto(createdMentorApplication.Applicant, createdMentorApplication.ApplicationStatus);
             }
 
-            return OperationResult<MentorApplicationResponseDto>.Ok(responseDto);
+            return OperationResult<MentorApplicationResponseDto>.Created(responseDto);
         }
 
         public async Task<OperationResult<MentorApplicantResponse>> UpdateMentorApplicationStatus(MentorUpdateStatusRequest request, Guid adminUserId)
@@ -215,37 +215,46 @@ namespace ApplicationCore.Services
             var emailSubject = "Mentor Application Status Update";
 
             if (applicationStatus.Equals("Approved", StringComparison.OrdinalIgnoreCase) ||
-                applicationStatus.Equals("Rejected", StringComparison.OrdinalIgnoreCase) || applicationStatus.Equals("Request Info", StringComparison.OrdinalIgnoreCase))
+                applicationStatus.Equals("Rejected", StringComparison.OrdinalIgnoreCase) || 
+                applicationStatus.Equals("Request Info", StringComparison.OrdinalIgnoreCase))
             {
                 var bodyBuilder = new StringBuilder();
-                bodyBuilder.AppendLine($"Hi {applicantName},");
-                bodyBuilder.AppendLine($"Thank you for submitting your mentor application to {platformName}.");
-                bodyBuilder.AppendLine($"After reviewing your application, the status has been updated to: {applicationStatus}");
-                bodyBuilder.AppendLine();
+                bodyBuilder.AppendLine("<!DOCTYPE html>");
+                bodyBuilder.AppendLine("<html>");
+                bodyBuilder.AppendLine("<head>");
+                bodyBuilder.AppendLine("<meta charset=\"UTF-8\">");
+                bodyBuilder.AppendLine("<title>Mentor Application Status Update</title>");
+                bodyBuilder.AppendLine("</head>");
+                bodyBuilder.AppendLine("<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\">");
+                bodyBuilder.AppendLine($"<p>Hi {applicantName},</p>");
+                bodyBuilder.AppendLine($"<p>Thank you for submitting your mentor application to {platformName}.</p>");
+                bodyBuilder.AppendLine($"<p>After reviewing your application, the status has been updated to: <strong>{applicationStatus}</strong></p>");
 
                 switch (applicationStatus.ToLowerInvariant())
                 {
                     case "approved":
-                        bodyBuilder.AppendLine("We are excited to welcome you as a mentor on our platform! You will receive further instructions soon on how to get started and set up your profile.");
+                        bodyBuilder.AppendLine("<p>We are excited to welcome you as a mentor on our platform! You will receive further instructions soon on how to get started and set up your profile.</p>");
                         break;
                     case "rejected":
-                        bodyBuilder.AppendLine("Unfortunately, your application has been rejected at this time.");
+                        bodyBuilder.AppendLine("<p>Unfortunately, your application has been rejected at this time.</p>");
                         if (!string.IsNullOrWhiteSpace(request.AdminComments))
                         {
-                            bodyBuilder.AppendLine($"Reason: {request.AdminComments}");
+                            bodyBuilder.AppendLine($"<p>Reason: <em>{request.AdminComments}</em></p>");
                         }
-                        bodyBuilder.AppendLine("We encourage you to apply again in the future if circumstances change or you gain additional relevant experience.");
+                        bodyBuilder.AppendLine("<p>We encourage you to apply again in the future if circumstances change or you gain additional relevant experience.</p>");
                         break;
                     case "request info":
-                        bodyBuilder.AppendLine("We need more information to process your application. Please check your email for further instructions.");
+                        bodyBuilder.AppendLine("<p>We need more information to process your application. Please check your email for further instructions.</p>");
                         break;
                 }
 
-                bodyBuilder.AppendLine();
-                bodyBuilder.AppendLine("If you have any questions, feel free to reply to this email or reach out to our support team.");
-                bodyBuilder.AppendLine();
-                bodyBuilder.AppendLine($"Best regards,\nThe {platformName} Team");
-
+                bodyBuilder.AppendLine("<p>If you have any questions, feel free to reply to this email or reach out to our support team.</p>");
+                bodyBuilder.AppendLine("<p>");
+                bodyBuilder.AppendLine($"Best regards,<br>");
+                bodyBuilder.AppendLine($"The {platformName} Team");
+                bodyBuilder.AppendLine("</p>");
+                bodyBuilder.AppendLine("</body>");
+                bodyBuilder.AppendLine("</html>");
                 var emailBody = bodyBuilder.ToString();
                 var emailRecipient = mentorApplication.Applicant.Email;
                 await _sendEmailService.SendEmail(emailRecipient, emailSubject, emailBody);

@@ -21,6 +21,7 @@ import userService from "../../services/userRole.service";
 import { userType, userPaginationRequest } from "../../types/userRole.d";
 
 import { RoleEnum, Status as StatusEnum } from "../../types/commonType";
+import Dropdown from "../../components/input/Dropdown";
 
 const ListUser = () => {
   const navigate = useNavigate();
@@ -47,9 +48,12 @@ const ListUser = () => {
 
   const roleOptions = [
     { value: "", label: "All Roles" },
-    { value: RoleEnum.Mentor, label: getRoleName(RoleEnum.Mentor) },
-    { value: RoleEnum.Learner, label: getRoleName(RoleEnum.Learner) },
-    { value: RoleEnum.Admin, label: getRoleName(RoleEnum.Admin) },
+    { value: RoleEnum.Mentor.toString(), label: getRoleName(RoleEnum.Mentor) },
+    {
+      value: RoleEnum.Learner.toString(),
+      label: getRoleName(RoleEnum.Learner),
+    },
+    { value: RoleEnum.Admin.toString(), label: getRoleName(RoleEnum.Admin) },
   ];
 
   const fetchUsers = useCallback(async () => {
@@ -254,9 +258,9 @@ const ListUser = () => {
   return (
     <main className="p-4 container mx-auto">
       {loading && <LoadingOverlay />}
-      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold dark:text-white">
             User Role Management
           </h1>
         </div>
@@ -281,22 +285,18 @@ const ListUser = () => {
               className="w-full"
             />
           </div>
-          <select
+
+          <Dropdown
             name="roleFilter"
-            id="roleFilter"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            value={roleFilter}
-            onChange={(e) => {
-              const value = e.target.value;
+            value={roleFilter.toString()}
+            options={roleOptions}
+            onChange={(value: string) => {
               setRoleFilter(value === "" ? "" : (Number(value) as RoleEnum));
               setPageIndex(1);
-            }}>
-            {roleOptions.map((option) => (
-              <option key={option.value.toString()} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            }}
+            haveOptionAll
+            dataTestId="course-level-filter"
+          />
         </div>
 
         <DataTable

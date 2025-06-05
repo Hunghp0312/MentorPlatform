@@ -43,6 +43,11 @@ namespace Infrastructure.Data.Configuration
                 .OnDelete(DeleteBehavior.Restrict);
             builder.HasMany(c => c.Resources).WithOne(r => r.Course).HasForeignKey(r => r.CourseId).OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasOne(c => c.Mentor)
+                .WithMany(m => m.MentoredCourses)
+                .HasForeignKey(c => c.MentorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasData(CourseSeeding.SeedCourses());
         }
     }

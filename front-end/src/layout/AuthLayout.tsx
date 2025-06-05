@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
 const AuthLayout = () => {
   return (
@@ -11,6 +12,17 @@ const AuthLayout = () => {
       <div className="w-full flex justify-center items-start flex-1 px-4 sm:px-6 lg:px-8">
         <Outlet />
       </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover={false}
+      />
     </div>
   );
 };

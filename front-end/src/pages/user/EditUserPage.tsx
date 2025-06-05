@@ -193,6 +193,10 @@ const EditUserPage = () => {
       setUserData({ ...userData, [name]: value.slice(0, 50) });
       return;
     }
+    if (name === "userGoal" && value.length > 1000) {
+      setUserData({ ...userData, [name]: value.slice(0, 1000) });
+      return;
+    }
     setUserData({ ...userData, [name]: value });
 
     // Clear error for this field if it exists
@@ -267,6 +271,13 @@ const EditUserPage = () => {
       reader.readAsDataURL(file);
     }
   };
+  const navigateToHome = () => {
+    if (decodedToken?.role === "Admin") {
+      navigate(pathName.userList);
+    } else {
+      navigate(pathName.home);
+    }
+  };
 
   // Remove profile picture
   const handleRemoveImage = () => {
@@ -293,13 +304,10 @@ const EditUserPage = () => {
       newErrors.fullName = "Full name must be between 2-100 characters.";
     }
     if (!userData.fullName.trim()) {
-      newErrors.fullName = "Please fill in your full name";
+      newErrors.fullName = "Please fill in this field";
     }
     if (userData.bio.trim().length > 1000) {
       newErrors.bio = "Bio must be less than 1000 characters";
-    }
-    if (!userData.bio?.trim()) {
-      newErrors.bio = "Bio is required";
     }
     if (
       userData.professionalSkill &&
@@ -309,14 +317,13 @@ const EditUserPage = () => {
         "Professional skill must be less than 50 characters";
     }
     if (!userData.professionalSkill?.trim()) {
-      newErrors.professionalSkill = "Professional skills are required";
+      newErrors.professionalSkill = "Please fill in this field";
     }
     if (
       userData.phoneNumber &&
-      /^\+?[1-9]\d{1,14}$/.test(userData.phoneNumber) === false
+      /^\+?[0-9]\d{1,14}$/.test(userData.phoneNumber) === false
     ) {
-      newErrors.phoneNumber =
-        "Invalid phone number format. Use E.164 format (e.g., +1234567890)";
+      newErrors.phoneNumber = "Invalid phone number format";
     }
     if (userData.phoneNumber && userData.phoneNumber.trim().length > 15) {
       newErrors.phoneNumber = "Phone number must be less than 15 characters";
@@ -329,7 +336,7 @@ const EditUserPage = () => {
         "Industry experience must be less than 50 characters";
     }
     if (!userData.industryExperience || !userData.industryExperience.trim()) {
-      newErrors.industryExperience = "Industry experience is required";
+      newErrors.industryExperience = "Please fill in this field";
     }
 
     if (!userData.communicationMethod) {
@@ -428,7 +435,7 @@ const EditUserPage = () => {
       await userService.updateUserProfile(formData, id!);
 
       toast.success("Profile updated successfully!");
-      navigate(pathName.home);
+      navigateToHome();
     } catch (error) {
       console.error("Failed to update profile:", error);
       toast.error("Failed to update your profile. Please try again.");
@@ -471,7 +478,7 @@ const EditUserPage = () => {
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
           <div className="mb-8">
             <button
-              onClick={() => navigate(pathName.home)}
+              onClick={navigateToHome}
               className="flex items-center text-gray-300 mb-4 hover:text-white transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-1" />
@@ -808,6 +815,7 @@ const EditUserPage = () => {
                 onChange={handleInputChange}
                 placeholder="What are you hoping to achieve?"
                 className="min-h-[100px] bg-gray-700 border-gray-600"
+                errorMessage={errors.userGoal}
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -874,7 +882,7 @@ const EditUserPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-700">
               <button
                 type="button"
-                onClick={() => navigate(pathName.home)}
+                onClick={navigateToHome}
                 className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold transition-colors"
               >
                 Cancel

@@ -29,9 +29,12 @@ namespace ApplicationCore.Services
         }
 
         public async Task<OperationResult<GetCourseDetailsResponse>> CreateCourseAsync(
-            CreateUpdateCourseRequest request
+            CreateUpdateCourseRequest request,
+            Guid userId,
+            string role
         )
         {
+
             var category = await _categoryRepo.GetByIdAsync(request.CategoryId);
 
             if (category == null)
@@ -40,7 +43,10 @@ namespace ApplicationCore.Services
             }
 
             var course = request.ToCourseEntity();
-
+            if (role == "Mentor")
+            {
+                course.MentorId = userId;
+            }
             await _courseRepo.AddAsync(course);
             await _unitOfWork.SaveChangesAsync();
 
@@ -201,6 +207,76 @@ namespace ApplicationCore.Services
             };
 
             return OperationResult<PagedResult<GetCourseDetailsResponse>>.Ok(coursesPageResponse);
+        }
+
+        public async Task<OperationResult<MessageResponse>> EnrollCourse(Guid courseId, Guid userId)
+        {
+            var course = await _courseRepo.GetByIdAsync(courseId);
+            if (course == null)
+            {
+                return OperationResult<MessageResponse>.NotFound(
+                    $"Course with ID {courseId} not found"
+                );
+            }
+            course.LearnerCourses.Add(new LearnerCourse
+            {
+                CourseId = courseId,
+                LearnerId = userId,
+            });
+            await _unitOfWork.SaveChangesAsync();
+            return OperationResult<MessageResponse>.Ok(
+                new MessageResponse { Message = "Enrolled successfully" }
+            );
+        }
+
+        public async Task<OperationResult<MessageResponse>> FinishCourse(Guid courseId, Guid userId)
+        {
+            var course = await _courseRepo.GetCourseWithLearnerCourseAsync(courseId);
+            if (course == null)
+            {
+                return OperationResult<MessageResponse>.NotFound(
+                    $"Course with ID {courseId} not found"
+                );
+            }
+            course.LearnerCourses.Where(lc => lc.LearnerId == userId).ToList().ForEach(lc =>
+            {
+                lc.IsCompleted = true;
+            });
+            await _unitOfWork.SaveChangesAsync();
+            return OperationResult<MessageResponse>.Ok(
+                new MessageResponse { Message = "Course marked as completed" }
+            );
+        }
+        public async Task<OperationResult<MessageResponse>> AssignCourse(Guid courseId, Guid mentorId)
+        {
+            var course = await _courseRepo.GetByIdAsync(courseId);
+            if (course == null)
+            {
+                return OperationResult<MessageResponse>.NotFound(
+                    $"Course with ID {courseId} not found"
+                );
+            }
+            if (mentorId == Guid.Empty)
+            {
+                return OperationResult<MessageResponse>.BadRequest("Mentor ID cannot be empty");
+            }
+            if (mentorId == course.MentorId)
+            {
+                return OperationResult<MessageResponse>.BadRequest("Course is already assigned to this mentor");
+            }
+
+            if (course.MentorId != Guid.Empty)
+            {
+                return OperationResult<MessageResponse>.BadRequest(
+                    "Course is already assigned to a mentor"
+                );
+            }
+            course.MentorId = mentorId;
+            _courseRepo.Update(course);
+            await _unitOfWork.SaveChangesAsync();
+            return OperationResult<MessageResponse>.Ok(
+                new MessageResponse { Message = "Course assigned successfully" }
+            );
         }
     }
 }

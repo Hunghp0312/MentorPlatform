@@ -3,11 +3,25 @@ import { ChevronLeft, ChevronRight, Video, Users, Building, Mail, Calendar, Plus
 import { toast } from 'react-toastify';
 import { TimeSlot } from '../../types/session';
 import { sessionService } from '../../services/session.service';
+import { useParams } from 'react-router-dom';
+import LoadingOverlay from '../../components/loading/LoadingOverlay';
+import { formatTime } from '../../utils/formatDate';
+import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
+import { SlotStatus } from '../../types/commonType';
 
 interface SessionType {
     id: string;
     name: string;
     icon: React.ReactNode;
+}
+
+interface MentorInfo {
+    id: string;
+    startWorkTime: string;
+    endWorkTime: string;
+    expertiseTags: string[];
+    mentorFullName: string;
+    photoData: string;
 }
 
 const sessionTypes: SessionType[] = [
@@ -19,11 +33,20 @@ const sessionTypes: SessionType[] = [
 const weekDays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 const BookingSession: React.FC = () => {
+    const { id } = useParams() as { id: string };
     const [selectedDate, setSelectedDate] = useState<number>();
     const [selectedSessionType, setSelectedSessionType] = useState<string | null>(null);
     const [slots, setSlots] = useState<TimeSlot[] | undefined>(undefined);
     const [selectedSlot, setSelectedSlot] = useState<string>('');
-
+    const [loading, setLoading] = useState<boolean>(false);
+    const [mentorInfo, setMentorInfo] = useState<MentorInfo>({
+        id: '',
+        startWorkTime: '',
+        endWorkTime: '',
+        expertiseTags: [],
+        mentorFullName: '',
+        photoData: '',
+    });
     const today = new Date();
     const [currentMonth, setCurrentMonth] = useState<{ month: number; year: number }>({
         month: today.getMonth(),
@@ -38,8 +61,17 @@ const BookingSession: React.FC = () => {
         const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
 
         try {
-            const res = await sessionService.getSessionSlots('03EA823D-D625-448D-901D-411C5028B769', formattedDate);
+            const res = await sessionService.getSessionSlots(id, formattedDate);
             setSlots(res.mentorTimeSlots);
+            const mentor = {
+                id: res.mentorId,
+                startWorkTime: res.startWorkTime,
+                endWorkTime: res.endWorkTime,
+                expertiseTags: res.expertiseTags,
+                mentorFullName: res.mentorFullName,
+                photoData: res.photoData,
+            }
+            setMentorInfo(mentor);
         }
         catch (error) {
             console.error("Error fetching available slots:", error);
@@ -52,42 +84,63 @@ const BookingSession: React.FC = () => {
     const handleSlotSelected = (slotId: string) => {
         setSelectedSlot(slotId);
     }
-    const handleBooking  = async  () => {
+    const handleBooking = async () => {
         if (slots === undefined) {
             toast.error('Please select a date and time slot before booking.');
             return;
         }
+        if (selectedSessionType === null) {
+            toast.error('Please select a session type before booking.');
+            return;
+        }
+
         const data = {
-            mentorId: '03EA823D-D625-448D-901D-411C5028B769',
+            mentorId: id,
             mentorTimeAvailableId: selectedSlot,
-            learnerMessage: 'Your message here',
+            learnerMessage: '',
             sessionTypeId: selectedSessionType ?? '1',
         }
         try {
             await sessionService.bookSession(data);
             toast.success('Session booked successfully!');
-        }catch (error) {
+        } catch (error) {
             console.error("Error booking session:", error);
             toast.error('Failed to book the session. Please try again later.');
             return;
         }
     }
 
-    useEffect(() =>  {
+    useEffect(() => {
         const fetchSlots = async () => {
             const today = new Date().toISOString().split('T')[0];
             try {
-                setSelectedDate(Number(today.split('-')[2])); // Set selected date to today
-                const res = await sessionService.getSessionSlots('03EA823D-D625-448D-901D-411C5028B769', today);
+                setLoading(true);
+                setSelectedDate(Number(today.split('-')[2]));
+                const res = await sessionService.getSessionSlots(id, today);
+
                 setSlots(res.mentorTimeSlots);
+                const mentor = {
+                    id: res.mentorId,
+                    startWorkTime: res.startWorkTime,
+                    endWorkTime: res.endWorkTime,
+                    expertiseTags: res.expertiseTags,
+                    mentorFullName: res.mentorFullName,
+                    photoData: res.photoData,
+                }
+                setMentorInfo(mentor);
             } catch (error) {
                 console.error("Error fetching initial slots:", error);
                 setSlots([]);
             }
+            finally {
+                setLoading(false);
+            }
         };
         fetchSlots();
-    },[])
-
+    }, [])
+    if (loading) {
+        return <LoadingOverlay />
+    }
     return (
         <div className="min-h-screen flex items-center justify-center  p-4">
             <div className="w-full max-w-6xl bg-[#1e2432] text-white rounded-lg shadow-xl p-6">
@@ -99,15 +152,15 @@ const BookingSession: React.FC = () => {
                     <div className="flex items-center">
                         <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
                             <img
-                                src="/placeholder.svg?height=48&width=48"
-                                alt="John Doe"
+                                src={mentorInfo?.photoData || DefaultImage}
+                                alt={mentorInfo?.mentorFullName || 'Mentor'}
                                 className="w-full h-full object-cover"
                             />
                         </div>
                         <div>
-                            <h2 className="font-bold">John Doe, PhD</h2>
-                            <p className="text-gray-400 text-sm">Leadership, Strategy</p>
-                            <p className="text-green-400 text-xs">Available from M-F, 9:00-17:00</p>
+                            <h2 className="font-bold">{mentorInfo?.mentorFullName}</h2>
+                            <p className="text-gray-400 text-sm">{mentorInfo?.expertiseTags?.join(', ')}</p>
+                            <p className="text-green-400 text-xs">Available from {`${formatTime(mentorInfo?.startWorkTime)} - ${formatTime(mentorInfo?.endWorkTime)}`}</p>
                         </div>
                     </div>
                     <div className="flex space-x-2">
@@ -213,13 +266,14 @@ const BookingSession: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8">
                     {slots?.map((slot) => (
                         <button
+                            disabled={slot.statusId !== SlotStatus.Available}
                             key={slot.id}
-                            className={`py-2 px-4 rounded text-center text-sm
-                ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'}
+                            className={`py-2 px-4 rounded text-center text-sm 
+                ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'} ${slot.statusId !== SlotStatus.Available && 'cursor-not-allowed !bg-gray-400'}
                     `}
                             onClick={() => handleSlotSelected(slot.id)}
                         >
-                            {slot.startTime} - {slot.endTime}
+                            {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
                         </button>
                     ))}
                 </div>

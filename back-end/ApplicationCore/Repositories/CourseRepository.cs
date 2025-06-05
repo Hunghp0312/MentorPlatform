@@ -68,5 +68,13 @@ namespace ApplicationCore.Repositories
         {
             return await _dbSet.AnyAsync(c => c.Name == name && c.Id != excludeId);
         }
+        public async Task<Course?> GetCourseWithLearnerCourseAsync(Guid courseId)
+        {
+            return await _dbSet
+                .Include(c => c.LearnerCourses)
+                .ThenInclude(lc => lc.Learner)
+                .FirstOrDefaultAsync(c => c.Id == courseId);
+
+        }
     }
 }
