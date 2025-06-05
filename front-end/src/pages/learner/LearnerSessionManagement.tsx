@@ -174,7 +174,7 @@ const LearnerSessionManagement = () => {
                             }`}
                         onClick={() => setActiveTab('recent')}
                     >
-                        Recent Activity
+                        Upcoming Sessions
                     </button>
                     <button
                         className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'inpast'

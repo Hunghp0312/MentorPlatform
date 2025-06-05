@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { mentorService } from '../../services/mentorapplication.service';
 import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import useDebounce from '../../hooks/usedebounce';
+import TableFooter from '../../components/table/TableFooter';
 interface Mentor {
     id: number;
     fullName: string;
@@ -39,7 +40,9 @@ const areaOfExpertise = [
 
 const MentorFinder: React.FC = () => {
     const navigate = useNavigate();
-
+    const [totalItems, setTotalItems] = useState(0);
+    const [pageIndex, setPageIndex] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -57,8 +60,11 @@ const MentorFinder: React.FC = () => {
 
     const fetchMentors = async () => {
         try {
-            const res = await mentorService.getAvailableMentors(searchTerm, 1, 10, selectedTopic ?? null, selectedExpertise)
+            const res = await mentorService.getAvailableMentors(searchTerm, pageIndex, pageSize, selectedTopic ?? null, selectedExpertise)
             setMentors(res.items);
+            setTotalItems(res.totalItems);
+            setPageSize(res.pageSize);
+            setPageIndex(res.pageIndex);
         }
         catch (error) {
             console.error("Error fetching mentors:", error);
@@ -68,7 +74,7 @@ const MentorFinder: React.FC = () => {
     }
     useEffect(() => {
         fetchMentors();
-    }, [debouncedSearchTerm, selectedTopic, selectedExpertise.length]);
+    }, [debouncedSearchTerm, selectedTopic, selectedExpertise.length, pageIndex, pageSize]);
 
 
 
@@ -139,7 +145,8 @@ const MentorFinder: React.FC = () => {
 
                 <div>
                     <h2 className="text-xl font-semibold mb-6">Available Mentors</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-6">
+                    {mentors.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-6">
                         {mentors.map((mentor) => (
                             <div key={mentor.id} className="bg-slate-700 rounded-lg p-6">
                                 {/* Mentor Header */}
@@ -185,6 +192,19 @@ const MentorFinder: React.FC = () => {
                                 </div>
                             </div>
                         ))}
+                    </div>
+                    ) : (
+                        <p className="text-gray-300">No mentors found matching your criteria.</p>
+                    )}
+                    <div>
+                        <TableFooter
+                            className="mt-6"
+                            pageIndex={pageIndex}
+                            pageSize={pageSize}
+                            totalItems={totalItems}
+                            changePage={(page) => setPageIndex(page)}
+                            setPageSize={(size) => setPageSize(size)}
+                        />
                     </div>
                 </div>
             </div>

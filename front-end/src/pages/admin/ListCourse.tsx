@@ -412,6 +412,7 @@ const ListCourse = () => {
           {/* Level Filter */}
           <div className="w-full md:w-1/5">
             <Dropdown
+              label="Level"
               name="levelId"
               value={filter.levelId}
               options={levelOptions}
