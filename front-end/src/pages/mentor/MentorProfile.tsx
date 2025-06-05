@@ -129,7 +129,7 @@ const MentorProfile: React.FC = () => {
         try {
             await sessionService.bookSession(bookingData);
             toast.success("Session booked successfully!");
-            navigate("/mentor-profile");
+            navigate(`/booking-session/${id}`);
         }
         catch (error) {
             console.error("Error booking session:", error);
