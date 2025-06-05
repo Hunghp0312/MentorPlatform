@@ -39,7 +39,7 @@ const BookingSession: React.FC = () => {
     const [slots, setSlots] = useState<TimeSlot[] | undefined>(undefined);
     const [selectedSlot, setSelectedSlot] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
-    const [mentorInfo, setMentorInfo] = useState<MentorInfo>( {
+    const [mentorInfo, setMentorInfo] = useState<MentorInfo>({
         id: '',
         startWorkTime: '',
         endWorkTime: '',
@@ -89,11 +89,11 @@ const BookingSession: React.FC = () => {
             toast.error('Please select a date and time slot before booking.');
             return;
         }
-        if(selectedSessionType === null) {
+        if (selectedSessionType === null) {
             toast.error('Please select a session type before booking.');
             return;
         }
-        
+
         const data = {
             mentorId: id,
             mentorTimeAvailableId: selectedSlot,
@@ -132,14 +132,14 @@ const BookingSession: React.FC = () => {
                 console.error("Error fetching initial slots:", error);
                 setSlots([]);
             }
-            finally{
+            finally {
                 setLoading(false);
             }
         };
         fetchSlots();
     }, [])
-    if(loading ) {
-        return <LoadingOverlay/>
+    if (loading) {
+        return <LoadingOverlay />
     }
     return (
         <div className="min-h-screen flex items-center justify-center  p-4">
@@ -153,7 +153,7 @@ const BookingSession: React.FC = () => {
                         <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
                             <img
                                 src={mentorInfo?.photoData || DefaultImage}
-                                alt={mentorInfo?.mentorFullName || 'Mentor'} 
+                                alt={mentorInfo?.mentorFullName || 'Mentor'}
                                 className="w-full h-full object-cover"
                             />
                         </div>
@@ -268,7 +268,7 @@ const BookingSession: React.FC = () => {
                         <button
                             disabled={slot.statusId !== SlotStatus.Available}
                             key={slot.id}
-                            className={`py-2 px-4 rounded text-center text-sm }
+                            className={`py-2 px-4 rounded text-center text-sm 
                 ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'} ${slot.statusId !== SlotStatus.Available && 'cursor-not-allowed !bg-gray-400'}
                     `}
                             onClick={() => handleSlotSelected(slot.id)}

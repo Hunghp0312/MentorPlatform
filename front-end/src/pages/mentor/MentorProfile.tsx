@@ -222,11 +222,11 @@ const MentorProfile: React.FC = () => {
 
         // Get all days that have time blocks
         const availableDays = availability.days.filter(day => day.timeBlocks.length > 0);
-        
+
         if (availableDays.length === 0) {
             return [];
         }
-        
+
         // Return all days with time blocks
         return availableDays.map(day => ({
             dayName: dayNameMap[day.dayName] || day.dayName,

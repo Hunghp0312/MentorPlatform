@@ -1,4 +1,4 @@
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import InputCustom from '../input/InputCustom';
 import { TimeSlot } from '../../types/session';
 import { sessionService } from '../../services/session.service';

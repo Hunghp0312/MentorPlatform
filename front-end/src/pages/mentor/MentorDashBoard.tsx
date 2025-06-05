@@ -137,7 +137,7 @@ const MentorDashBoard: React.FC = () => {
                     <div className="lg:col-span-2 bg-[#252d3d] rounded-lg p-4">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-lg font-semibold">Upcoming Sessions</h2>
-                            <Link to={`/session-management/${mentorId}`}  className="text-blue-400 text-sm hover:underline flex items-center">
+                            <Link to={`/session-management/${mentorId}`} className="text-blue-400 text-sm hover:underline flex items-center">
                                 Manage Schedule →
                             </Link>
                         </div>
@@ -155,7 +155,7 @@ const MentorDashBoard: React.FC = () => {
 
                             return (
                                 <div
-                                    key={session.learnerId}
+                                    key={session.sessionId}
                                     className={`border border-blue-500 rounded-lg p-4 mb-4 relative ${isToday ? 'border-orange-500 border-2' : ''}`}
                                 >
                                     <div className="flex items-start">

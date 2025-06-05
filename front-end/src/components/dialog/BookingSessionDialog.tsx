@@ -12,7 +12,7 @@ interface BookingDialogProps {
 }
 
 const BookingSessionDialog: React.FC<BookingDialogProps> = ({
-    mentorId ,
+    mentorId,
     mentorName = "Sarah Johnson",
     hourlyRate = 75,
     onClose,

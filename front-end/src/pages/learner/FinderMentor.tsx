@@ -42,7 +42,7 @@ const MentorFinder: React.FC = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
-    
+
     // Import at the top of the file:
     // import useDebounce from '../../hooks/usedebounce';
     const [selectedTopic, setSelectedTopic] = useState<number>();
@@ -52,7 +52,7 @@ const MentorFinder: React.FC = () => {
         setSelectedTopic(expertise);
     }
 
-    
+
 
 
     const fetchMentors = async () => {
@@ -72,7 +72,7 @@ const MentorFinder: React.FC = () => {
 
 
 
-    const handleToggkleExpertise = (id: number): void => {
+    const handleToggleExpertise = (id: number): void => {
         if (selectedExpertise.includes(id)) {
             // Remove expertise if already selected
             setSelectedExpertise(selectedExpertise.filter(expertiseId => expertiseId !== id));
@@ -124,7 +124,7 @@ const MentorFinder: React.FC = () => {
                             {areaOfExpertise.map((expertise) => (
                                 <button
                                     key={expertise.id}
-                                    onClick={() => handleToggkleExpertise(expertise.id)}
+                                    onClick={() => handleToggleExpertise(expertise.id)}
                                     className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${selectedExpertise.includes(expertise.id)
                                         ? 'bg-orange-500 text-white'
                                         : 'bg-slate-600 text-gray-300 hover:bg-slate-500'
