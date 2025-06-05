@@ -457,7 +457,7 @@ namespace ApplicationCore.Services
             {
                 bodyHtml.Append($"<li>Learner's Message: {bookingDetails.LearnerMessage}</li>");
             }
-            bodyHtml.Append("</ul>"); // Kết thúc danh sách
+            bodyHtml.Append("</ul>");
             bodyHtml.Append("<p>Please log in to your dashboard to review and respond to this request.</p>");
             bodyHtml.Append("<p>Best regards,<br>The MentorPlatform Team</p>");
             bodyHtml.Append("</body></html>");
