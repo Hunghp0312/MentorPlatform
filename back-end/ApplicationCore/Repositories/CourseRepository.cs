@@ -54,6 +54,11 @@ namespace ApplicationCore.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Course?> CheckIfMentorAssignToCourse(Guid courseId, Guid mentorId)
+        {
+            return await _dbSet
+                .FirstOrDefaultAsync(c => c.Id == courseId && c.MentorId == mentorId);
+        }
         public async Task<bool> ExistsByNameAsync(string name)
         {
             return await _dbSet.AnyAsync(c => c.Name == name);

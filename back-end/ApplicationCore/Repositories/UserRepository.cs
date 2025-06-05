@@ -118,7 +118,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 
         return (users, totalCount);
     }
-    public async Task<User?> GetUserByIdAsync(Guid userId)
+    public async Task<User?> GetUserByIdAsync(Guid id)
     {
         return await _dbSet
                              .Include(u => u.Role)
@@ -127,7 +127,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
                              .Include(u => u.UserAreaOfExpertises)
                              .ThenInclude(ua => ua.AreaOfExpertise)
                              .Include(u => u.SubmittedMentorApplication)
-                             .FirstOrDefaultAsync(u => u.Id == userId);
+                             .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User?> GetUserByRefreshTokenAsync(string token)

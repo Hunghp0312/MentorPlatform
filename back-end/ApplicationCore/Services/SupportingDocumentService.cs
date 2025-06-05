@@ -120,5 +120,10 @@ namespace ApplicationCore.Services
 
             return OperationResult<SupportingDocumentResponse>.NoContent();
         }
+
+        public Task<OperationResult<SupportingDocumentResponse>> UploadResourceFileAsync(IFormFile? file, Guid applicantId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

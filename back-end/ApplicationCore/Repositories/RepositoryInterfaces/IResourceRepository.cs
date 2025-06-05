@@ -5,6 +5,5 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
 {
     public interface IResourceRepository : IBaseRepository<Resource>
     {
-
     }
 }
