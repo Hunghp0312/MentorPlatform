@@ -1,6 +1,15 @@
 import { JSX, useState } from "react";
 import Navbar from "./Navbar";
-import { AlarmClockCheck, Book, BookCopy, CalendarDays, ChartBar,Search, User, UserCheck } from "lucide-react";
+import {
+  AlarmClockCheck,
+  Book,
+  BookCopy,
+  CalendarDays,
+  ChartBar,
+  Search,
+  User,
+  UserCheck,
+} from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -75,12 +84,12 @@ export default function Layout() {
         href: pathName.mentorCourse,
       },
       {
-        icon: <CalendarDays  size={20} />,
+        icon: <CalendarDays size={20} />,
         label: "Mentor Availability",
         href: "/mentor/availability",
       },
       {
-        icon: <AlarmClockCheck  size={20} />,
+        icon: <AlarmClockCheck size={20} />,
         label: "Session Management",
         href: `/session-management/${decodedToken?.id}`,
       },
@@ -101,7 +110,11 @@ export default function Layout() {
         label: "My Sessions",
         href: pathName.leanerSessionManagement,
       },
-
+      {
+        icon: <BookCopy size={20} />,
+        label: "Courses",
+        href: pathName.learnerCourse,
+      },
     ],
   };
 

@@ -122,7 +122,11 @@ const AppRouter = () => {
         { path: pathName.bookingSession, element: <BookingSession /> },
         { path: pathName.mentorProfile, element: <MentorProfile /> },
         { path: pathName.findmentor, element: <MentorFinder /> },
-        { path: pathName.leanerSessionManagement, element: <LearnerSessionManagement /> },
+        {
+          path: pathName.leanerSessionManagement,
+          element: <LearnerSessionManagement />,
+        },
+        { path: pathName.learnerCourse, element: <ListCourse /> },
       ],
     },
   ]);
