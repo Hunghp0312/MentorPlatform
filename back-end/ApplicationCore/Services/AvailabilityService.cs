@@ -82,7 +82,11 @@ public class AvailabilityService : IAvailabilityService
             await _unitOfWork.BeginTransactionAsync();
             foreach (var dayDto in requestDto.Days)
             {
-                await UpdateOrCreateMentorDayAvailableAsync(mentorId, dayDto);
+                var result = await ProcessDayAvailabilityAsync(mentorId, dayDto);
+                if (result != null)
+                {
+                    return result;
+                }
             }
 
             await _unitOfWork.SaveChangesAsync();
@@ -97,7 +101,7 @@ public class AvailabilityService : IAvailabilityService
         }
     }
 
-    public async Task UpdateOrCreateMentorDayAvailableAsync(
+    private async Task<OperationResult<string>?> ProcessDayAvailabilityAsync(
         Guid mentorId,
         MentorAvailabilityRequestDto dayDto
     )
@@ -107,38 +111,98 @@ public class AvailabilityService : IAvailabilityService
 
         if (existingDay == null)
         {
-            existingDay = new MentorDayAvailable
-            {
-                Id = Guid.NewGuid(),
-                MentorId = mentorId,
-                Day = date,
-            };
-            await _dayRepo.AddAsync(existingDay);
-            await _unitOfWork.SaveChangesAsync();
+            existingDay = await CreateNewDayAsync(mentorId, date);
         }
         else
         {
-            var existingTimeBlockIds = existingDay
-                .MentorTimeAvailables.Select(mta => mta.Id)
-                .ToList();
-            var isReference = await _sessionRepo.AnyAsync(sb =>
-                existingTimeBlockIds.Contains(sb.MentorTimeAvailableId)
-            );
-            if (!dayDto.TimeBlocks.Any() && !isReference)
+            var result = await HandleExistingDayAsync(existingDay, dayDto);
+            if (result != null)
             {
-                _dayRepo.Delete(existingDay);
-                await _unitOfWork.SaveChangesAsync();
-                return;
-            }
-            else if (isReference)
-            {
-                throw new InvalidOperationException(
-                    "Cannot update time blocks for a day that has referenced sessions."
-                );
+                return result;
             }
         }
 
-        // Update work hours
+        UpdateWorkHours(existingDay, dayDto);
+
+        var requestBlockIds = dayDto
+            .TimeBlocks.Where(tb => tb.Id != null)
+            .Select(tb => tb.Id)
+            .ToHashSet();
+        var toRemove = existingDay
+            .MentorTimeAvailables.Where(mta => !requestBlockIds.Contains(mta.Id))
+            .ToList();
+        foreach (var removeBlock in toRemove)
+        {
+            existingDay.MentorTimeAvailables.Remove(removeBlock);
+        }
+
+        foreach (var blockDto in dayDto.TimeBlocks)
+        {
+            if (
+                blockDto.Id == null
+                || !existingDay.MentorTimeAvailables.Any(mta => mta.Id == blockDto.Id)
+            )
+            {
+                await AddTimeBlockAsync(existingDay, blockDto);
+            }
+            // Optionally, update existing time blocks here if needed
+        }
+
+        _dayRepo.Update(existingDay);
+        return null;
+    }
+
+    private async Task<MentorDayAvailable> CreateNewDayAsync(Guid mentorId, DateOnly date)
+    {
+        var newDay = new MentorDayAvailable
+        {
+            Id = Guid.NewGuid(),
+            MentorId = mentorId,
+            Day = date,
+        };
+        await _dayRepo.AddAsync(newDay);
+        await _unitOfWork.SaveChangesAsync();
+        return newDay;
+    }
+
+    private async Task<OperationResult<string>?> HandleExistingDayAsync(
+        MentorDayAvailable existingDay,
+        MentorAvailabilityRequestDto dayDto
+    )
+    {
+        var existingTimeBlockIds = existingDay.MentorTimeAvailables.Select(mta => mta.Id).ToList();
+        var isReference = await _sessionRepo.AnyAsync(sb =>
+            existingTimeBlockIds.Contains(sb.MentorTimeAvailableId)
+        );
+
+        var requestTimeBlockIds = dayDto.TimeBlocks.Select(tb => tb.Id).ToList();
+
+        var isHaveBookedTime =
+            existingDay
+                .MentorTimeAvailables.Where(mta => mta.StatusId == 2 || mta.StatusId == 3)
+                .All(mta => requestTimeBlockIds.Contains(mta.Id)) == false;
+
+        if (!dayDto.TimeBlocks.Any() && !isReference)
+        {
+            _dayRepo.Delete(existingDay);
+            await _unitOfWork.SaveChangesAsync();
+            return OperationResult<string>.NoContent();
+        }
+        else if (isReference && isHaveBookedTime)
+        {
+            return OperationResult<string>.Fail(
+                "Cannot update time blocks for a day that has referenced sessions."
+            );
+        }
+
+        return null;
+    }
+
+    private void UpdateWorkHours(
+        MentorDayAvailable existingDay,
+        MentorAvailabilityRequestDto dayDto
+    )
+    {
         if (!string.IsNullOrWhiteSpace(dayDto.WorkStartTime))
         {
             existingDay.StartWorkTime = TimeOnly.Parse(
@@ -168,46 +232,51 @@ public class AvailabilityService : IAvailabilityService
                 TimeSpan.FromMinutes(dayDto.BufferMinutes.Value)
             );
         }
+    }
 
-        existingDay.MentorTimeAvailables.Clear();
-        foreach (var blockDto in dayDto.TimeBlocks)
+    private async Task AddTimeBlockAsync(
+        MentorDayAvailable existingDay,
+        TimeBlockRequestDto blockDto
+    )
+    {
+        var blockStart = TimeOnly.Parse(
+            blockDto.StartTime,
+            System.Globalization.CultureInfo.InvariantCulture
+        );
+        var blockEnd = TimeOnly.Parse(
+            blockDto.EndTime,
+            System.Globalization.CultureInfo.InvariantCulture
+        );
+
+        var workStart = existingDay.StartWorkTime;
+        var workEnd = existingDay.EndWorkTime;
+        var sessionDuration =
+            existingDay.SessionDuration != null
+                ? existingDay.SessionDuration.ToTimeSpan()
+                : TimeSpan.Zero;
+
+        var blockDuration = blockEnd.ToTimeSpan() - blockStart.ToTimeSpan();
+
+        if (blockStart < workStart || blockEnd > workEnd || blockDuration != sessionDuration)
         {
-            var blockStart = TimeOnly.Parse(
-                blockDto.StartTime,
-                System.Globalization.CultureInfo.InvariantCulture
+            throw new InvalidOperationException(
+                "Invalid time block: outside work hours or incorrect duration."
             );
-            var blockEnd = TimeOnly.Parse(
-                blockDto.EndTime,
-                System.Globalization.CultureInfo.InvariantCulture
-            );
-
-            var blockDuration = blockEnd.ToTimeSpan() - blockStart.ToTimeSpan();
-
-            if (
-                blockStart < existingDay.StartWorkTime
-                || blockEnd > existingDay.EndWorkTime
-                || blockDuration != existingDay.SessionDuration.ToTimeSpan()
-            )
-            {
-                throw new InvalidOperationException(
-                    "Invalid time block: outside work hours or incorrect duration."
-                );
-            }
-
-            var timeBlock = new MentorTimeAvailable
-            {
-                Id = blockDto.Id ?? Guid.NewGuid(),
-                Start = blockStart,
-                End = blockEnd,
-                DayId = existingDay.Id,
-                StatusId = blockDto.SessionStatus,
-            };
-            await _timeAvailRepo.AddAsync(timeBlock);
-
-            existingDay.MentorTimeAvailables.Add(timeBlock);
         }
 
-        _dayRepo.Update(existingDay);
+        var timeBlock = new MentorTimeAvailable
+        {
+            Id = Guid.NewGuid(),
+            Start = blockStart,
+            End = blockEnd,
+            DayId = existingDay.Id,
+            StatusId = blockDto.SessionStatus,
+            MentorDayAvailable = existingDay,
+        };
+        await _timeAvailRepo.AddAsync(timeBlock);
+        await _unitOfWork.SaveChangesAsync();
+
+        existingDay.MentorTimeAvailables.Add(timeBlock);
     }
 
     public async Task<OperationResult<DayAvailabilityDto>> GetDayAvailabilityAsync(
