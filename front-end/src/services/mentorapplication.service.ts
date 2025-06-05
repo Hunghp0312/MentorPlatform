@@ -143,20 +143,34 @@ export const mentorService = {
       throw error;
     }
   },
-  async getAvailableMentors(query: string, pageIndex: number, pageSize: number) {
+  async getAvailableMentors(query: string, pageIndex: number, pageSize: number, TopicId: number | null, ExpertiseIds: number[]) {
     try {
-      const response = await axiosInstance.get("/MentorApplications/available-mentors", {
-        params: {
-          Query: query,
-          PageIndex: pageIndex,
-          PageSize: pageSize,
-        },
+      const params = new URLSearchParams();
+      
+      if (query) params.append('Query', query);
+      params.append('PageIndex', pageIndex.toString());
+      params.append('PageSize', pageSize.toString());
+      if (TopicId !== null) params.append('TopicId', TopicId.toString());
+      
+      // Add ExpertiseIds as separate parameters with the same name
+      ExpertiseIds.forEach(id => {
+        params.append('ExpertiseIds', id.toString());
       });
+      
+      const response = await axiosInstance.get(`/MentorApplications/available-mentors?${params}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching available mentors:", error);
       throw error;
     }
-    
+  },
+  async getMentorApplicationProfile(mentorId: string) {
+    try {
+      const res = await axiosInstance.get(`/MentorApplications/mentor-profile-detail/${mentorId}`);
+      return res.data;
+    }catch (error : unknown) {
+      console.error("Error fetching mentor application profile:", error);
+      throw error;
+    }
   }
 };

@@ -1,5 +1,5 @@
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ArrowLeft, Clock, DollarSign, MessageCircle, Calendar } from "lucide-react"
 import ExperienceCard from "../../components/feature/ExperienceCard"
 import MentorAvailability from "../../components/feature/MentorAvaibility"
@@ -9,86 +9,112 @@ import { useNavigate, useParams } from "react-router-dom"
 import { sessionService } from "../../services/session.service"
 import { BookingRequest } from "../../types/session"
 import { toast } from "react-toastify"
+import { mentorService } from "../../services/mentorapplication.service"
 
-interface Mentor {
-    id: string
-    name: string
-    title: string
-    rating: number
-    reviewCount: number
-    availability: string[]
-    experience: string
-    hourlyRate: number
-    profileImage: string
-    skills: string[]
-    about: string
-    mentorshipStyle: string[]
-    languages: string[]
+
+
+interface ExpertiseArea {
+    id: number;
+    name: string;
 }
 
-interface SimilarMentor {
-    id: string
-    name: string
-    title: string
-    rating: number
-    skills: string[]
-    profileImage: string
+interface Document {
+    fileId: string;
+    fileName: string;
+    fileContent: string;
+    fileType: string;
+}
+
+interface Education {
+    institutionName: string;
+    fieldOfStudy: string;
+    graduationYear: number;
+}
+
+interface WorkExperience {
+    companyName: string;
+    position: string;
+    startDate: string;
+    endDate: string;
+    description: string;
+}
+
+interface Certification {
+    certificationName: string;
+    issuingOrganization: string;
+}
+
+interface TeachingApproachResponse {
+    id: number;
+    name: string;
+}
+
+interface MentorProfile {
+    photoData: string;
+    fullName: string;
+    email: string;
+    applicantUserId: string;
+    lastStatusUpdateDate: string;
+    bio: string;
+    expertiseAreas: ExpertiseArea[];
+    professionExperience: string;
+    documents: Document[];
+    mentorEducations: Education[];
+    mentorWorkExperiences: WorkExperience[];
+    mentorCertifications: Certification[];
+    teachingApproachResponses: TeachingApproachResponse[];
 }
 
 
+interface TimeBlock {
+    id: string;
+    startTime: string;
+    endTime: string;
+    isBooked: boolean;
+}
+
+interface AvailabilityDay {
+    date: string;
+    dayName: string;
+    workStartTime: string | null;
+    workEndTime: string | null;
+    sessionDurationMinutes: number | null;
+    bufferMinutes: number | null;
+    timeBlocks: TimeBlock[];
+}
+
+interface MentorAvailabilitySchedule {
+    weekStartDate: string;
+    weekEndDate: string;
+    mentorId: string;
+    days: AvailabilityDay[];
+}
 const MentorProfile: React.FC = () => {
-    const { id } =  useParams();
+    const { id } = useParams();
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState<"about" | "experience" | "availability">("about")
     const [openDialog, setOpenDialog] = useState(false)
-    const mentor: Mentor = {
-        id: "1",
-        name: "Sarah Johnson",
-        title: "Senior Developer",
-        rating: 4.5,
-        reviewCount: 27,
-        availability: ["Mon", "Tue", "Wed", "Thu"],
-        experience: "10+ years",
-        hourlyRate: 75,
-        profileImage: "https://randomuser.me/api/portraits/women/60.jpg",
-        skills: ["Frontend Development", "React", "UX Design", "JavaScript", "CSS/SASS", "Responsive Design"],
-        about:
-            "I'm a passionate frontend developer with extensive experience building modern web applications. I specialize in React and have helped numerous junior developers improve their skills and advance their careers. My teaching approach focuses on practical, hands-on learning with real-world examples.",
-        mentorshipStyle: [
-            "Practical, hands-on learning approach",
-            "Focus on real-world projects and examples",
-            "Personalized guidance based on individual goals",
-            "Regular feedback and code reviews",
-        ],
-        languages: ["English (Native)", "Spanish (Conversational)"],
-    }
-
-    const similarMentors: SimilarMentor[] = [
-        {
-            id: "2",
-            name: "John Smith",
-            title: "Frontend Developer",
-            rating: 5,
-            skills: ["React", "JavaScript"],
-            profileImage: "/placeholder.svg?height=60&width=60",
-        },
-        {
-            id: "3",
-            name: "John Smith",
-            title: "Frontend Developer",
-            rating: 5,
-            skills: ["React", "JavaScript"],
-            profileImage: "/placeholder.svg?height=60&width=60",
-        },
-        {
-            id: "4",
-            name: "John Smith",
-            title: "Frontend Developer",
-            rating: 5,
-            skills: ["React", "JavaScript"],
-            profileImage: "/placeholder.svg?height=60&width=60",
-        },
-    ]
+    const [mentor, setMentor] = useState<MentorProfile>({
+        photoData: "",
+        fullName: "",
+        email: "",
+        applicantUserId: "",
+        lastStatusUpdateDate: "",
+        bio: "",
+        expertiseAreas: [],
+        professionExperience: "",
+        documents: [],
+        mentorEducations: [],
+        mentorWorkExperiences: [],
+        mentorCertifications: [],
+        teachingApproachResponses: []
+    })
+    const [availability, setAvailability] = useState<MentorAvailabilitySchedule>({
+        weekStartDate: "",
+        weekEndDate: "",
+        mentorId: "",
+        days: []
+    })
 
     const tabs = [
         { id: "about" as const, label: "About" },
@@ -96,6 +122,10 @@ const MentorProfile: React.FC = () => {
         { id: "availability" as const, label: "Availability" },
     ]
     const handleConfirmBooking = async (bookingData: BookingRequest) => {
+        if (bookingData.learnerMessage.trim() === "") {
+            toast.error("Please enter a message for the mentor.");
+            return;
+        }
         try {
             await sessionService.bookSession(bookingData);
             toast.success("Session booked successfully!");
@@ -107,6 +137,106 @@ const MentorProfile: React.FC = () => {
             setOpenDialog(false);
         }
     }
+    useEffect(() => {
+        const fetchAvailability = async () => {
+            try {
+                // Get the first day of the current week (Monday)
+                const getFirstDayOfWeek = () => {
+                    const today = new Date();
+                    const day = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
+                    const diff = day === 0 ? 6 : day - 1; // Calculate days to subtract to get to Monday
+
+                    const monday = new Date(today);
+                    monday.setDate(today.getDate() - diff);
+                    monday.setHours(0, 0, 0, 0); // Set to beginning of day
+
+                    // Format as YYYY-MM-DD
+                    const year = monday.getFullYear();
+                    const month = String(monday.getMonth() + 1).padStart(2, '0');
+                    const date = String(monday.getDate()).padStart(2, '0');
+
+                    return `${year}-${month}-${date}`;
+                };
+
+                const firstDayOfWeek = getFirstDayOfWeek();
+                if (id) {
+                    const response = await sessionService.getAvaibilityTime(id, firstDayOfWeek);
+                    setAvailability(response);
+                }
+            } catch (error) {
+                console.error("Error fetching availability:", error);
+            }
+        }
+        const fetchMentorProfile = async () => {
+            try {
+                if (id) {
+                    const response = await mentorService.getMentorApplicationProfile(id);
+                    setMentor(response);
+                }
+            } catch (error) {
+                console.error("Error fetching mentor profile:", error);
+            }
+        };
+        const fetchData = async () => {
+            try {
+                await Promise.all([
+                    fetchAvailability(),
+                    fetchMentorProfile()
+                ]);
+            } catch (error) {
+                console.error("Error fetching mentor data:", error);
+            }
+        };
+
+        fetchData();
+    }, [id])
+
+    const getTimeAvailable = (): string[] => {
+        const timeAvailable = [] as string[];
+        const dayName = {
+            "Wednesday": "Wed",
+            "Thursday": "Thu",
+            "Friday": "Fri",
+            "Saturday": "Sat",
+            "Sunday": "Sun",
+            "Monday": "Mon",
+            "Tuesday": "Tue"
+        }
+        availability.days.forEach((day) => {
+            if (day.timeBlocks.length > 0) {
+                timeAvailable.push(dayName[day.dayName as keyof typeof dayName])
+            }
+        })
+        return timeAvailable;
+    }
+    const getTimeAvailableSlots = (): { dayName: string; TimeSlot: { startTime: string; endTime: string }[] }[] => {
+        const dayNameMap: Record<string, string> = {
+            "Monday": "Mon",
+            "Tuesday": "Tue",
+            "Wednesday": "Wed",
+            "Thursday": "Thu",
+            "Friday": "Fri",
+            "Saturday": "Sat",
+            "Sunday": "Sun"
+        };
+
+        // Get all days that have time blocks
+        const availableDays = availability.days.filter(day => day.timeBlocks.length > 0);
+
+        if (availableDays.length === 0) {
+            return [];
+        }
+
+        // Return all days with time blocks
+        return availableDays.map(day => ({
+            dayName: dayNameMap[day.dayName] || day.dayName,
+            TimeSlot: day.timeBlocks.map(block => ({
+                startTime: block.startTime,
+                endTime: block.endTime
+            }))
+        }));
+    }
+
 
     return (
         <div className="min-h-screen bg-slate-800 text-white">
@@ -133,38 +263,38 @@ const MentorProfile: React.FC = () => {
 
             <div className="max-w-6xl mx-auto px-6 py-8">
                 {/* Profile Header */}
-                <div className="flex flex-col lg:flex-row gap-8 mb-8">
+                <div className="flex justify-between lg:flex-row gap-8 mb-8">
                     <div className="flex flex-col sm:flex-row gap-6">
                         <img
-                            src={mentor.profileImage || "https://randomuser.me/api/portraits/men/56.jpg"}
-                            alt={mentor.name}
+                            src={mentor?.photoData || "https://randomuser.me/api/portraits/men/56.jpg"}
+                            alt={mentor?.fullName}
                             className="w-32 h-32 rounded-full object-cover border-4 border-orange-500"
                         />
                         <div className="flex-1">
-                            <h2 className="text-3xl font-bold mb-2">{mentor.name}</h2>
+                            <h2 className="text-3xl font-bold mb-2">{mentor?.fullName}</h2>
 
 
 
                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-6">
                                 <div className="flex items-center gap-1">
                                     <Calendar className="w-4 h-4" />
-                                    {mentor.availability.join(", ")}
+                                    {/* {mentor.availability.join(", ")} */}
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <Clock className="w-4 h-4" />
-                                    {mentor.experience}
+                                    {mentor?.professionExperience}
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <DollarSign className="w-4 h-4" />${mentor.hourlyRate} / hour
+                                    <DollarSign className="w-4 h-4" />$75 / hour
                                 </div>
                             </div>
 
                             <div className="mb-6">
                                 <h3 className="text-sm font-medium text-gray-300 mb-3">Areas of Expertise</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {mentor.skills.map((skill, index) => (
+                                    {mentor?.expertiseAreas.map((skill, index) => (
                                         <span key={index} className="px-3 py-1 bg-slate-600 rounded-full text-sm">
-                                            {skill}
+                                            {skill.name}
                                         </span>
                                     ))}
                                 </div>
@@ -205,18 +335,18 @@ const MentorProfile: React.FC = () => {
                 {activeTab === "about" && (
                     <div className="space-y-8">
                         <div>
-                            <h3 className="text-xl font-semibold mb-4">About {mentor.name}</h3>
-                            <p className="text-gray-300 leading-relaxed">{mentor.about}</p>
+                            <h3 className="text-xl font-semibold mb-4">About {mentor?.fullName}</h3>
+                            <p className="text-gray-300 leading-relaxed">{mentor?.bio}</p>
                         </div>
 
                         <div className="grid md:grid-cols-1">
                             <div className="bg-slate-700 rounded-lg p-6">
                                 <h4 className="font-semibold mb-4">Mentorship Style</h4>
                                 <ul className="space-y-2">
-                                    {mentor.mentorshipStyle.map((item, index) => (
+                                    {mentor?.teachingApproachResponses.map((item, index) => (
                                         <li key={index} className="text-gray-300 text-sm flex items-start gap-2">
                                             <span className="text-orange-500 mt-1">•</span>
-                                            {item}
+                                            {item.name}
                                         </li>
                                     ))}
                                 </ul>
@@ -226,49 +356,16 @@ const MentorProfile: React.FC = () => {
                     </div>
                 )}
                 {activeTab === "experience" && (
-                    <ExperienceCard />
+                    <ExperienceCard experiences={mentor?.mentorWorkExperiences} education={mentor?.mentorEducations} />
                 )}
                 {activeTab === "availability" && (
                     <MentorAvailability
-                        onScheduleSession={() => console.log("Schedule a session")}
+                        initialSelectedDays={getTimeAvailable()}
+                        initialTimeSlots={getTimeAvailableSlots()}
+                        onScheduleSession={() => navigate(`/booking-session/${id}`)}
                     />
 
                 )}
-
-                {/* Similar Mentors */}
-                <div className="mt-12">
-                    <h3 className="text-xl font-semibold mb-6">Similar Mentors</h3>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {similarMentors.map((similarMentor) => (
-                            <div key={similarMentor.id} className="bg-slate-700 rounded-lg p-6">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <img
-                                        src={similarMentor.profileImage || "/placeholder.svg"}
-                                        alt={similarMentor.name}
-                                        className="w-12 h-12 rounded-full object-cover"
-                                    />
-                                    <div>
-                                        <h4 className="font-medium">{similarMentor.name}</h4>
-                                        <p className="text-sm text-blue-400">{similarMentor.title}</p>
-                                    </div>
-                                </div>
-
-
-                                <div className="flex flex-wrap gap-2 mb-4">
-                                    {similarMentor.skills.map((skill, index) => (
-                                        <span key={index} className="px-2 py-1 bg-slate-600 rounded text-xs">
-                                            {skill}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                <button className="w-full py-2 bg-slate-600 hover:bg-slate-500 rounded text-sm transition-colors">
-                                    View Profile
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </div>
             {openDialog && (
 

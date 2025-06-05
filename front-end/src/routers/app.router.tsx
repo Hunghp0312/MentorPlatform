@@ -32,6 +32,7 @@ import { EditableUserProfileRoute } from "./EditableUserProfileRoute";
 import ProfileView from "../pages/user/ProfileView";
 import MentorFinder from "../pages/learner/FinderMentor";
 import AvailabilityManager from "../pages/mentor/MentorAvailability";
+import LearnerSessionManagement from "../pages/learner/LearnerSessionManagement";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 
 // Shared
@@ -103,6 +104,8 @@ const AppRouter = () => {
         { path: pathName.mentorStatus, element: <MentorStatusProfile /> },
         { path: pathName.mentorCourse, element: <ListCourse /> },
         { path: pathName.mentorAvailability, element: <AvailabilityManager /> },
+        { path: pathName.sessionManagement, element: <SessionManagement /> },
+        { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
       ],
     },
 
@@ -115,16 +118,11 @@ const AppRouter = () => {
           </RequireRole>
         </PrivateRoute>
       ),
-      children: [],
-    },
-    {
-      element: <Layout />,
       children: [
         { path: pathName.bookingSession, element: <BookingSession /> },
-        { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
-        { path: pathName.sessionManagement, element: <SessionManagement /> },
         { path: pathName.mentorProfile, element: <MentorProfile /> },
         { path: pathName.findmentor, element: <MentorFinder /> },
+        { path: pathName.leanerSessionManagement, element: <LearnerSessionManagement /> },
       ],
     },
   ]);

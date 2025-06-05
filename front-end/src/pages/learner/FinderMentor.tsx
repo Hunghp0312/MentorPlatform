@@ -4,6 +4,7 @@ import InputCustom from '../../components/input/InputCustom';
 import { useNavigate } from 'react-router-dom';
 import { mentorService } from '../../services/mentorapplication.service';
 import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
+import useDebounce from '../../hooks/usedebounce';
 interface Mentor {
     id: number;
     fullName: string;
@@ -12,54 +13,51 @@ interface Mentor {
     shortBioOrTagline: string;
 }
 
-const expertiseOptions = [
-    "Frontend",
-    "Backend",
-    "Data Science",
-    "Machine Learning",
-    "DevOps",
-    "UI/UX Design",
-    "Cybersecurity",
-    "Cloud Computing",
-    "Mobile Development"
+
+const TopicOption = [
+    { id: 1, name: "Career Development" },
+    { id: 2, name: "Technical Skills" },
+    { id: 3, name: "Leadership" },
+    { id: 4, name: "Communication" },
+    { id: 5, name: "Work-Life Balance" },
+    { id: 6, name: "Industry Insights" },
+    { id: 7, name: "Networking" },
+    { id: 8, name: "Entrepreneurship" }
+
 ];
 
 const areaOfExpertise = [
-    "All Areas",
-    "Frontend",
-    "Backend",
-    "Data Science",
-    "Machine Learning",
-    "DevOps",
-    "UI/UX Design",
-    "Cybersecurity",
-    "Cloud Computing",
-    "Mobile Development"
+    { id: 1, name: "Leadership" },
+    { id: 2, name: "Programming" },
+    { id: 3, name: "Design" },
+    { id: 4, name: "Marketing" },
+    { id: 5, name: "Data Science" },
+    { id: 6, name: "Business" },
+    { id: 7, name: "Project Management" },
+    { id: 8, name: "Communication" }
 ]
 
 const MentorFinder: React.FC = () => {
     const navigate = useNavigate();
 
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectAreaOfExpertise, setSelectAreaOfExpertise] = useState<string>('');
-    const [selectedExpertise, setSelectedExpertise] = useState<string[]>([]);
+    const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+    // Import at the top of the file:
+    // import useDebounce from '../../hooks/usedebounce';
+    const [selectedTopic, setSelectedTopic] = useState<number>();
+    const [selectedExpertise, setSelectedExpertise] = useState<number[]>([]);
     const [mentors, setMentors] = useState<Mentor[]>([])
-    const handleExpertiseChange = (expertise: string) => {
-        setSelectAreaOfExpertise(expertise);
+    const handleTopicChange = (expertise: number) => {
+        setSelectedTopic(expertise);
     }
 
-    const toggleFilter = (value: string, type: string) => {
-        if (type === 'expertise') {
-            if (selectedExpertise.includes(value)) {
-                setSelectedExpertise(selectedExpertise.filter(item => item !== value));
-            } else {
-                setSelectedExpertise([...selectedExpertise, value]);
-            }
-        }
-    }
+
+
+
     const fetchMentors = async () => {
         try {
-            const res = await mentorService.getAvailableMentors(searchTerm, 1, 10)
+            const res = await mentorService.getAvailableMentors(searchTerm, 1, 10, selectedTopic ?? null, selectedExpertise)
             setMentors(res.items);
         }
         catch (error) {
@@ -70,9 +68,20 @@ const MentorFinder: React.FC = () => {
     }
     useEffect(() => {
         fetchMentors();
-    }, [searchTerm])
+    }, [debouncedSearchTerm, selectedTopic, selectedExpertise.length]);
 
 
+
+    const handleToggleExpertise = (id: number): void => {
+        if (selectedExpertise.includes(id)) {
+            // Remove expertise if already selected
+            setSelectedExpertise(selectedExpertise.filter(expertiseId => expertiseId !== id));
+        } else {
+            // Add expertise if not selected
+            setSelectedExpertise([...selectedExpertise, id]);
+        }
+        console.log("Selected Expertise:", selectedExpertise);
+    };
 
     return (
         <div className="min-h-screen bg-slate-800 text-white p-6">
@@ -98,12 +107,12 @@ const MentorFinder: React.FC = () => {
                             <InputCustom
                                 name="areaOfExpertise"
                                 type="select"
-                                value={selectAreaOfExpertise}
-                                onChange={(e) => handleExpertiseChange(e.target.value)}
+                                value={selectedTopic?.toString() || ""}
+                                onChange={(e) => handleTopicChange(Number(e.target.value))}
                                 className="bg-slate-600 border border-slate-500 rounded-lg pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 max-h-60 overflow-y-auto"
                                 optionList={[
-                                    { id: "", name: "Select Area of Expertise" },
-                                    ...areaOfExpertise.map(expertise => ({ id: expertise, name: expertise }))
+                                    { id: "", name: "Select Topic Of Interesting" },
+                                    ...TopicOption.map(expertise => ({ id: expertise.id, name: expertise.name }))
                                 ]}
                             />
                         </div>
@@ -112,16 +121,16 @@ const MentorFinder: React.FC = () => {
                     <div className="mb-6">
                         <h3 className="text-sm font-medium mb-3">Areas of Expertise</h3>
                         <div className="flex flex-wrap gap-2">
-                            {expertiseOptions.map((expertise) => (
+                            {areaOfExpertise.map((expertise) => (
                                 <button
-                                    key={expertise}
-                                    onClick={() => toggleFilter(expertise, 'expertise')}
-                                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${selectedExpertise.includes(expertise)
+                                    key={expertise.id}
+                                    onClick={() => handleToggleExpertise(expertise.id)}
+                                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${selectedExpertise.includes(expertise.id)
                                         ? 'bg-orange-500 text-white'
                                         : 'bg-slate-600 text-gray-300 hover:bg-slate-500'
                                         }`}
                                 >
-                                    {expertise}
+                                    {expertise.name}
                                 </button>
                             ))}
                         </div>
@@ -157,7 +166,7 @@ const MentorFinder: React.FC = () => {
                                                 {skill}
                                             </span>
                                         ))}
-                                </div>
+                                    </div>
                                 </div>
 
 
