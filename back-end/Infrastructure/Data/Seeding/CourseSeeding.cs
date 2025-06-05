@@ -21,7 +21,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "C#,programming,fundamentals",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000001"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -35,7 +35,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "C#,OOP,classes,inheritance",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000002"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -49,7 +49,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = ".NET,ASP.NET Core,API,REST",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000003"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -63,7 +63,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "SQL,database,queries,beginner",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000004"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -77,7 +77,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "EF Core,Entity Framework,data access,.NET",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000005"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -91,7 +91,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "HTML,CSS,web design,frontend",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000006"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -105,7 +105,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "React,JavaScript,frontend,UI",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000007"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -119,7 +119,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = ".NET,testing,TDD,unit tests",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000008"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -133,7 +133,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "Git,GitHub,version control,beginner",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000009"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
                 new Course
                 {
@@ -147,7 +147,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "Docker,containers,devops,deployment",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("10000000-0000-0000-0000-000000000010"),
+                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                 },
             };
         }

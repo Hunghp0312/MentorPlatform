@@ -29,6 +29,7 @@ namespace Infrastructure.Entities
             new List<SessionBooking>();
         public virtual ICollection<SessionBooking> LearnerSessions { get; set; } =
             new List<SessionBooking>();
+        public virtual ICollection<LearnerCourse> LearnerCourses { get; set; } = new List<LearnerCourse>();
 
     }
 }

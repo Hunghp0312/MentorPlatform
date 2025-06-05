@@ -29,6 +29,7 @@ import { handleAxiosError } from "../../utils/handlerError";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import { userService } from "../../services/user.service";
 import { UserComboboxFilter } from "../../types/user";
+import { getUserFromToken } from "../../utils/auth";
 
 enum Level {
   Beginner = "1",
@@ -54,11 +55,12 @@ const ListCourse = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-
+  const decodedToken = getUserFromToken();
+  const role = decodedToken?.role;
   // Filter
   const [filter, setFilter] = useState<CourseFilterType>({
     categoryId: "",
-    mentorId: "",
+    mentorId: role === "Mentor" ? decodedToken?.id || "" : "",
     levelId: "",
   });
   const searchDebounced = useDebounce(query.trim(), 500);
@@ -260,7 +262,10 @@ const ListCourse = () => {
       handleSubmitAdd(course);
     }
   };
-
+  const handleEnrollCourse = (course: CourseType) => {
+    setInitialData(course);
+    setIsFormOpen(true);
+  };
   // Table Configuration
   const courseActions = [
     {
@@ -280,6 +285,14 @@ const ListCourse = () => {
       onClick: handleDelete,
       className: "bg-red-600 hover:bg-red-700 text-white",
       buttonName: "delete",
+    },
+  ];
+  const learnerCourseActions = [
+    {
+      icon: <View className="h-4 w-4" />,
+      onClick: handleEnrollCourse,
+      className: "bg-blue-600 hover:bg-blue-700 text-white",
+      buttonName: "view",
     },
   ];
 
@@ -331,7 +344,8 @@ const ListCourse = () => {
                   ? "bg-amber-500"
                   : "bg-red-500"
               }`}
-              style={{ width: `${course.completion}%` }}></div>
+              style={{ width: `${course.completion}%` }}
+            ></div>
           </div>
           <span>{course.completion ?? 0}%</span>
         </div>
@@ -371,7 +385,8 @@ const ListCourse = () => {
             size="md"
             className="font-bold text-white"
             onClick={() => setIsFormOpen(true)}
-            dataTestId="add-course-button">
+            dataTestId="add-course-button"
+          >
             Add New Course
           </Button>
         </div>
@@ -379,7 +394,9 @@ const ListCourse = () => {
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           {/* Search */}
-          <div className="w-full md:w-2/5">
+          <div
+            className={`w-full ${role === "Admin" ? "md:w-2/5" : "md:w-3/5"}`}
+          >
             <InputCustom
               placeholder="Search by title, description"
               icon={<Search className="h-4 w-4" />}
@@ -392,22 +409,24 @@ const ListCourse = () => {
           </div>
 
           {/* Mentor Filter */}
-          <div className="w-full md:w-1/5">
-            <ComboBox
-              label="Mentor"
-              name="mentorId"
-              value={filter.mentorId}
-              onChange={handleSelect}
-              options={
-                mentors?.map((item) => ({
-                  value: item.id,
-                  label: item.fullName,
-                })) || []
-              }
-              haveOptionAll
-              dataTestId="course-mentor-filter"
-            />
-          </div>
+          {role !== "Mentor" && (
+            <div className="w-full md:w-1/5">
+              <ComboBox
+                label="Mentor"
+                name="mentorId"
+                value={filter.mentorId}
+                onChange={handleSelect}
+                options={
+                  mentors?.map((item) => ({
+                    value: item.id,
+                    label: item.fullName,
+                  })) || []
+                }
+                haveOptionAll
+                dataTestId="course-mentor-filter"
+              />
+            </div>
+          )}
 
           {/* Level Filter */}
           <div className="w-full md:w-1/5">
@@ -447,7 +466,7 @@ const ListCourse = () => {
           columns={courseColumns}
           keyField="id"
           isLoading={isLoading}
-          actions={courseActions}
+          actions={role !== "Learner" ? courseActions : learnerCourseActions}
           pagination
           pageSize={pageSize}
           setPageSize={setPageSize}
@@ -462,7 +481,8 @@ const ListCourse = () => {
       <CustomModal
         isOpen={isFormOpen}
         onClose={handleCloseForm}
-        title={initialData ? "Edit Course" : "Add Course"}>
+        title={initialData ? "Edit Course" : "Add Course"}
+      >
         <CourseDialog
           initialData={initialData}
           onSubmit={handleSubmitAddEditBook}
@@ -476,7 +496,8 @@ const ListCourse = () => {
       <CustomModal
         isOpen={isViewOpen}
         onClose={handleCloseView}
-        title="Course Details">
+        title="Course Details"
+      >
         {initialData && (
           <CourseViewDialog
             onClose={handleCloseView}

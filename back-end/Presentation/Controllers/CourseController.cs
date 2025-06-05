@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Courses;
@@ -6,92 +7,120 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace Presentation.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class CoursesController : BaseController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CoursesController : BaseController
+    private readonly ICourseService _courseService;
+
+    public CoursesController(ICourseService courseService)
     {
-        private readonly ICourseService _courseService;
+        _courseService =
+            courseService ?? throw new ArgumentNullException(nameof(courseService));
+    }
 
-        public CoursesController(ICourseService courseService)
-        {
-            _courseService =
-                courseService ?? throw new ArgumentNullException(nameof(courseService));
-        }
+    [HttpGet]
+    [ProducesResponseType(
+        typeof(PagedResult<GetCourseDetailsResponse>),
+        StatusCodes.Status200OK
+    )]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+    [Authorize]
+    public async Task<IActionResult> GetCoursePagination(
+        [FromQuery] CourseQueryParameters request
+    )
+    {
+        var res = await _courseService.GetPagedCourseAsync(request);
+        return ToActionResult(res);
+    }
 
-        [HttpGet]
-        [ProducesResponseType(
-            typeof(PagedResult<GetCourseDetailsResponse>),
-            StatusCodes.Status200OK
-        )]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        [Authorize]
-        public async Task<IActionResult> GetCoursePagination(
-            [FromQuery] CourseQueryParameters request
-        )
-        {
-            var res = await _courseService.GetPagedCourseAsync(request);
-            return ToActionResult(res);
-        }
-
-        [HttpPost]
-        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin, Mentor")]
-        public async Task<IActionResult> CreateCourse(
-            [FromBody] CreateUpdateCourseRequest createDto
-        )
-        {
-            var result = await _courseService.CreateCourseAsync(createDto);
-            return ToActionResult(result);
-        }
-
-
-        [HttpGet("{id:guid}")]
-        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        [Authorize]
-        public async Task<IActionResult> GetCourseById(Guid id)
-        {
-            var result = await _courseService.GetCourseDetailsByIdAsync(id);
-            return ToActionResult(result);
-        }
+    [HttpPost]
+    [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = "Admin, Mentor")]
+    public async Task<IActionResult> CreateCourse(
+        [FromBody] CreateUpdateCourseRequest createDto
+    )
+    {
+        var userIdString = User.FindFirstValue("id")!;
+        var userId = Guid.Parse(userIdString);
+        var role = User.FindFirstValue(ClaimTypes.Role)!;
+        var result = await _courseService.CreateCourseAsync(createDto, userId, role);
+        return ToActionResult(result);
+    }
 
 
-        [HttpPut("{id:guid}")]
-        [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin, Mentor")]
-        public async Task<IActionResult> UpdateCourse(
-            Guid id,
-            [FromBody] CreateUpdateCourseRequest updateDto
-        )
-        {
-            var result = await _courseService.UpdateCourseAsync(id, updateDto);
-            return ToActionResult(result);
-        }
+    [HttpGet("{id:guid}")]
+    [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+    [Authorize]
+    public async Task<IActionResult> GetCourseById(Guid id)
+    {
+        var result = await _courseService.GetCourseDetailsByIdAsync(id);
+        return ToActionResult(result);
+    }
 
 
-        [HttpDelete("{id:guid}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-        [Authorize(Roles = "Admin, Mentor")]
-        public async Task<IActionResult> DeleteCourse(Guid id)
-        {
-            var result = await _courseService.DeleteCourseAsync(id);
-            return ToActionResult(result);
-        }
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType(typeof(GetCourseDetailsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = "Admin, Mentor")]
+    public async Task<IActionResult> UpdateCourse(
+        Guid id,
+        [FromBody] CreateUpdateCourseRequest updateDto
+    )
+    {
+        var result = await _courseService.UpdateCourseAsync(id, updateDto);
+        return ToActionResult(result);
+    }
+
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+    [Authorize(Roles = "Admin, Mentor")]
+    public async Task<IActionResult> DeleteCourse(Guid id)
+    {
+        var result = await _courseService.DeleteCourseAsync(id);
+        return ToActionResult(result);
+    }
+    [HttpPost("enroll/{courseId}")]
+    [Authorize(Roles = "Learner")]
+    public async Task<IActionResult> EnrollCourse(Guid courseId)
+    {
+        var userIdString = User.FindFirstValue("id")!;
+        var userId = Guid.Parse(userIdString);
+        var result = await _courseService.EnrollCourse(courseId, userId);
+        return ToActionResult(result);
+    }
+    [HttpPost("finish/{courseId}")]
+    [Authorize(Roles = "Learner")]
+    public async Task<IActionResult> FinishCourse(Guid courseId)
+    {
+        var userIdString = User.FindFirstValue("id")!;
+        var userId = Guid.Parse(userIdString);
+        var result = await _courseService.FinishCourse(courseId, userId);
+        return ToActionResult(result);
+    }
+    [HttpPost("assign/{courseId}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> FinishCourse(Guid courseId, Guid mentorId)
+    {
+
+        var result = await _courseService.AssignCourse(courseId, mentorId);
+        return ToActionResult(result);
     }
 }
