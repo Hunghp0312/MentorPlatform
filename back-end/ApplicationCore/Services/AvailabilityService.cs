@@ -107,6 +107,12 @@ public class AvailabilityService : IAvailabilityService
     )
     {
         var date = DateOnly.Parse(dayDto.Date, System.Globalization.CultureInfo.InvariantCulture);
+
+        if (date < DateOnly.FromDateTime(DateTime.UtcNow.Date))
+        {
+            return null;
+        }
+
         var existingDay = await _dayRepo.GetByMentorAndDateAsync(mentorId, date);
 
         if (existingDay == null)
