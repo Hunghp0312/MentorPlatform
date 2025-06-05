@@ -97,7 +97,7 @@ const SessionManagementCard: React.FC = () => {
 
     const confirmDecline = async () => {
         if (!showDeclineModal) return;
-        if( declineMessage.trim().length == 0) {
+        if (declineMessage.trim().length == 0) {
             alert("When decline need to provide reason.")
             return;
         }
@@ -374,7 +374,15 @@ const SessionManagementCard: React.FC = () => {
                                                     <X className="w-4 h-4 mr-1" />
                                                     Cancel
                                                 </button>
-
+                                                {request.statusName === 'Scheduled' && (
+                                                    <button
+                                                        onClick={() => handleRescheduleSession(request.bookingId)}
+                                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg flex items-center"
+                                                    >
+                                                        <RotateCcw className="w-4 h-4 mr-1" />
+                                                        Reschedule
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => handleCompletedSession(request.bookingId)}
                                                     className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg flex items-center"
