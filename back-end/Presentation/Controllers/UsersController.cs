@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Users;
@@ -40,14 +39,14 @@ namespace Presentation.Controllers
         [HttpGet("mentors/paged")]
         [ProducesResponseType(typeof(PagedResult<UserResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        [Authorize(Roles = "Admin, Mentor")]
+        [Authorize]
         public async Task<IActionResult> GetAllMentor([FromQuery] PaginationParameters queryParameters)
         {
             var result = await _userService.GetAllMentors(queryParameters);
             return ToActionResult(result);
         }
         [HttpGet("{userId}")]
-        [ProducesResponseType(typeof(OperationResult<UserFullProfileResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserFullProfileResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [Authorize]

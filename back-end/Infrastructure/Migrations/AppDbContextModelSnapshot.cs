@@ -1432,6 +1432,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("LastReminderSent")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("LearnerId")
                         .HasColumnType("uniqueidentifier");
 

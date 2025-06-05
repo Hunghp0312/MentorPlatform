@@ -6,6 +6,5 @@ namespace ApplicationCore.DTOs.Responses.SupportingDocuments
         public required string FileName { get; set; }
         public string FileContent { get; set; } = string.Empty;
         public string FileType { get; set; } = string.Empty;
-
     }
 }

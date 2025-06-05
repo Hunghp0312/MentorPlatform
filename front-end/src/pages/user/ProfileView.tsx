@@ -55,7 +55,10 @@ const ProfileView = () => {
               User profile not found or you don't have permission to view it.
             </p>
             <button
-              onClick={() => navigate(pathName.home)}
+              onClick={() => {
+                if (decodedToken?.role === "Admin") navigate(pathName.userList);
+                else navigate(pathName.home);
+              }}
               className="mt-4 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md"
             >
               Return to Home
@@ -73,7 +76,11 @@ const ProfileView = () => {
           <div className="mb-8 flex justify-between items-center">
             <div>
               <button
-                onClick={() => navigate(pathName.home)}
+                onClick={() => {
+                  if (decodedToken?.role === "Admin")
+                    navigate(pathName.userList);
+                  else navigate(pathName.home);
+                }}
                 className="flex items-center text-gray-300 mb-4 hover:text-white transition-colors"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />

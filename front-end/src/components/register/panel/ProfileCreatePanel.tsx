@@ -199,13 +199,14 @@ const ProfileCreatePanel: React.FC<Props> = ({
       setFocus("profileFullName");
       isValid = false;
     } else if (
-      profile.fullName.trim().length < 2 &&
+      profile.fullName.trim().length < 2 ||
       profile.fullName.trim().length > 100
     ) {
       setFullNameError("Full name must be between 2-100 characters.");
       setFocus("profileFullName");
       isValid = false;
     } else {
+      console.log(profile.fullName.trim().length);
       setFullNameError("");
     }
 
@@ -279,12 +280,21 @@ const ProfileCreatePanel: React.FC<Props> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setProfilePictureError("");
+    setFullNameError("");
+    setBioError("");
+    setExpertiseError("");
+    setSkillsError("");
+    setContactError("");
+    setIndustryExperienceError("");
+    setAvailabilityError("");
 
     window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top to see any top-of-form errors
 
     // Check all error states are empty before proceeding
+    const isValid = validateAndSetFocusTarget();
     if (
-      validateAndSetFocusTarget() &&
+      isValid &&
       !profilePictureError &&
       !fullNameError &&
       !bioError &&
