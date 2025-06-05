@@ -1,6 +1,6 @@
 import { JSX, useState } from "react";
 import Navbar from "./Navbar";
-import { Book, BookCopy, User, UserCheck } from "lucide-react";
+import { Book, BookCopy, Search, User, UserCheck } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -50,6 +50,11 @@ export default function Layout() {
     ],
     Mentor: [
       {
+        icon: <Book size={20} />,
+        label: "Dashboard",
+        href: pathName.mentorDashboard,
+      },
+      {
         icon: <User size={20} />,
         label: "Profile",
         href: `${pathName.profile}/${decodedToken?.id}`,
@@ -69,6 +74,11 @@ export default function Layout() {
         label: "Mentor Availability",
         href: "/mentor/availability",
       },
+      {
+        icon: <UserCheck size={20} />,
+        label: "Session Management",
+        href: `/session-management/${decodedToken?.id}`,
+      },
     ],
     Learner: [
       {
@@ -76,6 +86,17 @@ export default function Layout() {
         label: "Profile",
         href: `${pathName.profile}/${decodedToken?.id}`,
       },
+      {
+        icon: <Search size={20} />,
+        label: "Find Mentor",
+        href: pathName.findmentor,
+      },
+      {
+        icon: <UserCheck size={20} />,
+        label: "My Sessions",
+        href: pathName.leanerSessionManagement,
+      },
+
     ],
   };
 

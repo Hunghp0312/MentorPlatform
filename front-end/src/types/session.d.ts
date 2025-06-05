@@ -7,7 +7,29 @@ export interface BookingRequest {
 
 export interface TimeSlot {
     id: string;
-    startTime: string; 
+    startTime: string;
     endTime: string;
-    statusId : number
+    statusId: number
+}
+
+
+export interface Session {
+    learnerId: string;
+    fullName: string;
+    sessionId: string;
+    sessionStatus: SessionStatus;
+    slotStartTime: string;
+    slotEndTime: string;
+    sessionType: SessionType;
+    bookingDay: string;
+}
+
+export interface SessionStatus {
+    id: number;
+    name: string;
+}
+
+export interface SessionType {
+    id: number;
+    name: string;
 }

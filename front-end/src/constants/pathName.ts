@@ -20,4 +20,5 @@ export const pathName = {
   editProfile: "/edit-profile",
   mentorAvailability: "/mentor/availability",
   findmentor: "/find-mentor",
+  leanerSessionManagement : "/learner/session-management",
 };

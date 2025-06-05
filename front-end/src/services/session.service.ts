@@ -26,7 +26,7 @@ export const sessionService = {
             throw error;
         }
     },
-    async getAllBookingSessions (fromDate: string, toDate: string, statusId: number, pageIndex: number, pageSize: number, query: string) {
+    async getAllBookingSessions (fromDate: string | null, toDate: string | null, statusId: number | null, pageIndex: number, pageSize: number, query: string | null) {
         try {
             const response = await axiosInstance.get(`/Sessions/mentor/my-bookings`,{
                 params: {

@@ -89,6 +89,11 @@ const BookingSession: React.FC = () => {
             toast.error('Please select a date and time slot before booking.');
             return;
         }
+        if(selectedSessionType === null) {
+            toast.error('Please select a session type before booking.');
+            return;
+        }
+        
         const data = {
             mentorId: id,
             mentorTimeAvailableId: selectedSlot,
@@ -263,8 +268,8 @@ const BookingSession: React.FC = () => {
                         <button
                             disabled={slot.statusId !== SlotStatus.Available}
                             key={slot.id}
-                            className={`py-2 px-4 rounded text-center text-sm
-                ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'}
+                            className={`py-2 px-4 rounded text-center text-sm }
+                ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'} ${slot.statusId !== SlotStatus.Available && 'cursor-not-allowed !bg-gray-400'}
                     `}
                             onClick={() => handleSlotSelected(slot.id)}
                         >

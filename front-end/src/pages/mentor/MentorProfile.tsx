@@ -122,6 +122,10 @@ const MentorProfile: React.FC = () => {
         { id: "availability" as const, label: "Availability" },
     ]
     const handleConfirmBooking = async (bookingData: BookingRequest) => {
+        if (bookingData.learnerMessage.trim() === "") {
+            toast.error("Please enter a message for the mentor.");
+            return;
+        }
         try {
             await sessionService.bookSession(bookingData);
             toast.success("Session booked successfully!");
