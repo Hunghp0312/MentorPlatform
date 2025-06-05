@@ -24,7 +24,7 @@ namespace ApplicationCore.Validators.Users
 
             RuleFor(x => x.Bio)
                 .MaximumLength(1000).WithMessage(ValidationMessages.MaxLengthExceeded
-                    .Replace("{PropertyName}", "Bio").Replace("{MaxLength}", "500"));
+                    .Replace("{PropertyName}", "Bio").Replace("{MaxLength}", "1000"));
 
             RuleFor(x => x.PhoneNumber)
                 .MaximumLength(15).WithMessage(ValidationMessages.MaxLengthExceeded

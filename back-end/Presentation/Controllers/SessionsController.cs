@@ -94,7 +94,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("session-count")]
-        [Authorize(Roles = "Admin, Mentor")]
+        [Authorize(Roles = "Admin,Mentor")]
         public async Task<ActionResult<SessionStatusCountResponse>> GetSessionStatusCounts()
         {
             var result = await _sessionBookingService.GetSessionStatusCounts();

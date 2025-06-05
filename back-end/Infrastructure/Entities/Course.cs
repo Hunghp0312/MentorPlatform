@@ -15,6 +15,8 @@ namespace Infrastructure.Entities
         public CourseLevel? Level { get; set; }
         public required string Duration { get; set; }
         public Guid MentorId { get; set; }
+        public User? Mentor { get; set; }
+        public virtual ICollection<LearnerCourse> LearnerCourses { get; set; } = new List<LearnerCourse>();
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }
         public required string Tags { get; set; }

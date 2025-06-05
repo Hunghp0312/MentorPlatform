@@ -90,3 +90,9 @@ export enum Status {
   Pending = 2,
   Deactive = 3,
 }
+
+export enum SlotStatus {
+  Available = 1,
+  Booked = 2,
+  Rescheduled = 3
+}
