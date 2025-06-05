@@ -20,7 +20,6 @@ namespace Infrastructure.Services
             message.From.Add(new MailboxAddress(_emailSettingOption.DisplayName, _emailSettingOption.UserName));
             message.To.Add(new MailboxAddress("", to));
             message.Subject = subject;
-
             var bodyBuilder = new BodyBuilder
             {
                 HtmlBody = body

@@ -255,7 +255,6 @@ namespace ApplicationCore.Services
                 bodyBuilder.AppendLine("</p>");
                 bodyBuilder.AppendLine("</body>");
                 bodyBuilder.AppendLine("</html>");
-
                 var emailBody = bodyBuilder.ToString();
                 var emailRecipient = mentorApplication.Applicant.Email;
                 await _sendEmailService.SendEmail(emailRecipient, emailSubject, emailBody);
