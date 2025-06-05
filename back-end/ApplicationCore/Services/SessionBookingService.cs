@@ -315,10 +315,6 @@ namespace ApplicationCore.Services
                 case 4:
                     booking.StatusId = 4;
                     break;
-                case 4:
-                    booking.StatusId = 4;
-
-                    break;
                 case 5:
                     booking.StatusId = 5;
                     booking.CancelReason = updateRequest.CancelReason;
