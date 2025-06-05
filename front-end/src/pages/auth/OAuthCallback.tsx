@@ -16,10 +16,10 @@ const OAuthCallback = () => {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       setIsAuthenticated(true);
-      navigate(pathName.home);
+      navigate(pathName.home, { replace: true });
     } else {
       console.error("Missing tokens in URL");
-      navigate(pathName.login);
+      navigate(pathName.login, { replace: true });
     }
   }, [navigate, setIsAuthenticated]);
 

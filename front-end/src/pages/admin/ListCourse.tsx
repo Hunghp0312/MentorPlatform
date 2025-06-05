@@ -331,8 +331,7 @@ const ListCourse = () => {
                   ? "bg-amber-500"
                   : "bg-red-500"
               }`}
-              style={{ width: `${course.completion}%` }}
-            ></div>
+              style={{ width: `${course.completion}%` }}></div>
           </div>
           <span>{course.completion ?? 0}%</span>
         </div>
@@ -372,8 +371,7 @@ const ListCourse = () => {
             size="md"
             className="font-bold text-white"
             onClick={() => setIsFormOpen(true)}
-            dataTestId="add-course-button"
-          >
+            dataTestId="add-course-button">
             Add New Course
           </Button>
         </div>
@@ -414,7 +412,6 @@ const ListCourse = () => {
           {/* Level Filter */}
           <div className="w-full md:w-1/5">
             <Dropdown
-              label="Level"
               name="levelId"
               value={filter.levelId}
               options={levelOptions}
@@ -464,8 +461,7 @@ const ListCourse = () => {
       <CustomModal
         isOpen={isFormOpen}
         onClose={handleCloseForm}
-        title={initialData ? "Edit Course" : "Add Course"}
-      >
+        title={initialData ? "Edit Course" : "Add Course"}>
         <CourseDialog
           initialData={initialData}
           onSubmit={handleSubmitAddEditBook}
@@ -479,8 +475,7 @@ const ListCourse = () => {
       <CustomModal
         isOpen={isViewOpen}
         onClose={handleCloseView}
-        title="Course Details"
-      >
+        title="Course Details">
         {initialData && (
           <CourseViewDialog
             onClose={handleCloseView}
