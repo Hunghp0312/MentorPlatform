@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StepProgressBar from "../../components/progress/StepProgressBar";
 import RegistrationPanel from "../../components/register/panel/RegistrationPanel";
 import ProfileCreatePanel from "../../components/register/panel/ProfileCreatePanel";
@@ -19,6 +19,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { pathName } from "../../constants/pathName";
 import { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 interface ErrorResponse {
   message?: string;
@@ -31,15 +32,17 @@ const Registration = () => {
   const [formData, setFormData] = useState<UserRegistrationRequest>(
     createInitialData(RoleEnum.Learner)
   );
-
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, totalSteps));
-  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
   const navigation = useNavigate();
 
   const handleAccountSubmit = (accountDetails: AccountDetails) => {
     setFormData((prev) => ({ ...prev, account: accountDetails }));
-    nextStep();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setStep(2);
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
 
   const handleSharedProfileUpdate = (
     updates: Partial<SharedProfileDetails>
@@ -196,25 +199,26 @@ const Registration = () => {
 
       await setPreferences(userId);
 
-      alert("Registration success.");
+      toast.success("Registration success.");
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       setStep(1);
       navigation(pathName.login);
       setFormData(createInitialData(RoleEnum.Learner));
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
       if (axiosError?.response?.data?.message) {
-        alert(axiosError.response.data.message);
+        toast.error(axiosError.response.data.message);
         return;
       }
       if (axiosError?.response?.data?.errors) {
         for (const key in axiosError.response.data.errors) {
           const errorMessage = axiosError.response.data.errors[key];
-          alert(`${errorMessage}`);
+          toast.error(`${errorMessage}`);
           return;
         }
       }
       console.error("Registration error:", error);
-      alert("An unexpected error occurred. Please try again later.");
+      toast.error("An unexpected error occurred. Please try again later.");
     }
   };
 
@@ -236,8 +240,8 @@ const Registration = () => {
             currentUserData={formData}
             onUpdateProfile={handleSharedProfileUpdate}
             onRoleChange={handleRoleEnumChange}
-            onNext={nextStep}
-            onBack={prevStep}
+            onNext={() => setStep(3)}
+            onBack={() => setStep(1)}
           />
         );
       case 3:
@@ -257,7 +261,9 @@ const Registration = () => {
             onUpdate={handlePreferencesAndRoleEnumSpecificDetailsUpdate}
             userRoleEnum={formData.role}
             onSubmit={handleFinalSubmit}
-            onBack={prevStep}
+            onBack={() => {
+              setStep(2);
+            }}
           />
         );
       default:
