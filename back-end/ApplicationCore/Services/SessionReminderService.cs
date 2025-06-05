@@ -34,22 +34,10 @@ namespace Infrastructure.Services
             var sessionBookingRepository = scope.ServiceProvider.GetRequiredService<ISessionBookingRepository>();
 
             var now = DateTime.UtcNow;
-            var oneHourFromNow = now.AddHours(1);
-            var sessions = await sessionBookingRepository.GetAllAsync();
-            if (sessions == null || !sessions.Any())
-            {
-                return;
-            }
+            var oneHourFromNow = now.AddHours(24);
+            var upcomingSessions = await sessionBookingRepository.GetUpcomingSessionsAsync(now, oneHourFromNow);
 
-
-            var upcomingSessions = sessions
-          .Where(s => s.MentorTimeAvailable?.MentorDayAvailable != null &&
-                      s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start) is var sessionTime &&
-                      sessionTime >= now &&
-                      sessionTime <= oneHourFromNow &&
-                      (s.LastReminderSent == null || s.LastReminderSent < sessionTime.AddHours(-1)))
-          .ToList();
-            if (!upcomingSessions.Any())
+            if (upcomingSessions == null || !upcomingSessions.Any())
             {
                 return;
             }
@@ -57,12 +45,20 @@ namespace Infrastructure.Services
             foreach (var session in upcomingSessions)
             {
 
-                var emailSubject = $"Reminder: Upcoming Session {session.Id}";
+                if (session.Mentor?.UserProfile?.NotificationsEnabled != true)
+                {
+                    continue;
+                }
+
+                var emailSubject = $"Reminder: Upcoming Session with {session.Learner.UserProfile.FullName}";
                 var body = $@"<h3>Session Reminder</h3>
                             <p>Dear {session.Mentor.UserProfile.FullName},</p>
-                            <p>You have a session with {session.Learner.UserProfile.FullName} scheduled at {session.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(session.MentorTimeAvailable.Start):dd/MM/yyyy HH:mm} (UTC).</p>
-                            <p>Session ID: {session.Id}</p>
-                            <p>Please prepare for your session.</p>";
+                            <p>This is a kind reminder that you have an upcoming session scheduled with {session.Learner.UserProfile.FullName} - {session.Learner.Email} </p>
+                            <p>The session is scheduled at {session.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(session.MentorTimeAvailable.Start):dd/MM/yyyy HH:mm} (UTC).</p>
+                            <p>Please ensure you are prepared for the session and join on time.</p>
+                            <p>If you have any questions or need to reschedule, please contact your learner in advance.</p>
+                            <p>Best regards,<br>
+                             The MentorPlatform Team</p>";
                 var emailRecipient = session.Mentor.Email;
 
                 session.LastReminderSent = DateTime.UtcNow;

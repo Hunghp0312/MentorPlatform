@@ -9,5 +9,6 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
         Task<bool> ExistsBookingForSlotAsync(Guid learnerId, Guid mentorId, Guid availabilitySlotId);
         Task<bool> AnyAsync(Expression<Func<SessionBooking, bool>> predicate);
         Task<SessionBooking?> GetBookingDetailsForDtoAsync(Guid id);
+        Task<ICollection<SessionBooking>> GetUpcomingSessionsAsync(DateTime now, DateTime oneHourFromNow);
     }
 }
