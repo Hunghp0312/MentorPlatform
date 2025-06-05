@@ -3,7 +3,6 @@ using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Resources;
 using ApplicationCore.DTOs.Responses.Resources;
-using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
@@ -77,9 +76,24 @@ namespace ApplicationCore.Services
             throw new NotImplementedException();
         }
 
-        public Task<OperationResult<ResourceResponse>> EditResource(Guid resourceId, Guid MentorId)
+        public async Task<OperationResult<ResourceResponse>> EditResource(Guid resourceId, Guid mentorId, EditResourceRequest request)
         {
-            throw new NotImplementedException();
+            var resource = await _resourceRepository.GetByIdAsync(resourceId);
+            if (mentorId != resource?.Course!.MentorId)
+            {
+                return OperationResult<ResourceResponse>.NotFound("You are not authorized to edit this resource, cause you are not the mentor of this course.");
+            }
+            if (resource == null)
+            {
+                return OperationResult<ResourceResponse>.NotFound("Resource not found");
+            }
+            resource.TypeOfResourceId = request.TypeOfResourceId;
+            resource.ResourceCategoryId = request.ResourceCategoryId;
+            resource.Title = request.Title;
+            resource.Description = request.Description;
+            _resourceRepository.Update(resource);
+            await _unitOfWork.SaveChangesAsync();
+            return OperationResult<ResourceResponse>.Ok(resource.ToResourceResponse());
         }
 
         public async Task<OperationResult<PagedResult<ResourceResponse>>> GetAllResources(ResourceQueryParameters resourceQueryParameters, Guid UserId)
@@ -128,10 +142,5 @@ namespace ApplicationCore.Services
             return OperationResult<PagedResult<ResourceResponse>>.Ok(pagedResult);
         }
 
-
-        public Task<OperationResult<SupportingDocumentResponse>> GetFileDetails(Guid FileId)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

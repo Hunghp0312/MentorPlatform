@@ -4,6 +4,7 @@
     {
         public Guid Id { get; set; }
         public Guid? MentorApplicationId { get; set; }
+        public Guid? ResourceId { get; set; }
         public virtual MentorApplication? MentorApplication { get; set; }
         public virtual Resource? Resource { get; set; }
         public string FileName { get; set; } = string.Empty;

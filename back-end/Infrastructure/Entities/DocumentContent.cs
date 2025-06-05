@@ -7,6 +7,5 @@
         public string FileName { get; set; } = string.Empty;
         public string FileType { get; set; } = string.Empty;
         public virtual SupportingDocument? SupportingDocument { get; set; }
-        public virtual Resource? Resource { get; set; }
     }
 }
