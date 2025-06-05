@@ -89,5 +89,11 @@ namespace Infrastructure.BaseRepository
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }
+        public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null)
+        {
+            if (predicate == null)
+                return await _dbSet.CountAsync();
+            return await _dbSet.CountAsync(predicate);
+        }
     }
 }

@@ -28,5 +28,6 @@ namespace Infrastructure.BaseRepository
         void DeleteRange(IEnumerable<TEntity> entities);
 
         Task<bool> DeleteById(Guid id);
+        Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null);
     }
 }
