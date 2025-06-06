@@ -147,7 +147,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("LevelId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("MentorId")
+                    b.Property<Guid?>("MentorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
@@ -2074,8 +2074,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Entities.User", "Mentor")
                         .WithMany("MentoredCourses")
                         .HasForeignKey("MentorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Infrastructure.Entities.Enum.CourseStatus", "Status")
                         .WithMany()

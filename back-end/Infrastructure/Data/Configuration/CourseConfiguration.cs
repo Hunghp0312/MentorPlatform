@@ -24,7 +24,7 @@ namespace Infrastructure.Data.Configuration
             builder.Property(c => c.MentorId).IsRequired();
 
             builder.Property(c => c.Tags).IsRequired().HasMaxLength(100);
-
+            builder.Property(c => c.MentorId).IsRequired(false);
             builder
                 .HasOne(c => c.Status)
                 .WithMany()
@@ -44,6 +44,7 @@ namespace Infrastructure.Data.Configuration
             builder.HasOne(c => c.Mentor)
                 .WithMany(m => m.MentoredCourses)
                 .HasForeignKey(c => c.MentorId)
+                .IsRequired(false)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasData(CourseSeeding.SeedCourses());

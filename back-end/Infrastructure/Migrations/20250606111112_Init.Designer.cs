@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250606094310_newdb")]
-    partial class newdb
+    [Migration("20250606111112_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -150,7 +150,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("LevelId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("MentorId")
+                    b.Property<Guid?>("MentorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
@@ -2077,8 +2077,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Entities.User", "Mentor")
                         .WithMany("MentoredCourses")
                         .HasForeignKey("MentorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Infrastructure.Entities.Enum.CourseStatus", "Status")
                         .WithMany()

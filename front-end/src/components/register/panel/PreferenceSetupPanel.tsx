@@ -316,7 +316,11 @@ const PreferenceSetupPanel: React.FC<Props> = ({
       </div>
 
       <InputCustom
-        label="Your Goal(s)"
+        label={`${
+          userRoleEnum === RoleEnum.Learner
+            ? "What do you hope to learn?"
+            : "Motivation Statement"
+        } `}
         name="goal"
         type="textarea"
         value={currentPreferences.goal}
@@ -432,12 +436,14 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <button
           type="button"
           onClick={onBack}
-          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-650 rounded-lg text-gray-300 font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-650 rounded-lg text-gray-300 font-semibold"
+        >
           Back
         </button>
         <button
           type="submit"
-          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold"
+        >
           Complete Registration
         </button>
       </div>
