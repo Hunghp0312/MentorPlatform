@@ -20,6 +20,7 @@ public class AvailabilityController : BaseController
     }
 
     [HttpGet("{mentorId}/week")]
+    [Authorize]
     [ProducesResponseType(typeof(MentorDaysAvailabilityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -38,6 +39,7 @@ public class AvailabilityController : BaseController
     }
 
     [HttpGet("{mentorId}/day")]
+    [Authorize]
     [ProducesResponseType(typeof(MentorDaysAvailabilityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -50,30 +52,23 @@ public class AvailabilityController : BaseController
     }
 
     [HttpPut("{mentorId}/days")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]    public async Task<IActionResult> SaveDaysAvailability(
-        Guid mentorId,
-        [FromBody] SaveDaysAvailabilityRequestDto request
-    )
-    {
-        var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
-        return ToActionResult(result);
-    }
-
-    [HttpPut("{mentorId}/schedule-configuration")]
+    [Authorize(Roles = "Mentor")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SaveScheduleConfiguration(
+    public async Task<IActionResult> SaveDaysAvailability(
         Guid mentorId,
-        [FromBody] UpdateScheduleConfigurationRequestDto request
+        [FromBody] SaveDaysAvailabilityRequestDto request
     )
     {
-        var result = await _availabilityService.SaveScheduleConfiguration(mentorId, request);
+        var isActiveClaim = User.Claims.FirstOrDefault(c => c.Type == "isActive");
+        if (isActiveClaim == null || isActiveClaim.Value != "2")
+        {
+            return Forbid();
+        }
+
+        var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
         return ToActionResult(result);
     }
-
 }
