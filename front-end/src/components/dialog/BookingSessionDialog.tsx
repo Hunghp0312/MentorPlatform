@@ -88,7 +88,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
         setTimeout(() => {
             setIsSubmitting(false);
             onConfirm?.(bookingData);
-        }, 1000);
+        }, 200);
 
     };
 
@@ -207,7 +207,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                         <p className="text-sm text-gray-400">You won't be charged yet</p>
                         <button
                             type="submit"
-                            disabled={isSubmitting || !bookingData.mentorTimeAvailableId || !bookingData.sessionTypeId}
+                            disabled={isSubmitting || !bookingData.mentorTimeAvailableId || !bookingData.sessionTypeId || !bookingData.learnerMessage}
                             className="px-5 py-2 bg-orange-500 hover:bg-orange-600 rounded text-white font-medium transition-colors disabled:opacity-70 disabled:hover:bg-orange-500"
                         >
                             {isSubmitting ? 'Submitting...' : 'Confirm Booking'}

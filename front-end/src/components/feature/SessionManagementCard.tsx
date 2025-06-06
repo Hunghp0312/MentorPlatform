@@ -25,6 +25,7 @@ interface BookingSessionResponse {
     statusName: string;
     sessionTypeName: string;
     bookingRequestedAt: string;
+    cancelReason?: string;
 }
 
 const SessionManagementCard: React.FC = () => {
@@ -408,7 +409,7 @@ const SessionManagementCard: React.FC = () => {
                                                 {request.statusName.charAt(0).toUpperCase() + request.statusName.slice(1)}
                                             </span>
                                         </div>
-                                        <p className="text-gray-300 mb-4">{request.learnerMessage}</p>
+                                        <p className="text-gray-300 mb-4">{request.cancelReason === null  ? request.learnerMessage : request.cancelReason }</p>
 
                                         <div className="flex items-center space-x-4 text-sm text-gray-400 mb-2">
 

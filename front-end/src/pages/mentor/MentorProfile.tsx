@@ -11,6 +11,7 @@ import { BookingRequest } from "../../types/session"
 import { toast } from "react-toastify"
 import { mentorService } from "../../services/mentorapplication.service"
 import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png"
+import LoadingOverlay from "../../components/loading/LoadingOverlay"
 
 
 interface ExpertiseArea {
@@ -93,7 +94,8 @@ const MentorProfile: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState<"about" | "experience" | "availability">("about")
-    const [openDialog, setOpenDialog] = useState(false)
+    const [openDialog, setOpenDialog] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [mentor, setMentor] = useState<MentorProfile>({
         photoData: "",
         fullName: "",
@@ -179,12 +181,15 @@ const MentorProfile: React.FC = () => {
         };
         const fetchData = async () => {
             try {
+                setLoading(true);
                 await Promise.all([
                     fetchAvailability(),
                     fetchMentorProfile()
                 ]);
             } catch (error) {
                 console.error("Error fetching mentor data:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -237,7 +242,9 @@ const MentorProfile: React.FC = () => {
         }));
     }
 
-
+    if(loading) {
+        return <LoadingOverlay/>
+    }
     return (
         <div className="min-h-screen bg-slate-800 text-white">
             {/* Header */}
