@@ -3,6 +3,7 @@ export const pathName = {
   category: "/category",
   adminCourse: "/admin/course",
   mentorCourse: "/mentor/course",
+  learnerCourse: "/learner/course",
   register: "/register",
   login: "/login",
   approval: "/approval",
@@ -20,6 +21,6 @@ export const pathName = {
   editProfile: "/edit-profile",
   mentorAvailability: "/mentor/availability",
   findmentor: "/find-mentor",
-  leanerSessionManagement : "/learner/session-management",
+  leanerSessionManagement: "/learner/session-management",
   adminDashboard: "/admin/dashboard",
 };
