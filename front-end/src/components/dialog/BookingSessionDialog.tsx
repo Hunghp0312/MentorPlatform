@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { sessionService } from '../../services/session.service';
 import { BookingRequest, TimeSlot } from '../../types/session';
+import { formatTime } from '../../utils/formatDate';
+import { SlotStatus } from '../../types/commonType';
 
 interface BookingDialogProps {
     mentorId: string;
@@ -86,7 +88,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
         setTimeout(() => {
             setIsSubmitting(false);
             onConfirm?.(bookingData);
-        }, 1000);
+        }, 200);
 
     };
 
@@ -131,8 +133,16 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                         >
                             <option value="">Select a time slot</option>
                             {slots?.map((timeSlot) => (
-                                <option key={timeSlot.id} value={timeSlot.id}>
-                                    {timeSlot.startTime} - {timeSlot.endTime}
+                                <option
+                                    key={timeSlot.id}
+                                    value={timeSlot.id}
+                                    disabled={
+                                        (timeSlot.statusId !== SlotStatus.Available && timeSlot.statusId !== SlotStatus.Waiting) ||
+                                        (selectedDate === new Date().toISOString().split('T')[0] &&
+                                            new Date(`${selectedDate}T${timeSlot.startTime}`).getTime() < new Date().getTime())
+                                    }
+                                >
+                                    {formatTime(timeSlot.startTime)} - {formatTime(timeSlot.endTime)}
                                 </option>
                             ))}
                         </select>
@@ -170,12 +180,12 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                             <div className="flex items-center">
                                 <input
                                     type="radio"
-                                    id="in-person"
+                                    id="onsite-session"
                                     checked={bookingData.sessionTypeId === '3'}
                                     onChange={() => handleRadioChange('3')}
                                     className="mr-2 h-4 w-4 accent-blue-500"
                                 />
-                                <label htmlFor="in-person" className="text-sm">Onsite-Session</label>
+                                <label htmlFor="onsite-session" className="text-sm">Onsite-Session</label>
                             </div>
                         </div>
                     </div>
@@ -197,7 +207,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                         <p className="text-sm text-gray-400">You won't be charged yet</p>
                         <button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || !bookingData.mentorTimeAvailableId || !bookingData.sessionTypeId || !bookingData.learnerMessage}
                             className="px-5 py-2 bg-orange-500 hover:bg-orange-600 rounded text-white font-medium transition-colors disabled:opacity-70 disabled:hover:bg-orange-500"
                         >
                             {isSubmitting ? 'Submitting...' : 'Confirm Booking'}

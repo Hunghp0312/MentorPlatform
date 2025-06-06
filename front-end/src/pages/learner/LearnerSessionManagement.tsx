@@ -8,11 +8,11 @@ import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import { formatTime } from "../../utils/formatDate";
 
-
 interface BookingSessionResponse {
     bookingId: string;
     learnerId: string;
-    photoData: string;
+    learnerPhotoData: string;
+    mentorPhotoData: string;
     learnerFullName: string;
     mentorId: string;
     mentorFullName: string;
@@ -194,7 +194,7 @@ const LearnerSessionManagement = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.mentorPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
@@ -236,7 +236,7 @@ const LearnerSessionManagement = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.mentorPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
@@ -304,7 +304,7 @@ const LearnerSessionManagement = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.mentorPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
@@ -315,7 +315,7 @@ const LearnerSessionManagement = () => {
                                             <div className={`p-2 rounded-lg ${getSessionTypeColor(request.sessionTypeName)}`}>
                                                 {getSessionIcon(request.sessionTypeName)}
                                             </div>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${request.statusName === 'accepted' ? 'bg-green-500/20 text-green-400' :
+                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${request.statusName === 'Completed' ? 'bg-green-500/20 text-green-400' :
                                                 request.statusName === 'rescheduled' ? 'bg-blue-500/20 text-blue-400' :
                                                     'bg-red-500/20 text-red-400'
                                                 }`}>

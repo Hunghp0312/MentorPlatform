@@ -10,7 +10,8 @@ import { sessionService } from "../../services/session.service"
 import { BookingRequest } from "../../types/session"
 import { toast } from "react-toastify"
 import { mentorService } from "../../services/mentorapplication.service"
-
+import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png"
+import LoadingOverlay from "../../components/loading/LoadingOverlay"
 
 
 interface ExpertiseArea {
@@ -93,7 +94,8 @@ const MentorProfile: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate()
     const [activeTab, setActiveTab] = useState<"about" | "experience" | "availability">("about")
-    const [openDialog, setOpenDialog] = useState(false)
+    const [openDialog, setOpenDialog] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [mentor, setMentor] = useState<MentorProfile>({
         photoData: "",
         fullName: "",
@@ -129,12 +131,12 @@ const MentorProfile: React.FC = () => {
         try {
             await sessionService.bookSession(bookingData);
             toast.success("Session booked successfully!");
+            setOpenDialog(false);
             navigate(`/booking-session/${id}`);
+
         }
         catch (error) {
             console.error("Error booking session:", error);
-        } finally {
-            setOpenDialog(false);
         }
     }
     useEffect(() => {
@@ -179,12 +181,15 @@ const MentorProfile: React.FC = () => {
         };
         const fetchData = async () => {
             try {
+                setLoading(true);
                 await Promise.all([
                     fetchAvailability(),
                     fetchMentorProfile()
                 ]);
             } catch (error) {
                 console.error("Error fetching mentor data:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -237,7 +242,9 @@ const MentorProfile: React.FC = () => {
         }));
     }
 
-
+    if(loading) {
+        return <LoadingOverlay/>
+    }
     return (
         <div className="min-h-screen bg-slate-800 text-white">
             {/* Header */}
@@ -256,7 +263,6 @@ const MentorProfile: React.FC = () => {
                     </button>
                     <div className="flex gap-3">
                         <button className="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded text-sm">Share Profile</button>
-                        <button className="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded text-sm">Save</button>
                     </div>
                 </div>
             </div>
@@ -266,7 +272,7 @@ const MentorProfile: React.FC = () => {
                 <div className="flex justify-between lg:flex-row gap-8 mb-8">
                     <div className="flex flex-col sm:flex-row gap-6">
                         <img
-                            src={mentor?.photoData || "https://randomuser.me/api/portraits/men/56.jpg"}
+                            src={mentor?.photoData || DefaultImage}
                             alt={mentor?.fullName}
                             className="w-32 h-32 rounded-full object-cover border-4 border-orange-500"
                         />
@@ -368,9 +374,7 @@ const MentorProfile: React.FC = () => {
                 )}
             </div>
             {openDialog && (
-
                 <BookingSessionDialog mentorId={id as string} onClose={() => setOpenDialog(false)} onConfirm={handleConfirmBooking} />
-
             )}
         </div>
     )

@@ -4,6 +4,7 @@ import ProfilePictureUpload from "../child/ProfilePictureUpload"; // Assuming pa
 import RoleSelectionCard from "../child/RoleSelectionCard"; // Assuming path is correct
 import MultiSelectButtons from "../child/MultiSelectButtons"; // Assuming path is correct
 import { Video, Headphones, MessageCircle } from "lucide-react";
+import imageCompression from "browser-image-compression";
 import {
   UserRegistrationRequest,
   SharedProfileDetails,
@@ -160,12 +161,17 @@ const ProfileCreatePanel: React.FC<Props> = ({
     errorSetter?.("");
   };
 
-  const handleProfilePictureChange = (
+  const handleProfilePictureChange = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     setProfilePictureError("");
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
+      const options = {
+        maxSizeMB: 0.1,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+      };
       if (
         !ALLOWED_FILE_TYPES.includes(file.type) ||
         file.size > MAX_FILE_SIZE_BYTES
@@ -175,7 +181,10 @@ const ProfileCreatePanel: React.FC<Props> = ({
         e.target.value = ""; // Reset file input
         return;
       }
-      handleFieldChange("profilePictureFile", file);
+      const compressedFile = await imageCompression(file, options);
+      const compressedUrl = URL.createObjectURL(compressedFile);
+      setProfilePicturePreview(compressedUrl);
+      handleFieldChange("profilePictureFile", compressedFile);
       handleFieldChange("profilePictureUrl", undefined); // Clear URL if new file is selected
     }
   };
@@ -529,7 +538,8 @@ const ProfileCreatePanel: React.FC<Props> = ({
                 }`}
                 onClick={() => {
                   handleFieldChange("preferredCommunication", option.value);
-                }}>
+                }}
+              >
                 <option.IconComponent size={18} />
                 <span>{option.label}</span>
               </button>
@@ -545,12 +555,14 @@ const ProfileCreatePanel: React.FC<Props> = ({
         <button
           type="button"
           onClick={onBack}
-          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold"
+        >
           Back
         </button>
         <button
           type="submit"
-          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold"
+        >
           Continue to Preferences
         </button>
       </div>
