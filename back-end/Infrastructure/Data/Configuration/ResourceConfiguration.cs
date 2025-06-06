@@ -19,7 +19,7 @@ namespace Infrastructure.Data.Configuration
 
             builder.HasOne(r => r.SupportingDocument)
                       .WithOne(dc => dc.Resource)
-                      .HasForeignKey<Resource>(r => r.SupoprtingDocumentId)
+                      .HasForeignKey<Resource>(r => r.SupportingDocumentId)
                       .OnDelete(DeleteBehavior.Cascade);
         }
     }
