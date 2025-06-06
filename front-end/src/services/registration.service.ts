@@ -53,7 +53,7 @@ export const registrionService = {
       topicOfInterestIds: payload.preferences.interestedTopics.map(
         (topic: TopicOfInterest) => topic
       ),
-      sessionFequencyId: payload.preferences.sessionFrequency,
+      sessionFrequencyId: payload.preferences.sessionFrequency,
       sessionDurationId: payload.preferences.sessionDuration,
       learningStyleIds:
         "learnerDetails" in payload
@@ -63,10 +63,10 @@ export const registrionService = {
         "mentorDetails" in payload
           ? payload.mentorDetails.teachingApproach
           : undefined,
-      privacyProfile: payload.preferences.privacySettings.isProfilePrivate,
-      messagePermission: payload.preferences.privacySettings.allowMessages,
-      notificationEnabled:
-        payload.preferences.privacySettings.receiveNotifications,
+      privacyProfile: payload.preferences.privacySettings.privacyProfile,
+      messagePermission: payload.preferences.privacySettings.messagePermission,
+      notificationsEnabled:
+        payload.preferences.privacySettings.notificationsEnabled,
     };
 
     const response = await axiosInstance.post(

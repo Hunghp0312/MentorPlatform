@@ -395,7 +395,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <InputCheckbox
           label="Private profile"
           name="isProfilePrivate"
-          checked={currentPreferences.privacySettings.isProfilePrivate}
+          checked={currentPreferences.privacySettings.privacyProfile}
           onChange={(e) =>
             handlePrivacySettingChange("isProfilePrivate", e.target.checked)
           }
@@ -406,7 +406,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <InputCheckbox
           label="Allow messages"
           name="allowMessages"
-          checked={currentPreferences.privacySettings.allowMessages}
+          checked={currentPreferences.privacySettings.messagePermission}
           onChange={(e) =>
             handlePrivacySettingChange("allowMessages", e.target.checked)
           }
@@ -417,7 +417,7 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <InputCheckbox
           label="Receive notifications"
           name="receiveNotifications"
-          checked={currentPreferences.privacySettings.receiveNotifications}
+          checked={currentPreferences.privacySettings.notificationsEnabled}
           onChange={(e) =>
             handlePrivacySettingChange("receiveNotifications", e.target.checked)
           }

@@ -185,7 +185,9 @@ public class AvailabilityService : IAvailabilityService
 
         var isHaveBookedTime =
             existingDay
-                .MentorTimeAvailables.Where(mta => mta.StatusId == 2 || mta.StatusId == 3)
+                .MentorTimeAvailables.Where(mta =>
+                    mta.StatusId == 2 || mta.StatusId == 3 || mta.StatusId == 4
+                )
                 .All(mta => requestTimeBlockIds.Contains(mta.Id)) == false;
 
         if (!dayDto.TimeBlocks.Any() && !isReference)
@@ -194,7 +196,7 @@ public class AvailabilityService : IAvailabilityService
             await _unitOfWork.SaveChangesAsync();
             return OperationResult<string>.NoContent();
         }
-        else if (isReference && isHaveBookedTime)
+        else if (isHaveBookedTime)
         {
             return OperationResult<string>.Fail(
                 "Cannot update time blocks for a day that has referenced sessions."

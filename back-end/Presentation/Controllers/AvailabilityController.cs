@@ -52,7 +52,7 @@ public class AvailabilityController : BaseController
     }
 
     [HttpPut("{mentorId}/days")]
-    [Authorize]
+    [Authorize(Roles = "Mentor")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
