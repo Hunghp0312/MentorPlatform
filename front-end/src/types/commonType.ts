@@ -94,5 +94,6 @@ export enum Status {
 export enum SlotStatus {
   Available = 1,
   Booked = 2,
-  Rescheduled = 3
+  Rescheduled = 3,
+  Waiting = 4,
 }

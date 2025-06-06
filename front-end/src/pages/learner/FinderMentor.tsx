@@ -146,53 +146,50 @@ const MentorFinder: React.FC = () => {
                 <div>
                     <h2 className="text-xl font-semibold mb-6">Available Mentors</h2>
                     {mentors.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  gap-6">
-                        {mentors.map((mentor) => (
-                            <div key={mentor.id} className="bg-slate-700 rounded-lg p-6">
-                                {/* Mentor Header */}
-                                <div className="flex items-center gap-3 mb-4 ">
-                                    <img
-                                        src={mentor.photoData || DefaultImage}
-                                        alt={mentor.fullName}
-                                        className="w-12 h-12 rounded-full object-cover"
-                                    />
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-white">{mentor.fullName}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {mentors.map((mentor) => (
+                                <div key={mentor.id} className="bg-slate-700 rounded-lg p-6 flex flex-col h-[320px]">
+                                    {/* Mentor Header */}
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <img
+                                            src={mentor.photoData || DefaultImage}
+                                            alt={mentor.fullName}
+                                            className="w-12 h-12 rounded-full object-cover"
+                                        />
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-white">{mentor.fullName}</h3>
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <p className="text-sm font-medium text-gray-300 mb-2">Expertise</p>
+                                        <div className="flex items-center flex-wrap gap-1 h-[40px] overflow-y-auto">
+                                            {mentor.expertiseTags.map((skill) => (
+                                                <span
+                                                    key={skill}
+                                                    className="px-2 py-1 bg-slate-600 text-xs rounded text-gray-300"
+                                                >
+                                                    {skill}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <p className="text-sm text-gray-300 mb-4 h-[72px] overflow-y-auto line-clamp-3">
+                                        {mentor.shortBioOrTagline || "No description available."}
+                                    </p>
+
+                                    <div className="flex gap-2 mt-auto">
+                                        <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition-colors" onClick={() => navigate(`/mentor-profile/${mentor.id}`)}>
+                                            View Profile
+                                        </button>
+                                        <button className="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                            Message
+                                        </button>
                                     </div>
                                 </div>
-
-
-                                <div className="mb-4">
-                                    <p className="text-sm font-medium text-gray-300 mb-2">Expertise</p>
-                                    <div className="flex flex-wrap gap-1">
-                                        {mentor.expertiseTags.map((skill) => (
-                                            <span
-                                                key={skill}
-                                                className="px-2 py-1 bg-slate-600 text-xs rounded text-gray-300"
-                                            >
-                                                {skill}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-
-
-                                <p className="text-sm text-gray-300 mb-6 line-clamp-3">
-                                    {mentor.shortBioOrTagline || "No description available."}
-                                </p>
-
-
-                                <div className="flex gap-2">
-                                    <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition-colors" onClick={() => navigate(`/mentor-profile/${mentor.id}`)} >
-                                        View Profile
-                                    </button>
-                                    <button className="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2 px-4 rounded-lg font-medium transition-colors">
-                                        Message
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
                     ) : (
                         <p className="text-gray-300">No mentors found matching your criteria.</p>
                     )}

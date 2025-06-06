@@ -55,7 +55,7 @@ namespace ApplicationCore.Repositories
             queryable = queryable.Where(up =>
                 up.User.DayAvailabilities.Any(d =>
                     d.MentorTimeAvailables.Any(s =>
-                      (s.StatusId == 1 || s.StatusId == 4) &&
+                       ( s.StatusId == 1|| s.StatusId == 4) &&
                     (
                         d.Day > todayUtc ||
                         (d.Day == todayUtc && s.Start > timeNowUtc)
