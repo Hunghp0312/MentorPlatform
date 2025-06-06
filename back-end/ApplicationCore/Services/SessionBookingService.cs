@@ -299,6 +299,19 @@ namespace ApplicationCore.Services
 
             switch (updateRequest.NewStatusId)
             {
+                case 3:
+                    booking.StatusId = 3;
+                    break;
+
+                case 4:
+                    booking.StatusId = 4;
+                    break;
+
+                case 5:
+                    booking.StatusId = 5;
+                    booking.CancelReason = updateRequest.CancelReason;
+                    break;
+
                 case 6:
                     var otherPendingBookings = await _sessionBookingRepository.FindAsync(sb => sb.MentorTimeAvailableId == booking.MentorTimeAvailableId &&
                               sb.Id != sessionId &&
@@ -313,19 +326,6 @@ namespace ApplicationCore.Services
                     booking.StatusId = 6;
                     booking.MentorTimeAvailable.StatusId = 2;
                     break;
-
-                case 3:
-                    booking.StatusId = 3;
-                    break;
-
-                case 4:
-                    booking.StatusId = 4;
-                    break;
-                case 5:
-                    booking.StatusId = 5;
-                    booking.CancelReason = updateRequest.CancelReason;
-                    break;
-
                 default:
                     return OperationResult<UpdateBookingResponseDto>.BadRequest($"Invalid target status ID: {updateRequest.NewStatusId}.");
             }
