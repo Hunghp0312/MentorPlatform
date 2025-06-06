@@ -191,7 +191,7 @@ namespace ApplicationCore.Services
                 FileName = processedFileDetail.FileName,
                 FileType = processedFileDetail.ContentType,
                 FileSize = processedFileDetail.Length,
-                ResourceId = resourceId,
+                //ResourceId = resourceId,
                 UploadedAt = DateTime.UtcNow,
                 DocumentContentId = documentContentEntity.Id
             };
@@ -212,18 +212,18 @@ namespace ApplicationCore.Services
                 return OperationResult<SupportingDocumentResponse>.NotFound("File not found.");
             }
 
-            if (!supportingDocument.ResourceId.HasValue)
-            {
-                return OperationResult<SupportingDocumentResponse>.BadRequest("This file is not associated with a resource.");
-            }
+            //if (!supportingDocument.ResourceId.HasValue)
+            //{
+            //    return OperationResult<SupportingDocumentResponse>.BadRequest("This file is not associated with a resource.");
+            //}
 
-            var resource = await _resourceRepository.GetByIdAsync(supportingDocument.ResourceId.Value);
-            if (resource == null || resource.Course?.MentorId != mentorId)
-            {
-                return OperationResult<SupportingDocumentResponse>.BadRequest("You are not authorized to delete this resource file or the resource does not exist.");
-            }
+            //var resource = await _resourceRepository.GetByIdAsync(supportingDocument.ResourceId.Value);
+            //if (resource == null || resource.Course?.MentorId != mentorId)
+            //{
+            //    return OperationResult<SupportingDocumentResponse>.BadRequest("You are not authorized to delete this resource file or the resource does not exist.");
+            //}
 
-            await _supportingDocumentRepository.DeleteById(fileId);
+            //await _supportingDocumentRepository.DeleteById(fileId);
             await _unitOfWork.SaveChangesAsync();
 
             return OperationResult<SupportingDocumentResponse>.NoContent();
