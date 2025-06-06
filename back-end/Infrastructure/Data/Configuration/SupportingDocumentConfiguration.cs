@@ -27,6 +27,11 @@ namespace Infrastructure.Data.Configuration
                 .WithMany(ma => ma.SupportingDocuments)
                 .HasForeignKey(sd => sd.MentorApplicationId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(sd => sd.Resource)
+               .WithOne(ma => ma.SupportingDocument)
+               .HasForeignKey<SupportingDocument>(sd => sd.ResourceId)
+               .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

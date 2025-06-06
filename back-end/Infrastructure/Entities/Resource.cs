@@ -13,7 +13,7 @@ namespace Infrastructure.Entities
         public TypeOfResource? TypeOfResource { get; set; }
         public ResourceCategory? ResourceCategory { get; set; }
         public required string Description { get; set; }
-        public Guid? SupportingDocumentId { get; set; }
         public virtual SupportingDocument? SupportingDocument { get; set; }
+        public string? Url { get; set; }
     }
 }

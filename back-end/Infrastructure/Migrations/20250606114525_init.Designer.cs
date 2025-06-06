@@ -4,6 +4,7 @@ using Infrastructure.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250606114525_init")]
+    partial class init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1467,6 +1470,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("ResourceCategoryId")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("SupportingDocumentId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1475,14 +1481,15 @@ namespace Infrastructure.Migrations
                     b.Property<int>("TypeOfResourceId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
 
                     b.HasIndex("ResourceCategoryId");
+
+                    b.HasIndex("SupportingDocumentId")
+                        .IsUnique()
+                        .HasFilter("[SupportingDocumentId] IS NOT NULL");
 
                     b.HasIndex("TypeOfResourceId");
 
@@ -1636,10 +1643,6 @@ namespace Infrastructure.Migrations
                         .IsUnique();
 
                     b.HasIndex("MentorApplicationId");
-
-                    b.HasIndex("ResourceId")
-                        .IsUnique()
-                        .HasFilter("[ResourceId] IS NOT NULL");
 
                     b.ToTable("SupportingDocument");
                 });
@@ -2315,6 +2318,11 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.SupportingDocument", "SupportingDocument")
+                        .WithOne("Resource")
+                        .HasForeignKey("Infrastructure.Entities.Resource", "SupportingDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("Infrastructure.Entities.Enum.TypeOfResource", "TypeOfResource")
                         .WithMany()
                         .HasForeignKey("TypeOfResourceId")
@@ -2324,6 +2332,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("Course");
 
                     b.Navigation("ResourceCategory");
+
+                    b.Navigation("SupportingDocument");
 
                     b.Navigation("TypeOfResource");
                 });
@@ -2384,16 +2394,9 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("MentorApplicationId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Infrastructure.Entities.Resource", "Resource")
-                        .WithOne("SupportingDocument")
-                        .HasForeignKey("Infrastructure.Entities.SupportingDocument", "ResourceId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.Navigation("DocumentContent");
 
                     b.Navigation("MentorApplication");
-
-                    b.Navigation("Resource");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
@@ -2565,9 +2568,9 @@ namespace Infrastructure.Migrations
                     b.Navigation("SessionBookings");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
+            modelBuilder.Entity("Infrastructure.Entities.SupportingDocument", b =>
                 {
-                    b.Navigation("SupportingDocument");
+                    b.Navigation("Resource");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.User", b =>

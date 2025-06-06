@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -132,6 +132,19 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ResourceCategory",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResourceCategory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
                 {
@@ -233,6 +246,19 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Topic", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TypeOfResource",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TypeOfResource", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -506,34 +532,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Resource",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: true),
-                    ResourceCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Resource", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Resource_Course_CourseId",
-                        column: x => x.CourseId,
-                        principalTable: "Course",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Resource_DocumentContent_DocumentContentId",
-                        column: x => x.DocumentContentId,
-                        principalTable: "DocumentContent",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MentorCertification",
                 columns: table => new
                 {
@@ -603,6 +601,7 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MentorApplicationId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ResourceId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     FileType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     FileSize = table.Column<long>(type: "bigint", nullable: false),
@@ -750,6 +749,47 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Resource",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TypeOfResourceId = table.Column<int>(type: "int", nullable: false),
+                    ResourceCategoryId = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    SupportingDocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Resource", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Resource_Course_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Course",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Resource_ResourceCategory_ResourceCategoryId",
+                        column: x => x.ResourceCategoryId,
+                        principalTable: "ResourceCategory",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Resource_SupportingDocument_SupportingDocumentId",
+                        column: x => x.SupportingDocumentId,
+                        principalTable: "SupportingDocument",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Resource_TypeOfResource_TypeOfResourceId",
+                        column: x => x.TypeOfResourceId,
+                        principalTable: "TypeOfResource",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SessionBooking",
                 columns: table => new
                 {
@@ -890,6 +930,17 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "ResourceCategory",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Productivity" },
+                    { 2, "Communication" },
+                    { 3, "Teamwork" },
+                    { 4, "Leadership" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Role",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -980,6 +1031,16 @@ namespace Infrastructure.Migrations
                     { 6, "Industry Insights" },
                     { 7, "Networking" },
                     { 8, "Entrepreneurship" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TypeOfResource",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Video" },
+                    { 2, "Pdf" },
+                    { 3, "External Link" }
                 });
 
             migrationBuilder.InsertData(
@@ -1207,11 +1268,21 @@ namespace Infrastructure.Migrations
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Resource_DocumentContentId",
+                name: "IX_Resource_ResourceCategoryId",
                 table: "Resource",
-                column: "DocumentContentId",
+                column: "ResourceCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resource_SupportingDocumentId",
+                table: "Resource",
+                column: "SupportingDocumentId",
                 unique: true,
-                filter: "[DocumentContentId] IS NOT NULL");
+                filter: "[SupportingDocumentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resource_TypeOfResourceId",
+                table: "Resource",
+                column: "TypeOfResourceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SessionBooking_LearnerId",
@@ -1338,9 +1409,6 @@ namespace Infrastructure.Migrations
                 name: "SessionBooking");
 
             migrationBuilder.DropTable(
-                name: "SupportingDocument");
-
-            migrationBuilder.DropTable(
                 name: "UserAreaOfExpertise");
 
             migrationBuilder.DropTable(
@@ -1359,6 +1427,15 @@ namespace Infrastructure.Migrations
                 name: "Course");
 
             migrationBuilder.DropTable(
+                name: "ResourceCategory");
+
+            migrationBuilder.DropTable(
+                name: "SupportingDocument");
+
+            migrationBuilder.DropTable(
+                name: "TypeOfResource");
+
+            migrationBuilder.DropTable(
                 name: "MentorTimeAvailable");
 
             migrationBuilder.DropTable(
@@ -1366,12 +1443,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "SessionType");
-
-            migrationBuilder.DropTable(
-                name: "DocumentContent");
-
-            migrationBuilder.DropTable(
-                name: "MentorApplication");
 
             migrationBuilder.DropTable(
                 name: "AreaOfExpertise");
@@ -1398,13 +1469,16 @@ namespace Infrastructure.Migrations
                 name: "CourseStatus");
 
             migrationBuilder.DropTable(
+                name: "DocumentContent");
+
+            migrationBuilder.DropTable(
+                name: "MentorApplication");
+
+            migrationBuilder.DropTable(
                 name: "MentorDayAvailable");
 
             migrationBuilder.DropTable(
                 name: "SessionAvailabilityStatus");
-
-            migrationBuilder.DropTable(
-                name: "ApplicationStatus");
 
             migrationBuilder.DropTable(
                 name: "CommunicationMethod");
@@ -1417,6 +1491,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "CategoryStatus");
+
+            migrationBuilder.DropTable(
+                name: "ApplicationStatus");
 
             migrationBuilder.DropTable(
                 name: "User");
