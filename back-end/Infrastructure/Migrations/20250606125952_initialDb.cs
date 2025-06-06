@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class initialDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -132,6 +132,19 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ResourceCategory",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ResourceCategory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Role",
                 columns: table => new
                 {
@@ -236,6 +249,19 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TypeOfResource",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TypeOfResource", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserStatus",
                 columns: table => new
                 {
@@ -312,7 +338,7 @@ namespace Infrastructure.Migrations
                     StatusId = table.Column<int>(type: "int", nullable: false),
                     LevelId = table.Column<int>(type: "int", nullable: false),
                     Duration = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Tags = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
@@ -510,12 +536,13 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Type = table.Column<int>(type: "int", nullable: true),
-                    ResourceCategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TypeOfResourceId = table.Column<int>(type: "int", nullable: false),
+                    ResourceCategoryId = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -524,13 +551,26 @@ namespace Infrastructure.Migrations
                         name: "FK_Resource_Course_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Course",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Resource_DocumentContent_DocumentContentId",
                         column: x => x.DocumentContentId,
                         principalTable: "DocumentContent",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Resource_ResourceCategory_ResourceCategoryId",
+                        column: x => x.ResourceCategoryId,
+                        principalTable: "ResourceCategory",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Resource_TypeOfResource_TypeOfResourceId",
+                        column: x => x.TypeOfResourceId,
+                        principalTable: "TypeOfResource",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -890,6 +930,17 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "ResourceCategory",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Productivity" },
+                    { 2, "Communication" },
+                    { 3, "Teamwork" },
+                    { 4, "Leadership" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Role",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -906,7 +957,8 @@ namespace Infrastructure.Migrations
                 {
                     { 1, "Available" },
                     { 2, "Booked" },
-                    { 3, "Rescheduled" }
+                    { 3, "Rescheduled" },
+                    { 4, "Waiting" }
                 });
 
             migrationBuilder.InsertData(
@@ -982,6 +1034,16 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "TypeOfResource",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Video" },
+                    { 2, "Pdf" },
+                    { 3, "External Link" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "UserStatus",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
@@ -1048,11 +1110,11 @@ namespace Infrastructure.Migrations
                 values: new object[,]
                 {
                     { new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 7), new TimeOnly(12, 30, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 45, 0), new TimeOnly(10, 0, 0) },
-                    { new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 3), new TimeOnly(17, 0, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(1, 0, 0), new TimeOnly(14, 0, 0) },
+                    { new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(0, 0, 0), new DateOnly(2025, 6, 3), new TimeOnly(17, 0, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(0, 30, 0), new TimeOnly(14, 0, 0) },
                     { new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"), new TimeOnly(0, 10, 0), new DateOnly(2025, 6, 8), new TimeOnly(11, 0, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 30, 0), new TimeOnly(8, 30, 0) },
-                    { new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 2), new TimeOnly(12, 0, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(1, 0, 0), new TimeOnly(9, 0, 0) },
+                    { new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(0, 0, 0), new DateOnly(2025, 6, 2), new TimeOnly(12, 0, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(0, 30, 0), new TimeOnly(9, 0, 0) },
                     { new Guid("e1a3f4b8-7c69-45a7-b0f5-92bffe86754b"), new TimeOnly(0, 5, 0), new DateOnly(2025, 6, 9), new TimeOnly(15, 30, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(0, 30, 0), new TimeOnly(13, 0, 0) },
-                    { new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 5), new TimeOnly(21, 0, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(1, 0, 0), new TimeOnly(19, 0, 0) }
+                    { new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(0, 0, 0), new DateOnly(2025, 6, 5), new TimeOnly(21, 0, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 30, 0), new TimeOnly(19, 0, 0) }
                 });
 
             migrationBuilder.InsertData(
@@ -1096,8 +1158,8 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "DayId", "End", "Start", "StatusId" },
                 values: new object[,]
                 {
-                    { new Guid("10000000-0000-0000-0000-000000000001"), new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(9, 30, 0), new TimeOnly(9, 0, 0), 1 },
-                    { new Guid("10000000-0000-0000-0000-000000000002"), new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(10, 0, 0), new TimeOnly(9, 30, 0), 1 },
+                    { new Guid("10000000-0000-0000-0000-000000000001"), new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(9, 30, 0), new TimeOnly(9, 0, 0), 2 },
+                    { new Guid("10000000-0000-0000-0000-000000000002"), new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(10, 0, 0), new TimeOnly(9, 30, 0), 2 },
                     { new Guid("10000000-0000-0000-0000-000000000003"), new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(14, 30, 0), new TimeOnly(14, 0, 0), 1 },
                     { new Guid("10000000-0000-0000-0000-000000000004"), new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(15, 0, 0), new TimeOnly(14, 30, 0), 1 },
                     { new Guid("10000000-0000-0000-0000-000000000005"), new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(10, 30, 0), new TimeOnly(10, 0, 0), 1 },
@@ -1211,6 +1273,16 @@ namespace Infrastructure.Migrations
                 column: "DocumentContentId",
                 unique: true,
                 filter: "[DocumentContentId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resource_ResourceCategoryId",
+                table: "Resource",
+                column: "ResourceCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resource_TypeOfResourceId",
+                table: "Resource",
+                column: "TypeOfResourceId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SessionBooking_LearnerId",
@@ -1356,6 +1428,12 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Course");
+
+            migrationBuilder.DropTable(
+                name: "ResourceCategory");
+
+            migrationBuilder.DropTable(
+                name: "TypeOfResource");
 
             migrationBuilder.DropTable(
                 name: "MentorTimeAvailable");

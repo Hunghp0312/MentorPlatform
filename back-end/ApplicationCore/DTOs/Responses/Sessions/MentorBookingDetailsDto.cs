@@ -17,5 +17,6 @@
         public string StatusName { get; set; } = string.Empty;
         public string SessionTypeName { get; set; } = string.Empty;
         public DateTime BookingRequestedAt { get; set; }
+        public string? CancelReason { get; set; }
     }
 }
