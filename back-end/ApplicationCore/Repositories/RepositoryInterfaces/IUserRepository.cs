@@ -14,4 +14,5 @@ public interface IUserRepository : IBaseRepository<User>
     Task<User?> GetUserByIdAsync(Guid id);
     Task<IEnumerable<User>> GetAllMentors(Expression<Func<User, bool>> predicate);
     Task<User?> GetByIdWithUserProfileAsync(Guid learnerId);
+    Task<User?> GetMentorByIdAsync(Guid userId);
 }
