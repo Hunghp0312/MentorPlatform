@@ -39,6 +39,7 @@ const BookingSession: React.FC = () => {
     const [slots, setSlots] = useState<TimeSlot[] | undefined>(undefined);
     const [selectedSlot, setSelectedSlot] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+    const [loadingBooking, setLoadingBooking] = useState<boolean>(false);
     const [mentorInfo, setMentorInfo] = useState<MentorInfo>({
         id: '',
         startWorkTime: '',
@@ -82,7 +83,7 @@ const BookingSession: React.FC = () => {
     };
 
     const handleSlotSelected = (slotId: string) => {
-        setSelectedSlot(slotId);
+        setSelectedSlot(prevSlot => prevSlot === slotId ? '' : slotId);
     }
     const handleBooking = async () => {
         if (slots === undefined) {
@@ -101,12 +102,20 @@ const BookingSession: React.FC = () => {
             sessionTypeId: selectedSessionType ?? '1',
         }
         try {
+            setLoadingBooking(true);
             await sessionService.bookSession(data);
             toast.success('Session booked successfully!');
         } catch (error) {
             console.error("Error booking session:", error);
             toast.error('Failed to book the session. Please try again later.');
             return;
+        }
+        finally {
+            setLoadingBooking(false);
+            setSelectedSlot('');
+            setSelectedSessionType(null);
+            setSlots(undefined);
+            setSelectedDate(undefined);
         }
     }
 
@@ -263,21 +272,45 @@ const BookingSession: React.FC = () => {
 
                 {/* Time slots */}
                 <h3 className="text-center mb-4">Select a time slot</h3>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8">
-                    {slots?.map((slot) => (
-                        <button
-                            disabled={slot.statusId !== SlotStatus.Available}
-                            key={slot.id}
-                            className={`py-2 px-4 rounded text-center text-sm 
-                ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'} ${slot.statusId !== SlotStatus.Available && 'cursor-not-allowed !bg-gray-400'}
-                    `}
-                            onClick={() => handleSlotSelected(slot.id)}
-                        >
-                            {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
-                        </button>
-                    ))}
-                </div>
-
+                {slots && slots.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8">
+                        {slots?.map((slot) => (
+                            <button
+                                disabled={!!(
+                                    (slot.statusId !== SlotStatus.Available && slot.statusId !== SlotStatus.Waiting) ||
+                                    loadingBooking ||
+                                    (
+                                        // Check if selected date is today and slot time is in the past
+                                        selectedDate &&
+                                        selectedDate === new Date().getDate() &&
+                                        currentMonth.month === new Date().getMonth() &&
+                                        currentMonth.year === new Date().getFullYear() &&
+                                        new Date(`${currentMonth.year}-${(currentMonth.month + 1).toString().padStart(2, '0')}-${selectedDate.toString().padStart(2, '0')}T${slot.startTime}`) < new Date()
+                                    )
+                                )}
+                                key={slot.id}
+                                className={`py-2 px-4 rounded text-center text-sm 
+                                    ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'} 
+                                    ${((slot.statusId !== SlotStatus.Available && slot.statusId !== SlotStatus.Waiting) ||
+                                        (
+                                            // Apply styling for past slots on today
+                                            selectedDate === new Date().getDate() &&
+                                            currentMonth.month === new Date().getMonth() &&
+                                            currentMonth.year === new Date().getFullYear() &&
+                                            new Date(`${currentMonth.year}-${(currentMonth.month + 1).toString().padStart(2, '0')}-${selectedDate.toString().padStart(2, '0')}T${slot.startTime}`) < new Date()
+                                        )) ? 'cursor-not-allowed !bg-gray-400' : ''}`}
+                                onClick={() => handleSlotSelected(slot.id)}
+                            >
+                                {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                            </button>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-center text-gray-400">No available time slots for this date.</p>
+                )}
+                {!selectedSlot && slots && slots.length > 0 && (
+                    <p className='text-center text-red-400 mb-2'>Please select a time slot to continue</p>
+                )}
                 {/* Session type */}
                 <h3 className="text-center mb-4">Session type</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -297,10 +330,15 @@ const BookingSession: React.FC = () => {
 
                 {/* Confirm button */}
                 <button
-                    className="w-full py-4 bg-[#f47521] rounded-lg font-semibold hover:bg-opacity-90 transition-colors hover:cursor-pointer hover:bg-orange-400"
+                    className={`w-full py-4 rounded-lg font-semibold transition-colors 
+                        ${(loadingBooking || selectedSlot === '' || selectedSessionType === null) 
+                            ? 'bg-gray-600 opacity-60 cursor-not-allowed' 
+                            : 'bg-[#f47521] hover:bg-opacity-90 hover:cursor-pointer hover:bg-orange-400'
+                        }`}
                     onClick={() => handleBooking()}
+                    disabled={loadingBooking || selectedSlot === '' || selectedSessionType === null}
                 >
-                    Confirm booking
+                    {loadingBooking ? 'Booking...' : 'Confirm booking'}
                 </button>
             </div>
         </div>

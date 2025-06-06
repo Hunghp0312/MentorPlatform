@@ -14,7 +14,7 @@ export const pathName = {
   unauthorized: "/unauthorized",
   profile: "/profile",
   bookingSession: "/booking-session/:id",
-  mentorDashboard: "/mentor-dashboard",
+  mentorDashboard: "/mentor",
   sessionManagement: "/session-management/:id",
   mentorProfile: "/mentor-profile/:id",
   editProfile: "/edit-profile",

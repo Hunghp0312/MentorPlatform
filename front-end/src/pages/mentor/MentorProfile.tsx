@@ -10,7 +10,7 @@ import { sessionService } from "../../services/session.service"
 import { BookingRequest } from "../../types/session"
 import { toast } from "react-toastify"
 import { mentorService } from "../../services/mentorapplication.service"
-
+import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png"
 
 
 interface ExpertiseArea {
@@ -266,7 +266,7 @@ const MentorProfile: React.FC = () => {
                 <div className="flex justify-between lg:flex-row gap-8 mb-8">
                     <div className="flex flex-col sm:flex-row gap-6">
                         <img
-                            src={mentor?.photoData || "https://randomuser.me/api/portraits/men/56.jpg"}
+                            src={mentor?.photoData || DefaultImage}
                             alt={mentor?.fullName}
                             className="w-32 h-32 rounded-full object-cover border-4 border-orange-500"
                         />

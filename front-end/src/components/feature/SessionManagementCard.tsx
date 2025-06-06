@@ -7,11 +7,13 @@ import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import CustomModal from '../ui/Modal';
 import { formatTime } from '../../utils/formatDate';
 import LoadingOverlay from '../loading/LoadingOverlay';
+import { useNavigate } from 'react-router-dom';
 
 interface BookingSessionResponse {
     bookingId: string;
     learnerId: string;
-    photoData: string;
+    learnerPhotoData: string;
+    mentorPhotoData: string;
     learnerFullName: string;
     mentorId: string;
     mentorFullName: string;
@@ -33,7 +35,7 @@ const SessionManagementCard: React.FC = () => {
     const [declineMessage, setDeclineMessage] = useState<string>('');
     const [sessionRequests, setSessionRequests] = useState<BookingSessionResponse[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-
+    const navigate = useNavigate()
     const fetchSessionRequests = async () => {
         try {
             setLoading(true);
@@ -215,7 +217,7 @@ const SessionManagementCard: React.FC = () => {
             <div className="max-w-6xl mx-auto bg-[#1e2432] text-white rounded-lg shadow-xl p-6">
                 {/* Header */}
                 <div className="flex items-center mb-6">
-                    <button className="mr-4 p-2 hover:bg-gray-700 rounded-lg">
+                    <button className="mr-4 p-2 hover:bg-gray-700 rounded-lg" onClick={() => navigate('/')}>
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <div>
@@ -261,7 +263,7 @@ const SessionManagementCard: React.FC = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.learnerFullName || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
@@ -328,7 +330,7 @@ const SessionManagementCard: React.FC = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.learnerPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
@@ -405,7 +407,7 @@ const SessionManagementCard: React.FC = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.learnerPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
