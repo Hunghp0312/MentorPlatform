@@ -18,7 +18,7 @@ namespace Infrastructure.Data.Configuration
 
             builder.HasOne(c => c.DocumentContent).WithOne(x => x.Resource)
                 .HasForeignKey<Resource>(c => c.DocumentContentId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
