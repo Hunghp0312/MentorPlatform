@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class newdb : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -312,7 +312,7 @@ namespace Infrastructure.Migrations
                     StatusId = table.Column<int>(type: "int", nullable: false),
                     LevelId = table.Column<int>(type: "int", nullable: false),
                     Duration = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    MentorId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Tags = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
