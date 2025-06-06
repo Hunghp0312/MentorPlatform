@@ -3,7 +3,5 @@ using Infrastructure.Entities;
 
 namespace ApplicationCore.Repositories.RepositoryInterfaces
 {
-    public interface IMentorTimeAvailableRepository : IBaseRepository<MentorTimeAvailable>
-    {
-    }
+    public interface IMentorTimeAvailableRepository : IBaseRepository<MentorTimeAvailable> { }
 }
