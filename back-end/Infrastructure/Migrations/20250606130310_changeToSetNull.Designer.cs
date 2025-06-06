@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250606111112_Init")]
-    partial class Init
+    [Migration("20250606130310_changeToSetNull")]
+    partial class changeToSetNull
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -680,6 +680,46 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Enum.ResourceCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ResourceCategory", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Productivity"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Communication"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Teamwork"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Leadership"
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Enum.SessionAvailabilityStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -993,6 +1033,41 @@ namespace Infrastructure.Migrations
                         {
                             Id = 8,
                             Name = "Entrepreneurship"
+                        });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Enum.TypeOfResource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TypeOfResource", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Video"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Pdf"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "External Link"
                         });
                 });
 
@@ -1385,7 +1460,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CourseId")
+                    b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
@@ -1395,15 +1470,19 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("DocumentContentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ResourceCategoryId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ResourceCategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int?>("Type")
+                    b.Property<int>("TypeOfResourceId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -1412,6 +1491,10 @@ namespace Infrastructure.Migrations
                     b.HasIndex("DocumentContentId")
                         .IsUnique()
                         .HasFilter("[DocumentContentId] IS NOT NULL");
+
+                    b.HasIndex("ResourceCategoryId");
+
+                    b.HasIndex("TypeOfResourceId");
 
                     b.ToTable("Resource");
                 });
@@ -2224,17 +2307,35 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId");
+                        .WithMany("Resources")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
                         .WithOne("Resource")
                         .HasForeignKey("Infrastructure.Entities.Resource", "DocumentContentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Infrastructure.Entities.Enum.ResourceCategory", "ResourceCategory")
+                        .WithMany()
+                        .HasForeignKey("ResourceCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.TypeOfResource", "TypeOfResource")
+                        .WithMany()
+                        .HasForeignKey("TypeOfResourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Course");
 
                     b.Navigation("DocumentContent");
+
+                    b.Navigation("ResourceCategory");
+
+                    b.Navigation("TypeOfResource");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SessionBooking", b =>
@@ -2432,6 +2533,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.Course", b =>
                 {
                     b.Navigation("LearnerCourses");
+
+                    b.Navigation("Resources");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>

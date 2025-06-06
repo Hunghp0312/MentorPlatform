@@ -20,5 +20,6 @@ namespace Infrastructure.Entities
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }
         public required string Tags { get; set; }
+        public ICollection<Resource> Resources { get; set; } = [];
     }
 }

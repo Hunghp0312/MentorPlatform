@@ -40,6 +40,7 @@ namespace Infrastructure.Data.Configuration
                 .WithMany(c => c.Courses)
                 .HasForeignKey(c => c.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
+            builder.HasMany(c => c.Resources).WithOne(r => r.Course).HasForeignKey(r => r.CourseId).OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(c => c.Mentor)
                 .WithMany(m => m.MentoredCourses)
