@@ -1,11 +1,12 @@
-using System.Security.Claims;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Users;
+using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.DTOs.Responses.Users;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -58,6 +59,18 @@ namespace Presentation.Controllers
             var result = await _userService.GetFullUserProfileByIdAsync(userId, requestUserId, role);
             return ToActionResult(result);
         }
+
+        [HttpGet("{mentorId:guid}")]
+        [ProducesResponseType(typeof(MentorInfo), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [Authorize]
+        public async Task<IActionResult> GetMentorInfoById(Guid userId)
+        {
+            var result = await _userService.GetMentorInfoByIdAsync(userId);
+            return ToActionResult(result);
+        }
+
+
         [HttpPut("{userId}/status")]
         [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
