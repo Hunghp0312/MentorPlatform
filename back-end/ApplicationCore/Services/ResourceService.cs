@@ -142,5 +142,28 @@ namespace ApplicationCore.Services
             return OperationResult<PagedResult<ResourceResponse>>.Ok(pagedResult);
         }
 
+        public async Task<OperationResult<UpdateResourceUrlResponse>> UpdateResourceUrl(Guid resourceId, Guid userId, string url)
+        {
+            var existingResource = await _resourceRepository.GetByIdAsync(resourceId);
+            if (existingResource == null)
+            {
+                return OperationResult<UpdateResourceUrlResponse>.BadRequest("There is no resource with that Id found for this user");
+            }
+            if (userId != existingResource?.Course!.MentorId)
+            {
+                return OperationResult<UpdateResourceUrlResponse>.NotFound("You are not authorized to upload file to this resource, cause you are not the mentor of this course.");
+            }
+
+            existingResource.Url = url;
+            existingResource.TypeOfResourceId = 3;
+            await _unitOfWork.SaveChangesAsync();
+
+            var response = new UpdateResourceUrlResponse()
+            {
+                ResourceId = existingResource.Id,
+                Url = existingResource.Url
+            };
+            return OperationResult<UpdateResourceUrlResponse>.Ok(response);
+        }
     }
 }
