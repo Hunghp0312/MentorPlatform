@@ -18,7 +18,7 @@ namespace ApplicationCore.Services
             var mentorDayWithSlots = await _mentorDayAvailableRepository.GetTimeSlotOfDayAsync(mentorId, date);
             if (mentorDayWithSlots == null)
             {
-                return OperationResult<MentorDayDto>.NotFound("This mentor has no slot with such date.");
+                return OperationResult<MentorDayDto>.Ok(new MentorDayDto());
             }
             var mentorDayDto = mentorDayWithSlots!.ToMentorDayDto();
 
