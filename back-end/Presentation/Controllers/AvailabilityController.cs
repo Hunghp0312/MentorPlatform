@@ -53,8 +53,7 @@ public class AvailabilityController : BaseController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SaveDaysAvailablility(
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]    public async Task<IActionResult> SaveDaysAvailability(
         Guid mentorId,
         [FromBody] SaveDaysAvailabilityRequestDto request
     )
@@ -62,4 +61,19 @@ public class AvailabilityController : BaseController
         var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
         return ToActionResult(result);
     }
+
+    [HttpPut("{mentorId}/schedule-configuration")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> SaveScheduleConfiguration(
+        Guid mentorId,
+        [FromBody] UpdateScheduleConfigurationRequestDto request
+    )
+    {
+        var result = await _availabilityService.SaveScheduleConfiguration(mentorId, request);
+        return ToActionResult(result);
+    }
+
 }

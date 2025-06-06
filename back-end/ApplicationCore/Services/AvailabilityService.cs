@@ -222,4 +222,81 @@ public class AvailabilityService : IAvailabilityService
         }
         return OperationResult<DayAvailabilityDto>.Ok(response.MapToDayDto());
     }
+
+    public async Task<OperationResult<string>> SaveScheduleConfiguration(
+        Guid mentorId,
+        UpdateScheduleConfigurationRequestDto request)
+    {
+        try
+        {
+            // Validate input parameters
+            if (!TimeOnly.TryParse(request.WorkDayStartTime, System.Globalization.CultureInfo.InvariantCulture, out var startTime))
+            {
+                return OperationResult<string>.BadRequest("Invalid work day start time format.");
+            }
+
+            if (!TimeOnly.TryParse(request.WorkDayEndTime, System.Globalization.CultureInfo.InvariantCulture, out var endTime))
+            {
+                return OperationResult<string>.BadRequest("Invalid work day end time format.");
+            }
+
+            if (startTime >= endTime)
+            {
+                return OperationResult<string>.BadRequest("Work start time must be earlier than end time.");
+            }
+
+            if (request.SessionDurationMinutes <= 0 || request.SessionDurationMinutes > 480) // Max 8 hours
+            {
+                return OperationResult<string>.BadRequest("Session duration must be between 1 and 480 minutes.");
+            }
+
+            if (request.BufferMinutes < 0 || request.BufferMinutes > 120) // Max 2 hours
+            {
+                return OperationResult<string>.BadRequest("Buffer time must be between 0 and 120 minutes.");
+            }
+
+            // Get current week to update all days
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var weekStart = today.AddDays(-(int)today.DayOfWeek); // Start of current week
+            var weekEnd = weekStart.AddDays(6);
+
+            var existingDays = await _dayRepo.GetByMentorAndDateRangeAsync(mentorId, weekStart, weekEnd);
+
+            await _unitOfWork.BeginTransactionAsync();
+
+            foreach (var existingDay in existingDays)
+            {
+                // Check if any time slots have bookings
+                var existingTimeBlockIds = existingDay.MentorTimeAvailables.Select(mta => mta.Id).ToList();
+                var hasBookings = await _sessionRepo.AnyAsync(sb => existingTimeBlockIds.Contains(sb.MentorTimeAvailableId));
+
+                if (hasBookings)
+                {
+                    return OperationResult<string>.BadRequest(
+                        $"Cannot update schedule configuration. Day {existingDay.Day:yyyy-MM-dd} has existing bookings.");
+                }
+
+                // Update the day configuration
+                existingDay.StartWorkTime = startTime;
+                existingDay.EndWorkTime = endTime;
+                existingDay.SessionDuration = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(request.SessionDurationMinutes));
+                existingDay.BufferTime = TimeOnly.FromTimeSpan(TimeSpan.FromMinutes(request.BufferMinutes));
+
+                // Clear existing time slots
+                existingDay.MentorTimeAvailables.Clear();
+
+                _dayRepo.Update(existingDay);
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitAsync();
+
+            return OperationResult<string>.NoContent();
+        }
+        catch (Exception ex)
+        {
+            await _unitOfWork.RollbackAsync();
+            return OperationResult<string>.Fail($"Failed to save schedule configuration: {ex.Message}");
+        }
+    }
 }
