@@ -14,5 +14,6 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
         Task<bool> ExistsByNameAsync(string name, Guid excludeId);
         Task<bool> ExistsByNameAsync(string name);
         Task<ICollection<Course>?> GetCoursesByMentorId(Guid mentorId);
+
     }
 }
