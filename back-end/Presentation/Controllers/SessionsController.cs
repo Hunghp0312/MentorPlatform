@@ -68,7 +68,6 @@ namespace Presentation.Controllers
         [Authorize(Roles = "Learner,Mentor")]
         public async Task<IActionResult> UpdateBookingStatus(Guid sessionId, [FromBody] UpdateBookingStatusRequestDto updateRequest)
         {
-
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
 

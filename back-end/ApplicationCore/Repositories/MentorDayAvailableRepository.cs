@@ -68,7 +68,7 @@ public class MentorDayAvailableRepository
                 .ThenInclude(up => up.AreaOfExpertise)
             .Where(d =>
                     d.MentorTimeAvailables.Any(s =>
-                        s.StatusId == 1 &&
+                       (s.StatusId == 1 || s.StatusId == 4) &&
                     (
                         d.Day > todayUtc ||
                         (d.Day == todayUtc && s.Start > timeNowUtc)

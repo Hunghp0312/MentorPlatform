@@ -100,7 +100,7 @@ namespace ApplicationCore.Services
                 return OperationResult<CreatedBookingResponseDto>.BadRequest("The selected availability slot does not belong to the specified mentor.");
             }
 
-            if (slot.StatusId != 1)
+            if (slot.StatusId != 1 && slot.StatusId != 4)
             {
                 return OperationResult<CreatedBookingResponseDto>.BadRequest("The selected availability slot is no longer available.");
             }
@@ -246,6 +246,11 @@ namespace ApplicationCore.Services
             if (booking == null)
             {
                 return OperationResult<UpdateBookingResponseDto>.NotFound("Booking session not found.");
+            }
+
+            if (booking.StatusId == 5 || booking.StatusId == 4)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("Cannot update when status is Completed or Cancelled.");
             }
 
             var user = await _userRepository.GetByIdAsync(userId);
