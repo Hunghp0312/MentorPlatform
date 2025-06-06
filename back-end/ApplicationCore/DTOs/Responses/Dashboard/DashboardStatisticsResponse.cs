@@ -4,10 +4,8 @@ public class DashboardStatisticsResponseDto
     public int TotalMentors { get; set; }
     public int TotalLearners { get; set; }
     public int TotalCourses { get; set; }
-    public int ActiveCourses { get; set; }
-    public int PendingCourses { get; set; }
-    public int TotalSessions { get; set; }
     public int PendingApprovals { get; set; }
     public int TotalResources { get; set; }
-
+    public int AddedUsersThisMonth { get; set; }
+    public double UserGrowthPercent { get; set; }
 }
