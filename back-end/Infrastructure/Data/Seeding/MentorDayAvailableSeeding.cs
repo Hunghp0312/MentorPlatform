@@ -18,8 +18,8 @@ namespace Infrastructure.Data.Seeding
                     Day = new DateOnly(2025, 6, 2),
                     StartWorkTime = new TimeOnly(9, 0),
                     EndWorkTime = new TimeOnly(12, 0),
-                    SessionDuration = new TimeOnly(1, 0),
-                    BufferTime = new TimeOnly(0, 15),
+                    SessionDuration = new TimeOnly(0, 30),
+                    BufferTime = new TimeOnly(0, 0),
                 },
                 new MentorDayAvailable
                 {
@@ -28,8 +28,8 @@ namespace Infrastructure.Data.Seeding
                     Day = new DateOnly(2025, 6, 3),
                     StartWorkTime = new TimeOnly(14, 0),
                     EndWorkTime = new TimeOnly(17, 0),
-                    SessionDuration = new TimeOnly(1, 0),
-                    BufferTime = new TimeOnly(0, 15),
+                    SessionDuration = new TimeOnly(0, 30),
+                    BufferTime = new TimeOnly(0, 0),
                 },
                 new MentorDayAvailable
                 {
@@ -38,8 +38,8 @@ namespace Infrastructure.Data.Seeding
                     Day = new DateOnly(2025, 6, 5),
                     StartWorkTime = new TimeOnly(19, 0),
                     EndWorkTime = new TimeOnly(21, 0),
-                    SessionDuration = new TimeOnly(1, 0),
-                    BufferTime = new TimeOnly(0, 15),
+                    SessionDuration = new TimeOnly(0, 30),
+                    BufferTime = new TimeOnly(0, 0),
                 },
                 new MentorDayAvailable
                 {
