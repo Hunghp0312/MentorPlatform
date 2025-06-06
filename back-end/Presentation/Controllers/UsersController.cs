@@ -64,9 +64,9 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(MentorInfo), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [Authorize]
-        public async Task<IActionResult> GetMentorInfoById(Guid userId)
+        public async Task<IActionResult> GetMentorInfoById(Guid mentorId)
         {
-            var result = await _userService.GetMentorInfoByIdAsync(userId);
+            var result = await _userService.GetMentorInfoByIdAsync(mentorId);
             return ToActionResult(result);
         }
 

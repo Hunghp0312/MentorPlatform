@@ -120,14 +120,14 @@ const SessionManagementCard: React.FC = () => {
     };
 
     const confirmCancel = async () => {
-        if (!showDeclineModal) return;
+        // if (!showDeclineModal) return;
         if (declineMessage.trim().length == 0) {
             alert("When cancel need to provide reason.")
             return;
         }
 
         try {
-            await sessionService.updateStatusBookingSession(showDeclineModal, 5);
+            await sessionService.updateStatusBookingSession(showCancelModal as string, 5,declineMessage);
             toast.success('Session declined successfully!');
             fetchSessionRequests();
         }
@@ -136,7 +136,7 @@ const SessionManagementCard: React.FC = () => {
             toast.error('Failed to decline session. Please try again.');
         }
         finally {
-            setShowDeclineModal(null);
+            setShowCancelModal(null);
             setDeclineMessage('');
         }
     }
@@ -165,15 +165,7 @@ const SessionManagementCard: React.FC = () => {
 
 
     const handleCancelSession = async (sessionId: string) => {
-        try {
-            await sessionService.updateStatusBookingSession(sessionId, 5);
-            toast.success('Session accepted successfully!');
-            fetchSessionRequests();
-        }
-        catch (error) {
-            console.error('Error accepting session:', error);
-            toast.error('Failed to accept session. Please try again.');
-        }
+        setShowCancelModal(sessionId);
     }
 
     const handleCompletedSession = async (sessionId: string) => {
@@ -263,7 +255,7 @@ const SessionManagementCard: React.FC = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.learnerFullName || DefaultImage}
+                                        src={request.learnerPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />

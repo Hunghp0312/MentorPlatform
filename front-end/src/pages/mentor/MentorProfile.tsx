@@ -129,12 +129,12 @@ const MentorProfile: React.FC = () => {
         try {
             await sessionService.bookSession(bookingData);
             toast.success("Session booked successfully!");
+            setOpenDialog(false);
             navigate(`/booking-session/${id}`);
+
         }
         catch (error) {
             console.error("Error booking session:", error);
-        } finally {
-            setOpenDialog(false);
         }
     }
     useEffect(() => {
@@ -256,7 +256,6 @@ const MentorProfile: React.FC = () => {
                     </button>
                     <div className="flex gap-3">
                         <button className="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded text-sm">Share Profile</button>
-                        <button className="px-4 py-2 bg-slate-600 hover:bg-slate-500 rounded text-sm">Save</button>
                     </div>
                 </div>
             </div>
@@ -368,9 +367,7 @@ const MentorProfile: React.FC = () => {
                 )}
             </div>
             {openDialog && (
-
                 <BookingSessionDialog mentorId={id as string} onClose={() => setOpenDialog(false)} onConfirm={handleConfirmBooking} />
-
             )}
         </div>
     )

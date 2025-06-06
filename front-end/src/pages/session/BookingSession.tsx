@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Video, Users, Building, Mail, Calendar, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Video, Users, Building} from 'lucide-react';
 import { toast } from 'react-toastify';
 import { TimeSlot } from '../../types/session';
 import { sessionService } from '../../services/session.service';
@@ -8,6 +8,7 @@ import LoadingOverlay from '../../components/loading/LoadingOverlay';
 import { formatTime } from '../../utils/formatDate';
 import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import { SlotStatus } from '../../types/commonType';
+import { userService } from '../../services/user.service';
 
 interface SessionType {
     id: string;
@@ -125,7 +126,18 @@ const BookingSession: React.FC = () => {
             try {
                 setLoading(true);
                 setSelectedDate(Number(today.split('-')[2]));
-                const res = await sessionService.getSessionSlots(id, today);
+                const res = await sessionService.getSessionSlots(id, today).catch(async () => {
+                    const result = await userService.getMentorById(id);
+                    setMentorInfo({
+                        mentorFullName: result.mentorFullName,
+                        expertiseTags: result.expertiseTags,
+                        id: id,
+                        startWorkTime: "",
+                        endWorkTime: "",
+                        photoData: result.photoData,
+                    })
+
+                });
 
                 setSlots(res.mentorTimeSlots);
                 const mentor = {
@@ -137,6 +149,7 @@ const BookingSession: React.FC = () => {
                     photoData: res.photoData,
                 }
                 setMentorInfo(mentor);
+
             } catch (error) {
                 console.error("Error fetching initial slots:", error);
                 setSlots([]);
@@ -169,19 +182,12 @@ const BookingSession: React.FC = () => {
                         <div>
                             <h2 className="font-bold">{mentorInfo?.mentorFullName}</h2>
                             <p className="text-gray-400 text-sm">{mentorInfo?.expertiseTags?.join(', ')}</p>
-                            <p className="text-green-400 text-xs">Available from {`${formatTime(mentorInfo?.startWorkTime)} - ${formatTime(mentorInfo?.endWorkTime)}`}</p>
+                            {mentorInfo?.startWorkTime && mentorInfo?.endWorkTime ? (
+                                <p className="text-green-400 text-xs">Available from {`${formatTime(mentorInfo?.startWorkTime)} - ${formatTime(mentorInfo?.endWorkTime)}`}</p>
+                            ) :  (
+                                <p className="text-red-400 text-xs">No available time slots</p>
+                            )}
                         </div>
-                    </div>
-                    <div className="flex space-x-2">
-                        <button className="w-8 h-8 rounded-full bg-[#f47521] flex items-center justify-center">
-                            <Plus size={16} />
-                        </button>
-                        <button className="w-8 h-8 rounded-full bg-[#f47521] flex items-center justify-center">
-                            <Mail size={16} />
-                        </button>
-                        <button className="w-8 h-8 rounded-full bg-[#f47521] flex items-center justify-center">
-                            <Calendar size={16} />
-                        </button>
                     </div>
                 </div>
                 {/* Calendar navigation */}
@@ -331,8 +337,8 @@ const BookingSession: React.FC = () => {
                 {/* Confirm button */}
                 <button
                     className={`w-full py-4 rounded-lg font-semibold transition-colors 
-                        ${(loadingBooking || selectedSlot === '' || selectedSessionType === null) 
-                            ? 'bg-gray-600 opacity-60 cursor-not-allowed' 
+                        ${(loadingBooking || selectedSlot === '' || selectedSessionType === null)
+                            ? 'bg-gray-600 opacity-60 cursor-not-allowed'
                             : 'bg-[#f47521] hover:bg-opacity-90 hover:cursor-pointer hover:bg-orange-400'
                         }`}
                     onClick={() => handleBooking()}
