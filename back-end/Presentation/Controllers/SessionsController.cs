@@ -37,7 +37,6 @@ namespace Presentation.Controllers
 
         [HttpGet("{mentorId}/schedule-by-day")]
         [ProducesResponseType(typeof(MentorDayDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MentorDayDto>> GetMentorScheduleForDay(
         Guid mentorId,
         [FromQuery] DateOnly date)
