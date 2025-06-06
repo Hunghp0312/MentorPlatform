@@ -222,7 +222,8 @@ namespace ApplicationCore.Services
                 LearnerMessage = sb.LearnerMessage,
                 StatusName = sb.Status.Name,
                 SessionTypeName = sb.SessionType.Name,
-                BookingRequestedAt = sb.CreatedAt
+                BookingRequestedAt = sb.CreatedAt,
+                CancelReason = sb.CancelReason
             }).ToList();
 
             var pagedResult = new PagedResult<MentorBookingDetailsDto>
