@@ -33,7 +33,7 @@ export const userService = {
   },
   async getMentorById(mentorId: string) {
     try {
-      const response = await axiosInstance.get(`/Users/${mentorId}`);
+      const response = await axiosInstance.get(`/Users/${mentorId}/mentor-info`);
       return response.data;
     }catch (error) {
       console.error("Error fetching mentor by ID:", error);

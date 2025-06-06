@@ -709,6 +709,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 3,
                             Name = "Rescheduled"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Waiting"
                         });
                 });
 
@@ -1156,31 +1161,31 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
-                            BufferTime = new TimeOnly(0, 15, 0),
+                            BufferTime = new TimeOnly(0, 0, 0),
                             Day = new DateOnly(2025, 6, 2),
                             EndWorkTime = new TimeOnly(12, 0, 0),
                             MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            SessionDuration = new TimeOnly(1, 0, 0),
+                            SessionDuration = new TimeOnly(0, 30, 0),
                             StartWorkTime = new TimeOnly(9, 0, 0)
                         },
                         new
                         {
                             Id = new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"),
-                            BufferTime = new TimeOnly(0, 15, 0),
+                            BufferTime = new TimeOnly(0, 0, 0),
                             Day = new DateOnly(2025, 6, 3),
                             EndWorkTime = new TimeOnly(17, 0, 0),
                             MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            SessionDuration = new TimeOnly(1, 0, 0),
+                            SessionDuration = new TimeOnly(0, 30, 0),
                             StartWorkTime = new TimeOnly(14, 0, 0)
                         },
                         new
                         {
                             Id = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
-                            BufferTime = new TimeOnly(0, 15, 0),
+                            BufferTime = new TimeOnly(0, 0, 0),
                             Day = new DateOnly(2025, 6, 5),
                             EndWorkTime = new TimeOnly(21, 0, 0),
                             MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
-                            SessionDuration = new TimeOnly(1, 0, 0),
+                            SessionDuration = new TimeOnly(0, 30, 0),
                             StartWorkTime = new TimeOnly(19, 0, 0)
                         },
                         new
@@ -1292,7 +1297,7 @@ namespace Infrastructure.Migrations
                             DayId = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
                             End = new TimeOnly(9, 30, 0),
                             Start = new TimeOnly(9, 0, 0),
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
@@ -1300,7 +1305,7 @@ namespace Infrastructure.Migrations
                             DayId = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
                             End = new TimeOnly(10, 0, 0),
                             Start = new TimeOnly(9, 30, 0),
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {

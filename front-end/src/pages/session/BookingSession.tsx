@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Video, Users, Building} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Video, Users, Building } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { TimeSlot } from '../../types/session';
 import { sessionService } from '../../services/session.service';
@@ -64,6 +64,18 @@ const BookingSession: React.FC = () => {
 
         try {
             const res = await sessionService.getSessionSlots(id, formattedDate);
+            if (res.mentorTimeSlots.length === 0) {
+                const result = await userService.getMentorById(id);
+                setMentorInfo({
+                    mentorFullName: result.mentorFullName,
+                    expertiseTags: result.expertiseTags,
+                    id: id,
+                    startWorkTime: "",
+                    endWorkTime: "",
+                    photoData: result.photoData,
+                })
+                return;
+            }
             setSlots(res.mentorTimeSlots);
             const mentor = {
                 id: res.mentorId,
@@ -73,6 +85,7 @@ const BookingSession: React.FC = () => {
                 mentorFullName: res.mentorFullName,
                 photoData: res.photoData,
             }
+
             setMentorInfo(mentor);
         }
         catch (error) {
@@ -126,7 +139,8 @@ const BookingSession: React.FC = () => {
             try {
                 setLoading(true);
                 setSelectedDate(Number(today.split('-')[2]));
-                const res = await sessionService.getSessionSlots(id, today).catch(async () => {
+                const res = await sessionService.getSessionSlots(id, today)
+                if (res.mentorTimeSlots.length === 0) {
                     const result = await userService.getMentorById(id);
                     setMentorInfo({
                         mentorFullName: result.mentorFullName,
@@ -136,19 +150,9 @@ const BookingSession: React.FC = () => {
                         endWorkTime: "",
                         photoData: result.photoData,
                     })
-
-                });
+                }
 
                 setSlots(res.mentorTimeSlots);
-                const mentor = {
-                    id: res.mentorId,
-                    startWorkTime: res.startWorkTime,
-                    endWorkTime: res.endWorkTime,
-                    expertiseTags: res.expertiseTags,
-                    mentorFullName: res.mentorFullName,
-                    photoData: res.photoData,
-                }
-                setMentorInfo(mentor);
 
             } catch (error) {
                 console.error("Error fetching initial slots:", error);
@@ -184,7 +188,7 @@ const BookingSession: React.FC = () => {
                             <p className="text-gray-400 text-sm">{mentorInfo?.expertiseTags?.join(', ')}</p>
                             {mentorInfo?.startWorkTime && mentorInfo?.endWorkTime ? (
                                 <p className="text-green-400 text-xs">Available from {`${formatTime(mentorInfo?.startWorkTime)} - ${formatTime(mentorInfo?.endWorkTime)}`}</p>
-                            ) :  (
+                            ) : (
                                 <p className="text-red-400 text-xs">No available time slots</p>
                             )}
                         </div>
