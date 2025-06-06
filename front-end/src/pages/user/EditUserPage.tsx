@@ -2,6 +2,7 @@ import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
 import { Loader2, Save, ArrowLeft } from "lucide-react";
+import imageCompression from "browser-image-compression";
 
 // Components
 import InputCustom from "../../components/input/InputCustom";
@@ -18,6 +19,7 @@ import { pathName } from "../../constants/pathName";
 import { EnumType } from "../../types/commonType";
 import { getUserFromToken } from "../../utils/auth";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
+import ProfilePictureUpload from "../../components/register/child/ProfilePictureUpload";
 
 // Constants for form options
 const teachingApproachOptions = [
@@ -232,13 +234,21 @@ const EditUserPage = () => {
   };
 
   // Handle file upload for profile picture
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
+    const options = {
+      maxSizeMB: 0.1,
+      maxWidthOrHeight: 1024, // Optional: also resize to help reduce size
+      useWebWorker: true,
+    };
     if (file) {
+      const compressedFile = await imageCompression(file, options);
+      const compressedUrl = URL.createObjectURL(compressedFile);
+      setImagePreview(compressedUrl);
+
       // Validate file type and size
       const validTypes = ["image/jpeg", "image/png"];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
 
       if (!validTypes.includes(file.type)) {
         setErrors({
@@ -261,21 +271,21 @@ const EditUserPage = () => {
       setErrors({ ...errors, photoData: "" });
 
       // Update form data
-      setUserData({ ...userData, photoData: file });
+      setUserData({ ...userData, photoData: compressedFile });
 
       // Preview image
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      // const reader = new FileReader();
+      // reader.onload = (e) => {
+      //   setImagePreview(e.target?.result as string);
+      // };
+      // reader.readAsDataURL(file);
     }
   };
   const navigateToHome = () => {
-    if (decodedToken?.role === "Admin") {
+    if (decodedToken?.role === "Admin" && decodedToken?.id !== id) {
       navigate(pathName.userList);
     } else {
-      navigate(pathName.home);
+      navigate(`${pathName.profile}/${id}`);
     }
   };
 
@@ -316,7 +326,10 @@ const EditUserPage = () => {
       newErrors.professionalSkill =
         "Professional skill must be less than 50 characters";
     }
-    if (!userData.professionalSkill?.trim()) {
+    if (
+      !userData.professionalSkill?.trim() &&
+      decodedToken?.role === "Mentor"
+    ) {
       newErrors.professionalSkill = "Please fill in this field";
     }
     if (
@@ -335,7 +348,10 @@ const EditUserPage = () => {
       newErrors.industryExperience =
         "Industry experience must be less than 50 characters";
     }
-    if (!userData.industryExperience || !userData.industryExperience.trim()) {
+    if (
+      (!userData.industryExperience || !userData.industryExperience.trim()) &&
+      decodedToken?.role === "Mentor"
+    ) {
       newErrors.industryExperience = "Please fill in this field";
     }
 
@@ -350,7 +366,7 @@ const EditUserPage = () => {
       newErrors.sessionDurationId = "Session duration is required";
     }
     if (!userData.userGoal?.trim()) {
-      newErrors.userGoal = "Your goals are required";
+      newErrors.userGoal = `Please fill in this field`;
     }
     // Validate arrays that must have at least one item
     if (userData.userProfileAvailabilities.length === 0) {
@@ -433,8 +449,8 @@ const EditUserPage = () => {
 
       // Send update request
       await userService.updateUserProfile(formData, id!);
-
       toast.success("Profile updated successfully!");
+      setIsSaving(false);
       navigateToHome();
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -499,46 +515,12 @@ const EditUserPage = () => {
                 {/* Profile Picture */}
                 <div className="md:col-span-1">
                   <div className="flex flex-col items-center justify-center space-y-4">
-                    <div className="relative w-36 h-36 rounded-full overflow-hidden border-2 border-gray-600">
-                      {imagePreview ? (
-                        <img
-                          src={imagePreview}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                          <span className="text-gray-400 text-4xl">👤</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-2 w-full">
-                      <label
-                        htmlFor="photoData"
-                        className="py-2 px-4 bg-gray-700 hover:bg-gray-600 text-gray-200 text-sm rounded-md cursor-pointer text-center transition-colors"
-                      >
-                        Choose Photo
-                      </label>
-                      <input
-                        type="file"
-                        id="photoData"
-                        name="photoData"
-                        accept="image/jpeg,image/png"
-                        className="hidden"
-                        onChange={handleFileChange}
-                      />
-                      {imagePreview && (
-                        <button
-                          type="button"
-                          onClick={handleRemoveImage}
-                          className="py-2 px-4 border border-red-400 text-red-400 text-sm rounded-md hover:bg-red-900 hover:border-red-300 hover:text-red-300 transition-colors"
-                        >
-                          Remove Photo
-                        </button>
-                      )}
-                    </div>
-
+                    <ProfilePictureUpload
+                      picturePreview={imagePreview}
+                      onPictureChange={handleFileChange}
+                      onDeletePicture={handleRemoveImage}
+                      inputId="profilePictureActualInput"
+                    />
                     {errors.photoData && (
                       <p className="text-sm text-red-400">{errors.photoData}</p>
                     )}
@@ -589,6 +571,7 @@ const EditUserPage = () => {
                     placeholder="e.g. JavaScript, Python, Project Management"
                     className="bg-gray-700 border-gray-600"
                     errorMessage={errors.professionalSkill}
+                    isRequired={decodedToken?.role === "Mentor"}
                   />
 
                   <InputCustom
@@ -600,20 +583,11 @@ const EditUserPage = () => {
                     placeholder="e.g. 5 years in Software Development"
                     className="bg-gray-700 border-gray-600"
                     errorMessage={errors.industryExperience}
+                    isRequired={decodedToken?.role === "Mentor"}
                   />
                 </div>
               </div>
             </section>
-            {/* <div className="grid grid-cols-2 gap-4 w-full">
-              {rolesData.map((roleOpt) => (
-                <RoleSelectionCard
-                  key={roleOpt.name} // Role enum values are numbers, good for keys
-                  role={roleOpt}
-                  isSelected={role === roleOpt.name}
-                  onClick={() => onRoleChange(roleOpt.name)}
-                />
-              ))}
-            </div> */}
             {/* Areas of Expertise Section */}
             <div>
               <MultiSelectButtons
@@ -808,7 +782,11 @@ const EditUserPage = () => {
               </div>
 
               <InputCustom
-                label="Your Goals"
+                label={`${
+                  decodedToken?.role === "Learner"
+                    ? "What do you hope to learn?"
+                    : "Motivation Statement"
+                }`}
                 name="userGoal"
                 type="textarea"
                 value={userData.userGoal || ""}
@@ -816,6 +794,7 @@ const EditUserPage = () => {
                 placeholder="What are you hoping to achieve?"
                 className="min-h-[100px] bg-gray-700 border-gray-600"
                 errorMessage={errors.userGoal}
+                isRequired
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -829,6 +808,7 @@ const EditUserPage = () => {
                   }
                   isRequired
                   className="bg-gray-700 border-gray-600"
+                  dataTestId="sessionFrequencyId"
                 />
 
                 <Dropdown
@@ -841,13 +821,14 @@ const EditUserPage = () => {
                   }
                   isRequired
                   className="bg-gray-700 border-gray-600"
+                  dataTestId="sessionDurationId"
                 />
               </div>
             </div>
 
             <div className="space-y-5 pt-3">
               <InputCheckbox
-                label="Make profile private (only visible to connections)"
+                label="Private profile"
                 name="privacyProfile"
                 checked={userData.privacyProfile}
                 onChange={handleCheckboxChange}
@@ -857,17 +838,17 @@ const EditUserPage = () => {
               </p>
 
               <InputCheckbox
-                label="Allow others to message me"
+                label="Allow messages"
                 name="messagePermission"
                 checked={userData.messagePermission}
                 onChange={handleCheckboxChange}
               />
               <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
-                Let others initiate contact with you through messages
+                Others can initiate contact with you through messages
               </p>
 
               <InputCheckbox
-                label="Enable notifications"
+                label="Receive notifications"
                 name="notificationsEnabled"
                 checked={userData.notificationsEnabled}
                 onChange={handleCheckboxChange}
@@ -884,6 +865,7 @@ const EditUserPage = () => {
                 type="button"
                 onClick={navigateToHome}
                 className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-600 rounded-lg text-gray-300 font-semibold transition-colors"
+                disabled={isSaving}
               >
                 Cancel
               </button>

@@ -316,7 +316,11 @@ const PreferenceSetupPanel: React.FC<Props> = ({
       </div>
 
       <InputCustom
-        label="Your Goal(s)"
+        label={`${
+          userRoleEnum === RoleEnum.Learner
+            ? "What do you hope to learn?"
+            : "Motivation Statement"
+        } `}
         name="goal"
         type="textarea"
         value={currentPreferences.goal}
@@ -394,10 +398,10 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         </h3>
         <InputCheckbox
           label="Private profile"
-          name="isProfilePrivate"
-          checked={currentPreferences.privacySettings.isProfilePrivate}
+          name="privacyProfile"
+          checked={currentPreferences.privacySettings.privacyProfile}
           onChange={(e) =>
-            handlePrivacySettingChange("isProfilePrivate", e.target.checked)
+            handlePrivacySettingChange("privacyProfile", e.target.checked)
           }
         />
         <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
@@ -405,10 +409,10 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         </p>
         <InputCheckbox
           label="Allow messages"
-          name="allowMessages"
-          checked={currentPreferences.privacySettings.allowMessages}
+          name="messagePermission"
+          checked={currentPreferences.privacySettings.messagePermission}
           onChange={(e) =>
-            handlePrivacySettingChange("allowMessages", e.target.checked)
+            handlePrivacySettingChange("messagePermission", e.target.checked)
           }
         />
         <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
@@ -416,10 +420,10 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         </p>
         <InputCheckbox
           label="Receive notifications"
-          name="receiveNotifications"
-          checked={currentPreferences.privacySettings.receiveNotifications}
+          name="notificationsEnabled"
+          checked={currentPreferences.privacySettings.notificationsEnabled}
           onChange={(e) =>
-            handlePrivacySettingChange("receiveNotifications", e.target.checked)
+            handlePrivacySettingChange("notificationsEnabled", e.target.checked)
           }
         />
         <p className="-mt-4 ml-[calc(1rem+8px)] text-xs text-gray-400">
@@ -432,12 +436,14 @@ const PreferenceSetupPanel: React.FC<Props> = ({
         <button
           type="button"
           onClick={onBack}
-          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-650 rounded-lg text-gray-300 font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 border border-gray-600 bg-gray-700 hover:bg-gray-650 rounded-lg text-gray-300 font-semibold"
+        >
           Back
         </button>
         <button
           type="submit"
-          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold">
+          className="w-full sm:w-auto flex-1 py-3 px-5 bg-orange-500 hover:bg-orange-600 rounded-lg text-white font-semibold"
+        >
           Complete Registration
         </button>
       </div>

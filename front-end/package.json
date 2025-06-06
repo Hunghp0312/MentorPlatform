@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.6",
     "axios": "^1.9.0",
+    "browser-image-compression": "^2.0.2",
     "date-fns": "^4.1.0",
     "front-end": "file:",
     "jwt-decode": "^4.0.0",

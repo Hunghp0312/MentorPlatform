@@ -29,7 +29,7 @@ public class MentorDayAvailableRepository
     {
         var query = _dbSet.Where(d => d.MentorId == mentorId && d.Day >= start && d.Day <= end);
 
-        query = query.Include(d => d.MentorTimeAvailables);
+        query = query.Include(d => d.MentorTimeAvailables).ThenInclude(mta => mta.Status);
 
         return await query.ToListAsync();
     }
@@ -38,6 +38,7 @@ public class MentorDayAvailableRepository
     {
         var resDay = await _dbSet
             .Include(d => d.MentorTimeAvailables)
+            .ThenInclude(mta => mta.Status)
             .FirstOrDefaultAsync(d => d.MentorId == mentorId && d.Day == day);
 
         return resDay;
@@ -62,13 +63,13 @@ public class MentorDayAvailableRepository
         return await _dbSet
             .Include(a => a.MentorTimeAvailables)
             .Include(a => a.Mentor)
-                .ThenInclude(u => u.UserProfile)
-             .Include(a => a.Mentor)
-                .ThenInclude(up => up.UserAreaOfExpertises)
-                .ThenInclude(up => up.AreaOfExpertise)
+            .ThenInclude(u => u.UserProfile)
+            .Include(a => a.Mentor)
+            .ThenInclude(up => up.UserAreaOfExpertises)
+            .ThenInclude(up => up.AreaOfExpertise)
             .Where(d =>
                     d.MentorTimeAvailables.Any(s =>
-                        s.StatusId == 1 &&
+                       (s.StatusId == 1 || s.StatusId == 4) &&
                     (
                         d.Day > todayUtc ||
                         (d.Day == todayUtc && s.Start > timeNowUtc)

@@ -100,7 +100,7 @@ namespace ApplicationCore.Services
                 return OperationResult<CreatedBookingResponseDto>.BadRequest("The selected availability slot does not belong to the specified mentor.");
             }
 
-            if (slot.StatusId != 1)
+            if (slot.StatusId != 1 && slot.StatusId != 4)
             {
                 return OperationResult<CreatedBookingResponseDto>.BadRequest("The selected availability slot is no longer available.");
             }
@@ -130,6 +130,7 @@ namespace ApplicationCore.Services
                 SessionTypeId = bookingRequest.SessionTypeId
             };
 
+            slot.StatusId = 4;
             await _sessionBookingRepository.AddAsync(newBooking);
             await _unitOfWork.SaveChangesAsync();
 
@@ -221,7 +222,8 @@ namespace ApplicationCore.Services
                 LearnerMessage = sb.LearnerMessage,
                 StatusName = sb.Status.Name,
                 SessionTypeName = sb.SessionType.Name,
-                BookingRequestedAt = sb.CreatedAt
+                BookingRequestedAt = sb.CreatedAt,
+                CancelReason = sb.CancelReason
             }).ToList();
 
             var pagedResult = new PagedResult<MentorBookingDetailsDto>
@@ -246,6 +248,11 @@ namespace ApplicationCore.Services
             if (booking == null)
             {
                 return OperationResult<UpdateBookingResponseDto>.NotFound("Booking session not found.");
+            }
+
+            if (booking.StatusId == 5 || booking.StatusId == 4)
+            {
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("Cannot update when status is Completed or Cancelled.");
             }
 
             var user = await _userRepository.GetByIdAsync(userId);
@@ -293,6 +300,19 @@ namespace ApplicationCore.Services
 
             switch (updateRequest.NewStatusId)
             {
+                case 3:
+                    booking.StatusId = 3;
+                    break;
+
+                case 4:
+                    booking.StatusId = 4;
+                    break;
+
+                case 5:
+                    booking.StatusId = 5;
+                    booking.CancelReason = updateRequest.CancelReason;
+                    break;
+
                 case 6:
                     var otherPendingBookings = await _sessionBookingRepository.FindAsync(sb => sb.MentorTimeAvailableId == booking.MentorTimeAvailableId &&
                               sb.Id != sessionId &&
@@ -307,19 +327,6 @@ namespace ApplicationCore.Services
                     booking.StatusId = 6;
                     booking.MentorTimeAvailable.StatusId = 2;
                     break;
-
-                case 3:
-                    booking.StatusId = 3;
-                    break;
-
-                case 4:
-                    booking.StatusId = 4;
-                    break;
-                case 5:
-                    booking.StatusId = 5;
-                    booking.CancelReason = updateRequest.CancelReason;
-                    break;
-
                 default:
                     return OperationResult<UpdateBookingResponseDto>.BadRequest($"Invalid target status ID: {updateRequest.NewStatusId}.");
             }
@@ -346,9 +353,9 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.Unauthorized("You are not authorized to reschedule this booking.");
             }
 
-            if (originalBooking.StatusId != 6 && originalBooking.StatusId != 1)
+            if (originalBooking.StatusId != 1)
             {
-                return OperationResult<UpdateBookingResponseDto>.BadRequest($"Only 'Pending' or 'Scheduled' sessions can be rescheduled. Current status is '{originalBooking.Status.Name}'.");
+                return OperationResult<UpdateBookingResponseDto>.BadRequest($"Only 'Pending' sessions can be rescheduled. Current status is '{originalBooking.Status.Name}'.");
             }
             var oldSlot = originalBooking.MentorTimeAvailable;
             if (oldSlot.Id == rescheduleRequest.NewMentorTimeAvailableId)
@@ -368,9 +375,9 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot does not belong to you.");
             }
 
-            if (newSlot.StatusId != 1)
+            if (newSlot.StatusId != 1 && newSlot.StatusId != 4)
             {
-                return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot is not available for booking.");
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot is not available for reschedule.");
             }
 
             DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start, DateTimeKind.Utc);
@@ -379,11 +386,8 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot must be in the future.");
             }
 
-            if (originalBooking.StatusId == 6)
-                oldSlot.StatusId = 3;
             originalBooking.StatusId = 2;
             originalBooking.MentorTimeAvailableId = newSlot.Id;
-
 
             await _unitOfWork.SaveChangesAsync();
             var updatedBookingStatus = await _sessionBookingRepository.GetByIdAsync(sessionId);

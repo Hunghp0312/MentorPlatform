@@ -212,7 +212,8 @@ const ListUser = () => {
                 e.stopPropagation();
                 navigate(`/profile/${row.id}`);
               }}
-              title="View Details"
+              id="view-profile-button"
+              title="View profile"
               className="text-gray-500 hover:text-gray-700">
               <UserCog className="w-4 h-4" />
             </button>
@@ -221,12 +222,12 @@ const ListUser = () => {
                 e.stopPropagation();
                 navigate(`/admin/message/${row.id}`);
               }}
+              id="send-message-button"
               title="Send Message"
               className="text-purple-500 hover:text-purple-700">
               <MessageSquare className="w-4 h-4" />
             </button>
-            {row.status.id === StatusEnum.Active ||
-            row.status.id === StatusEnum.Pending ? (
+            {row.status.id === StatusEnum.Active ? (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -234,6 +235,7 @@ const ListUser = () => {
                   setDeactivateModalOpen(true);
                 }}
                 title="Deactivate User"
+                id="deactivate-user-button"
                 className="text-red-500 hover:text-red-700">
                 <XCircle className="w-4 h-4" />
               </button>
@@ -243,6 +245,7 @@ const ListUser = () => {
                   e.stopPropagation();
                   handleActivate(row.id);
                 }}
+                id="activate-user-button"
                 title="Activate User"
                 className="text-green-500 hover:text-green-700">
                 <CheckCircle className="w-4 h-4" />

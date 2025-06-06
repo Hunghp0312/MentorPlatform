@@ -417,12 +417,7 @@ const AvailabilityManager = () => {
       : null;
 
   const timeSlots = selectedDayData
-    ? getTimeSlots(
-        selectedDayData.workStartTime || workHours.start,
-        selectedDayData.workEndTime || workHours.end,
-        selectedDayData.sessionDurationMinutes || sessionDuration,
-        selectedDayData.bufferMinutes || bufferTime
-      )
+    ? getTimeSlots(workHours.start, workHours.end, sessionDuration, bufferTime)
     : [];
 
   // Get the current time slots for the selected day

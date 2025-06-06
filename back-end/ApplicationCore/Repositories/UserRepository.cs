@@ -130,6 +130,15 @@ public class UserRepository : BaseRepository<User>, IUserRepository
                              .FirstOrDefaultAsync(u => u.Id == id);
     }
 
+    public async Task<User?> GetMentorByIdAsync(Guid userId)
+    {
+        return await _dbSet
+                             .Include(u => u.UserProfile)
+                             .Include(u => u.UserAreaOfExpertises)
+                             .ThenInclude(ua => ua.AreaOfExpertise)
+                             .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+
     public async Task<User?> GetUserByRefreshTokenAsync(string token)
     {
         return await _dbSet.Include(u => u.Role)
