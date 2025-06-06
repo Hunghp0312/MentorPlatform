@@ -41,6 +41,11 @@ namespace Infrastructure.Data.Configuration
                 .HasForeignKey(c => c.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(c => c.Mentor)
+                .WithMany(m => m.MentoredCourses)
+                .HasForeignKey(c => c.MentorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasData(CourseSeeding.SeedCourses());
         }
     }

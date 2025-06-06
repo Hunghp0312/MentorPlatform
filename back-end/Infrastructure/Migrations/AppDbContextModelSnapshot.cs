@@ -163,18 +163,15 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("LevelId");
 
-                    b.HasIndex("StatusId");
+                    b.HasIndex("MentorId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("StatusId");
 
                     b.ToTable("Course", (string)null);
 
@@ -188,7 +185,7 @@ namespace Infrastructure.Migrations
                             Duration = "3 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000001"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "Intro to C#",
                             StatusId = 2,
                             Tags = "C#,programming,fundamentals"
@@ -202,7 +199,7 @@ namespace Infrastructure.Migrations
                             Duration = "4 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000002"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "OOP in C#",
                             StatusId = 1,
                             Tags = "C#,OOP,classes,inheritance"
@@ -216,7 +213,7 @@ namespace Infrastructure.Migrations
                             Duration = "5 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 3,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000003"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "Advanced .NET APIs",
                             StatusId = 2,
                             Tags = ".NET,ASP.NET Core,API,REST"
@@ -230,7 +227,7 @@ namespace Infrastructure.Migrations
                             Duration = "2 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000004"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "SQL for Beginners",
                             StatusId = 3,
                             Tags = "SQL,database,queries,beginner"
@@ -244,7 +241,7 @@ namespace Infrastructure.Migrations
                             Duration = "4 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000005"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "EF Core Masterclass",
                             StatusId = 2,
                             Tags = "EF Core,Entity Framework,data access,.NET"
@@ -258,7 +255,7 @@ namespace Infrastructure.Migrations
                             Duration = "2 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000006"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "HTML & CSS Basics",
                             StatusId = 1,
                             Tags = "HTML,CSS,web design,frontend"
@@ -272,7 +269,7 @@ namespace Infrastructure.Migrations
                             Duration = "4 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000007"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "React Essentials",
                             StatusId = 2,
                             Tags = "React,JavaScript,frontend,UI"
@@ -286,7 +283,7 @@ namespace Infrastructure.Migrations
                             Duration = "3 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000008"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "Unit Testing in .NET",
                             StatusId = 2,
                             Tags = ".NET,testing,TDD,unit tests"
@@ -300,7 +297,7 @@ namespace Infrastructure.Migrations
                             Duration = "1 week",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000009"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "Git & GitHub Basics",
                             StatusId = 3,
                             Tags = "Git,GitHub,version control,beginner"
@@ -314,7 +311,7 @@ namespace Infrastructure.Migrations
                             Duration = "3 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 3,
-                            MentorId = new Guid("10000000-0000-0000-0000-000000000010"),
+                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
                             Name = "Docker for Developers",
                             StatusId = 1,
                             Tags = "Docker,containers,devops,deployment"
@@ -1024,6 +1021,32 @@ namespace Infrastructure.Migrations
                             Id = 3,
                             Name = "Deactivated"
                         });
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.LearnerCourse", b =>
+                {
+                    b.Property<Guid>("LearnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EnrolledAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("LearnerId", "CourseId");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("LearnerCourse");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
@@ -2043,21 +2066,44 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.User", "Mentor")
+                        .WithMany("MentoredCourses")
+                        .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Infrastructure.Entities.Enum.CourseStatus", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.User", null)
-                        .WithMany("MentoredCourses")
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Category");
 
                     b.Navigation("Level");
 
+                    b.Navigation("Mentor");
+
                     b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.LearnerCourse", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Course", "Course")
+                        .WithMany("LearnerCourses")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.User", "Learner")
+                        .WithMany("LearnerCourses")
+                        .HasForeignKey("LearnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Learner");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
@@ -2376,6 +2422,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("Courses");
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Course", b =>
+                {
+                    b.Navigation("LearnerCourses");
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>
                 {
                     b.Navigation("Resource");
@@ -2412,6 +2463,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.User", b =>
                 {
                     b.Navigation("DayAvailabilities");
+
+                    b.Navigation("LearnerCourses");
 
                     b.Navigation("LearnerSessions");
 

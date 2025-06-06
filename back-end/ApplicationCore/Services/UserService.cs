@@ -3,6 +3,7 @@ using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Users;
 using ApplicationCore.DTOs.Responses.AreaOfExpertises;
+using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.DTOs.Responses.Users;
 using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
@@ -10,6 +11,7 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 using Infrastructure.Entities.Enum;
+using System.Data;
 
 namespace ApplicationCore.Services
 {
@@ -345,6 +347,26 @@ namespace ApplicationCore.Services
 
             };
             return OperationResult<UserFullProfileResponse>.Ok(fullProfileResponse);
+        }
+
+        public async Task<OperationResult<MentorInfo>> GetMentorInfoByIdAsync(Guid userId)
+        {
+
+            var user = await _userRepository.GetMentorByIdAsync(userId);
+
+            if (user == null)
+            {
+                return OperationResult<MentorInfo>.NotFound($"User with ID {userId} not found.");
+            }
+
+            var fullProfileResponse = new MentorInfo
+            {
+                MentorFullName = user.UserProfile.FullName,
+                PhotoData = user.UserProfile.PhotoData != null ? $"data:image/png;base64,{Convert.ToBase64String(user.UserProfile.PhotoData)}" : string.Empty,
+                ExpertiseTags = user.UserAreaOfExpertises.Select(x => x.AreaOfExpertise.Name).ToList()
+            };
+
+            return OperationResult<MentorInfo>.Ok(fullProfileResponse);
         }
     }
 }

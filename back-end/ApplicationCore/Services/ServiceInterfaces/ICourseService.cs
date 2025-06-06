@@ -9,7 +9,9 @@ namespace ApplicationCore.Services.ServiceInterfaces
     public interface ICourseService
     {
         Task<OperationResult<GetCourseDetailsResponse>> CreateCourseAsync(
-            CreateUpdateCourseRequest request
+            CreateUpdateCourseRequest request,
+            Guid userId,
+            string role
         );
         Task<OperationResult<GetCourseDetailsResponse>> UpdateCourseAsync(
             Guid courseId,
@@ -23,5 +25,8 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<PagedResult<GetCourseDetailsResponse>>> GetPagedCourseAsync(
             CourseQueryParameters req
         );
+        Task<OperationResult<MessageResponse>> EnrollCourse(Guid courseId, Guid userId);
+        Task<OperationResult<MessageResponse>> FinishCourse(Guid courseId, Guid userId);
+        Task<OperationResult<MessageResponse>> AssignCourse(Guid courseId, Guid mentorId);
     }
 }
