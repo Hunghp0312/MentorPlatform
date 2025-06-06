@@ -67,7 +67,6 @@ public class AvailabilityController : BaseController
         {
             return Forbid();
         }
-
         var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
         return ToActionResult(result);
     }
