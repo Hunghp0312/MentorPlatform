@@ -130,6 +130,7 @@ namespace ApplicationCore.Services
                 SessionTypeId = bookingRequest.SessionTypeId
             };
 
+            slot.StatusId = 4;
             await _sessionBookingRepository.AddAsync(newBooking);
             await _unitOfWork.SaveChangesAsync();
 
@@ -373,9 +374,9 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot does not belong to you.");
             }
 
-            if (newSlot.StatusId != 1)
+            if (newSlot.StatusId != 1 && newSlot.StatusId != 4)
             {
-                return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot is not available for booking.");
+                return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot is not available for reschedule.");
             }
 
             DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start, DateTimeKind.Utc);
