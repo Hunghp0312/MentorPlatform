@@ -7,11 +7,13 @@ import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import CustomModal from '../ui/Modal';
 import { formatTime } from '../../utils/formatDate';
 import LoadingOverlay from '../loading/LoadingOverlay';
+import { useNavigate } from 'react-router-dom';
 
 interface BookingSessionResponse {
     bookingId: string;
     learnerId: string;
-    photoData: string;
+    learnerPhotoData: string;
+    mentorPhotoData: string;
     learnerFullName: string;
     mentorId: string;
     mentorFullName: string;
@@ -23,6 +25,7 @@ interface BookingSessionResponse {
     statusName: string;
     sessionTypeName: string;
     bookingRequestedAt: string;
+    cancelReason?: string;
 }
 
 const SessionManagementCard: React.FC = () => {
@@ -33,7 +36,7 @@ const SessionManagementCard: React.FC = () => {
     const [declineMessage, setDeclineMessage] = useState<string>('');
     const [sessionRequests, setSessionRequests] = useState<BookingSessionResponse[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-
+    const navigate = useNavigate()
     const fetchSessionRequests = async () => {
         try {
             setLoading(true);
@@ -118,14 +121,14 @@ const SessionManagementCard: React.FC = () => {
     };
 
     const confirmCancel = async () => {
-        if (!showDeclineModal) return;
+        // if (!showDeclineModal) return;
         if (declineMessage.trim().length == 0) {
             alert("When cancel need to provide reason.")
             return;
         }
 
         try {
-            await sessionService.updateStatusBookingSession(showDeclineModal, 5);
+            await sessionService.updateStatusBookingSession(showCancelModal as string, 5,declineMessage);
             toast.success('Session declined successfully!');
             fetchSessionRequests();
         }
@@ -134,7 +137,7 @@ const SessionManagementCard: React.FC = () => {
             toast.error('Failed to decline session. Please try again.');
         }
         finally {
-            setShowDeclineModal(null);
+            setShowCancelModal(null);
             setDeclineMessage('');
         }
     }
@@ -163,15 +166,7 @@ const SessionManagementCard: React.FC = () => {
 
 
     const handleCancelSession = async (sessionId: string) => {
-        try {
-            await sessionService.updateStatusBookingSession(sessionId, 5);
-            toast.success('Session accepted successfully!');
-            fetchSessionRequests();
-        }
-        catch (error) {
-            console.error('Error accepting session:', error);
-            toast.error('Failed to accept session. Please try again.');
-        }
+        setShowCancelModal(sessionId);
     }
 
     const handleCompletedSession = async (sessionId: string) => {
@@ -215,7 +210,7 @@ const SessionManagementCard: React.FC = () => {
             <div className="max-w-6xl mx-auto bg-[#1e2432] text-white rounded-lg shadow-xl p-6">
                 {/* Header */}
                 <div className="flex items-center mb-6">
-                    <button className="mr-4 p-2 hover:bg-gray-700 rounded-lg">
+                    <button className="mr-4 p-2 hover:bg-gray-700 rounded-lg" onClick={() => navigate('/')}>
                         <ChevronLeft className="w-5 h-5" />
                     </button>
                     <div>
@@ -261,7 +256,7 @@ const SessionManagementCard: React.FC = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.learnerPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
@@ -328,7 +323,7 @@ const SessionManagementCard: React.FC = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.learnerPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
@@ -374,15 +369,6 @@ const SessionManagementCard: React.FC = () => {
                                                     <X className="w-4 h-4 mr-1" />
                                                     Cancel
                                                 </button>
-                                                {request.statusName === 'Scheduled' && (
-                                                    <button
-                                                        onClick={() => handleRescheduleSession(request.bookingId)}
-                                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg flex items-center"
-                                                    >
-                                                        <RotateCcw className="w-4 h-4 mr-1" />
-                                                        Reschedule
-                                                    </button>
-                                                )}
                                                 <button
                                                     onClick={() => handleCompletedSession(request.bookingId)}
                                                     className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg flex items-center"
@@ -405,7 +391,7 @@ const SessionManagementCard: React.FC = () => {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start space-x-4 flex-1">
                                     <img
-                                        src={request.photoData || DefaultImage}
+                                        src={request.learnerPhotoData || DefaultImage}
                                         alt={request.learnerFullName}
                                         className="w-12 h-12 rounded-full"
                                     />
@@ -423,7 +409,7 @@ const SessionManagementCard: React.FC = () => {
                                                 {request.statusName.charAt(0).toUpperCase() + request.statusName.slice(1)}
                                             </span>
                                         </div>
-                                        <p className="text-gray-300 mb-4">{request.learnerMessage}</p>
+                                        <p className="text-gray-300 mb-4">{request.cancelReason === null  ? request.learnerMessage : request.cancelReason }</p>
 
                                         <div className="flex items-center space-x-4 text-sm text-gray-400 mb-2">
 

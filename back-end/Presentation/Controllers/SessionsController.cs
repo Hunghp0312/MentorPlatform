@@ -37,7 +37,6 @@ namespace Presentation.Controllers
 
         [HttpGet("{mentorId}/schedule-by-day")]
         [ProducesResponseType(typeof(MentorDayDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MentorDayDto>> GetMentorScheduleForDay(
         Guid mentorId,
         [FromQuery] DateOnly date)
@@ -68,7 +67,6 @@ namespace Presentation.Controllers
         [Authorize(Roles = "Learner,Mentor")]
         public async Task<IActionResult> UpdateBookingStatus(Guid sessionId, [FromBody] UpdateBookingStatusRequestDto updateRequest)
         {
-
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
 

@@ -24,10 +24,10 @@ namespace ApplicationCore.Extensions
                 IndustryExperience = dto.IndustryExperience,
                 UserProfileAvailabilities =
                     dto.Availability?.Select(a => new UserProfileAvailability
-                        {
-                            UserId = userId,
-                            AvailabilityId = a,
-                        })
+                    {
+                        UserId = userId,
+                        AvailabilityId = a,
+                    })
                         .ToList() ?? new List<UserProfileAvailability>(),
                 CommunicationMethodId = dto.CommunicationMethod,
             };
@@ -165,13 +165,12 @@ namespace ApplicationCore.Extensions
         )
         {
             // Basic properties remain the same
-            userProfile.FullName = dto.FullName ?? userProfile.FullName;
-            userProfile.Bio = dto.Bio ?? userProfile.Bio;
-            userProfile.PhoneNumber = dto.PhoneNumber ?? userProfile.PhoneNumber;
-            userProfile.ProfessionalSkill = dto.ProfessionalSkill ?? userProfile.ProfessionalSkill;
-            userProfile.IndustryExperience =
-                dto.IndustryExperience ?? userProfile.IndustryExperience;
-            userProfile.UserGoal = dto.UserGoal ?? userProfile.UserGoal;
+            userProfile.FullName = dto.FullName;
+            userProfile.Bio = dto.Bio;
+            userProfile.PhoneNumber = dto.PhoneNumber;
+            userProfile.ProfessionalSkill = dto.ProfessionalSkill;
+            userProfile.IndustryExperience = dto.IndustryExperience;
+            userProfile.UserGoal = dto.UserGoal;
 
             if (dto.PhotoData != null && dto.PhotoData.Length > 0)
             {

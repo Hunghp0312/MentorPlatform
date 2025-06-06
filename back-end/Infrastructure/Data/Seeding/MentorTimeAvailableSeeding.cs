@@ -6,7 +6,8 @@ namespace Infrastructure.Data.Seeding
     {
         public static List<MentorTimeAvailable> SeedMentorTimeAvailable()
         {
-            var statusAvailableId = 1;
+            var availableStatus = 1;
+            var bookedStatus = 2;
 
             var day1Id = Guid.Parse("DA331A4B-3665-4D78-99A6-825DA4015E76");
             var day2Id = Guid.Parse("4A6E7525-23E4-4D6F-930B-22F2E40783D9");
@@ -20,7 +21,7 @@ namespace Infrastructure.Data.Seeding
                     Start = new TimeOnly(9, 0),
                     End = new TimeOnly(9, 30),
                     DayId = day1Id,
-                    StatusId = statusAvailableId,
+                    StatusId = bookedStatus,
                 },
                 new MentorTimeAvailable
                 {
@@ -28,7 +29,7 @@ namespace Infrastructure.Data.Seeding
                     Start = new TimeOnly(9, 30),
                     End = new TimeOnly(10, 0),
                     DayId = day1Id,
-                    StatusId = statusAvailableId,
+                    StatusId = bookedStatus,
                 },
                 new MentorTimeAvailable
                 {
@@ -36,7 +37,7 @@ namespace Infrastructure.Data.Seeding
                     Start = new TimeOnly(14, 0),
                     End = new TimeOnly(14, 30),
                     DayId = day2Id,
-                    StatusId = statusAvailableId,
+                    StatusId = availableStatus,
                 },
                 new MentorTimeAvailable
                 {
@@ -44,7 +45,7 @@ namespace Infrastructure.Data.Seeding
                     Start = new TimeOnly(14, 30),
                     End = new TimeOnly(15, 0),
                     DayId = day2Id,
-                    StatusId = statusAvailableId,
+                    StatusId = availableStatus,
                 },
                 new MentorTimeAvailable
                 {
@@ -52,7 +53,7 @@ namespace Infrastructure.Data.Seeding
                     Start = new TimeOnly(10, 0),
                     End = new TimeOnly(10, 30),
                     DayId = day3Id,
-                    StatusId = statusAvailableId,
+                    StatusId = availableStatus,
                 },
                 new MentorTimeAvailable
                 {
@@ -60,7 +61,7 @@ namespace Infrastructure.Data.Seeding
                     Start = new TimeOnly(10, 30),
                     End = new TimeOnly(11, 0),
                     DayId = day3Id,
-                    StatusId = statusAvailableId,
+                    StatusId = availableStatus,
                 },
             };
         }
