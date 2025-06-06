@@ -14,9 +14,7 @@ public interface IAvailabilityService
     Task<OperationResult<string>> SaveMentorDaysAvailability(
         Guid mentorId,
         SaveDaysAvailabilityRequestDto requestDto
-    );    Task UpdateOrCreateMentorDayAvailableAsync(Guid mentorId, MentorAvailabilityRequestDto dayDto);
-
+    );
     Task<OperationResult<DayAvailabilityDto>> GetDayAvailabilityAsync(Guid mentorId, DateOnly day);
 
-    Task<OperationResult<string>> SaveScheduleConfiguration(Guid mentorId, UpdateScheduleConfigurationRequestDto request);
 }
