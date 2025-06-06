@@ -53,9 +53,9 @@ export interface UserPreferences {
   sessionDuration: common.SessionDurationOption;
   goal: string;
   privacySettings: {
-    isProfilePrivate: boolean;
-    allowMessages: boolean;
-    receiveNotifications: boolean;
+    privacyProfile: boolean;
+    messagePermission: boolean;
+    notificationsEnabled: boolean;
   };
 }
 
@@ -100,9 +100,9 @@ const basePreferences: UserPreferences = {
   sessionDuration: common.SessionDurationOption.OneHour,
   goal: "",
   privacySettings: {
-    isProfilePrivate: false,
-    allowMessages: true,
-    receiveNotifications: true,
+    privacyProfile: false,
+    messagePermission: true,
+    notificationsEnabled: true,
   },
 };
 
