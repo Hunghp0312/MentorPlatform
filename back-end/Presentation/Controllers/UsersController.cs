@@ -60,7 +60,7 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpGet("{mentorId:guid}")]
+        [HttpGet("{mentorId:guid}/mentor-info")]
         [ProducesResponseType(typeof(MentorInfo), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [Authorize]
