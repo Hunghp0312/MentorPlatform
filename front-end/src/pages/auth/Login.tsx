@@ -8,6 +8,7 @@ import { authService } from "../../services/login.service";
 import { AxiosError } from "axios";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { toast } from "react-toastify";
+import { getDashboardPath } from "../../utils/navigateRole";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -21,7 +22,7 @@ const Login: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(pathName.home, { replace: true });
+      navigate(getDashboardPath(), { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
@@ -86,7 +87,7 @@ const Login: React.FC = () => {
 
       toast.dismiss();
 
-      navigate(pathName.home, { replace: true });
+      navigate(getDashboardPath(), { replace: true });
     } catch (apiError: unknown) {
       if (apiError instanceof AxiosError) {
         const message =

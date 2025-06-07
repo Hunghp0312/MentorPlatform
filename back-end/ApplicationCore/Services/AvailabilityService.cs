@@ -190,7 +190,7 @@ public class AvailabilityService : IAvailabilityService
                 )
                 .All(mta => requestTimeBlockIds.Contains(mta.Id)) == false;
 
-        if (!dayDto.TimeBlocks.Any() && !isReference)
+        if (!dayDto.TimeBlocks.Any() && !isHaveBookedTime)
         {
             _dayRepo.Delete(existingDay);
             await _unitOfWork.SaveChangesAsync();
