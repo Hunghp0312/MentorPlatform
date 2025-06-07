@@ -1,4 +1,4 @@
-using ApplicationCore.Common;
+﻿using ApplicationCore.Common;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Courses;
@@ -8,6 +8,7 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationCore.Services
 {
@@ -277,6 +278,61 @@ namespace ApplicationCore.Services
             return OperationResult<MessageResponse>.Ok(
                 new MessageResponse { Message = "Course assigned successfully" }
             );
+        }
+
+        public async Task<OperationResult<CourseDashboardDto>> GetCourseDashBoardAsync(Guid mentorId, PaginationParameters paginationParameters)
+        {
+            paginationParameters.PageSize = 2;
+            CourseDashboardKpiDto courseDashboardKpiDto = new CourseDashboardKpiDto();
+            courseDashboardKpiDto.TotalCourses = await _courseRepo
+                                                        .GetAllQueryable().Where(c => c.MentorId == mentorId).CountAsync();
+
+            var coursesByMentor = (await _courseRepo
+                                                         .GetAllQueryable()
+                                                         .Include(c => c.LearnerCourses)
+                                                         .Where(c => c.MentorId == mentorId)
+                                                         .ToListAsync());
+
+            foreach (var course in coursesByMentor)
+            {
+                courseDashboardKpiDto.ActiveStudents += course.LearnerCourses.Count;
+            }
+
+            courseDashboardKpiDto.PublishedCourses = await _courseRepo
+                                                        .GetAllQueryable()
+                                                        .Where(c => c.MentorId == mentorId && c.StatusId == 2)
+                                                        .CountAsync();
+
+            Func<IQueryable<Course>, IQueryable<Course>> filter = query =>
+            {
+                query = query.Where(sb => sb.MentorId == mentorId);
+                query = query.OrderByDescending(sb => sb.Created);
+
+                return query;
+            };
+
+            var (courses, totalItems) = await _courseRepo.GetPagedAsync(
+                filter,
+                paginationParameters.PageIndex,
+                paginationParameters.PageSize
+            );
+
+            var courseDtos = courses.Select(sb => new CourseDashboardResponse
+            {
+                Name = sb.Name,
+                CourseStatus = sb.Status!.Name,
+                CourseLevel = sb.Level!.Name,
+                Duration = sb.Duration,
+                CategoryName = sb.Category!.Name,
+                NumberOfStudent = sb.LearnerCourses.Count,
+                CompletePercent = sb.LearnerCourses.Any() ?
+             (int)Math.Round(((double)sb.LearnerCourses.Count(lc => lc.IsCompleted) / sb.LearnerCourses.Count) * 100)
+            : 0,
+            }).ToList();
+
+            CourseDashboardDto mentorDashboardDto = new CourseDashboardDto() { CourseKPIs = courseDashboardKpiDto, Courses = courseDtos };
+
+            return OperationResult<CourseDashboardDto>.Ok(mentorDashboardDto);
         }
     }
 }

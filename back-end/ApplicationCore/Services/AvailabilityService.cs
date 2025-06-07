@@ -80,7 +80,7 @@ public class AvailabilityService : IAvailabilityService
             foreach (var dayDto in requestDto.Days)
             {
                 var result = await ProcessDayAvailabilityAsync(mentorId, dayDto);
-                if (result != null)
+                if (result != null && !result.Success)
                 {
                     return result;
                 }

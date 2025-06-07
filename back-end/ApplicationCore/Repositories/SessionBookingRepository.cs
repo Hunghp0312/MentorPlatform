@@ -23,6 +23,7 @@ namespace ApplicationCore.Repositories
             var query = await _dbSet.Include(a => a.SessionType)
                 .Include(a => a.Status)
                 .Include(x => x.MentorTimeAvailable)
+                    .ThenInclude(x => x.MentorDayAvailable)
                 .Include(x => x.Mentor)
                     .ThenInclude(x => x.UserProfile)
                 .Include(x => x.Learner)
