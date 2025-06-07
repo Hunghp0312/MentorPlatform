@@ -9,14 +9,12 @@ using Infrastructure.Data;
 using Infrastructure.Entities;
 
 namespace ApplicationCore.Services;
-
 public class AvailabilityService : IAvailabilityService
 {
     private readonly IMentorDayAvailableRepository _dayRepo;
     private readonly ISessionBookingRepository _sessionRepo;
     private readonly IMentorTimeAvailableRepository _timeAvailRepo;
     private readonly IUnitOfWork _unitOfWork;
-
     public AvailabilityService(
         IMentorDayAvailableRepository dayRepo,
         IUnitOfWork unitOfWork,
@@ -29,7 +27,6 @@ public class AvailabilityService : IAvailabilityService
         _sessionRepo = sessionRepo;
         _timeAvailRepo = timeAvailRepo;
     }
-
     public async Task<OperationResult<MentorDaysAvailabilityResponseDto>> GetWeekAvailabilityAsync(
         Guid mentorId,
         DateOnly weekStartDate
@@ -151,9 +148,7 @@ public class AvailabilityService : IAvailabilityService
             {
                 await AddTimeBlockAsync(existingDay, blockDto);
             }
-            // Optionally, update existing time blocks here if needed
         }
-
         _dayRepo.Update(existingDay);
         return null;
     }
