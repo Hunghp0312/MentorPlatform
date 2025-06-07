@@ -89,5 +89,10 @@ namespace Infrastructure.BaseRepository
         {
             return await _dbSet.Where(predicate).ToListAsync();
         }
+
+        public virtual IQueryable<TEntity> GetAllQueryable()
+        {
+            return _dbSet;
+        }
     }
 }

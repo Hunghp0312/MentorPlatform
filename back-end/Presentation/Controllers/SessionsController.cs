@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Sessions;
+using ApplicationCore.DTOs.Responses.Dashboards.Mentors;
 using ApplicationCore.DTOs.Responses.Mentors;
 using ApplicationCore.DTOs.Responses.Sessions;
 using ApplicationCore.Services.ServiceInterfaces;
@@ -55,6 +56,18 @@ namespace Presentation.Controllers
             var mentorIdString = User.FindFirstValue("id")!;
             Guid mentorId = Guid.Parse(mentorIdString);
             var pagedBookings = await _sessionBookingService.GetBookingsForMentorAsync(mentorId, queryParameters);
+
+            return ToActionResult(pagedBookings);
+        }
+
+        [HttpGet("mentor/session-dashboard")]
+        [Authorize(Roles = "Mentor")]
+        [ProducesResponseType(typeof(MentorDashboardDto), StatusCodes.Status200OK)]
+        public async Task<ActionResult<MentorDashboardDto>> GetMySessionDashBoard()
+        {
+            var mentorIdString = User.FindFirstValue("id")!;
+            Guid mentorId = Guid.Parse(mentorIdString);
+            var pagedBookings = await _sessionBookingService.GetSessionDashBoardAsync(mentorId, new PaginationParameters());
 
             return ToActionResult(pagedBookings);
         }

@@ -76,5 +76,32 @@ namespace ApplicationCore.Repositories
                 .FirstOrDefaultAsync(c => c.Id == courseId);
 
         }
+
+
+        public override async Task<(ICollection<Course>, int)> GetPagedAsync(
+          Func<IQueryable<Course>, IQueryable<Course>>? filter,
+          int pageIndex,
+          int pageSize
+      )
+        {
+            var queryable = _dbSet
+                .Include(a => a.Level)
+                .Include(a => a.Status)
+                .Include(a => a.Category)
+                .AsQueryable();
+
+            if (filter != null)
+            {
+                queryable = filter(queryable);
+            }
+
+            var totalRecords = await queryable.CountAsync();
+            var items = await queryable
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalRecords);
+        }
     }
 }

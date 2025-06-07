@@ -49,13 +49,13 @@ namespace ApplicationCore.Repositories
                 .AsQueryable();
 
 
-            var currentDate = DateTime.UtcNow;
+            var currentDate = DateTime.Now;
             DateOnly todayUtc = DateOnly.FromDateTime(currentDate);
             TimeOnly timeNowUtc = TimeOnly.FromDateTime(currentDate);
             queryable = queryable.Where(up =>
                 up.User.DayAvailabilities.Any(d =>
                     d.MentorTimeAvailables.Any(s =>
-                       ( s.StatusId == 1|| s.StatusId == 4) &&
+                       (s.StatusId == 1 || s.StatusId == 4) &&
                     (
                         d.Day > todayUtc ||
                         (d.Day == todayUtc && s.Start > timeNowUtc)
