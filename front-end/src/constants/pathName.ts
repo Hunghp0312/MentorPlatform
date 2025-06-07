@@ -23,4 +23,7 @@ export const pathName = {
   findmentor: "/find-mentor",
   leanerSessionManagement: "/learner/session-management",
   adminDashboard: "/admin/dashboard",
+  adminResource: "/admin/resource",
+  mentorResource: "/mentor/resource",
+  learnerResource: "/learner/resource",
 };

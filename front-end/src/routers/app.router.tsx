@@ -34,6 +34,7 @@ import MentorFinder from "../pages/learner/FinderMentor";
 import AvailabilityManager from "../pages/mentor/MentorAvailability";
 import LearnerSessionManagement from "../pages/learner/LearnerSessionManagement";
 import AdminDashboard from "../pages/admin/AdminDashboard";
+import ResourcePage from "../pages/resource/ResourcePage";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -88,6 +89,7 @@ const AppRouter = () => {
         { path: pathName.approval, element: <ListApproval /> },
         { path: pathName.userList, element: <ListUser /> },
         { path: pathName.adminDashboard, element: <AdminDashboard /> },
+        { path: pathName.adminResource, element: <ResourcePage /> },
       ],
     },
 
@@ -106,6 +108,7 @@ const AppRouter = () => {
         { path: pathName.mentorAvailability, element: <AvailabilityManager /> },
         { path: pathName.sessionManagement, element: <SessionManagement /> },
         { path: pathName.mentorDashboard, element: <MentorDashBoard /> },
+        { path: pathName.mentorResource, element: <ResourcePage /> },
       ],
     },
 
@@ -127,6 +130,7 @@ const AppRouter = () => {
           element: <LearnerSessionManagement />,
         },
         { path: pathName.learnerCourse, element: <ListCourse /> },
+        { path: pathName.learnerResource, element: <ResourcePage /> },
       ],
     },
   ]);
