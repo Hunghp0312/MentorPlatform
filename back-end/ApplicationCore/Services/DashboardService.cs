@@ -9,7 +9,6 @@ namespace ApplicationCore.Services
         private readonly IUserRepository _userRepository;
         private readonly ICourseRepository _courseRepository;
         private readonly IMentorRepository _mentorRepository;
-
         private readonly IDocumentContentRepository _documentContentRepository;
 
         public DashboardService(IUserRepository userRepository, ICourseRepository courseRepository, IMentorRepository mentorRepository, IDocumentContentRepository documentContentRepository)
@@ -22,24 +21,24 @@ namespace ApplicationCore.Services
 
         public async Task<DashboardStatisticsResponseDto> GetDashboardStatisticsAsync()
         {
-            var users = (await _userRepository.GetAllAsync()).AsQueryable();
-            var courses = (await _courseRepository.GetAllAsync()).AsQueryable();
-            var mentors = (await _mentorRepository.GetAllAsync()).AsQueryable();
-            var resources = (await _documentContentRepository.GetAllAsync()).AsQueryable();
+            var users = _userRepository.GetAllQueryable();
+            var courses = _courseRepository.GetAllQueryable();
+            var mentors = _mentorRepository.GetAllQueryable();
+            var resources = _documentContentRepository.GetAllQueryable();
 
-            var totalUsers = users.Count();
-            var totalCourses = courses.Count();
-            var totalMentors = users.Count(u => u.RoleId == 3);
-            var totalLearners = users.Count(u => u.RoleId == 2);
-            var totalResources = resources.Count();
-            var pendingApprovals = mentors.Count(m => m.ApplicationStatus.Name == "Pending");
+            var totalUsers = await users.CountAsync();
+            var totalCourses = await courses.CountAsync();
+            var totalMentors = await users.CountAsync(u => u.RoleId == 3);
+            var totalLearners = await users.CountAsync(u => u.RoleId == 2);
+            var totalResources = await resources.CountAsync();
+            var pendingApprovals = await mentors.CountAsync(m => m.ApplicationStatus.Name == "Pending");
 
             var now = DateTime.UtcNow;
             var startOfThisMonth = new DateTime(now.Year, now.Month, 1);
             var startOfLastMonth = startOfThisMonth.AddMonths(-1);
 
-            var addedThisMonth = users.Count(u => u.CreatedAt >= startOfThisMonth && u.CreatedAt < startOfThisMonth.AddMonths(1));
-            var addedLastMonth = users.Count(u => u.CreatedAt >= startOfLastMonth && u.CreatedAt < startOfThisMonth);
+            var addedThisMonth = await users.CountAsync(u => u.CreatedAt >= startOfThisMonth && u.CreatedAt < startOfThisMonth.AddMonths(1));
+            var addedLastMonth = await users.CountAsync(u => u.CreatedAt >= startOfLastMonth && u.CreatedAt < startOfThisMonth);
 
             double percentGrowth = 0;
             if (addedLastMonth > 0)
