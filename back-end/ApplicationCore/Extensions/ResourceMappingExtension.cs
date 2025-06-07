@@ -17,5 +17,21 @@ namespace ApplicationCore.Extensions
                 TypeOfResource = resource.TypeOfResource!,
             };
         }
+
+        public static ResourceResponeGetAllService ToResourceResponeGetAllService(this Resource resource)
+        {
+            return new ResourceResponeGetAllService
+            {
+                ResourceId = resource.Id,
+                Title = resource.Title,
+                Description = resource.Description,
+                CourseId = resource.CourseId,
+                CourseName = resource.Course!.Name,
+                TypeOfResource = resource.TypeOfResource!,
+                FileId = resource.DocumentContentId,
+                FileName = resource.DocumentContent?.FileName ?? string.Empty,
+                FileType = resource.DocumentContent?.FileType ?? string.Empty,
+            };
+        }
     }
 }
