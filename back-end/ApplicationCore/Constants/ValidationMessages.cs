@@ -36,6 +36,7 @@
         public const string WorkExperienceDetailsRequired = "Work experience details are required.";
         public const string CertificationsRequired = "Certifications are required.";
         public const string SupportingDocumentRequired = "A supporting document is required.";
+        public const string ResourceDocumentRequired = "A resource document is required.";
         public const string FileTooLarge = "The file size must not exceed {MaxSizeInMB} MB.";
         public const string InvalidFileType =
             "Invalid file type. Allowed types are: {AllowedTypes}.";

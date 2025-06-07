@@ -3,7 +3,6 @@ using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Resources;
 using ApplicationCore.DTOs.Responses.Resources;
-using ApplicationCore.DTOs.Responses.SupportingDocuments;
 
 namespace ApplicationCore.Services.ServiceInterfaces
 {
@@ -14,6 +13,6 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<ResourceResponse>> DeleteResource(Guid resourceId, Guid UserId);
         Task<OperationResult<ResourceResponse>> AddResource(Guid mentorId, AddResourceRequest request);
         Task DownloadFile(Guid FileId);
-
+        Task<OperationResult<UpdateResourceUrlResponse>> UpdateResourceUrl(Guid resourceId, Guid userId, string url);
     }
 }
