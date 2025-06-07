@@ -85,7 +85,9 @@ builder.Services.AddScoped<ISessionBookingRepository, SessionBookingRepository>(
 builder.Services.AddScoped<ISessionBookingService, SessionBookingService>();
 builder.Services.AddScoped<IMentorDayAvailableRepository, MentorDayAvailableRepository>();
 builder.Services.AddScoped<IMentorDayAvailableService, MentorDayAvailableService>();
-
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IPlatformStatisticsLogRepository, PlatformStatisticsLogRepository>();
+builder.Services.AddScoped<IPlatformStatisticsService, PlatformStatisticsService>();
 builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 builder.Services.AddScoped<ISupportingDocumentRepository, SupportingDocumentRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();

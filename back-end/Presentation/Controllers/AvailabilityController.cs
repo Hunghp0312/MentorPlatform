@@ -57,7 +57,7 @@ public class AvailabilityController : BaseController
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SaveDaysAvailablility(
+    public async Task<IActionResult> SaveDaysAvailability(
         Guid mentorId,
         [FromBody] SaveDaysAvailabilityRequestDto request
     )
@@ -67,7 +67,6 @@ public class AvailabilityController : BaseController
         {
             return Forbid();
         }
-
         var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
         return ToActionResult(result);
     }

@@ -15,6 +15,6 @@ public interface IAvailabilityService
         Guid mentorId,
         SaveDaysAvailabilityRequestDto requestDto
     );
-
     Task<OperationResult<DayAvailabilityDto>> GetDayAvailabilityAsync(Guid mentorId, DateOnly day);
+
 }
