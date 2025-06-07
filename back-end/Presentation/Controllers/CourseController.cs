@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Courses;
@@ -6,6 +5,7 @@ using ApplicationCore.DTOs.Responses.Courses;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Presentation.Controllers;
 
@@ -122,5 +122,17 @@ public class CoursesController : BaseController
 
         var result = await _courseService.AssignCourse(courseId, assignCourseRequest.MentorId);
         return ToActionResult(result);
+    }
+
+    [HttpGet("mentor/course-dashboard")]
+    [Authorize(Roles = "Mentor")]
+    [ProducesResponseType(typeof(CourseDashboardDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<CourseDashboardDto>> GetMyCourseDashBoard()
+    {
+        var mentorIdString = User.FindFirstValue("id")!;
+        Guid mentorId = Guid.Parse(mentorIdString);
+        var pagedCourses = await _courseService.GetCourseDashBoardAsync(mentorId, new PaginationParameters());
+
+        return ToActionResult(pagedCourses);
     }
 }

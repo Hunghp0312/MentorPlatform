@@ -28,5 +28,6 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<MessageResponse>> EnrollCourse(Guid courseId, Guid userId);
         Task<OperationResult<MessageResponse>> FinishCourse(Guid courseId, Guid userId);
         Task<OperationResult<MessageResponse>> AssignCourse(Guid courseId, Guid mentorId);
+        Task<OperationResult<CourseDashboardDto>> GetCourseDashBoardAsync(Guid mentorId, PaginationParameters paginationParameters);
     }
 }

@@ -10,6 +10,7 @@ using ApplicationCore.Services.ServiceInterfaces;
 using Infrastructure.Data;
 using Infrastructure.Entities;
 using Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text;
 
@@ -19,18 +20,20 @@ namespace ApplicationCore.Services
     public class SessionBookingService : ISessionBookingService
     {
         private readonly ISessionBookingRepository _sessionBookingRepository;
+        private readonly ICourseRepository _courseRepository;
         private readonly IMentorTimeAvailableRepository _mentorTimeAvailableRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISendEmailService _sendEmailService;
 
-        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ISendEmailService sendEmailService)
+        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ISendEmailService sendEmailService, ICourseRepository courseRepository)
         {
             _sessionBookingRepository = sessionBookingRepository;
             _mentorTimeAvailableRepository = mentorTimeAvailableRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _sendEmailService = sendEmailService;
+            _courseRepository = courseRepository;
         }
 
         public async Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts()
@@ -107,8 +110,8 @@ namespace ApplicationCore.Services
             }
 
             DateTime fullSlotStartTime = slot.MentorDayAvailable.Day.ToDateTime(slot.Start);
-            DateTime combinedDateTimeUtc = DateTime.SpecifyKind(fullSlotStartTime, DateTimeKind.Utc);
-            if (combinedDateTimeUtc <= DateTime.UtcNow)
+            DateTime combinedDateTimeUtc = DateTime.SpecifyKind(fullSlotStartTime, DateTimeKind.Local);
+            if (combinedDateTimeUtc <= DateTime.Now)
             {
                 return OperationResult<CreatedBookingResponseDto>.BadRequest("Cannot book a session for a past or current time slot.");
             }
@@ -382,8 +385,8 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot is not available for reschedule.");
             }
 
-            DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start, DateTimeKind.Utc);
-            if (fullNewSlotStartTime <= DateTime.UtcNow)
+            DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start, DateTimeKind.Local);
+            if (fullNewSlotStartTime <= DateTime.Now)
             {
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot must be in the future.");
             }
@@ -419,8 +422,8 @@ namespace ApplicationCore.Services
 
             bodyHtml.Append($"<li>Mentor: {mentorFullNameSafe}</li>");
 
-            var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Utc);
-            string formattedSlotStartTime = slotStartTime.ToString("dddd, MMMM d, yyyy 'at' h:mm tt", CultureInfo.InvariantCulture) + " (UTC)";
+            var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Local);
+            string formattedSlotStartTime = slotStartTime.ToString("dddd, MMMM d, yyyy 'at' h:mm tt", CultureInfo.InvariantCulture);
             bodyHtml.Append($"<li>Requested Time: {formattedSlotStartTime}</li>");
 
             if (!string.IsNullOrWhiteSpace(bookingDetails.LearnerMessage))
@@ -453,8 +456,8 @@ namespace ApplicationCore.Services
             bodyHtml.Append("<p><strong>Booking Details:</strong></p>");
             bodyHtml.Append("<ul>");
             bodyHtml.Append($"<li>Learner: {learnerProfile.FullName} (Email: {bookingDetails.Learner.Email})</li>");
-            var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Utc);
-            bodyHtml.Append($"<li>Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt} (UTC)</li>");
+            var slotStartTime = bookingDetails.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(bookingDetails.MentorTimeAvailable.Start, DateTimeKind.Local);
+            bodyHtml.Append($"<li>Requested Time: {slotStartTime:dddd, MMMM d, yyyy 'at' h:mm tt}</li>");
             if (!string.IsNullOrWhiteSpace(bookingDetails.LearnerMessage))
             {
                 bodyHtml.Append($"<li>Learner's Message: {bookingDetails.LearnerMessage}</li>");
@@ -482,8 +485,8 @@ namespace ApplicationCore.Services
             bodyHtml.Append("<p><strong>Confirmed Session Details:</strong></p>");
             bodyHtml.Append("<ul>");
 
-            var slotStartTime = acceptedBooking.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(acceptedBooking.MentorTimeAvailable.Start, DateTimeKind.Utc);
-            string formattedTime = slotStartTime.ToString("dddd, MMMM d, yyyy 'at' h:mm tt", System.Globalization.CultureInfo.InvariantCulture) + " (UTC)";
+            var slotStartTime = acceptedBooking.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(acceptedBooking.MentorTimeAvailable.Start, DateTimeKind.Local);
+            string formattedTime = slotStartTime.ToString("dddd, MMMM d, yyyy 'at' h:mm tt", System.Globalization.CultureInfo.InvariantCulture) + "";
             bodyHtml.Append($"<li>Time: {formattedTime}</li>");
             bodyHtml.Append($"<li>Mentor: {mentorName}</li>");
 
@@ -498,30 +501,35 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<MentorDashboardDto>> GetSessionDashBoardAsync(Guid userId, PaginationParameters paginationParameters)
         {
+            paginationParameters.PageSize = 3;
+            var currentDate = DateTime.Now;
             SessionDashboardKpiDto sessionDashboardKpiDto = new SessionDashboardKpiDto();
-            sessionDashboardKpiDto.SessionsThisMonth = _sessionBookingRepository.GetAllQueryable().Where()
+            sessionDashboardKpiDto.SessionsThisMonth = await _sessionBookingRepository
+                                                        .GetAllQueryable()
+                                                        .Include(x => x.MentorTimeAvailable)
+                                                        .ThenInclude(t => t.MentorDayAvailable)
+                                                        .Where(s => s.MentorId == userId && s.MentorTimeAvailable.MentorDayAvailable.Day.Month == currentDate.Month).CountAsync();
 
-
+            sessionDashboardKpiDto.ActiveLearners = await _sessionBookingRepository
+                                                          .GetAllQueryable()
+                                                          .Where(s => s.MentorId == userId)
+                                                          .Select(s => s.LearnerId)
+                                                          .Distinct()
+                                                          .CountAsync();
 
             Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = query =>
             {
                 query = query.Where(sb => sb.StatusId == 6);
                 query = query.Where(sb => sb.MentorId == userId);
+                query = query.OrderBy(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day)
+                .ThenBy(sb => sb.MentorTimeAvailable.Start);
 
-                var currentDate = DateTime.UtcNow;
+                var currentDate = DateTime.Now;
                 DateOnly todayUtc = DateOnly.FromDateTime(currentDate);
                 TimeOnly timeNowUtc = TimeOnly.FromDateTime(currentDate);
                 query = query.Where(up => up.MentorTimeAvailable.StatusId == 2 && ((up.MentorTimeAvailable.Start > timeNowUtc
                 && up.MentorTimeAvailable.MentorDayAvailable.Day == todayUtc) || up.MentorTimeAvailable.MentorDayAvailable.Day > todayUtc)
                 );
-
-                if (!string.IsNullOrWhiteSpace(paginationParameters.Query))
-                {
-                    string searchTerm = paginationParameters.Query.ToLower().Trim();
-                    query = query.Where(up =>
-                  up.Learner.UserProfile.FullName.ToLower().Contains(searchTerm)
-                    );
-                }
 
                 return query;
             };
@@ -549,15 +557,9 @@ namespace ApplicationCore.Services
                 SessionTypeName = sb.SessionType.Name,
             }).ToList();
 
-            var pagedResult = new PagedResult<UpcomingSessionDto>
-            {
-                TotalItems = totalItems,
-                PageIndex = paginationParameters.PageIndex,
-                PageSize = paginationParameters.PageSize,
-                Items = bookingDtos
-            };
+            MentorDashboardDto mentorDashboardDto = new MentorDashboardDto() { SessionKPIs = sessionDashboardKpiDto, UpcomingSessions = bookingDtos };
 
-            return OperationResult<PagedResult<MentorDashboardDto>>.Ok(pagedResult);
+            return OperationResult<MentorDashboardDto>.Ok(mentorDashboardDto);
         }
     }
 }
