@@ -326,6 +326,7 @@ namespace ApplicationCore.Services
 
                     booking.StatusId = 6;
                     booking.MentorTimeAvailable.StatusId = 2;
+                    await SendBookingAcceptedEmailToLearnerAsync(booking);
                     break;
                 default:
                     return OperationResult<UpdateBookingResponseDto>.BadRequest($"Invalid target status ID: {updateRequest.NewStatusId}.");
@@ -396,7 +397,6 @@ namespace ApplicationCore.Services
             return OperationResult<UpdateBookingResponseDto>.Ok(response);
         }
 
-
         private async Task SendBookingRequestConfirmationToLearner(User learner, UserProfile mentorProfile, SessionBooking bookingDetails)
         {
             var platformName = "MentorPlatform";
@@ -464,6 +464,35 @@ namespace ApplicationCore.Services
             bodyHtml.Append("</body></html>");
 
             await _sendEmailService.SendEmail(mentor.Email, emailSubject, bodyHtml.ToString(), true);
+        }
+
+        private async Task SendBookingAcceptedEmailToLearnerAsync(SessionBooking acceptedBooking)
+        {
+            var platformName = "MentorPlatform";
+            var learnerName = System.Net.WebUtility.HtmlEncode(acceptedBooking.Learner.UserProfile?.FullName ?? "Learner");
+            var mentorName = System.Net.WebUtility.HtmlEncode(acceptedBooking.Mentor.UserProfile?.FullName ?? "your Mentor");
+            var emailSubject = $"Your Mentorship Session with {mentorName} has been Confirmed on {platformName}!";
+
+            var bodyHtml = new StringBuilder();
+            bodyHtml.Append("<html><body>");
+            bodyHtml.Append($"<p>Hi {learnerName},</p>");
+            bodyHtml.Append($"<p>Great news! Your mentorship session request with <strong>{mentorName}</strong> has been accepted.</p>");
+
+            bodyHtml.Append("<p><strong>Confirmed Session Details:</strong></p>");
+            bodyHtml.Append("<ul>");
+
+            var slotStartTime = acceptedBooking.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(acceptedBooking.MentorTimeAvailable.Start, DateTimeKind.Utc);
+            string formattedTime = slotStartTime.ToString("dddd, MMMM d, yyyy 'at' h:mm tt", System.Globalization.CultureInfo.InvariantCulture) + " (UTC)";
+            bodyHtml.Append($"<li>Time: {formattedTime}</li>");
+            bodyHtml.Append($"<li>Mentor: {mentorName}</li>");
+
+            bodyHtml.Append("</ul>");
+
+            bodyHtml.Append("<p>Please be prepared for your session.</p>");
+            bodyHtml.Append("<p>Best regards,<br />The MentorPlatform Team</p>");
+            bodyHtml.Append("</body></html>");
+
+            await _sendEmailService.SendEmail(acceptedBooking.Learner.Email, emailSubject, bodyHtml.ToString(), true);
         }
     }
 }
