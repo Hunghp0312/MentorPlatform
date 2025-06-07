@@ -2,6 +2,7 @@
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Sessions;
+using ApplicationCore.DTOs.Responses.Dashboards.Mentors;
 using ApplicationCore.DTOs.Responses.Sessions;
 
 namespace ApplicationCore.Services.ServiceInterfaces
@@ -14,5 +15,6 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<UpdateBookingResponseDto>> UpdateBookingStatusAsync(Guid sessionId, Guid userId, UpdateBookingStatusRequestDto updateRequest);
         Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts();
         Task<OperationResult<PagedResult<SessionStatusResponse>>> GetAllSessions(SessionQueryParameters paginationParameters, Guid mentorId);
+        Task<OperationResult<MentorDashboardDto>> GetSessionDashBoardAsync(Guid userId, PaginationParameters paginationParameters);
     }
 }
