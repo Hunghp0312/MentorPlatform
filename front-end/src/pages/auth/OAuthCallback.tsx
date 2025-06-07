@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { pathName } from "../../constants/pathName";
 import { useAuthContext } from "../../contexts/AuthContext";
+import { getDashboardPath } from "../../utils/navigateRole";
 
 const OAuthCallback = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const OAuthCallback = () => {
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("refreshToken", refreshToken);
       setIsAuthenticated(true);
-      navigate(pathName.home, { replace: true });
+      navigate(getDashboardPath(), { replace: true });
     } else {
       console.error("Missing tokens in URL");
       navigate(pathName.login, { replace: true });

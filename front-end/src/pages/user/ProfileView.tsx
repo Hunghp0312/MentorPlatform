@@ -11,6 +11,7 @@ import { getUserFromToken } from "../../utils/auth";
 import { EnumType } from "../../types/commonType";
 import { UserViewResponse } from "../../types/user";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
+import { getDashboardPath } from "../../utils/navigateRole";
 
 const ProfileView = () => {
   const navigate = useNavigate();
@@ -57,10 +58,9 @@ const ProfileView = () => {
             <button
               onClick={() => {
                 if (decodedToken?.role === "Admin") navigate(pathName.userList);
-                else navigate(pathName.home);
+                else navigate(getDashboardPath());
               }}
-              className="mt-4 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md"
-            >
+              className="mt-4 bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-md">
               Return to Home
             </button>
           </div>
@@ -79,10 +79,9 @@ const ProfileView = () => {
                 onClick={() => {
                   if (decodedToken?.role === "Admin")
                     navigate(pathName.userList);
-                  else navigate(pathName.home);
+                  else navigate(getDashboardPath());
                 }}
-                className="flex items-center text-gray-300 mb-4 hover:text-white transition-colors"
-              >
+                className="flex items-center text-gray-300 mb-4 hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 <span>Back</span>
               </button>
@@ -91,8 +90,7 @@ const ProfileView = () => {
             {isEditable && (
               <button
                 onClick={() => navigate(`edit`)}
-                className="flex items-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md transition-colors"
-              >
+                className="flex items-center bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md transition-colors">
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Profile
               </button>
@@ -188,8 +186,7 @@ const ProfileView = () => {
                   (label: EnumType, index: number) => (
                     <span
                       key={index}
-                      className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm"
-                    >
+                      className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">
                       {label.name}
                     </span>
                   )
@@ -215,8 +212,7 @@ const ProfileView = () => {
                         (label: EnumType, index: number) => (
                           <span
                             key={index}
-                            className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm"
-                          >
+                            className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">
                             {label.name}
                           </span>
                         )
@@ -240,8 +236,7 @@ const ProfileView = () => {
                         (label: EnumType, index: number) => (
                           <span
                             key={index}
-                            className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm"
-                          >
+                            className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">
                             {label.name}
                           </span>
                         )
@@ -264,8 +259,7 @@ const ProfileView = () => {
                       (label: EnumType, index: number) => (
                         <span
                           key={index}
-                          className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm"
-                        >
+                          className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">
                           {label.name}
                         </span>
                       )
@@ -301,8 +295,7 @@ const ProfileView = () => {
                       (label: EnumType, index: number) => (
                         <span
                           key={index}
-                          className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm"
-                        >
+                          className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm">
                           {label.name}
                         </span>
                       )
