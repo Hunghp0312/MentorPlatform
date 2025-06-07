@@ -59,6 +59,18 @@ namespace Presentation.Controllers
             return ToActionResult(pagedBookings);
         }
 
+        [HttpGet("mentor/session-dashboard")]
+        [Authorize(Roles = "Mentor")]
+        [ProducesResponseType(typeof(PagedResult<MentorBookingDetailsDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<PagedResult<MentorBookingDetailsDto>>> GetMySessionDashBoard(PaginationParameters paginationParameters)
+        {
+            var mentorIdString = User.FindFirstValue("id")!;
+            Guid mentorId = Guid.Parse(mentorIdString);
+            var pagedBookings = await _sessionBookingService.GetBookingsForMentorAsync(mentorId, paginationParameters);
+
+            return ToActionResult(pagedBookings);
+        }
+
         [HttpPut("{sessionId:guid}/status")]
         [ProducesResponseType(typeof(UpdateBookingResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]

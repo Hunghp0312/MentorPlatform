@@ -2,6 +2,7 @@
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Sessions;
+using ApplicationCore.DTOs.Responses.Dashboards.Mentors;
 using ApplicationCore.DTOs.Responses.Sessions;
 using ApplicationCore.Extensions;
 using ApplicationCore.Repositories.RepositoryInterfaces;
@@ -493,6 +494,70 @@ namespace ApplicationCore.Services
             bodyHtml.Append("</body></html>");
 
             await _sendEmailService.SendEmail(acceptedBooking.Learner.Email, emailSubject, bodyHtml.ToString(), true);
+        }
+
+        public async Task<OperationResult<MentorDashboardDto>> GetSessionDashBoardAsync(Guid userId, PaginationParameters paginationParameters)
+        {
+            SessionDashboardKpiDto sessionDashboardKpiDto = new SessionDashboardKpiDto();
+            sessionDashboardKpiDto.SessionsThisMonth = _sessionBookingRepository.GetAllQueryable().Where()
+
+
+
+            Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = query =>
+            {
+                query = query.Where(sb => sb.StatusId == 6);
+                query = query.Where(sb => sb.MentorId == userId);
+
+                var currentDate = DateTime.UtcNow;
+                DateOnly todayUtc = DateOnly.FromDateTime(currentDate);
+                TimeOnly timeNowUtc = TimeOnly.FromDateTime(currentDate);
+                query = query.Where(up => up.MentorTimeAvailable.StatusId == 2 && ((up.MentorTimeAvailable.Start > timeNowUtc
+                && up.MentorTimeAvailable.MentorDayAvailable.Day == todayUtc) || up.MentorTimeAvailable.MentorDayAvailable.Day > todayUtc)
+                );
+
+                if (!string.IsNullOrWhiteSpace(paginationParameters.Query))
+                {
+                    string searchTerm = paginationParameters.Query.ToLower().Trim();
+                    query = query.Where(up =>
+                  up.Learner.UserProfile.FullName.ToLower().Contains(searchTerm)
+                    );
+                }
+
+                return query;
+            };
+
+            var (mentorBookings, totalItems) = await _sessionBookingRepository.GetPagedAsync(
+                filter,
+                paginationParameters.PageIndex,
+                paginationParameters.PageSize
+            );
+
+            var bookingDtos = mentorBookings.Select(sb => new UpcomingSessionDto
+            {
+                BookingId = sb.Id,
+                LearnerId = sb.LearnerId,
+                LearnerPhotoData = sb.Learner.UserProfile.PhotoData != null
+                ? $"data:image/png;base64,{Convert.ToBase64String(sb.Learner.UserProfile.PhotoData)}"
+                : string.Empty,
+                LearnerFullName = sb.Learner!.UserProfile.FullName,
+                AvailabilityTimeSlotId = sb.MentorTimeAvailableId,
+                Date = sb.MentorTimeAvailable.MentorDayAvailable.Day,
+                SlotStartTime = sb.MentorTimeAvailable.Start,
+                SlotEndTime = sb.MentorTimeAvailable.End,
+                LearnerMessage = sb.LearnerMessage,
+                StatusName = sb.Status.Name,
+                SessionTypeName = sb.SessionType.Name,
+            }).ToList();
+
+            var pagedResult = new PagedResult<UpcomingSessionDto>
+            {
+                TotalItems = totalItems,
+                PageIndex = paginationParameters.PageIndex,
+                PageSize = paginationParameters.PageSize,
+                Items = bookingDtos
+            };
+
+            return OperationResult<PagedResult<MentorDashboardDto>>.Ok(pagedResult);
         }
     }
 }
