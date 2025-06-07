@@ -34,20 +34,20 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("{resourceId:guid}")]
         [Authorize(Roles = "Admin, Mentor")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteResource(Guid id)
+        public async Task<IActionResult> DeleteResource(Guid resourceId)
         {
             var mentorIdString = User.FindFirstValue("id")!;
             Guid mentorId = Guid.Parse(mentorIdString);
-            var result = await _resourceService.DeleteResource(mentorId, id);
+            var result = await _resourceService.DeleteResource(mentorId, resourceId);
             return ToActionResult(result);
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut("{resouceId:guid}")]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(typeof(ResourceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -86,21 +86,21 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpDelete("resource/{id:guid}")]
+        [HttpDelete("del-file/{fileId:guid}")]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteResourceFile(Guid id)
+        public async Task<IActionResult> DeleteResourceFile(Guid fileId)
         {
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
-            var result = await _resourceService.DeleteResourceFileAsync(userId, id);
+            var result = await _resourceService.DeleteResourceFileAsync(userId, fileId);
 
             return ToActionResult(result);
         }
 
-        [HttpPost("del-file/{id:guid}")]
+        [HttpPost("up-file/{resourceId:guid}")]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(typeof(ResourceFileResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -113,15 +113,15 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpGet]
+        [HttpGet("file/{fileId:guid}/details")]
         [Authorize]
         [ProducesResponseType(typeof(PagedResult<DocumentDetailResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetFileResourceDetails([FromQuery] Guid supportingDocumentId)
+        public async Task<IActionResult> GetFileResourceDetails(Guid fileId)
         {
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
-            var result = await _resourceService.GetFileResourceDetails(supportingDocumentId, userId);
+            var result = await _resourceService.GetFileResourceDetails(fileId, userId);
             return ToActionResult(result);
         }
     }
