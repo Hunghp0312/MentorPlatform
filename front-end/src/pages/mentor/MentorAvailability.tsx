@@ -476,10 +476,14 @@ const AvailabilityManager = () => {
             <h3 className="text-lg font-medium mb-4">Work hours</h3>
             <div className="grid grid-cols-2 gap-4 mb-3">
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="workStartTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Start time
                 </label>
                 <select
+                  id="workStartTime"
                   value={workHours.start}
                   onChange={(e) => {
                     const newStartTime = e.target.value;
@@ -508,10 +512,14 @@ const AvailabilityManager = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="workEndTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   End time
                 </label>
                 <select
+                  id="workEndTime"
                   value={workHours.end}
                   onChange={(e) => {
                     const newEndTime = e.target.value;
@@ -552,10 +560,14 @@ const AvailabilityManager = () => {
             <h3 className="text-lg font-medium mb-4">Session settings</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="sessionDuration"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Session duration
                 </label>
                 <select
+                  id="sessionDuration"
                   value={sessionDuration}
                   onChange={(e) => {
                     const newDuration = parseInt(e.target.value);
@@ -584,10 +596,14 @@ const AvailabilityManager = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="bufferTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Buffer time between sessions
                 </label>
                 <select
+                  id="bufferTime"
                   value={bufferTime}
                   onChange={(e) => {
                     const newBufferTime = parseInt(e.target.value);
