@@ -63,7 +63,7 @@ public class AvailabilityController : BaseController
     )
     {
         var isActiveClaim = User.Claims.FirstOrDefault(c => c.Type == "isActive");
-        if (isActiveClaim == null || isActiveClaim.Value != "2")
+        if (isActiveClaim == null || isActiveClaim.Value != "1")
         {
             return Forbid();
         }
