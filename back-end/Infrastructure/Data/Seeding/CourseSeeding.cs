@@ -21,7 +21,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "C#,programming,fundamentals",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                    MentorId = Guid.Parse("03ea823d-d625-448d-901d-411c5028b769"),
                 },
                 new Course
                 {
@@ -35,7 +35,7 @@ namespace Infrastructure.Data.Seeding
                     Tags = "C#,OOP,classes,inheritance",
                     Created = fixedDate,
                     LastUpdated = fixedDate,
-                    MentorId = Guid.Parse("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                    MentorId = Guid.Parse("03ea823d-d625-448d-901d-411c5028b769"),
                 },
                 new Course
                 {
