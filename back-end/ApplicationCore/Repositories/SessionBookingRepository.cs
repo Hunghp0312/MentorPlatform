@@ -109,13 +109,14 @@ namespace ApplicationCore.Repositories
         )
         {
             var start = dateTime;
+            var scheduledStatus = 6;
             var end = dateTime.AddHours(24);
             var query = await _dbSet
                 .Include(x => x.MentorTimeAvailable)
                 .ThenInclude(y => y.MentorDayAvailable)
                 .Where(x =>
                     x.LearnerId == learnerId
-                    && x.StatusId == 6
+                    && x.StatusId == scheduledStatus
                     && (
                         x.MentorTimeAvailable.MentorDayAvailable.Day == DateOnly.FromDateTime(start)
                         || x.MentorTimeAvailable.MentorDayAvailable.Day
