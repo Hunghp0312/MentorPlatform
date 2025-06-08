@@ -39,7 +39,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
                 <div className="md:col-span-2">
                     <h3 className="font-medium text-lg">{course.name}</h3>
                     <p className="text-sm text-gray-400">
-                        {formatDate(new Date(course.created))} • {course.courseLevel}
+                        {course.duration} • {course.courseLevel}
                     </p>
                 </div>
 

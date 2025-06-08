@@ -57,7 +57,7 @@ export interface CourseListItemType {
   name: string;
   courseStatus: string;
   courseLevel: string;
-  created: string;
+  duration: string;
   categoryName: string;
   numberOfStudent: number;
   completePercent: number;
