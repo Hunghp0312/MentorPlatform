@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
+import { Search, Edit, Trash2, Eye } from "lucide-react";
 import useDebounce from "../../hooks/usedebounce";
 import Button from "../../components/ui/Button";
-import { Search, Edit, Trash2, View, Eye } from "lucide-react";
+import InputCustom from "../../components/input/InputCustom";
+import ResourceAddDialog from "../../components/dialog/Resources/ResourceAddDialog"; // Import the new popup component
 import { toast } from "react-toastify";
 import { resourceService } from "../../services/resource.service";
 import { handleAxiosError } from "../../utils/handlerError";
 import { AxiosError } from "axios";
-import InputCustom from "../../components/input/InputCustom";
 import {
   CreateResourceRequest,
   EditResourceRequest,
+  ResourceType,
 } from "../../types/resource";
 
 interface Resource {
@@ -25,15 +27,23 @@ interface Resource {
     id: number;
     name: string;
   };
+  document: {
+    id: string;
+    name: string;
+    data: string;
+  };
 }
 
-const mockResources: Resource[] = [
+const mockResources: ResourceType[] = [
   {
     resourceId: "res_001",
     title: "Introduction to Productivity",
     description:
       "A comprehensive guide to improving personal and team productivity using modern tools.",
-    courseName: "Productivity 101",
+    course: {
+      id: "course_001",
+      name: "Productivity Mastery",
+    },
     typeOfResource: {
       id: 1,
       name: "Pdf",
@@ -42,13 +52,21 @@ const mockResources: Resource[] = [
       id: 1,
       name: "Productivity",
     },
+    document: {
+      id: "doc_001",
+      name: "Productivity.pdf",
+      data: "https://example.com/productivity.pdf",
+    },
   },
   {
     resourceId: "res_002",
     title: "Effective Communication Skills",
     description:
       "Learn key strategies for clear and impactful communication in professional settings.",
-    courseName: "Communication Mastery",
+    course: {
+      id: "course_002",
+      name: "Communication Mastery",
+    },
     typeOfResource: {
       id: 2,
       name: "Video",
@@ -57,13 +75,21 @@ const mockResources: Resource[] = [
       id: 2,
       name: "Communication",
     },
+    document: {
+      id: "doc_002",
+      name: "Communication.mp4",
+      data: "https://example.com/communication.mp4",
+    },
   },
   {
     resourceId: "res_003",
     title: "Team Collaboration Techniques",
     description:
       "Explore methods to enhance teamwork and collaboration in diverse environments.",
-    courseName: "Team Dynamics",
+    course: {
+      id: "course_003",
+      name: "Teamwork Mastery",
+    },
     typeOfResource: {
       id: 3,
       name: "Link",
@@ -72,13 +98,21 @@ const mockResources: Resource[] = [
       id: 3,
       name: "Teamwork",
     },
+    document: {
+      id: "doc_003",
+      name: "Team Dynamics.pdf",
+      data: "https://example.com/team-dynamics.pdf",
+    },
   },
   {
     resourceId: "res_004",
     title: "Leadership Essentials",
     description:
       "Develop core leadership skills to inspire and guide teams effectively.",
-    courseName: "Leadership Foundations",
+    course: {
+      id: "course_004",
+      name: "Leadership Mastery",
+    },
     typeOfResource: {
       id: 1,
       name: "Pdf",
@@ -87,13 +121,21 @@ const mockResources: Resource[] = [
       id: 4,
       name: "Leadership",
     },
+    document: {
+      id: "doc_004",
+      name: "Leadership.pdf",
+      data: "https://example.com/leadership.pdf",
+    },
   },
   {
     resourceId: "res_005",
     title: "Time Management Strategies",
     description:
       "Master time management techniques to boost efficiency and reduce stress.",
-    courseName: "Time Management Basics",
+    course: {
+      id: "course_005",
+      name: "Time Management Mastery",
+    },
     typeOfResource: {
       id: 1,
       name: "Pdf",
@@ -102,20 +144,26 @@ const mockResources: Resource[] = [
       id: 1,
       name: "Productivity",
     },
+    document: {
+      id: "doc_005",
+      name: "Time Management.pdf",
+      data: "https://example.com/time-management.pdf",
+    },
   },
 ];
+
 const ResourcePage = () => {
   const [loading, setLoading] = useState(false);
   const [searchByName, setSearchByName] = useState("");
   const [resourceCategoryFilter, setResourceCategoryFilter] = useState("");
-  const [initialData, setInitialData] = useState<Resource | undefined>(
+  const [initialData, setInitialData] = useState<ResourceType | undefined>(
     undefined
   );
   const [openDialog, setOpenDialog] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-  const [totalResources, setTotalResources] = useState<Resource[]>([]);
+  const [totalResources, setTotalResources] = useState<ResourceType[]>([]);
   const [resourceCategoryCounts, setResourceCategoryTypeCounts] = useState<{
     [key: string]: number;
   }>({});
@@ -130,6 +178,7 @@ const ResourcePage = () => {
     { value: "3", label: "Teamwork" },
     { value: "4", label: "Leadership" },
   ];
+
   const fetchResources = async () => {
     setLoading(true);
     try {
@@ -149,22 +198,11 @@ const ResourcePage = () => {
     }
   };
 
-  // useEffect(() => {
-  //   fetchResources();
-  // }, [pageIndex, pageSize, searchDebounced, resourceCategoryFilter]);
-
   useEffect(() => {
     // Simulate fetching data
     setTotalResources(mockResources);
     setTotalItems(mockResources.length);
   }, []);
-
-  // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.value.length <= 1000) {
-  //     setSearchByName(e.target.value);
-  //     setPageIndex(1);
-  //   }
-  // };
 
   const handleSubmit = async (
     resource: CreateResourceRequest | EditResourceRequest
@@ -222,10 +260,6 @@ const ResourcePage = () => {
     }
   };
 
-  // const handlePageChange = (newPage: number) => {
-  //   setPageIndex(newPage);
-  // };
-
   const handleOnClose = () => {
     setOpenDialog(false);
     setInitialData(undefined);
@@ -236,7 +270,6 @@ const ResourcePage = () => {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    // Only handle input elements
     if ("value" in e.target && e.target instanceof HTMLInputElement) {
       if (e.target.value.length > 100) {
         setErrors("Name of resource must not exceed 1000 characters.");
@@ -245,6 +278,7 @@ const ResourcePage = () => {
       setSearchByName(e.target.value);
     }
   };
+
   useEffect(() => {
     if (searchDebounced) {
       setSearchByName(searchDebounced);
@@ -289,13 +323,11 @@ const ResourcePage = () => {
               setPageIndex(1);
             }}
           >
-            {categoryOptions.map((option) => {
-              return (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              );
-            })}
+            {categoryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </div>
         {loading ? (
@@ -307,7 +339,7 @@ const ResourcePage = () => {
             {totalResources.map((resource) => (
               <div
                 key={resource.resourceId}
-                className="bg-gray-800 border border-gray-700 rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+                className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
               >
                 <div className="relative mb-2">
                   <h3 className="text-xl text-[17px] font-semibold text-white pr-20">
@@ -331,40 +363,49 @@ const ResourcePage = () => {
                   {resource.description}
                 </p>
                 <div className="text-gray-400 text-[13.5px] mb-2">
-                  <span className=" text-orange-400">
-                    Course: {resource.courseName}
+                  <span className="text-orange-400">
+                    Course: {resource.course.name}
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="lg">Download</Button>
-                  <Button
-                    // variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setInitialData(resource);
-                      setOpenDialog(true);
-                    }}
-                    disabled={loading}
+                  <button
+                    id="download-button"
+                    className="w-full rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
                   >
-                    <Edit size={16} className="mr-1" /> Edit
-                  </Button>
-                  <Button
-                    //variant="destructive"
-                    size="sm"
-                    onClick={() => handleDelete(resource)}
-                    disabled={loading}
-                  >
-                    <Trash2 size={16} className="mr-1" /> Delete
-                  </Button>
-                  <Button>
-                    <Eye size={16} className="mr-1" /> View
-                  </Button>
+                    Download
+                  </button>
+                  <button id="edit-button">
+                    <Edit
+                      size={20}
+                      className="text-lime-50 hover:text-lime-600"
+                    />
+                  </button>
+                  <button id="delete-button">
+                    <Trash2
+                      size={20}
+                      className="text-red-500 hover:text-red-600"
+                    />
+                  </button>
+                  <button id="view-button">
+                    <Eye
+                      size={20}
+                      className="text-blue-500 hover:text-blue-600"
+                    />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+      <ResourceAddDialog
+        isOpen={openDialog}
+        onClose={handleOnClose}
+        onSubmit={handleSubmit}
+        initialData={initialData}
+        loading={loading}
+        categoryOptions={categoryOptions}
+      />
     </main>
   );
 };

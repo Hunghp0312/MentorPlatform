@@ -135,4 +135,14 @@ public class CoursesController : BaseController
 
         return ToActionResult(pagedCourses);
     }
+
+    [HttpGet("mentor/course-asignment")]
+    [Authorize(Roles = "Mentor")]
+    public async Task<ActionResult<ICollection<GetCourseDetailsResponse>>> GetMyCourseAssignment()
+    {
+        var mentorIdString = User.FindFirstValue("id")!;
+        Guid mentorId = Guid.Parse(mentorIdString);
+        var result = await _courseService.GetCourseByMentorIdAsync(mentorId);
+        return ToActionResult(result);
+    }
 }
