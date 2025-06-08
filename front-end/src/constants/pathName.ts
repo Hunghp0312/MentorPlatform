@@ -24,4 +24,6 @@ export const pathName = {
   leanerSessionManagement: "/learner/session-management",
   adminDashboard: "/admin/dashboard",
   learnerDashboard: "/learner/dashboard",
+  leanerCourse: "/learner/course",
+  learnerCourseDetail: "/learner/course/:id",
 };
