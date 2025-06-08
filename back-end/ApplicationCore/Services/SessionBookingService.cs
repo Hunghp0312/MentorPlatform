@@ -579,7 +579,7 @@ namespace ApplicationCore.Services
             bodyToLearner.Append($"<li>Time: {formattedTime}</li>");
             bodyToLearner.Append($"<li>Reason for cancellation: {cancelReason}</li>");
             bodyToLearner.Append("</ul>");
-            bodyToLearner.Append("<p>The time slot is now available again. We encourage you to visit the mentor's profile to book another time if you wish.</p>");
+            bodyToLearner.Append("<p>We encourage you to visit the mentor's profile to book another time if you wish.</p>");
             bodyToLearner.Append("<p>Best regards,<br />The MentorPlatform Team</p>");
             bodyToLearner.Append("</body></html>");
 
