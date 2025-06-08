@@ -322,7 +322,7 @@ namespace ApplicationCore.Services
                 Name = sb.Name,
                 CourseStatus = sb.Status!.Name,
                 CourseLevel = sb.Level!.Name,
-                Created = sb.Created,
+                Duration = sb.Duration,
                 CategoryName = sb.Category!.Name,
                 NumberOfStudent = sb.LearnerCourses.Count,
                 CompletePercent = sb.LearnerCourses.Any() ?

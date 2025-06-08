@@ -57,17 +57,16 @@ public class AvailabilityController : BaseController
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> SaveDaysAvailablility(
+    public async Task<IActionResult> SaveDaysAvailability(
         Guid mentorId,
         [FromBody] SaveDaysAvailabilityRequestDto request
     )
     {
         var isActiveClaim = User.Claims.FirstOrDefault(c => c.Type == "isActive");
-        if (isActiveClaim == null || isActiveClaim.Value != "2")
+        if (isActiveClaim == null || isActiveClaim.Value != "1")
         {
             return Forbid();
         }
-
         var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
         return ToActionResult(result);
     }
