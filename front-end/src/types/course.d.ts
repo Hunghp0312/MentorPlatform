@@ -45,3 +45,25 @@ export interface CourseDetailType {
   students: number;
   completion: number;
 }
+
+
+export interface CourseKPIsType {
+  totalCourses: number;
+  activeStudents: number;
+  publishedCourses: number;
+}
+
+export interface CourseListItemType {
+  name: string;
+  courseStatus: string;
+  courseLevel: string;
+  created: string;
+  categoryName: string;
+  numberOfStudent: number;
+  completePercent: number;
+}
+
+export interface CourseDashboardResponseType {
+  courseKPIs: CourseKPIsType;
+  courses: CourseListItemType[];
+}

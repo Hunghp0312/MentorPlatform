@@ -34,6 +34,8 @@ import MentorFinder from "../pages/learner/FinderMentor";
 import AvailabilityManager from "../pages/mentor/MentorAvailability";
 import LearnerSessionManagement from "../pages/learner/LearnerSessionManagement";
 import AdminDashboard from "../pages/admin/AdminDashboard";
+import CoursesPage from "../pages/learner/ListCourseEnrolled";
+import CourseDetailPage from "../pages/learner/CourseEnrolledDetail";
 
 // Shared
 const HomePage = <div>Home</div>;
@@ -122,6 +124,8 @@ const AppRouter = () => {
         { path: pathName.bookingSession, element: <BookingSession /> },
         { path: pathName.mentorProfile, element: <MentorProfile /> },
         { path: pathName.findmentor, element: <MentorFinder /> },
+        {path: "test",element: <CoursesPage/>},
+        {path: "test1",element: <CourseDetailPage/>},
         {
           path: pathName.leanerSessionManagement,
           element: <LearnerSessionManagement />,

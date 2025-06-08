@@ -1,35 +1,55 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, Video, MessageSquare, Users, Zap, User, Upload, MessageCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Session } from '../../types/session';
+import { SessionsResponse, UpcomingSession } from '../../types/session';
 import { mentorDashboardService } from '../../services/mentorDashboard.service';
 import LoadingOverlay from '../../components/loading/LoadingOverlay';
 import { formatTime } from '../../utils/formatDate';
 import { getUserFromToken } from '../../utils/auth';
-import CourseTrackingPage from '../../components/feature/CourseTracking';
+import CourseTrackingPage from '../../components/feature/CourseTrackingDashboard';
 import { pathName } from '../../constants/pathName';
+import { CourseDashboardResponseType } from '../../types/course';
 
 
 const MentorDashBoard: React.FC = () => {
     const decodedToken = getUserFromToken()
     const mentorId = decodedToken?.id;
-    const [sessions, setSessions] = useState<Session[]>([]);
+    const [sessions, setSessions] = useState<SessionsResponse>({
+        sessionKPIs: {
+            sessionsThisMonth: 0,
+            activeLearners: 0
+        },
+        upcomingSessions: []
+    });
+    const [course,setCourse] = useState<CourseDashboardResponseType>({
+        courseKPIs : {
+            totalCourses: 0,
+            activeStudents: 0,
+            publishedCourses: 0
+        },
+        courses: []
+    })
     const [loading, setLoading] = useState<boolean>(true);
     const navigate = useNavigate();
     useEffect(() => {
-        const fetchSessions = async () => {
+        const fetchData = async () => {
             try {
-                setLoading(true);
-                const res = await mentorDashboardService.getUpcommingSessions();
-                setSessions(res.items);
-            }
-            catch (error) {
-                console.error("Error fetching sessions:", error);
+            setLoading(true);
+            const [sessionsRes, coursesRes] = await Promise.all([
+                mentorDashboardService.getUpcommingSessions(),
+                mentorDashboardService.getCourseOfMentor()
+            ]);
+            
+            setSessions(sessionsRes);
+            setCourse(coursesRes);
+            } catch (error) {
+            console.error("Error fetching dashboard data:", error);
             } finally {
-                setLoading(false);
+            setLoading(false);
             }
-        }
-        fetchSessions();
+        };
+        
+        fetchData();
     }, [])
 
     const dateLeftToMeeting = (date: string) => {
@@ -55,14 +75,17 @@ const MentorDashBoard: React.FC = () => {
     }
 
 
-    const formatSessionDisplayInfo = (session: Session) => {
-        // Parse dates
-        const sessionDate = new Date(session.slotStartTime);
-        const sessionDay = new Date(session.bookingDay);
+    const formatSessionDisplayInfo = (session: UpcomingSession) => {
+        // Combine date and time for accurate timestamp
+        const combinedDateTime = `${session.date}T${session.slotStartTime}`;
+        const sessionDate = new Date(combinedDateTime);
         const currentDate = new Date();
 
-        // Check if the session is today using bookingDay
-        const isToday = sessionDay.toDateString() === currentDate.toDateString();
+        // Check if the session is today
+        const isToday = 
+            sessionDate.getDate() === currentDate.getDate() &&
+            sessionDate.getMonth() === currentDate.getMonth() &&
+            sessionDate.getFullYear() === currentDate.getFullYear();
 
         // Initialize status flags
         let isStartingSoon = false;
@@ -90,7 +113,7 @@ const MentorDashBoard: React.FC = () => {
             }
         } else {
             // Use dateLeftToMeeting for non-today sessions
-            displayTime = dateLeftToMeeting(session.bookingDay);
+            displayTime = dateLeftToMeeting(session.date);
         }
 
         return { isToday, isStartingSoon, isVeryClose, displayTime };
@@ -101,7 +124,7 @@ const MentorDashBoard: React.FC = () => {
                 return <Video className="w-5 h-5 text-blue-500 " />;
             case 'On-Site Session':
                 return <MessageSquare className="w-5 h-5 text-purple-500 " />;
-            case 'In-Person':
+            case 'In-Person Session':
                 return <Users className="w-5 h-5 text-green-500 " />;
             case 'Screen Share':
                 return <MessageSquare className="w-5 h-5 text-pink-500 " />;
@@ -115,7 +138,7 @@ const MentorDashBoard: React.FC = () => {
                 return 'bg-blue-500/20';
             case 'On-Site Session':
                 return 'bg-purple-500/20';
-            case 'In-Person':
+            case 'In-Person Session':
                 return 'bg-green-500/20';
             case 'Screen Share':
                 return 'bg-pink-500/20';
@@ -142,7 +165,7 @@ const MentorDashBoard: React.FC = () => {
                         <div className="flex justify-between items-center">
                             <div>
                                 <p className="text-sm text-gray-400">Sessions This Month</p>
-                                <p className="text-2xl font-bold text-white">8</p>
+                                <p className="text-2xl font-bold text-white">{sessions.sessionKPIs.sessionsThisMonth}</p>
                             </div>
                             <div className="p-3 bg-blue-500/20 rounded-full">
                                 <Calendar className="w-5 h-5 text-blue-400" />
@@ -166,7 +189,7 @@ const MentorDashBoard: React.FC = () => {
                         <div className="flex justify-between items-center">
                             <div>
                                 <p className="text-sm text-gray-400">Active Learners</p>
-                                <p className="text-2xl font-bold text-white">9</p>
+                                <p className="text-2xl font-bold text-white">{sessions.sessionKPIs.activeLearners}</p>
                             </div>
                             <div className="p-3 bg-purple-500/20 rounded-full">
                                 <Users className="w-5 h-5 text-purple-400" />
@@ -189,9 +212,9 @@ const MentorDashBoard: React.FC = () => {
                                 </Link>
                             </div>
 
-                            {sessions.length > 0 ? (
+                            {sessions.upcomingSessions.length > 0 ? (
                                 <div className="space-y-4">
-                                    {sessions.map(session => {
+                                    {sessions.upcomingSessions.map(session => {
                                         const { isToday, isStartingSoon, isVeryClose, displayTime } = formatSessionDisplayInfo(session);
 
                                         const statusClass = isVeryClose ? "text-red-400 font-bold" :
@@ -200,22 +223,22 @@ const MentorDashBoard: React.FC = () => {
 
                                         return (
                                             <div
-                                                key={session.sessionId}
+                                                key={session.bookingId}
                                                 className={`border rounded-lg p-4 relative ${isToday ? 'border-orange-500 border-2' : 'border-[#2d3748]'}`}
                                             >
                                                 <div className="flex items-start">
-                                                    <div className={`p-2 ${getColorOfSessionType(session.sessionType.name)} rounded-lg mr-3`}>
-                                                        {getSessionIcon(session.sessionType.name)}
+                                                    <div className={`p-2 ${getColorOfSessionType(session.sessionTypeName)} rounded-lg mr-3`}>
+                                                        {getSessionIcon(session.sessionTypeName)}
                                                     </div>
                                                     <div className="flex-1">
-                                                        <h3 className="font-semibold text-white">Meeting with {session.fullName}</h3>
+                                                        <h3 className="font-semibold text-white">Meeting with {session.learnerFullName}</h3>
                                                         <div className="text-sm text-gray-400 mt-1">
-                                                            <span>{formatTime(new Date(session.slotStartTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))}</span> -{' '}
-                                                            <span>{formatTime(new Date(session.slotEndTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }))}</span>
+                                                            <span>{formatTime(session.slotStartTime)}</span> -{' '}
+                                                            <span>{formatTime(session.slotEndTime)}</span>
                                                         </div>
                                                         <div className="flex items-center mt-2 text-sm text-gray-400">
-                                                            {getSessionIcon(session.sessionType.name)}
-                                                            <span className="ml-2">{session.sessionType.name}</span>
+                                                            {getSessionIcon(session.sessionTypeName)}
+                                                            <span className="ml-2">{session.sessionTypeName}</span>
                                                         </div>
                                                         <div className="mt-3 flex justify-between items-center">
                                                             {isToday && (
@@ -249,7 +272,7 @@ const MentorDashBoard: React.FC = () => {
                         {/* Course Tracking */}
                         <div className="bg-[#252d3d] rounded-lg shadow p-6 border border-[#2d3748]">
                             <h2 className="text-lg font-semibold text-white mb-4">Your Courses</h2>
-                            <CourseTrackingPage />
+                            <CourseTrackingPage courses={course} />
                         </div>
                     </div>
 

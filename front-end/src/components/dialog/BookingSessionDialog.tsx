@@ -22,6 +22,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 }) => {
     const [slots, setSlots] = useState<TimeSlot[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [bookingData, setBookingData] = useState<BookingRequest>({
         mentorId: mentorId,
         mentorTimeAvailableId: "",
@@ -54,6 +55,11 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
+        // Check if the input is learnerMessage and prevent input if > 1000 characters
+        if (name === "learnerMessage" && value.length > 1000) {
+            setError("Message cannot exceed 1000 characters.");
+            return; // Don't update state if over character limit
+        }
         setBookingData(prev => ({
             ...prev,
             [name]: value,
@@ -200,6 +206,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                             placeholder="Briefly describe what you'd like to cover in this session..."
                             className="w-full bg-[#202938] border border-[#363f4e] rounded p-2 text-white h-24 resize-none"
                         />
+                        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                     </div>
 
                     {/* Footer */}
