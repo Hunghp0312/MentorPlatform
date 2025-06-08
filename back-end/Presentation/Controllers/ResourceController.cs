@@ -70,5 +70,18 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
+
+        [HttpPut("{resourceId:guid}/UrlUpload")]
+        [Authorize]
+        [ProducesResponseType(typeof(UpdateResourceUrlResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadUrlResource(Guid resourceId, string Url)
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _resourceService.UpdateResourceUrl(resourceId, userId, Url);
+
+            return ToActionResult(result);
+        }
     }
 }
