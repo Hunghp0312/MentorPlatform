@@ -36,9 +36,9 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
     description: initialData?.description || "",
     resourceCategoryId: initialData?.resourceCategory.id || 0,
     typeOfResourceId: initialData?.typeOfResource.id || 0,
-    courseId: initialData?.course.id.toString() || "",
+    courseId: initialData?.courseId || "",
     file: null as File | null,
-    link: initialData?.document.data || "",
+    link: initialData?.link || "",
   });
 
   const [formErrors, setFormErrors] = useState({
@@ -142,9 +142,7 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
         isValid = false;
       } else if (formData.file) {
         const allowedTypes =
-          formData.typeOfResourceId === 1
-            ? ["video/mp4", "video/mpeg", "video/webm"]
-            : ["application/pdf"];
+          formData.typeOfResourceId === 1 ? ["video/mp4"] : ["application/pdf"];
         if (!allowedTypes.includes(formData.file.type)) {
           errors.file = `Please upload a valid ${
             formData.typeOfResourceId === 1 ? "video" : "PDF"
@@ -290,9 +288,7 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
               <input
                 type="file"
                 ref={fileInputRef}
-                accept={
-                  formData.typeOfResourceId === 1 ? ".mp4,.mpeg,.webm" : ".pdf"
-                }
+                accept={formData.typeOfResourceId === 1 ? ".mp4" : ".pdf"}
                 onChange={handleFileChange}
                 className="w-full text-gray-300 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
               />

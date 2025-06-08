@@ -18,10 +18,8 @@ interface ResourceType {
   resourceId: string;
   title: string;
   description: string;
-  course: {
-    id: string;
-    name: string;
-  };
+  courseId: string;
+  courseName: string;
   typeOfResource: {
     id: number;
     name: string;
@@ -30,9 +28,8 @@ interface ResourceType {
     id: number;
     name: string;
   };
-  document: {
-    id: string;
-    name: string;
-    data: string;
-  };
+  fileId: string;
+  fileName: string;
+  fileType: string;
+  link?: string;
 }

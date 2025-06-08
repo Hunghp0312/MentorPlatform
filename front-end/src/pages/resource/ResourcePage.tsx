@@ -8,11 +8,13 @@ import { toast } from "react-toastify";
 import { resourceService } from "../../services/resource.service";
 import { handleAxiosError } from "../../utils/handlerError";
 import { AxiosError } from "axios";
+import { userService } from "../../services/user.service";
 import {
   CreateResourceRequest,
   EditResourceRequest,
   ResourceType,
 } from "../../types/resource";
+import CustomModal from "../../components/ui/Modal";
 
 interface Resource {
   resourceId: string;
@@ -27,130 +29,10 @@ interface Resource {
     id: number;
     name: string;
   };
-  document: {
-    id: string;
-    name: string;
-    data: string;
-  };
+  fileId: string;
+  fileName: string;
+  fileType: string;
 }
-
-const mockResources: ResourceType[] = [
-  {
-    resourceId: "res_001",
-    title: "Introduction to Productivity",
-    description:
-      "A comprehensive guide to improving personal and team productivity using modern tools.",
-    course: {
-      id: "course_001",
-      name: "Productivity Mastery",
-    },
-    typeOfResource: {
-      id: 1,
-      name: "Pdf",
-    },
-    resourceCategory: {
-      id: 1,
-      name: "Productivity",
-    },
-    document: {
-      id: "doc_001",
-      name: "Productivity.pdf",
-      data: "https://example.com/productivity.pdf",
-    },
-  },
-  {
-    resourceId: "res_002",
-    title: "Effective Communication Skills",
-    description:
-      "Learn key strategies for clear and impactful communication in professional settings.",
-    course: {
-      id: "course_002",
-      name: "Communication Mastery",
-    },
-    typeOfResource: {
-      id: 2,
-      name: "Video",
-    },
-    resourceCategory: {
-      id: 2,
-      name: "Communication",
-    },
-    document: {
-      id: "doc_002",
-      name: "Communication.mp4",
-      data: "https://example.com/communication.mp4",
-    },
-  },
-  {
-    resourceId: "res_003",
-    title: "Team Collaboration Techniques",
-    description:
-      "Explore methods to enhance teamwork and collaboration in diverse environments.",
-    course: {
-      id: "course_003",
-      name: "Teamwork Mastery",
-    },
-    typeOfResource: {
-      id: 3,
-      name: "Link",
-    },
-    resourceCategory: {
-      id: 3,
-      name: "Teamwork",
-    },
-    document: {
-      id: "doc_003",
-      name: "Team Dynamics.pdf",
-      data: "https://example.com/team-dynamics.pdf",
-    },
-  },
-  {
-    resourceId: "res_004",
-    title: "Leadership Essentials",
-    description:
-      "Develop core leadership skills to inspire and guide teams effectively.",
-    course: {
-      id: "course_004",
-      name: "Leadership Mastery",
-    },
-    typeOfResource: {
-      id: 1,
-      name: "Pdf",
-    },
-    resourceCategory: {
-      id: 4,
-      name: "Leadership",
-    },
-    document: {
-      id: "doc_004",
-      name: "Leadership.pdf",
-      data: "https://example.com/leadership.pdf",
-    },
-  },
-  {
-    resourceId: "res_005",
-    title: "Time Management Strategies",
-    description:
-      "Master time management techniques to boost efficiency and reduce stress.",
-    course: {
-      id: "course_005",
-      name: "Time Management Mastery",
-    },
-    typeOfResource: {
-      id: 1,
-      name: "Pdf",
-    },
-    resourceCategory: {
-      id: 1,
-      name: "Productivity",
-    },
-    document: {
-      id: "doc_005",
-      name: "Time Management.pdf",
-      data: "https://example.com/time-management.pdf",
-    },
-  },
-];
 
 const ResourcePage = () => {
   const [loading, setLoading] = useState(false);
@@ -167,6 +49,12 @@ const ResourcePage = () => {
   const [totalResources, setTotalResources] = useState<ResourceType[]>([]);
   const searchDebounced = useDebounce(searchByName, 500);
   const [errors, setErrors] = useState<string>();
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [openDocumentViewer, setOpenDocumentViewer] = useState(false);
+  const [documentData, setDocumentData] = useState<{
+    fileContent: string;
+    fileType: string;
+  } | null>(null);
 
   const categoryOptions = [
     { value: "", label: "All" },
@@ -176,30 +64,26 @@ const ResourcePage = () => {
     { value: "4", label: "Leadership" },
   ];
 
-  // const fetchResources = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const typeId = resourceCategoryFilter
-  //       ? parseInt(resourceCategoryFilter)
-  //       : 0;
-  //     const response = await resourceService.getPagedResources(
-  //       searchDebounced,
-  //       typeId,
-  //       pageIndex,
-  //       pageSize
-  //     );
-  //     setTotalResources(response.items);
-  //     setTotalItems(response.totalItems);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const user = await userService.getCurrentUser();
+        console.log("User Role:", user.role.name);
+        setUserRole(user.role.name);
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+        toast.error("Failed to fetch user information");
+        setUserRole(null);
+      }
+    };
+    fetchUserRole();
+  }, []);
   const fetchResources = async () => {
     setLoading(true);
     try {
       const categoryId = resourceCategoryFilter
         ? parseInt(resourceCategoryFilter)
-        : 0;
+        : undefined;
       const response = await resourceService.getPagedResources(
         searchDebounced,
         categoryId,
@@ -224,12 +108,6 @@ const ResourcePage = () => {
   useEffect(() => {
     fetchResources();
   }, [searchDebounced, resourceCategoryFilter, pageIndex, pageSize]);
-
-  useEffect(() => {
-    // Simulate fetching data
-    setTotalResources(mockResources);
-    setTotalItems(mockResources.length);
-  }, []);
 
   const handleSubmit = async (
     resource: CreateResourceRequest | EditResourceRequest
@@ -308,6 +186,22 @@ const ResourcePage = () => {
       }
     }
   };
+  const handleDownload = async (resource: Resource) => {
+    toast.info("Please wait a few seconds before downloading...");
+    try {
+      await resourceService.downloadResourceFile(resource.fileId);
+      fetchResources();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        handleAxiosError(error);
+      } else {
+        console.error("Error in downloading resource:", error);
+        toast.error("Failed to download resource");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOnClose = () => {
     setOpenDialog(false);
@@ -328,6 +222,105 @@ const ResourcePage = () => {
     }
   };
 
+  const handleViewDocument = async (fileId: string) => {
+    console.log("handleViewDocument called for fileId:", fileId);
+    try {
+      const response = await resourceService.getResourceFileDetail(fileId);
+      const { fileContent, fileType } = response;
+      if (!fileContent) {
+        console.error("File content is missing or empty");
+        toast.error("Error: File content is missing or empty.");
+        return;
+      }
+      if (!fileType) {
+        console.error("File type is missing");
+        toast.error("Error: File type is missing.");
+        return;
+      }
+      const isValidBase64 = /^[A-Za-z0-9+/=]+$/.test(fileContent);
+      if (!isValidBase64) {
+        console.error("Invalid Base64 string detected");
+        toast.error("Error: Invalid Base64 string detected.");
+        return;
+      }
+      setDocumentData({ fileContent, fileType });
+      setOpenDocumentViewer(true);
+    } catch (error) {
+      console.error("Error in handleViewDocument:", error);
+      toast.error("Error in handle view document.");
+    }
+  };
+  const handleCloseDocumentViewer = () => {
+    setOpenDocumentViewer(false);
+    setDocumentData(null);
+  };
+  const renderButtons = (resource: ResourceType) => {
+    const buttons = {
+      download: (
+        <button
+          id="download-button"
+          onClick={() => handleDownload(resource)}
+          className="w-full rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+        >
+          Download
+        </button>
+      ),
+      edit: (
+        <button
+          id="edit-button"
+          onClick={() => {
+            setInitialData(resource);
+            setOpenDialog(true);
+          }}
+        >
+          <Edit size={20} className="text-lime-50 hover:text-lime-600" />
+        </button>
+      ),
+      delete: (
+        <button id="delete-button" onClick={() => handleDelete(resource)}>
+          <Trash2 size={20} className="text-red-500 hover:text-red-600" />
+        </button>
+      ),
+      view: (
+        <button
+          id="view-button"
+          onClick={() => handleViewDocument(resource.fileId)}
+        >
+          <Eye size={20} className="text-blue-500 hover:text-blue-600" />
+        </button>
+      ),
+    };
+
+    switch (userRole) {
+      case "Mentor":
+        return (
+          <>
+            {buttons.download}
+            {buttons.edit}
+            {buttons.delete}
+            {buttons.view}
+          </>
+        );
+      case "Admin":
+        return (
+          <>
+            {buttons.download}
+            {buttons.delete}
+            {buttons.view}
+          </>
+        );
+      case "Learner":
+        return (
+          <>
+            {buttons.download}
+            {buttons.view}
+          </>
+        );
+      default:
+        return null; // Không hiển thị nút nếu chưa xác định vai trò
+    }
+  };
+
   useEffect(() => {
     if (searchDebounced) {
       setSearchByName(searchDebounced);
@@ -341,15 +334,17 @@ const ResourcePage = () => {
     <main>
       <div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h2 className="text-3xl font-bold ">Resource</h2>
-          <Button
-            variant="primary"
-            size="md"
-            className="font-bold text-white"
-            onClick={() => setOpenDialog(true)}
-          >
-            Add Resource
-          </Button>
+          <h2 className="text-3xl font-bold">Resource</h2>
+          {userRole === "Mentor" && ( // Chỉ Mentor thấy nút Add Resource
+            <Button
+              variant="primary"
+              size="md"
+              className="font-bold text-white"
+              onClick={() => setOpenDialog(true)}
+            >
+              Add Resource
+            </Button>
+          )}
         </div>
         <div className="flex flex-col md:flex-row gap-4 mb-6">
           <div className="flex-grow relative">
@@ -427,37 +422,35 @@ const ResourcePage = () => {
                 </p>
                 <div className="text-gray-400 text-[13.5px] mb-2">
                   <span className="text-orange-400">
-                    Course: {resource.course.name}
+                    Course: {resource.courseName}
                   </span>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    id="download-button"
-                    className="w-full rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
-                  >
-                    Download
-                  </button>
-                  <button id="edit-button">
-                    <Edit
-                      size={20}
-                      className="text-lime-50 hover:text-lime-600"
-                    />
-                  </button>
-                  <button id="delete-button">
-                    <Trash2
-                      size={20}
-                      className="text-red-500 hover:text-red-600"
-                    />
-                  </button>
-                  <button id="view-button">
-                    <Eye
-                      size={20}
-                      className="text-blue-500 hover:text-blue-600"
-                    />
-                  </button>
-                </div>
+                <div className="flex gap-2">{renderButtons(resource)}</div>
               </div>
             ))}
+          </div>
+        )}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-6">
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={pageIndex === 1}
+              onClick={() => setPageIndex(pageIndex - 1)}
+            >
+              Previous
+            </Button>
+            <span className="text-gray-300">
+              Page {pageIndex} of {totalPages}
+            </span>
+            <Button
+              variant="primary"
+              size="sm"
+              disabled={pageIndex === totalPages}
+              onClick={() => setPageIndex(pageIndex + 1)}
+            >
+              Next
+            </Button>
           </div>
         )}
       </div>
@@ -469,6 +462,23 @@ const ResourcePage = () => {
         loading={loading}
         categoryOptions={categoryOptions}
       />
+      <CustomModal
+        isOpen={openDocumentViewer}
+        onClose={handleCloseDocumentViewer}
+        title="View Document"
+        size="xl"
+      >
+        {documentData && (
+          <div className="w-full h-[70vh]">
+            <embed
+              src={`data:${documentData.fileType};base64,${documentData.fileContent}`}
+              type={documentData.fileType}
+              width="100%"
+              height="100%"
+            />
+          </div>
+        )}
+      </CustomModal>
     </main>
   );
 };

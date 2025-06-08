@@ -4,6 +4,6 @@ namespace ApplicationCore.DTOs.QueryParameters
 {
     public class ResourceQueryParameters : PaginationParameters
     {
-        public int? TypeOfResourceId { get; set; }
+        public int? ResourceCategoryId { get; set; }
     }
 }

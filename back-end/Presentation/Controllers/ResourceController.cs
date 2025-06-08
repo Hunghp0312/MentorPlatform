@@ -43,7 +43,7 @@ namespace Presentation.Controllers
         {
             var mentorIdString = User.FindFirstValue("id")!;
             Guid mentorId = Guid.Parse(mentorIdString);
-            var result = await _resourceService.DeleteResource(mentorId, resourceId);
+            var result = await _resourceService.DeleteResource(resourceId, mentorId);
             return ToActionResult(result);
         }
 

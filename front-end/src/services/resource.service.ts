@@ -3,7 +3,7 @@ import { CreateResourceRequest, EditResourceRequest } from "../types/resource";
 export const resourceService = {
   async getPagedResources(
     query: string,
-    typeOfResourceId: number,
+    typeOfResourceId: number | undefined,
     pageIndex: number,
     pageSize: number
   ) {
@@ -51,7 +51,9 @@ export const resourceService = {
   },
 
   async getResourceFileDetail(fileId: string) {
-    const response = await axiosInstance.get(`/Resource/file/${fileId}`);
+    const response = await axiosInstance.get(
+      `/Resource/file/${fileId}/details`
+    );
     return response.data;
   },
 
@@ -64,6 +66,13 @@ export const resourceService = {
     const response = await axiosInstance.post(
       `/Resource/${resourceId}/UrlUpload`,
       { Url: link }
+    );
+    return response.data;
+  },
+
+  async downloadResourceFile(fileId: string) {
+    const response = await axiosInstance.get(
+      `/SupportingDocuments/${fileId}/download`
     );
     return response.data;
   },

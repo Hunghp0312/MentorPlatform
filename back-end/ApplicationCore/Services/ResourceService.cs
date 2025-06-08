@@ -67,12 +67,20 @@ namespace ApplicationCore.Services
             var resource = await _resourceRepository.GetByIdAsync(resourceId);
             if (resource == null)
             {
-                return OperationResult<ResourceResponse>.NotFound("Resource not found");
+                return OperationResult<ResourceResponse>.NotFound($"Resource with ID {resourceId} not found.");
             }
+
             var user = await _userRepository.GetByIdAsync(UserId);
-            if (UserId != resource.Course!.MentorId && (user == null || user.Role?.Name != "Admin"))
+            if (user == null)
             {
-                return OperationResult<ResourceResponse>.NotFound("You are not authorized to delete this resource, cause you are not the mentor of this course.");
+                return OperationResult<ResourceResponse>.NotFound($"User with ID {UserId} not found.");
+            }
+
+            if (UserId != resource.Course?.MentorId && user.Role?.Name != "Admin")
+            {
+                return OperationResult<ResourceResponse>.Unauthorized(
+                    "You are not authorized to delete this resource because you are not the mentor of this course or an admin."
+                );
             }
 
             _resourceRepository.Delete(resource);
@@ -131,18 +139,13 @@ namespace ApplicationCore.Services
                 if (!string.IsNullOrEmpty(resourceQueryParameters.Query))
                 {
                     q = q.Where(r =>
-                        (r.Title != null && r.Title.Contains(resourceQueryParameters.Query)) ||
-                        (r.Description != null && r.Description.Contains(resourceQueryParameters.Query)));
+                        r.Title != null && r.Title.Contains(resourceQueryParameters.Query)
+                       );
                 }
 
-                if (resourceQueryParameters.TypeOfResourceId.HasValue)
+                if (resourceQueryParameters.ResourceCategoryId.HasValue)
                 {
-                    q = q.Where(r => r.ResourceCategoryId == resourceQueryParameters.TypeOfResourceId.Value);
-                }
-
-                if (resourceQueryParameters.TypeOfResourceId.HasValue)
-                {
-                    q = q.Where(r => r.TypeOfResourceId == resourceQueryParameters.TypeOfResourceId.Value);
+                    q = q.Where(r => r.ResourceCategoryId == resourceQueryParameters.ResourceCategoryId.Value);
                 }
 
                 return q;
