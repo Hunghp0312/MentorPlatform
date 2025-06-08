@@ -54,8 +54,12 @@ namespace ApplicationCore.Services
             };
             await _resourceRepository.AddAsync(resource);
             await _unitOfWork.SaveChangesAsync();
-
-            return OperationResult<ResourceResponse>.Ok(resource.ToResourceResponse());
+            var savedResource = await _resourceRepository.GetByIdAsync(resource.Id);
+            if (savedResource == null)
+            {
+                return OperationResult<ResourceResponse>.BadRequest("Failed to retrieve the saved resource.");
+            }
+            return OperationResult<ResourceResponse>.Ok(savedResource.ToResourceResponse());
         }
 
         public async Task<OperationResult<ResourceResponse>> DeleteResource(Guid resourceId, Guid UserId)

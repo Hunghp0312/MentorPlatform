@@ -163,11 +163,8 @@ const ResourcePage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const pageSizeOptions = [5, 10, 20]; // Define page size options
   const [totalResources, setTotalResources] = useState<ResourceType[]>([]);
-  const [resourceCategoryCounts, setResourceCategoryTypeCounts] = useState<{
-    [key: string]: number;
-  }>({});
-
   const searchDebounced = useDebounce(searchByName, 500);
   const [errors, setErrors] = useState<string>();
 
@@ -179,24 +176,54 @@ const ResourcePage = () => {
     { value: "4", label: "Leadership" },
   ];
 
+  // const fetchResources = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const typeId = resourceCategoryFilter
+  //       ? parseInt(resourceCategoryFilter)
+  //       : 0;
+  //     const response = await resourceService.getPagedResources(
+  //       searchDebounced,
+  //       typeId,
+  //       pageIndex,
+  //       pageSize
+  //     );
+  //     setTotalResources(response.items);
+  //     setTotalItems(response.totalItems);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const fetchResources = async () => {
     setLoading(true);
     try {
-      const typeId = resourceCategoryFilter
+      const categoryId = resourceCategoryFilter
         ? parseInt(resourceCategoryFilter)
         : 0;
       const response = await resourceService.getPagedResources(
         searchDebounced,
-        typeId,
+        categoryId,
         pageIndex,
         pageSize
       );
+      console.log("API Response:", response);
       setTotalResources(response.items);
       setTotalItems(response.totalItems);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        handleAxiosError(error);
+      } else {
+        console.error("Error fetching resources:", error);
+        toast.error("Failed to fetch resources");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchResources();
+  }, [searchDebounced, resourceCategoryFilter, pageIndex, pageSize]);
 
   useEffect(() => {
     // Simulate fetching data
@@ -251,6 +278,11 @@ const ResourcePage = () => {
       setInitialData(undefined);
       setLoading(false);
     }
+  };
+
+  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPageSize(Number(e.target.value));
+    setPageIndex(1); // Reset to first page when page size changes
   };
 
   const handleDelete = async (resource: Resource) => {
@@ -333,7 +365,7 @@ const ResourcePage = () => {
           </div>
           <select
             className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
-            data-testid="category-status"
+            data-testid="type-status"
             value={resourceCategoryFilter}
             onChange={(e) => {
               setResourceCategoryFilter(e.target.value);
@@ -343,6 +375,20 @@ const ResourcePage = () => {
             {categoryOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center space-x-2 text-sm text-gray-400">
+          <span>Rows per page:</span>
+          <select
+            value={pageSize}
+            onChange={handlePageSizeChange}
+            className="bg-gray-700 border border-gray-600 rounded-md text-gray-300 text-sm py-1 px-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            {pageSizeOptions.map((size) => (
+              <option key={size} value={size}>
+                {size}
               </option>
             ))}
           </select>

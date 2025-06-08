@@ -15,6 +15,7 @@ namespace ApplicationCore.Extensions
                 CourseId = resource.CourseId,
                 CourseName = resource.Course!.Name,
                 TypeOfResource = resource.TypeOfResource!,
+                ResourceCategory = resource.ResourceCategory!,
             };
         }
 
@@ -28,6 +29,7 @@ namespace ApplicationCore.Extensions
                 CourseId = resource.CourseId,
                 CourseName = resource.Course!.Name,
                 TypeOfResource = resource.TypeOfResource!,
+                ResourceCategory = resource.ResourceCategory!,
                 FileId = resource.DocumentContentId,
                 FileName = resource.DocumentContent?.FileName ?? string.Empty,
                 FileType = resource.DocumentContent?.FileType ?? string.Empty,

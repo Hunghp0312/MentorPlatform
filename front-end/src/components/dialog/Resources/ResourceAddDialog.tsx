@@ -143,11 +143,11 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
       } else if (formData.file) {
         const allowedTypes =
           formData.typeOfResourceId === 1
-            ? ["application/pdf"]
-            : ["video/mp4", "video/mpeg", "video/webm"];
+            ? ["video/mp4", "video/mpeg", "video/webm"]
+            : ["application/pdf"];
         if (!allowedTypes.includes(formData.file.type)) {
           errors.file = `Please upload a valid ${
-            formData.typeOfResourceId === 1 ? "PDF" : "video"
+            formData.typeOfResourceId === 1 ? "video" : "PDF"
           } file`;
           isValid = false;
         }
@@ -216,8 +216,8 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
 
   const typeOptions = [
     { id: "", name: "Select a type" },
-    { id: "1", name: "Pdf" },
-    { id: "2", name: "Video" },
+    { id: "1", name: "Video" },
+    { id: "2", name: "Pdf" },
     { id: "3", name: "Link" },
   ];
 
@@ -291,7 +291,7 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
                 type="file"
                 ref={fileInputRef}
                 accept={
-                  formData.typeOfResourceId === 1 ? ".pdf" : ".mp4,.mpeg,.webm"
+                  formData.typeOfResourceId === 1 ? ".mp4,.mpeg,.webm" : ".pdf"
                 }
                 onChange={handleFileChange}
                 className="w-full text-gray-300 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
