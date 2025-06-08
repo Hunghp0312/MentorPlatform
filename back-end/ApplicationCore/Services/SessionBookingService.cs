@@ -20,20 +20,18 @@ namespace ApplicationCore.Services
     public class SessionBookingService : ISessionBookingService
     {
         private readonly ISessionBookingRepository _sessionBookingRepository;
-        private readonly ICourseRepository _courseRepository;
         private readonly IMentorTimeAvailableRepository _mentorTimeAvailableRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISendEmailService _sendEmailService;
 
-        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ISendEmailService sendEmailService, ICourseRepository courseRepository)
+        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ISendEmailService sendEmailService)
         {
             _sessionBookingRepository = sessionBookingRepository;
             _mentorTimeAvailableRepository = mentorTimeAvailableRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _sendEmailService = sendEmailService;
-            _courseRepository = courseRepository;
         }
 
         public async Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts()
@@ -315,6 +313,7 @@ namespace ApplicationCore.Services
                 case 5:
                     booking.StatusId = 5;
                     booking.CancelReason = updateRequest.CancelReason;
+                    await SendBookingCancelledEmailAsync(booking);
                     break;
 
                 case 6:
@@ -340,8 +339,8 @@ namespace ApplicationCore.Services
             var updatedBookingStatus = await _sessionBookingRepository.GetByIdAsync(sessionId);
 
             var response = updatedBookingStatus!.ToUpdateBookingResponseDto();
-            return OperationResult<UpdateBookingResponseDto>.Ok(response);
 
+            return OperationResult<UpdateBookingResponseDto>.Ok(response);
         }
 
         public async Task<OperationResult<UpdateBookingResponseDto>> RescheduleBookingByMentorAsync(Guid sessionId, Guid mentorId, RescheduleBookingRequestDto rescheduleRequest)
@@ -560,6 +559,31 @@ namespace ApplicationCore.Services
             MentorDashboardDto mentorDashboardDto = new MentorDashboardDto() { SessionKPIs = sessionDashboardKpiDto, UpcomingSessions = bookingDtos };
 
             return OperationResult<MentorDashboardDto>.Ok(mentorDashboardDto);
+        }
+
+        private async Task SendBookingCancelledEmailAsync(SessionBooking cancelledBooking)
+        {
+            var mentorName = System.Net.WebUtility.HtmlEncode(cancelledBooking.Mentor.UserProfile?.FullName);
+            var learnerName = System.Net.WebUtility.HtmlEncode(cancelledBooking.Learner.UserProfile?.FullName);
+            var cancelReason = System.Net.WebUtility.HtmlEncode(cancelledBooking.CancelReason);
+            var slotStartTime = cancelledBooking.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(cancelledBooking.MentorTimeAvailable.Start, DateTimeKind.Utc);
+            string formattedTime = slotStartTime.ToString("dddd, MMMM d, yyyy 'at' h:mm tt", System.Globalization.CultureInfo.InvariantCulture);
+
+            var subjectToLearner = $"Your session with {mentorName} has been cancelled";
+            var bodyToLearner = new StringBuilder();
+            bodyToLearner.Append("<html><body>");
+            bodyToLearner.Append($"<p>Hi {learnerName},</p>");
+            bodyToLearner.Append($"<p>Please be advised that your scheduled mentorship session with <strong>{mentorName}</strong> has been cancelled.</p>");
+            bodyToLearner.Append("<p><strong>Session Details:</strong></p>");
+            bodyToLearner.Append("<ul>");
+            bodyToLearner.Append($"<li>Time: {formattedTime}</li>");
+            bodyToLearner.Append($"<li>Reason for cancellation: {cancelReason}</li>");
+            bodyToLearner.Append("</ul>");
+            bodyToLearner.Append("<p>The time slot is now available again. We encourage you to visit the mentor's profile to book another time if you wish.</p>");
+            bodyToLearner.Append("<p>Best regards,<br />The MentorPlatform Team</p>");
+            bodyToLearner.Append("</body></html>");
+
+            await _sendEmailService.SendEmail(cancelledBooking.Learner.Email, subjectToLearner, bodyToLearner.ToString(), true);
         }
     }
 }
