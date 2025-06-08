@@ -209,18 +209,35 @@ const ResourcePage = () => {
   ) => {
     setLoading(true);
     try {
+      let resourceId: string;
       if (initialData) {
         // Edit existing resource
         await resourceService.updateResource(
           initialData.resourceId,
           resource as EditResourceRequest
         );
+        resourceId = initialData.resourceId;
         toast.success("Resource updated successfully");
       } else {
         // Create new resource
-        await resourceService.createResource(resource as CreateResourceRequest);
+        const response = await resourceService.createResource(
+          resource as CreateResourceRequest
+        );
+        resourceId = response.resourceId;
         toast.success("Resource created successfully");
       }
+
+      // Handle file or link upload for new or edited resources
+      if ("file" in resource && resource.file) {
+        await resourceService.uploadResourceFile(resource.file, resourceId);
+      } else if (
+        "link" in resource &&
+        resource.link &&
+        resource.typeOfResourceId === 3
+      ) {
+        await resourceService.uploadResourceLinkType(resourceId, resource.link);
+      }
+
       fetchResources();
     } catch (error) {
       if (error instanceof AxiosError) {

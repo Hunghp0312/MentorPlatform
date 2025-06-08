@@ -4,10 +4,8 @@ export interface CreateResourceRequest {
   resourceCategoryId: number;
   typeOfResourceId: number;
   courseId: string;
-  document: {
-    id: string;
-    name: string;
-  };
+  file?: File;
+  link?: string;
 }
 
 export interface EditResourceRequest {

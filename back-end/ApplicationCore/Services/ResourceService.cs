@@ -116,7 +116,14 @@ namespace ApplicationCore.Services
                 {
                     q = q.Where(r => r.Course!.MentorId == UserId);
                 }
-
+                else if (user.Role?.Name == "Mentor")
+                {
+                    q = q.Where(r => r.Course!.MentorId == UserId);
+                }
+                else if (user.Role?.Name == "Learner")
+                {
+                    q = q.Where(r => r.Course!.LearnerCourses.Any(lc => lc.LearnerId == UserId));
+                }
                 if (!string.IsNullOrEmpty(resourceQueryParameters.Query))
                 {
                     q = q.Where(r =>
