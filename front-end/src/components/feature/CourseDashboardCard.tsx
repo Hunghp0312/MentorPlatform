@@ -16,15 +16,6 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
         }
     };
 
-    const formatDate = (date : string | Date) => {
-        const options: Intl.DateTimeFormatOptions = {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        };
-        return new Date(date).toLocaleDateString('en-US', options);
-    }
-
 
     const getCompletionColor = (completion: number = 0) => {
         if (completion >= 80) return 'bg-green-500';
