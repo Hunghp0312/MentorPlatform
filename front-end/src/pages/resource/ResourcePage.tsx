@@ -45,6 +45,7 @@ const ResourcePage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(9);
+  // const pageSizeOptions = [5, 10, 20]; // Define page size options
   const [totalResources, setTotalResources] = useState<ResourceType[]>([]);
   const searchDebounced = useDebounce(searchByName, 500);
   const [errors, setErrors] = useState<string>();
@@ -106,7 +107,7 @@ const ResourcePage = () => {
 
   useEffect(() => {
     fetchResources();
-  }, [resourceCategoryFilter, searchDebounced, pageIndex, pageSize]);
+  }, [resourceCategoryFilter, searchDebounced, pageIndex]);
 
   const handleSubmit = async (
     resource: CreateResourceRequest | EditResourceRequest
@@ -415,14 +416,7 @@ const ResourcePage = () => {
             ))}
           </select>
         </div>
-        {/* <div className="flex items-center space-x-2 text-sm text-gray-400">
-          <span>Rows per page:</span>
-          <select
-            value={pageSize}
-            onChange={handlePageSizeChange}
-            className="bg-gray-700 border border-gray-600 rounded-md text-gray-300 text-sm py-1 px-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          ></select>
-        </div> */}
+
         {loading ? (
           <div className="text-center text-gray-500">Loading...</div>
         ) : totalResources.length === 0 ? (
