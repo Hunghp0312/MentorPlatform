@@ -126,7 +126,7 @@ namespace ApplicationCore.Extensions
 
             return new DocumentDetailResponse
             {
-                Id = entity.Id,
+                FileId = entity.Id,
                 FileName = entity.FileName,
                 FileType = entity.FileType,
                 FileContent = entity.FileContent

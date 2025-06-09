@@ -36,4 +36,10 @@ export const courseService = {
     const res = await axiosInstance.get(`/Courses/${id}`);
     return res.data;
   },
+  async getMyCourseAssignment() {
+    const response = await axiosInstance.get(
+      "/Courses/mentor/course-asignment"
+    );
+    return response.data;
+  },
 };
