@@ -11,6 +11,7 @@ import {
   WeeklySchedule,
 } from "../../types/available";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
+import { endTimeOptions, startTimeOptions } from "../../constants/timeOptions";
 
 const AvailabilityManager = () => {
   const [selectedDay, setSelectedDay] = useState<string>("");
@@ -41,9 +42,13 @@ const AvailabilityManager = () => {
   }
 
   function getLastSunday(date = new Date()): Date {
-    const lastSunday = new Date(date.getTime());
+    // Create a new date object and adjust for GMT+7 timezone
+    const gmtPlus7Date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+    const lastSunday = new Date(gmtPlus7Date);
     const day = lastSunday.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
     lastSunday.setDate(lastSunday.getDate() - day);
+    // Reset to midnight for consistency
+    lastSunday.setHours(7, 0, 0, 0);
     return lastSunday;
   }
 
@@ -207,7 +212,6 @@ const AvailabilityManager = () => {
     });
 
     setSlotAvailability(newAvailability);
-    toast.success("Schedule copied to all days");
   };
 
   // Save availability changes
@@ -238,31 +242,35 @@ const AvailabilityManager = () => {
             daySchedule?.workStartTime || workHours.start,
             daySchedule?.workEndTime || workHours.end,
             daySchedule?.sessionDurationMinutes || sessionDuration,
-            daySchedule?.bufferMinutes || bufferTime
+            daySchedule?.bufferMinutes !== undefined &&
+              daySchedule?.bufferMinutes !== null
+              ? daySchedule.bufferMinutes
+              : bufferTime
           );
 
           allTimeSlots.forEach((slot) => {
             if (daySlots[slot]) {
               const [startTime, endTime] = slot.split(" - ");
 
-              const isAvailable = !!daySlots[slot];
-
               const matchingBlock = daySchedule?.timeBlocks.find(
                 (block) =>
                   block.startTime === startTime && block.endTime === endTime
               );
 
-              const sessionStatus = matchingBlock?.isBooked
-                ? 2
-                : isAvailable
-                ? 1
-                : 0;
-
-              timeBlocks.push({
-                startTime,
-                endTime,
-                sessionStatus,
-              });
+              if (matchingBlock && matchingBlock.sessionStatus.id !== 1) {
+                timeBlocks.push({
+                  id: matchingBlock.id,
+                  startTime,
+                  endTime,
+                  sessionStatus: matchingBlock.sessionStatus.id,
+                });
+              } else {
+                timeBlocks.push({
+                  startTime,
+                  endTime,
+                  sessionStatus: 1,
+                });
+              }
             }
           });
 
@@ -315,7 +323,6 @@ const AvailabilityManager = () => {
           mentorId,
           weekStartDate
         );
-
         setWeekAvailability(data);
 
         // Process the data into the slotAvailability state
@@ -324,7 +331,7 @@ const AvailabilityManager = () => {
 
         // First, set work hours, session duration and buffer from API if available
         if (data.days.length > 0) {
-          const firstDay = data.days[2];
+          const firstDay = data.days[0];
           if (firstDay.workStartTime && firstDay.workEndTime) {
             setWorkHours({
               start: firstDay.workStartTime,
@@ -379,7 +386,7 @@ const AvailabilityManager = () => {
               // Mark as available if it's not booked
               daySlots[timeSlot] = true;
 
-              if (block.isBooked) {
+              if (block.sessionStatus.id !== 1) {
                 hasAnyBookedSlots = true;
               }
             });
@@ -469,18 +476,35 @@ const AvailabilityManager = () => {
             <h3 className="text-lg font-medium mb-4">Work hours</h3>
             <div className="grid grid-cols-2 gap-4 mb-3">
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="workStartTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Start time
                 </label>
                 <select
+                  id="workStartTime"
                   value={workHours.start}
-                  onChange={(e) =>
-                    setWorkHours({ ...workHours, start: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const newStartTime = e.target.value;
+                    setWorkHours({ ...workHours, start: newStartTime });
+
+                    // Update weekAvailability with the new start time
+                    if (weekAvailability && selectedDayDate) {
+                      setWeekAvailability({
+                        ...weekAvailability,
+                        days: weekAvailability.days.map((day) =>
+                          day.date === selectedDayDate
+                            ? { ...day, workStartTime: newStartTime }
+                            : day
+                        ),
+                      });
+                    }
+                  }}
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
                   disabled={hasBookedSlots}
                 >
-                  {["08:00", "08:30", "09:00", "09:30", "10:00"].map((time) => (
+                  {startTimeOptions.map((time) => (
                     <option key={time} value={time}>
                       {time}
                     </option>
@@ -488,24 +512,39 @@ const AvailabilityManager = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="workEndTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   End time
                 </label>
                 <select
+                  id="workEndTime"
                   value={workHours.end}
-                  onChange={(e) =>
-                    setWorkHours({ ...workHours, end: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const newEndTime = e.target.value;
+                    setWorkHours({ ...workHours, end: newEndTime });
+
+                    // Update weekAvailability with the new end time
+                    if (weekAvailability && selectedDayDate) {
+                      setWeekAvailability({
+                        ...weekAvailability,
+                        days: weekAvailability.days.map((day) =>
+                          day.date === selectedDayDate
+                            ? { ...day, workEndTime: newEndTime }
+                            : day
+                        ),
+                      });
+                    }
+                  }}
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
                   disabled={hasBookedSlots}
                 >
-                  {["12:00", "16:00", "16:30", "17:00", "17:30", "18:00"].map(
-                    (time) => (
-                      <option key={time} value={time}>
-                        {time}
-                      </option>
-                    )
-                  )}
+                  {endTimeOptions.map((time) => (
+                    <option key={time} value={time}>
+                      {time}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -521,12 +560,31 @@ const AvailabilityManager = () => {
             <h3 className="text-lg font-medium mb-4">Session settings</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="sessionDuration"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Session duration
                 </label>
                 <select
+                  id="sessionDuration"
                   value={sessionDuration}
-                  onChange={(e) => setSessionDuration(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    const newDuration = parseInt(e.target.value);
+                    setSessionDuration(newDuration);
+
+                    // Update weekAvailability with the new session duration
+                    if (weekAvailability && selectedDayDate) {
+                      setWeekAvailability({
+                        ...weekAvailability,
+                        days: weekAvailability.days.map((day) =>
+                          day.date === selectedDayDate
+                            ? { ...day, sessionDurationMinutes: newDuration }
+                            : day
+                        ),
+                      });
+                    }
+                  }}
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
                   disabled={hasBookedSlots}
                 >
@@ -538,15 +596,36 @@ const AvailabilityManager = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="bufferTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Buffer time between sessions
                 </label>
                 <select
+                  id="bufferTime"
                   value={bufferTime}
-                  onChange={(e) => setBufferTime(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    const newBufferTime = parseInt(e.target.value);
+                    setBufferTime(newBufferTime);
+
+                    // Update weekAvailability with the new buffer time
+                    if (weekAvailability && selectedDayDate) {
+                      setWeekAvailability({
+                        ...weekAvailability,
+                        days: weekAvailability.days.map((day) =>
+                          day.date === selectedDayDate
+                            ? { ...day, bufferMinutes: newBufferTime }
+                            : day
+                        ),
+                      });
+                    }
+                  }}
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
                   disabled={hasBookedSlots}
                 >
+                  <option value="0">No buffer</option>
+                  <option value="5">5 minutes</option>
                   <option value="10">10 minutes</option>
                   <option value="15">15 minutes</option>
                   <option value="30">30 minutes</option>
@@ -621,11 +700,9 @@ const AvailabilityManager = () => {
               const dayData = weekAvailability?.days.find(
                 (d) => d.date === day.dateString
               );
-              const hasBooking =
-                selectedDayDate === day.dateString &&
-                weekAvailability?.days
-                  .find((d) => d.date === day.dateString)
-                  ?.timeBlocks.some((block) => block.isBooked);
+              const hasBooking = weekAvailability?.days
+                .find((d) => d.date === day.dateString)
+                ?.timeBlocks.some((block) => block.sessionStatus.id !== 1);
 
               return (
                 <button
@@ -635,7 +712,13 @@ const AvailabilityManager = () => {
                     setSessionDuration(
                       dayData?.sessionDurationMinutes || sessionDuration
                     );
-                    setBufferTime(dayData?.bufferMinutes || bufferTime);
+                    if (
+                      dayData?.bufferMinutes !== undefined &&
+                      dayData?.bufferMinutes !== null
+                    ) {
+                      setBufferTime(dayData?.bufferMinutes);
+                    }
+
                     setWorkHours({
                       start: dayData?.workStartTime || workHours.start,
                       end: dayData?.workEndTime || workHours.end,
@@ -644,7 +727,7 @@ const AvailabilityManager = () => {
                   className={`flex-1 py-3 px-4 text-center border-r border-slate-600 last:border-r-0 transition-colors ${
                     selectedDay === day.dayShort
                       ? "bg-orange-500 text-white"
-                      : "bg-slate-700 hover:bg-slate-600 text-slate-300"
+                      : "bg-slate-700 hover:bg-slate-600 text-slate-300 cursor-pointer"
                   }`}
                 >
                   <div className="font-medium">{day.dayShort}</div>
@@ -676,7 +759,10 @@ const AvailabilityManager = () => {
                     );
 
                     // Is this slot booked?
-                    const isBooked = matchingBlock?.isBooked || false;
+                    const isBooked =
+                      (matchingBlock?.sessionStatus != null &&
+                        matchingBlock?.sessionStatus.id !== 1) ||
+                      false;
 
                     // Is this slot currently set to available?
                     const isAvailable = currentDaySlots[slot] || false;
@@ -685,29 +771,71 @@ const AvailabilityManager = () => {
                       <div
                         key={index}
                         onClick={() => {
-                          // Only allow toggling if not booked
-                          if (!isBooked) {
+                          // Only allow toggling if not booked and not in the past
+                          const [slotStart] = slot.split(" - ");
+                          const slotDate = new Date(selectedDayDate);
+                          const [hours, minutes] = slotStart
+                            .split(":")
+                            .map(Number);
+                          slotDate.setHours(hours, minutes, 0, 0);
+
+                          const isPastTime = slotDate < new Date();
+
+                          if (!isBooked && !isPastTime) {
                             toggleSlot(selectedDayDate, slot);
                           }
                         }}
                         className={`
-                rounded-lg p-4 text-center transition-colors relative
-                ${
-                  isBooked
-                    ? "bg-blue-600 text-white cursor-not-allowed"
-                    : isAvailable
-                    ? "bg-orange-500 text-white hover:bg-orange-600 cursor-pointer"
-                    : "bg-slate-700 hover:bg-slate-600 cursor-pointer"
-                }
-              `}
+                          rounded-lg p-4 text-center transition-colors relative
+                          ${
+                            isBooked
+                              ? "bg-blue-600 text-white cursor-not-allowed"
+                              : (() => {
+                                  // Check if slot is in the past
+                                  const [slotStart] = slot.split(" - ");
+                                  const slotDate = new Date(selectedDayDate);
+                                  const [hours, minutes] = slotStart
+                                    .split(":")
+                                    .map(Number);
+                                  slotDate.setHours(hours, minutes, 0, 0);
+
+                                  const isPastTime = slotDate < new Date();
+                                  return isAvailable
+                                    ? `bg-orange-500 text-white hover:bg-orange-600 ${
+                                        isPastTime
+                                          ? "cursor-not-allowed"
+                                          : "cursor-pointer"
+                                      }`
+                                    : isPastTime
+                                    ? "bg-slate-800 text-slate-500 cursor-not-allowed opacity-60"
+                                    : "bg-slate-700 hover:bg-slate-600 cursor-pointer";
+                                })()
+                          }
+                        `}
                       >
                         <div className="font-medium mb-1">{slot}</div>
                         <div className="text-sm text-slate-300">
                           {isBooked
                             ? "Booked"
-                            : isAvailable
-                            ? "Available"
-                            : "Unavailable"}
+                            : (() => {
+                                // Check if slot is in the past
+                                const [slotStart] = slot.split(" - ");
+                                const slotDate = new Date(selectedDayDate);
+                                const [hours, minutes] = slotStart
+                                  .split(":")
+                                  .map(Number);
+                                slotDate.setHours(hours, minutes, 0, 0);
+
+                                const isPastTime = slotDate < new Date();
+
+                                if (isPastTime) {
+                                  return "Past";
+                                } else {
+                                  return isAvailable
+                                    ? "Available"
+                                    : "Unavailable";
+                                }
+                              })()}
                         </div>
                       </div>
                     );
@@ -738,11 +866,19 @@ const AvailabilityManager = () => {
                   (d) => d.date === day.dateString
                 );
                 const bookedSlots =
-                  dayData?.timeBlocks.filter((block) => block.isBooked) || [];
+                  dayData?.timeBlocks.filter(
+                    (block) => block.sessionStatus.id !== 1
+                  ) || [];
                 // Get available slots for this day
                 const daySlots = slotAvailability[day.dateString] || {};
+                const bookedSlotTimes = bookedSlots.map(
+                  (slot) => `${slot.startTime} - ${slot.endTime}`
+                );
                 const availableSlots = Object.entries(daySlots)
-                  .filter(([, isAvailable]) => isAvailable)
+                  .filter(
+                    ([slot, isAvailable]) =>
+                      isAvailable && !bookedSlotTimes.includes(slot)
+                  )
                   .map(([slot]) => slot);
 
                 return (
@@ -758,7 +894,7 @@ const AvailabilityManager = () => {
                           key={`booked-${index}`}
                           className="bg-blue-600 text-white text-xs py-1 px-2 rounded"
                         >
-                          {slot.startTime}
+                          {slot.startTime} - {slot.endTime}
                         </div>
                       ))}
 

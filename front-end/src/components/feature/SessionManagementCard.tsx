@@ -34,6 +34,7 @@ const SessionManagementCard: React.FC = () => {
     const [showDeclineModal, setShowDeclineModal] = useState<string | null>(null);
     const [showCancelModal, setShowCancelModal] = useState<string | null>(null);
     const [declineMessage, setDeclineMessage] = useState<string>('');
+    const [cancelMessageError, setCancelMessageError] = useState<string>('');
     const [sessionRequests, setSessionRequests] = useState<BookingSessionResponse[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const navigate = useNavigate()
@@ -101,7 +102,7 @@ const SessionManagementCard: React.FC = () => {
     const confirmDecline = async () => {
         if (!showDeclineModal) return;
         if (declineMessage.trim().length == 0) {
-            alert("When decline need to provide reason.")
+            toast.error("When decline need to provide reason.")
             return;
         }
 
@@ -123,12 +124,12 @@ const SessionManagementCard: React.FC = () => {
     const confirmCancel = async () => {
         // if (!showDeclineModal) return;
         if (declineMessage.trim().length == 0) {
-            alert("When cancel need to provide reason.")
+            toast.error("When cancel need to provide reason.")
             return;
         }
 
         try {
-            await sessionService.updateStatusBookingSession(showCancelModal as string, 5,declineMessage);
+            await sessionService.updateStatusBookingSession(showCancelModal as string, 5, declineMessage);
             toast.success('Session declined successfully!');
             fetchSessionRequests();
         }
@@ -198,6 +199,17 @@ const SessionManagementCard: React.FC = () => {
         }
     }
 
+    const handleCancelMessageChange = (e: string) => {
+        console.log('handleCancelMessageChange', e.length);
+        if (e.length > 1000) {
+            setCancelMessageError('Message cannot exceed 1000 characters');
+        } else {
+            setDeclineMessage(e);
+            setCancelMessageError('');
+
+        }
+    }
+
 
     const pendingRequests = sessionRequests.filter(req => req.statusName === 'Pending');
     const recentRequests = sessionRequests.filter(req => req.statusName === "Scheduled" || req.statusName === "Rescheduled");
@@ -251,184 +263,219 @@ const SessionManagementCard: React.FC = () => {
 
                 {/* Session Requests */}
                 <div className="space-y-4">
-                    {activeTab === 'pending' && pendingRequests.map((request) => (
-                        <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 border border-orange-500/30">
-                            <div className="flex items-start justify-between">
-                                <div className="flex items-start space-x-4 flex-1">
-                                    <img
-                                        src={request.learnerPhotoData || DefaultImage}
-                                        alt={request.learnerFullName}
-                                        className="w-12 h-12 rounded-full"
-                                    />
+                    {activeTab === 'pending' && (
+                        pendingRequests.length > 0 ? (
+                            pendingRequests.map((request) => (
+                                <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 border border-orange-500/30">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-start space-x-4 flex-1">
+                                            <img
+                                                src={request.learnerPhotoData || DefaultImage}
+                                                alt={request.learnerFullName}
+                                                className="w-12 h-12 rounded-full"
+                                            />
 
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-3 mb-2">
-                                            <h3 className="text-lg font-semibold">{request.learnerFullName}</h3>
-                                            <div className={`p-2 rounded-lg ${getSessionTypeColor(request.sessionTypeName)}`}>
-                                                {getSessionIcon(request.sessionTypeName)}
-                                            </div>
-                                        </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center space-x-3 mb-2">
+                                                    <h3 className="text-lg font-semibold">{request.learnerFullName}</h3>
+                                                    <div className={`p-2 rounded-lg ${getSessionTypeColor(request.sessionTypeName)}`}>
+                                                        {getSessionIcon(request.sessionTypeName)}
+                                                    </div>
+                                                </div>
 
-                                        <div className="flex items-center space-x-4 text-sm text-gray-400 mb-3">
-                                            <span className="flex items-center">
-                                                <Calendar className="w-4 h-4 mr-1" />
-                                                {request.date}
-                                            </span>
-                                            <span className="flex items-center">
-                                                <Clock className="w-4 h-4 mr-1" />
-                                                {`${formatTime(request.slotStartTime)} - ${formatTime(request.slotEndTime)}`}
-                                            </span>
-                                            <span className="capitalize">{request.sessionTypeName}</span>
-                                        </div>
+                                                <div className="flex items-center space-x-4 text-sm text-gray-400 mb-3">
+                                                    <span className="flex items-center">
+                                                        <Calendar className="w-4 h-4 mr-1" />
+                                                        {request.date}
+                                                    </span>
+                                                    <span className="flex items-center">
+                                                        <Clock className="w-4 h-4 mr-1" />
+                                                        {`${formatTime(request.slotStartTime)} - ${formatTime(request.slotEndTime)}`}
+                                                    </span>
+                                                    <span className="capitalize">{request.sessionTypeName}</span>
+                                                </div>
 
-                                        <p className="text-gray-300 mb-4">{request.learnerMessage}</p>
+                                                <p className="text-gray-300 mb-4">{request.learnerMessage}</p>
 
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xs text-gray-500">Requested {getDate(request.bookingRequestedAt)}</span>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs text-gray-500">Requested {getDate(request.bookingRequestedAt)}</span>
 
-                                            <div className="flex space-x-2">
-                                                <button
-                                                    onClick={() => handleDeclineSession(request.bookingId)}
-                                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg flex items-center"
-                                                >
-                                                    <X className="w-4 h-4 mr-1" />
-                                                    Decline
-                                                </button>
+                                                    <div className="flex space-x-2">
+                                                        <button
+                                                            onClick={() => handleDeclineSession(request.bookingId)}
+                                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg flex items-center"
+                                                        >
+                                                            <X className="w-4 h-4 mr-1" />
+                                                            Decline
+                                                        </button>
 
-                                                <button
-                                                    onClick={() => handleRescheduleSession(request.bookingId)}
-                                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg flex items-center"
-                                                >
-                                                    <RotateCcw className="w-4 h-4 mr-1" />
-                                                    Reschedule
-                                                </button>
+                                                        <button
+                                                            onClick={() => handleRescheduleSession(request.bookingId)}
+                                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg flex items-center"
+                                                        >
+                                                            <RotateCcw className="w-4 h-4 mr-1" />
+                                                            Reschedule
+                                                        </button>
 
-                                                <button
-                                                    onClick={() => handleAcceptSession(request.bookingId)}
-                                                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg flex items-center"
-                                                >
-                                                    <Check className="w-4 h-4 mr-1" />
-                                                    Accept
-                                                </button>
+                                                        <button
+                                                            onClick={() => handleAcceptSession(request.bookingId)}
+                                                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg flex items-center"
+                                                        >
+                                                            <Check className="w-4 h-4 mr-1" />
+                                                            Accept
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8">
+                                <div className="text-gray-400 mb-2">
+                                    <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                </div>
+                                <p className="text-gray-400 text-lg">No pending requests</p>
+                                <p className="text-gray-500 text-sm">You don't have any pending session requests at the moment.</p>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    )}
 
-                    {activeTab === 'recent' && recentRequests.map((request) => (
-                        <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 opacity-75">
-                            <div className="flex items-start justify-between">
-                                <div className="flex items-start space-x-4 flex-1">
-                                    <img
-                                        src={request.learnerPhotoData || DefaultImage}
-                                        alt={request.learnerFullName}
-                                        className="w-12 h-12 rounded-full"
-                                    />
+                    {activeTab === 'recent' && (
+                        recentRequests.length > 0 ? (
+                            recentRequests.map((request) => (
+                                <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 opacity-75">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-start space-x-4 flex-1">
+                                            <img
+                                                src={request.learnerPhotoData || DefaultImage}
+                                                alt={request.learnerFullName}
+                                                className="w-12 h-12 rounded-full"
+                                            />
 
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-3 mb-2">
-                                            <h3 className="text-lg font-semibold">{request.learnerFullName}</h3>
-                                            <div className={`p-2 rounded-lg ${getSessionTypeColor(request.sessionTypeName)}`}>
-                                                {getSessionIcon(request.sessionTypeName)}
+                                            <div className="flex-1">
+                                                <div className="flex items-center space-x-3 mb-2">
+                                                    <h3 className="text-lg font-semibold">{request.learnerFullName}</h3>
+                                                    <div className={`p-2 rounded-lg ${getSessionTypeColor(request.sessionTypeName)}`}>
+                                                        {getSessionIcon(request.sessionTypeName)}
+                                                    </div>
+                                                    {(() => {
+                                                        const statusStyle = request.statusName === 'Scheduled' ? 'bg-green-500/20 text-green-400' :
+                                                            request.statusName === 'Rescheduled' ? 'bg-blue-500/20 text-blue-400' :
+                                                                'bg-red-500/20 text-red-400';
+                                                        return (
+                                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle}`}>
+                                                                {request.statusName.charAt(0).toUpperCase() + request.statusName.slice(1)}
+                                                            </span>
+                                                        );
+                                                    })()}
+                                                </div>
+                                                <p className="text-gray-300 mb-4">{request.learnerMessage}</p>
+
+                                                <div className="flex items-center space-x-4 text-sm text-gray-400 mb-2">
+                                                    <span className="flex items-center">
+                                                        <Calendar className="w-4 h-4 mr-1" />
+                                                        {request.date}
+                                                    </span>
+                                                    <span className="flex items-center">
+                                                        <Clock className="w-4 h-4 mr-1" />
+                                                        {`${formatTime(request.slotStartTime)} - ${formatTime(request.slotEndTime)}`}
+                                                    </span>
+                                                </div>
+                                                <div className='flex justify-between items-center mb-4'>
+
+                                                    <span className="text-xs text-gray-500">Requested {getDate(request.bookingRequestedAt)}</span>
+                                                    <div className="flex space-x-2">
+
+                                                        <button
+                                                            onClick={() => handleCancelSession(request.bookingId)}
+                                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg flex items-center"
+                                                        >
+                                                            <X className="w-4 h-4 mr-1" />
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleCompletedSession(request.bookingId)}
+                                                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg flex items-center"
+                                                        >
+                                                            <Check className="w-4 h-4 mr-1" />
+                                                            Completed
+                                                        </button>
+                                                    </div>
+                                                </div>
+
                                             </div>
-                                            {(() => {
-                                                const statusStyle = request.statusName === 'Scheduled' ? 'bg-green-500/20 text-green-400' :
-                                                    request.statusName === 'Rescheduled' ? 'bg-blue-500/20 text-blue-400' :
-                                                        'bg-red-500/20 text-red-400';
-                                                return (
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyle}`}>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8">
+                                <div className="text-gray-400 mb-2">
+                                    <Clock className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                </div>
+                                <p className="text-gray-400 text-lg">No upcoming sessions</p>
+                                <p className="text-gray-500 text-sm">You don't have any upcoming sessions at the moment.</p>
+                            </div>
+                        )
+                    )}
+
+                    {activeTab === 'inpast' && (
+                        inPastRequests.length > 0 ? (
+                            inPastRequests.map((request) => (
+                                <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 opacity-75">
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-start space-x-4 flex-1">
+                                            <img
+                                                src={request.learnerPhotoData || DefaultImage}
+                                                alt={request.learnerFullName}
+                                                className="w-12 h-12 rounded-full"
+                                            />
+
+                                            <div className="flex-1">
+                                                <div className="flex items-center space-x-3 mb-2">
+                                                    <h3 className="text-lg font-semibold">{request.learnerFullName}</h3>
+                                                    <div className={`p-2 rounded-lg ${getSessionTypeColor(request.sessionTypeName)}`}>
+                                                        {getSessionIcon(request.sessionTypeName)}
+                                                    </div>
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${request.statusName === 'Completed' ? 'bg-green-500/20 text-green-400' :
+                                                        request.statusName === 'Rescheduled' ? 'bg-blue-500/20 text-blue-400' :
+                                                            'bg-red-500/20 text-red-400'
+                                                        }`}>
                                                         {request.statusName.charAt(0).toUpperCase() + request.statusName.slice(1)}
                                                     </span>
-                                                );
-                                            })()}
-                                        </div>
-                                        <p className="text-gray-300 mb-4">{request.learnerMessage}</p>
+                                                </div>
+                                                <p className="text-gray-300 mb-4">{request.cancelReason === null ? request.learnerMessage : request.cancelReason}</p>
 
-                                        <div className="flex items-center space-x-4 text-sm text-gray-400 mb-2">
-                                            <span className="flex items-center">
-                                                <Calendar className="w-4 h-4 mr-1" />
-                                                {request.date}
-                                            </span>
-                                            <span className="flex items-center">
-                                                <Clock className="w-4 h-4 mr-1" />
-                                                {`${formatTime(request.slotStartTime)} - ${formatTime(request.slotEndTime)}`}
-                                            </span>
-                                        </div>
-                                        <div className='flex justify-between items-center mb-4'>
+                                                <div className="flex items-center space-x-4 text-sm text-gray-400 mb-2">
 
-                                            <span className="text-xs text-gray-500">Requested {getDate(request.bookingRequestedAt)}</span>
-                                            <div className="flex space-x-2">
+                                                    <span className="flex items-center">
+                                                        <Calendar className="w-4 h-4 mr-1" />
+                                                        {request.date}
+                                                    </span>
+                                                    <span className="flex items-center">
+                                                        <Clock className="w-4 h-4 mr-1" />
+                                                        {`${formatTime(request.slotStartTime)} - ${formatTime(request.slotEndTime)}`}
+                                                    </span>
+                                                </div>
 
-                                                <button
-                                                    onClick={() => handleCancelSession(request.bookingId)}
-                                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-lg flex items-center"
-                                                >
-                                                    <X className="w-4 h-4 mr-1" />
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    onClick={() => handleCompletedSession(request.bookingId)}
-                                                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg flex items-center"
-                                                >
-                                                    <Check className="w-4 h-4 mr-1" />
-                                                    Completed
-                                                </button>
+                                                <span className="text-xs text-gray-500">Requested {getDate(request.bookingRequestedAt)}</span>
                                             </div>
-                                            {/* add button for cancel and complted e */}
                                         </div>
-
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    ))}
-
-                    {activeTab === 'inpast' && inPastRequests.map((request) => (
-                        <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 opacity-75">
-                            <div className="flex items-start justify-between">
-                                <div className="flex items-start space-x-4 flex-1">
-                                    <img
-                                        src={request.learnerPhotoData || DefaultImage}
-                                        alt={request.learnerFullName}
-                                        className="w-12 h-12 rounded-full"
-                                    />
-
-                                    <div className="flex-1">
-                                        <div className="flex items-center space-x-3 mb-2">
-                                            <h3 className="text-lg font-semibold">{request.learnerFullName}</h3>
-                                            <div className={`p-2 rounded-lg ${getSessionTypeColor(request.sessionTypeName)}`}>
-                                                {getSessionIcon(request.sessionTypeName)}
-                                            </div>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${request.statusName === 'Completed' ? 'bg-green-500/20 text-green-400' :
-                                                request.statusName === 'Rescheduled' ? 'bg-blue-500/20 text-blue-400' :
-                                                    'bg-red-500/20 text-red-400'
-                                                }`}>
-                                                {request.statusName.charAt(0).toUpperCase() + request.statusName.slice(1)}
-                                            </span>
-                                        </div>
-                                        <p className="text-gray-300 mb-4">{request.cancelReason === null  ? request.learnerMessage : request.cancelReason }</p>
-
-                                        <div className="flex items-center space-x-4 text-sm text-gray-400 mb-2">
-
-                                            <span className="flex items-center">
-                                                <Calendar className="w-4 h-4 mr-1" />
-                                                {request.date}
-                                            </span>
-                                            <span className="flex items-center">
-                                                <Clock className="w-4 h-4 mr-1" />
-                                                {`${formatTime(request.slotStartTime)} - ${formatTime(request.slotEndTime)}`}
-                                            </span>
-                                        </div>
-
-                                        <span className="text-xs text-gray-500">Requested {getDate(request.bookingRequestedAt)}</span>
-                                    </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8">
+                                <div className="text-gray-400 mb-2">
+                                    <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
                                 </div>
+                                <p className="text-gray-400 text-lg">No past sessions</p>
+                                <p className="text-gray-500 text-sm">You don't have any completed, cancelled, or declined sessions yet.</p>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    )}
                 </div>
 
                 {/* Reschedule Modal */}
@@ -485,8 +532,11 @@ const SessionManagementCard: React.FC = () => {
                             className="w-full p-3 bg-[#1e2432] border border-gray-600 rounded-lg text-white mb-4 min-h-[120px]"
                             placeholder="Enter your message here..."
                             value={declineMessage}
-                            onChange={(e) => setDeclineMessage(e.target.value)}
+                            onChange={(e) => handleCancelMessageChange(e.target.value)}
                         />
+                        {cancelMessageError && (
+                            <p className="text-red-500 text-sm mb-2">{cancelMessageError}</p>
+                        )}
 
                         <div className="flex justify-end space-x-3">
                             <button

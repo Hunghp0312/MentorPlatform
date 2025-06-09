@@ -107,6 +107,11 @@ export default function Layout() {
     ],
     Learner: [
       {
+        icon: <Book size={20} />,
+        label: "Dashboard",
+        href: pathName.learnerDashboard,
+      },
+      {
         icon: <User size={20} />,
         label: "Profile",
         href: `${pathName.profile}/${decodedToken?.id}`,
@@ -147,8 +152,7 @@ export default function Layout() {
       <main
         className={`flex-1 transition-all duration-300 overflow-y-auto p-6 ${
           collapsed ? "ml-16" : "ml-64"
-        }`}
-      >
+        }`}>
         <div className="bg-gray-900 min-h-screen text-gray-200">
           <Outlet />
         </div>

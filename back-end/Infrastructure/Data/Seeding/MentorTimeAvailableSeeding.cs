@@ -63,6 +63,14 @@ namespace Infrastructure.Data.Seeding
                     DayId = day3Id,
                     StatusId = availableStatus,
                 },
+                new MentorTimeAvailable
+                {
+                    Id = Guid.Parse("10000000-0000-0000-0000-000000000007"),
+                    Start = new TimeOnly(1, 0),
+                    End = new TimeOnly(2, 0),
+                    DayId = Guid.Parse("9E8D7C6B-5A4B-3C2D-1E0F-A9B8C7D6E5F4"),
+                    StatusId = bookedStatus,
+                },
             };
         }
     }

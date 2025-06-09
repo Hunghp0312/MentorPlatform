@@ -26,4 +26,7 @@ export const pathName = {
   adminResource: "/admin/resource",
   mentorResource: "/mentor/resource",
   learnerResource: "/learner/resource",
+  learnerDashboard: "/learner/dashboard",
+  leanerCourse: "/learner/course",
+  learnerCourseDetail: "/learner/course/:id",
 };

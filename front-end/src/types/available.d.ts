@@ -1,3 +1,5 @@
+import { EnumType } from "./commonType";
+
 export type WeeklySchedule = {
   weekStartDate: string;
   weekEndDate: string;
@@ -26,7 +28,7 @@ export type TimeBlock = {
   id: string;
   startTime: string;
   endTime: string;
-  isBooked: boolean;
+  sessionStatus: EnumType;
 };
 
 export type UpdateAvailabilityRequest = {
@@ -43,7 +45,8 @@ export type UpdateDaySchedule = {
 };
 
 export type UpdateTimeBlock = {
+  id?: string;
   startTime: string;
   endTime: string;
-  sessionStatus: number; // 0 = Available, 1 = Unavailable, 2 = Booked (or whatever your backend uses)
+  sessionStatus: number; // 1 = Available, 2 = Booked, 3 = Rescheduled, 4 = Waiting (or whatever your backend uses)
 };

@@ -56,7 +56,7 @@ namespace Infrastructure.Data.Seeding
                     Id = Guid.Parse("9E8D7C6B-5A4B-3C2D-1E0F-A9B8C7D6E5F4"),
                     MentorId = mentor2Id,
                     Day = new DateOnly(2025, 6, 8),
-                    StartWorkTime = new TimeOnly(8, 30),
+                    StartWorkTime = new TimeOnly(1, 0),
                     EndWorkTime = new TimeOnly(11, 0),
                     SessionDuration = new TimeOnly(0, 30),
                     BufferTime = new TimeOnly(0, 10),

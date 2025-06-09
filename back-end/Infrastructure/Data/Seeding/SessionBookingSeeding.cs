@@ -38,6 +38,17 @@ namespace Infrastructure.Data.Seeding
                     LearnerMessage = "Please help me review my CV for a junior developer position.",
                     CreatedAt = new DateTime(2025, 5, 29, 11, 0, 0, DateTimeKind.Utc),
                 },
+                new SessionBooking
+                {
+                    Id = Guid.Parse("e7b9e6c7-2b2e-4e3d-8e2b-1a5f3c9e7b1a"),
+                    LearnerId = Guid.Parse("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                    MentorId = Guid.Parse("03ea823d-d625-448d-901d-411c5028b769"),
+                    MentorTimeAvailableId = Guid.Parse("10000000-0000-0000-0000-000000000007"),
+                    StatusId = 6,
+                    SessionTypeId = onlineVideoTypeId,
+                    LearnerMessage = "Please",
+                    CreatedAt = new DateTime(2025, 5, 29, 11, 0, 0, DateTimeKind.Utc),
+                },
             };
         }
     }

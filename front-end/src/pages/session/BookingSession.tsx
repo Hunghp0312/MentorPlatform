@@ -74,19 +74,21 @@ const BookingSession: React.FC = () => {
                     endWorkTime: "",
                     photoData: result.photoData,
                 })
-                return;
-            }
-            setSlots(res.mentorTimeSlots);
-            const mentor = {
-                id: res.mentorId,
-                startWorkTime: res.startWorkTime,
-                endWorkTime: res.endWorkTime,
-                expertiseTags: res.expertiseTags,
-                mentorFullName: res.mentorFullName,
-                photoData: res.photoData,
+            } else {
+                const mentor = {
+                    id: res.mentorId,
+                    startWorkTime: res.startWorkTime,
+                    endWorkTime: res.endWorkTime,
+                    expertiseTags: res.expertiseTags,
+                    mentorFullName: res.mentorFullName,
+                    photoData: res.photoData,
+                }
+
+                setMentorInfo(mentor);
             }
 
-            setMentorInfo(mentor);
+            setSlots(res.mentorTimeSlots);
+
         }
         catch (error) {
             console.error("Error fetching available slots:", error);
@@ -121,7 +123,6 @@ const BookingSession: React.FC = () => {
             toast.success('Session booked successfully!');
         } catch (error) {
             console.error("Error booking session:", error);
-            toast.error('Failed to book the session. Please try again later.');
             return;
         }
         finally {
@@ -153,6 +154,16 @@ const BookingSession: React.FC = () => {
                 }
 
                 setSlots(res.mentorTimeSlots);
+                const mentor = {
+                    id: res.mentorId,
+                    startWorkTime: res.startWorkTime,
+                    endWorkTime: res.endWorkTime,
+                    expertiseTags: res.expertiseTags,
+                    mentorFullName: res.mentorFullName,
+                    photoData: res.photoData,
+                }
+
+                setMentorInfo(mentor);
 
             } catch (error) {
                 console.error("Error fetching initial slots:", error);
