@@ -6,6 +6,7 @@ import { mentorService } from '../../services/mentorapplication.service';
 import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import useDebounce from '../../hooks/usedebounce';
 import TableFooter from '../../components/table/TableFooter';
+import LoadingOverlay from '../../components/loading/LoadingOverlay';
 interface Mentor {
     id: number;
     fullName: string;
@@ -43,10 +44,9 @@ const MentorFinder: React.FC = () => {
     const [pageIndex, setPageIndex] = useState(1);
     const [pageSize, setPageSize] = useState(6);
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(false);
     const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-    // Import at the top of the file:
-    // import useDebounce from '../../hooks/usedebounce';
     const [selectedTopic, setSelectedTopic] = useState<number>();
     const [selectedExpertise, setSelectedExpertise] = useState<number[]>([]);
     const [mentors, setMentors] = useState<Mentor[]>([])
@@ -54,12 +54,10 @@ const MentorFinder: React.FC = () => {
         setSelectedTopic(expertise);
     }
 
-
-
-
     const fetchMentors = async () => {
 
         try {
+            setLoading(true);
             const res = await mentorService.getAvailableMentors(searchTerm, pageIndex, pageSize, selectedTopic ?? null, selectedExpertise)
             setMentors(res.items);
             setTotalItems(res.totalItems);
@@ -69,13 +67,20 @@ const MentorFinder: React.FC = () => {
             console.error("Error fetching mentors:", error);
             setMentors([]);
         }
+        finally {
+            setLoading(false);
+        }
 
     }
     useEffect(() => {
         fetchMentors();
     }, [debouncedSearchTerm, selectedTopic, selectedExpertise.length, pageIndex, pageSize]);
 
-
+    if (loading) {
+        return  (
+            <LoadingOverlay/>
+        )
+    }
 
     const handleToggleExpertise = (id: number): void => {
         if (selectedExpertise.includes(id)) {
@@ -85,7 +90,6 @@ const MentorFinder: React.FC = () => {
             // Add expertise if not selected
             setSelectedExpertise([...selectedExpertise, id]);
         }
-        console.log("Selected Expertise:", selectedExpertise);
     };
 
     return (

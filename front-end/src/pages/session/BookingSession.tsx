@@ -151,20 +151,18 @@ const BookingSession: React.FC = () => {
                         endWorkTime: "",
                         photoData: result.photoData,
                     })
+                } else {
+                    const mentor = {
+                        id: res.mentorId,
+                        startWorkTime: res.startWorkTime,
+                        endWorkTime: res.endWorkTime,
+                        expertiseTags: res.expertiseTags,
+                        mentorFullName: res.mentorFullName,
+                        photoData: res.photoData,
+                    }
+                    setMentorInfo(mentor);
                 }
-
                 setSlots(res.mentorTimeSlots);
-                const mentor = {
-                    id: res.mentorId,
-                    startWorkTime: res.startWorkTime,
-                    endWorkTime: res.endWorkTime,
-                    expertiseTags: res.expertiseTags,
-                    mentorFullName: res.mentorFullName,
-                    photoData: res.photoData,
-                }
-
-                setMentorInfo(mentor);
-
             } catch (error) {
                 console.error("Error fetching initial slots:", error);
                 setSlots([]);
