@@ -16,6 +16,7 @@ const MentorDashBoard: React.FC = () => {
     const mentorId = decodedToken?.id;
     const [sessions, setSessions] = useState<SessionsResponse>({
         sessionKPIs: {
+            sharedResources: 0,
             sessionsThisMonth: 0,
             activeLearners: 0
         },
@@ -177,7 +178,7 @@ const MentorDashBoard: React.FC = () => {
                         <div className="flex justify-between items-center">
                             <div>
                                 <p className="text-sm text-gray-400">Resources Shared</p>
-                                <p className="text-2xl font-bold text-white">23</p>
+                                <p className="text-2xl font-bold text-white">{sessions.sessionKPIs.sharedResources}</p>
                             </div>
                             <div className="p-3 bg-green-500/20 rounded-full">
                                 <Upload className="w-5 h-5 text-green-400" />
@@ -306,7 +307,6 @@ const MentorDashBoard: React.FC = () => {
                                 </button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
