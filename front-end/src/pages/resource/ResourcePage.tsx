@@ -44,8 +44,7 @@ const ResourcePage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const pageSizeOptions = [5, 10, 20]; // Define page size options
+  const [pageSize] = useState(9);
   const [totalResources, setTotalResources] = useState<ResourceType[]>([]);
   const searchDebounced = useDebounce(searchByName, 500);
   const [errors, setErrors] = useState<string>();
@@ -162,10 +161,10 @@ const ResourcePage = () => {
     }
   };
 
-  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPageSize(Number(e.target.value));
-    setPageIndex(1); // Reset to first page when page size changes
-  };
+  // const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   setPageSize(Number(e.target.value));
+  //   setPageIndex(1); // Reset to first page when page size changes
+  // };
 
   const handleDelete = async (resource: Resource) => {
     if (
@@ -416,20 +415,14 @@ const ResourcePage = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center space-x-2 text-sm text-gray-400">
+        {/* <div className="flex items-center space-x-2 text-sm text-gray-400">
           <span>Rows per page:</span>
           <select
             value={pageSize}
             onChange={handlePageSizeChange}
             className="bg-gray-700 border border-gray-600 rounded-md text-gray-300 text-sm py-1 px-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
-            {pageSizeOptions.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-        </div>
+          ></select>
+        </div> */}
         {loading ? (
           <div className="text-center text-gray-500">Loading...</div>
         ) : totalResources.length === 0 ? (
