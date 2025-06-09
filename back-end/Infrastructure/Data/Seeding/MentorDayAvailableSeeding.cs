@@ -66,70 +66,9 @@ namespace Infrastructure.Data.Seeding
                     Id = Guid.Parse("E1A3F4B8-7C69-45A7-B0F5-92BFFE86754B"),
                     MentorId = mentor1Id,
                     Day = new DateOnly(2025, 6, 9),
-                    StartWorkTime = new TimeOnly(10, 0),
+                    StartWorkTime = new TimeOnly(13, 0),
                     EndWorkTime = new TimeOnly(15, 30),
                     SessionDuration = new TimeOnly(0, 30),
-                    BufferTime = new TimeOnly(0, 5),
-                },
-                new MentorDayAvailable
-                {
-                    Id = Guid.Parse("A2B1C3D4-E5F6-47A8-9B0C-1D2E3F4A5B6C"),
-                    MentorId = mentor1Id,
-                    Day = new DateOnly(2025, 6, 10),
-                    StartWorkTime = new TimeOnly(10, 0),
-                    EndWorkTime = new TimeOnly(20, 30),
-                    SessionDuration = new TimeOnly(0, 30),
-                    BufferTime = new TimeOnly(0, 5),
-                },
-                // New days added here:
-                new MentorDayAvailable
-                {
-                    Id = Guid.Parse("B3C4D5E6-F7A8-49B9-C0D1-2E3F4A5B6C7D"),
-                    MentorId = mentor1Id,
-                    Day = new DateOnly(2025, 6, 11),
-                    StartWorkTime = new TimeOnly(9, 0),
-                    EndWorkTime = new TimeOnly(12, 0),
-                    SessionDuration = new TimeOnly(0, 30),
-                    BufferTime = new TimeOnly(0, 5),
-                },
-                new MentorDayAvailable
-                {
-                    Id = Guid.Parse("C4D5E6F7-A8B9-40C1-D2E3-F4A5B6C7D8E9"),
-                    MentorId = mentor2Id,
-                    Day = new DateOnly(2025, 6, 12),
-                    StartWorkTime = new TimeOnly(14, 0),
-                    EndWorkTime = new TimeOnly(18, 0),
-                    SessionDuration = new TimeOnly(0, 45),
-                    BufferTime = new TimeOnly(0, 10),
-                },
-                new MentorDayAvailable
-                {
-                    Id = Guid.Parse("D5E6F7A8-B9C0-41D2-E3F4-A5B6C7D8E9F0"),
-                    MentorId = mentor1Id,
-                    Day = new DateOnly(2025, 6, 13),
-                    StartWorkTime = new TimeOnly(13, 0),
-                    EndWorkTime = new TimeOnly(17, 30),
-                    SessionDuration = new TimeOnly(0, 30),
-                    BufferTime = new TimeOnly(0, 5),
-                },
-                new MentorDayAvailable
-                {
-                    Id = Guid.Parse("E6F7A8B9-C0D1-42E3-F4A5-B6C7D8E9F0A1"),
-                    MentorId = mentor2Id,
-                    Day = new DateOnly(2025, 6, 14),
-                    StartWorkTime = new TimeOnly(8, 0),
-                    EndWorkTime = new TimeOnly(12, 0),
-                    SessionDuration = new TimeOnly(0, 30),
-                    BufferTime = new TimeOnly(0, 10),
-                },
-                new MentorDayAvailable
-                {
-                    Id = Guid.Parse("F7A8B9C0-D1E2-43F4-A5B6-C7D8E9F0A1B2"),
-                    MentorId = mentor1Id,
-                    Day = new DateOnly(2025, 6, 15),
-                    StartWorkTime = new TimeOnly(10, 0),
-                    EndWorkTime = new TimeOnly(16, 0),
-                    SessionDuration = new TimeOnly(0, 45),
                     BufferTime = new TimeOnly(0, 5),
                 },
             };
