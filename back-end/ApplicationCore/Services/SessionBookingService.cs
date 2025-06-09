@@ -21,17 +21,19 @@ namespace ApplicationCore.Services
     {
         private readonly ISessionBookingRepository _sessionBookingRepository;
         private readonly IMentorTimeAvailableRepository _mentorTimeAvailableRepository;
+        private readonly ICourseRepository _courseRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISendEmailService _sendEmailService;
 
-        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ISendEmailService sendEmailService)
+        public SessionBookingService(ISessionBookingRepository sessionBookingRepository, IMentorTimeAvailableRepository mentorTimeAvailableRepository, IUserRepository userRepository, IUnitOfWork unitOfWork, ISendEmailService sendEmailService, ICourseRepository courseRepository)
         {
             _sessionBookingRepository = sessionBookingRepository;
             _mentorTimeAvailableRepository = mentorTimeAvailableRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _sendEmailService = sendEmailService;
+            _courseRepository = courseRepository;
         }
 
         public async Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts()
@@ -510,11 +512,21 @@ namespace ApplicationCore.Services
                                                         .Where(s => s.MentorId == userId && s.MentorTimeAvailable.MentorDayAvailable.Day.Month == currentDate.Month).CountAsync();
 
             sessionDashboardKpiDto.ActiveLearners = await _sessionBookingRepository
-                                                          .GetAllQueryable()
-                                                          .Where(s => s.MentorId == userId)
-                                                          .Select(s => s.LearnerId)
-                                                          .Distinct()
-                                                          .CountAsync();
+                                                         .GetAllQueryable()
+                                                         .Where(s => s.MentorId == userId)
+                                                         .Select(s => s.LearnerId)
+                                                         .Distinct()
+                                                         .CountAsync();
+
+            var courses = await _courseRepository
+                                                         .GetAllQueryable()
+                                                         .Include(x => x.Resources)
+                                                         .Where(s => s.MentorId == userId).ToListAsync();
+
+            foreach (var course in courses)
+            {
+                sessionDashboardKpiDto.SharedResources += course.Resources.Count;
+            }
 
             Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = query =>
             {

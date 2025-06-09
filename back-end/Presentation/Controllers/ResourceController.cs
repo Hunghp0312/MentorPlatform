@@ -3,7 +3,9 @@ using System.Security.Claims;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Resources;
+using ApplicationCore.DTOs.Responses.DocumentContents;
 using ApplicationCore.DTOs.Responses.Resources;
+using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,20 +34,20 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpDelete("{id:guid}")]
+        [HttpDelete("{resourceId:guid}")]
         [Authorize(Roles = "Admin, Mentor")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteResource(Guid id)
+        public async Task<IActionResult> DeleteResource(Guid resourceId)
         {
             var mentorIdString = User.FindFirstValue("id")!;
             Guid mentorId = Guid.Parse(mentorIdString);
-            var result = await _resourceService.DeleteResource(mentorId, id);
+            var result = await _resourceService.DeleteResource(resourceId, mentorId);
             return ToActionResult(result);
         }
 
-        [HttpPut("{id:guid}")]
+        [HttpPut("{resouceId:guid}")]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(typeof(ResourceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -81,6 +83,66 @@ namespace Presentation.Controllers
             Guid userId = Guid.Parse(userIdString);
             var result = await _resourceService.UpdateResourceUrl(resourceId, userId, Url);
 
+            return ToActionResult(result);
+        }
+
+        [HttpDelete("del-file/{fileId:guid}")]
+        [Authorize(Roles = "Mentor")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteResourceFile(Guid fileId)
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _resourceService.DeleteResourceFileAsync(userId, fileId);
+
+            return ToActionResult(result);
+        }
+
+        [HttpPost("up-file/{resourceId:guid}")]
+        [Authorize(Roles = "Mentor")]
+        [ProducesResponseType(typeof(ResourceFileResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadResourceFile([FromForm] ResourceFileRequest resourceFileRequest, Guid resourceId)
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid mentorId = Guid.Parse(userIdString);
+            var result = await _resourceService.UploadResourceFileAsync(resourceFileRequest.file, resourceId, mentorId);
+
+            return ToActionResult(result);
+        }
+
+        [HttpGet("file/{fileId:guid}/details")]
+        [Authorize]
+        [ProducesResponseType(typeof(PagedResult<DocumentDetailResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetFileResourceDetails(Guid fileId)
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _resourceService.GetFileResourceDetails(fileId, userId);
+            return ToActionResult(result);
+        }
+        [HttpDelete("del-link-file/{resourceId:guid}/Url")]
+        [Authorize(Roles = "Mentor")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteLinkFile(Guid resourceId)
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _resourceService.DeleteLinkFileAsync(userId, resourceId);
+            return ToActionResult(result);
+        }
+        [HttpGet("link/{resourceId:guid}/Url")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> OpenResourceLinkAsync(Guid resourceId)
+        {
+            var result = await _resourceService.OpenResourceLinkAsync(resourceId);
             return ToActionResult(result);
         }
     }

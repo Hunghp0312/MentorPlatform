@@ -9,6 +9,7 @@ import {
   Search,
   User,
   UserCheck,
+  FileBox,
 } from "lucide-react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -61,6 +62,11 @@ export default function Layout() {
         label: "User Management",
         href: pathName.userList,
       },
+      {
+        icon: <FileBox size={20} />,
+        label: "Resources",
+        href: pathName.adminResource,
+      },
     ],
     Mentor: [
       {
@@ -93,6 +99,11 @@ export default function Layout() {
         label: "Session Management",
         href: `/session-management/${decodedToken?.id}`,
       },
+      {
+        icon: <FileBox size={20} />,
+        label: "Resources",
+        href: pathName.mentorResource,
+      },
     ],
     Learner: [
       {
@@ -119,6 +130,11 @@ export default function Layout() {
         icon: <BookCopy size={20} />,
         label: "Courses",
         href: pathName.learnerCourse,
+      },
+      {
+        icon: <FileBox size={20} />,
+        label: "Resources",
+        href: pathName.learnerResource,
       },
     ],
   };

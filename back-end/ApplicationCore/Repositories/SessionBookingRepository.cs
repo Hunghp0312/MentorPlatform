@@ -109,24 +109,34 @@ namespace ApplicationCore.Repositories
         )
         {
             var start = dateTime;
-            var scheduledStatus = 6;
             var end = dateTime.AddHours(24);
-            var query = await _dbSet
+            var scheduledStatus = 6;
+
+            var rawData = await _dbSet
                 .Include(x => x.MentorTimeAvailable)
                 .ThenInclude(y => y.MentorDayAvailable)
                 .Where(x =>
                     x.LearnerId == learnerId
                     && x.StatusId == scheduledStatus
-                    && (
-                        x.MentorTimeAvailable.MentorDayAvailable.Day == DateOnly.FromDateTime(start)
-                        || x.MentorTimeAvailable.MentorDayAvailable.Day
-                            == DateOnly.FromDateTime(end)
-                    )
+                    && x.MentorTimeAvailable.MentorDayAvailable.Day >= DateOnly.FromDateTime(start)
+                    && x.MentorTimeAvailable.MentorDayAvailable.Day <= DateOnly.FromDateTime(end)
                 )
+                .ToListAsync();
+
+            var result = rawData
+                .Where(x =>
+                {
+                    var combined = x.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(
+                        x.MentorTimeAvailable.Start
+                    );
+
+                    return combined >= start && combined <= end;
+                })
                 .OrderBy(x => x.MentorTimeAvailable.MentorDayAvailable.Day)
                 .ThenBy(x => x.MentorTimeAvailable.Start)
-                .ToListAsync();
-            return query;
+                .ToList();
+
+            return result;
         }
     }
 }

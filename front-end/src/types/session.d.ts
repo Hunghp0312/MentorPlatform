@@ -36,6 +36,7 @@ export interface SessionType {
 
 
 export interface SessionKPIs {
+    sharedResources: number;
     sessionsThisMonth: number;
     activeLearners: number;
 }
@@ -57,4 +58,23 @@ export interface UpcomingSession {
 export interface SessionsResponse {
     sessionKPIs: SessionKPIs;
     upcomingSessions: UpcomingSession[];
+}
+
+interface BookingSessionResponse {
+    bookingId: string;
+    learnerId: string;
+    learnerPhotoData: string;
+    mentorPhotoData: string;
+    learnerFullName: string;
+    mentorId: string;
+    mentorFullName: string;
+    availabilityTimeSlotId: string;
+    date: string;
+    slotStartTime: string;
+    slotEndTime: string;
+    learnerMessage: string;
+    statusName: string;
+    sessionTypeName: string;
+    bookingRequestedAt: string;
+    cancelReason?: string;
 }
