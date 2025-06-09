@@ -170,49 +170,55 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<UpdateResourceUrlResponse>.NotFound("You are not authorized to upload file to this resource, cause you are not the mentor of this course.");
             }
-            if (existingResource.DocumentContentId.HasValue && (existingResource.TypeOfResourceId == 1 || existingResource.TypeOfResourceId == 2))
-            {
-                await _documentContentRepository.DeleteById(existingResource.DocumentContentId.Value);
+            await _unitOfWork.BeginTransactionAsync();
+            var oldDocumentContentId = existingResource.DocumentContentId;
 
-            }
+            // Clear existing document content if resource was previously a video or PDF
+            // if (existingResource.DocumentContentId.HasValue && (existingResource.TypeOfResourceId == 1 || existingResource.TypeOfResourceId == 2))
+            // {
+            //     await _documentContentRepository.DeleteById(existingResource.DocumentContentId.Value);
+            //     existingResource.DocumentContentId = null;
+            // }
 
-            existingResource.Url = url;
+            // Clear existing URL if present, and set new URL for type 3
+            existingResource.Url = string.IsNullOrEmpty(url) ? null : url;
             existingResource.TypeOfResourceId = 3;
-            existingResource.DocumentContentId = null;
             _resourceRepository.Update(existingResource);
             await _unitOfWork.SaveChangesAsync();
 
+            if (oldDocumentContentId.HasValue &&
+                        (existingResource.TypeOfResourceId == 1 ||
+                         existingResource.TypeOfResourceId == 2))
+            {
+                await _documentContentRepository.DeleteById(oldDocumentContentId.Value);
+            }
+
+            await _unitOfWork.CommitAsync();
             var response = new UpdateResourceUrlResponse()
             {
                 ResourceId = existingResource.Id,
-                Url = existingResource.Url
+                Url = existingResource.Url ?? string.Empty
             };
             return OperationResult<UpdateResourceUrlResponse>.Ok(response);
         }
 
         public async Task<OperationResult<ResourceFileResponse>> UploadResourceFileAsync(IFormFile? file, Guid resourceId, Guid mentorId)
         {
-
-            if (file == null || file.Length == 0)
-            {
-                return OperationResult<ResourceFileResponse>.BadRequest("No file provided or file is empty.");
-            }
-            if (file.Length > 5_000_000)
-            {
-                return OperationResult<ResourceFileResponse>.BadRequest("File size exceeds 5MB limit.");
-            }
-
-
             var existingResource = await _resourceRepository.GetByIdAsync(resourceId);
             if (existingResource == null)
             {
                 return OperationResult<ResourceFileResponse>.BadRequest("There is no resource with that Id found for this user");
             }
+
             if (mentorId != existingResource?.Course!.MentorId)
             {
-                return OperationResult<ResourceFileResponse>.Unauthorized("You are not authorized to upload file to this resource, cause you are not the mentor of this course.");
+                return OperationResult<ResourceFileResponse>.NotFound("You are not authorized to upload file to this resource, cause you are not the mentor of this course.");
             }
 
+            if (file == null)
+            {
+                return OperationResult<ResourceFileResponse>.NoContent();
+            }
 
             int determinedTypeOfResourceId;
             switch (file.ContentType)
@@ -224,54 +230,60 @@ namespace ApplicationCore.Services
                     determinedTypeOfResourceId = 1;
                     break;
                 default:
-                    return OperationResult<ResourceFileResponse>.BadRequest("Unsupported file type. Only PDF and MP4 are allowed.");
+                    return OperationResult<ResourceFileResponse>.BadRequest("Could not determine the resource type for the uploaded file.");
             }
 
             await _unitOfWork.BeginTransactionAsync();
-
-            if (existingResource.DocumentContentId.HasValue && (existingResource.TypeOfResourceId == 1 || existingResource.TypeOfResourceId == 2))
+            UploadedFileDetail processedFileDetail = null!;
+            if (file.Length > 0)
             {
-                await _documentContentRepository.DeleteById(existingResource.DocumentContentId.Value);
-            }
-            else if (existingResource.Url != null && existingResource.TypeOfResourceId == 3)
-            {
-                existingResource.Url = null;
-            }
+                var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
 
+                processedFileDetail = new UploadedFileDetail
+                {
+                    FileName = file.FileName,
+                    ContentType = file.ContentType,
+                    Length = file.Length,
+                    ContentStream = memoryStream
+                };
+            }
 
             byte[] fileBytes;
-            try
+            using (var memoryStreamToRead = new MemoryStream())
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await file.CopyToAsync(memoryStream);
-                    fileBytes = memoryStream.ToArray();
-                }
-
+                await processedFileDetail.ContentStream.CopyToAsync(memoryStreamToRead);
+                fileBytes = memoryStreamToRead.ToArray();
             }
-            catch (Exception ex)
-            {
-                await _unitOfWork.RollbackAsync();
-                return OperationResult<ResourceFileResponse>.BadRequest($"Failed to process file: {ex.Message}");
-            }
-
+            await processedFileDetail.ContentStream.DisposeAsync();
 
             var documentContentEntity = new DocumentContent
             {
                 Id = Guid.NewGuid(),
                 FileContent = fileBytes,
-                FileName = file.FileName,
-                FileType = file.ContentType
+                FileName = processedFileDetail.FileName,
+                FileType = processedFileDetail.ContentType
             };
             await _documentContentRepository.AddAsync(documentContentEntity);
+
+            var oldDocumentContentId = existingResource.DocumentContentId;
+            //var oldUrl = existingResource.Url;
 
 
             existingResource.DocumentContentId = documentContentEntity.Id;
             existingResource.TypeOfResourceId = determinedTypeOfResourceId;
-
+            existingResource.Url = null;
             _resourceRepository.Update(existingResource);
-
             await _unitOfWork.SaveChangesAsync();
+
+            if (oldDocumentContentId.HasValue)
+            {
+                await _documentContentRepository.DeleteById(oldDocumentContentId.Value);
+            }
+
+            // Commit giao dịch
+            await _unitOfWork.CommitAsync();
 
             var response = new ResourceFileResponse
             {

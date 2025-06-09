@@ -103,7 +103,6 @@ const ListApproval = () => {
     });
     setIsFetching(true);
     try {
-      // Không đặt isLoading để tránh hiển thị vòng tròn xoay khi tìm kiếm
       const statusToFilter: { [key: string]: number | undefined } = {
         "": undefined,
         pending: 1,
@@ -112,39 +111,43 @@ const ListApproval = () => {
         "request-info": 4,
       };
       const currentFilter = statusToFilter[statusFilter] || 0;
-      const res = await approvalService.getAllMentorApplications(
-        searchDebounced,
-        currentFilter,
-        pageIndex,
-        pageSize
-      );
-      console.log("API Response:", res);
-      setTotalItems(res.totalItems);
-      setApprovals(res.items);
-      const counts = await Promise.all(
-        ["", "pending", "approved", "rejected", "request-info"].map(
-          async (status) => {
-            const filter = statusToFilter[status] || 0;
-            const response = await approvalService.getAllMentorApplications(
-              "",
-              filter,
-              1,
-              1
-            );
-            return { status, count: response.totalItems };
-          }
-        )
-      );
-      const countsMap = counts.reduce((acc, { status, count }) => {
-        acc[status] = count;
-        return acc;
-      }, {} as { [key: string]: number });
-      setStatusCounts(countsMap);
+
+      // Gọi đồng thời getAllMentorApplications và getApplicationStatusCount
+      const [applicationsResponse, countsResponse] = await Promise.all([
+        approvalService.getAllMentorApplications(
+          searchDebounced,
+          currentFilter,
+          pageIndex,
+          pageSize
+        ),
+        approvalService.getApplicationStatusCount(),
+      ]);
+
+      console.log("API Applications Response:", applicationsResponse);
+      console.log("API Status Counts Response:", countsResponse);
+
+      // Cập nhật danh sách ứng dụng
+      setTotalItems(applicationsResponse.totalItems);
+      setApprovals(applicationsResponse.items);
+
+      // Cập nhật số đếm trạng thái
+      setStatusCounts({
+        "":
+          countsResponse.data.rejected +
+          countsResponse.data.approved +
+          countsResponse.data.pending +
+          countsResponse.data.requestInfo,
+        pending: countsResponse.data.pending,
+        approved: countsResponse.data.approved,
+        rejected: countsResponse.data.rejected,
+        "request-info": countsResponse.data.requestInfo,
+      });
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
       } else {
         console.error("Error fetching applications:", error);
+        toast.error("Failed to fetch applications");
       }
     } finally {
       setIsFetching(false);

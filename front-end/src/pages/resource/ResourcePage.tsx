@@ -133,7 +133,11 @@ const ResourcePage = () => {
       }
 
       // Handle file or link upload for new or edited resources
-      if ("file" in resource && resource.file) {
+      if (
+        "file" in resource &&
+        resource.file &&
+        (resource.typeOfResourceId === 1 || resource.typeOfResourceId === 2)
+      ) {
         // Upload file
         await resourceService.uploadResourceFile(resource.file, resourceId);
       } else if (

@@ -215,7 +215,7 @@ namespace ApplicationCore.Services
             var emailSubject = "Mentor Application Status Update";
 
             if (applicationStatus.Equals("Approved", StringComparison.OrdinalIgnoreCase) ||
-                applicationStatus.Equals("Rejected", StringComparison.OrdinalIgnoreCase) || 
+                applicationStatus.Equals("Rejected", StringComparison.OrdinalIgnoreCase) ||
                 applicationStatus.Equals("Request Info", StringComparison.OrdinalIgnoreCase))
             {
                 var bodyBuilder = new StringBuilder();
@@ -405,6 +405,21 @@ namespace ApplicationCore.Services
             var responseDto = mentorApplicationEntity.ToMentorProfileDtoDto();
 
             return OperationResult<MentorProfileDto>.Ok(responseDto);
+        }
+
+        public async Task<OperationResult<ApplicationStatusCountResponse>> GetApplicationStatusCountAsync()
+        {
+            var applicationStatusCount = await _mentorRepository.GetAllAsync();
+            var response = new ApplicationStatusCountResponse
+            {
+                Rejected = applicationStatusCount.Count(a => a.ApplicationStatus.Name == "Rejected"),
+                Approved = applicationStatusCount.Count(a => a.ApplicationStatus.Name == "Approved"),
+                Pending = applicationStatusCount.Count(a => a.ApplicationStatus.Name == "UnderReview" ||
+                                                    a.ApplicationStatus.Name == "Submitted"),
+                RequestInfo = applicationStatusCount.Count(a => a.ApplicationStatus.Name == "Request Info"),
+            };
+            return OperationResult<ApplicationStatusCountResponse>.Ok(response);
+
         }
     }
 }
