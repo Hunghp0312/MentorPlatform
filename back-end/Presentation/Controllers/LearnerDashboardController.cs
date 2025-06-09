@@ -20,7 +20,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("upcoming-sessions")]
-        [Authorize(Roles = "Learner")]
+        [Authorize(Roles = "Learner", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(LearnerDashboardUpcomingSession), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUpcomingSessions()
@@ -31,7 +31,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("learning-progress")]
-        [Authorize(Roles = "Learner")]
+        [Authorize(Roles = "Learner", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(LearnerDashboardCompletion), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetLearningProgress()
@@ -42,7 +42,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("mentors")]
-        [Authorize(Roles = "Learner")]
+        [Authorize(Roles = "Learner", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(LearnerDashboardMentor), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMentors()
@@ -53,7 +53,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("enrolled-courses")]
-        [Authorize(Roles = "Learner")]
+        [Authorize(Roles = "Learner", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(LearnerDashboardCourseList), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetEnrolledCourses()
