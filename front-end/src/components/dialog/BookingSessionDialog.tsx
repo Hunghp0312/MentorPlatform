@@ -32,14 +32,13 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
     const [selectedDate, setSelectedDate] = useState<string>('');
 
-    // In a real app, you would check actual mentor availability
 
     const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         setSelectedDate(e.target.value);
         setBookingData(prev => ({
             ...prev,
-            mentorTimeAvailableId: '', // Reset time slot when date changes
+            mentorTimeAvailableId: '', 
         }));
         try {
             const res = await sessionService.getSessionSlots(bookingData.mentorId, e.target.value);
@@ -115,7 +114,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                 <form onSubmit={handleSubmit} data-testid="booking-form">
                     {/* Date Input */}
                     <div className="mb-4">
-                        <label className="block text-sm mb-2" data-testid="date-label">Date</label>
+                        <label htmlFor="date" className="block text-sm mb-2" data-testid="date-label">Date</label>
                         <div className="relative">
                             <input
                                 type="date"
@@ -131,8 +130,9 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
                     {/* Time Slot */}
                     <div className="mb-2">
-                        <label className="block text-sm mb-2" data-testid="time-slot-label">Time Slot</label>
+                        <label htmlFor="mentorTimeAvailableId" className="block text-sm mb-2" data-testid="time-slot-label">Time Slot</label>
                         <select
+                            id="mentorTimeAvailableId"
                             name="mentorTimeAvailableId"
                             value={bookingData.mentorTimeAvailableId || ''}
                             onChange={handleInputChange}
@@ -165,7 +165,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
                     {/* Session Type */}
                     <div className="mb-4 mt-4">
-                        <label className="block text-sm mb-2" data-testid="session-type-label">Session Type</label>
+                        <label htmlFor="virtual" className="block text-sm mb-2" data-testid="session-type-label">Session Type</label>
                         <div className="flex space-x-4" data-testid="session-type-options">
                             <div className="flex items-center">
                                 <input
@@ -205,7 +205,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
                     {/* Discussion Notes */}
                     <div className="mb-6">
-                        <label className="block text-sm mb-2" data-testid="discussion-label">What would you like to discuss?</label>
+                        <label htmlFor='learnerMessage' className="block text-sm mb-2" data-testid="discussion-label">What would you like to discuss?</label>
                         <textarea
                             name="learnerMessage"
                             value={bookingData.learnerMessage || ''}
