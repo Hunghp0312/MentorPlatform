@@ -138,7 +138,7 @@ namespace Presentation.Controllers
         }
         [HttpGet("link/{resourceId:guid}/Url")]
         [Authorize]
-        [ProducesResponseType(typeof(PagedResult<DocumentDetailResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> OpenResourceLinkAsync(Guid resourceId)
         {

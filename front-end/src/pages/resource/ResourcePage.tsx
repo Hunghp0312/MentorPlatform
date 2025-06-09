@@ -206,6 +206,18 @@ const ResourcePage = () => {
       setLoading(false);
     }
   };
+  const handleOpenWeb = async (resource: Resource) => {
+    try {
+      await resourceService.openLinkFile(resource.resourceId);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        handleAxiosError(error);
+      } else {
+        console.error("Error opening link file:", error);
+        toast.error("Failed to open link file");
+      }
+    }
+  };
 
   const handleOnClose = () => {
     setOpenDialog(false);
@@ -258,6 +270,7 @@ const ResourcePage = () => {
     setOpenDocumentViewer(false);
     setDocumentData(null);
   };
+
   const renderButtons = (resource: ResourceType) => {
     const buttons = {
       download: (
@@ -267,6 +280,15 @@ const ResourcePage = () => {
           className="w-full rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Download
+        </button>
+      ),
+      open: (
+        <button
+          id="open-button"
+          onClick={() => handleOpenWeb(resource)}
+          className="w-full rounded bg-blue-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-blue-600 transition-colors"
+        >
+          Open Link
         </button>
       ),
       edit: (
@@ -294,12 +316,20 @@ const ResourcePage = () => {
         </button>
       ),
     };
+    const getActionButton = () => {
+      // Type 3 = External link -> Show Open button
+      if (resource.typeOfResource.id === 3) {
+        return buttons.open;
+      }
+      // Type 1 & 2 = Video/PDF -> Show Download button
+      return buttons.download;
+    };
 
     switch (userRole) {
       case "Mentor":
         return (
           <>
-            {buttons.download}
+            {getActionButton()}
             {buttons.edit}
             {buttons.delete}
             {buttons.view}
@@ -308,7 +338,7 @@ const ResourcePage = () => {
       case "Admin":
         return (
           <>
-            {buttons.download}
+            {getActionButton()}
             {buttons.delete}
             {buttons.view}
           </>
@@ -316,7 +346,7 @@ const ResourcePage = () => {
       case "Learner":
         return (
           <>
-            {buttons.download}
+            {getActionButton()}
             {buttons.view}
           </>
         );

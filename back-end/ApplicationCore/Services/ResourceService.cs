@@ -344,7 +344,7 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<object>.BadRequest("Resource does not have a valid link.");
             }
-
+            OpenUrlExtension.OpenUrl(resource.Url);
             return OperationResult<object>.NoContent();
         }
     }

@@ -63,9 +63,9 @@ export const resourceService = {
   },
 
   async uploadResourceLinkType(resourceId: string, link: string) {
-    const response = await axiosInstance.post(
-      `/Resource/${resourceId}/UrlUpload`,
-      { Url: link }
+    const response = await axiosInstance.put(
+      `/Resource/${resourceId}/UrlUpload?Url=${encodeURIComponent(link)}`,
+      link
     );
     return response.data;
   },
