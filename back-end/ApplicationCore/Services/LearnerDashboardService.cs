@@ -73,7 +73,9 @@ namespace ApplicationCore.Services
 
             if (learnerCourses.Count == 0)
             {
-                return OperationResult<LearnerDashboardCompletion>.Fail("There are no courses");
+                return OperationResult<LearnerDashboardCompletion>.BadRequest(
+                    "There are no courses"
+                );
             }
 
             var totalCourses = learnerCourses.Count;
@@ -97,7 +99,7 @@ namespace ApplicationCore.Services
 
             if (learnerCourses.Count == 0)
             {
-                return OperationResult<LearnerDashboardMentor>.Fail("There are no courses");
+                return OperationResult<LearnerDashboardMentor>.BadRequest("There are no courses");
             }
 
             var mentorIds = learnerCourses
@@ -119,7 +121,9 @@ namespace ApplicationCore.Services
 
             if (learnerCourses.Count == 0)
             {
-                return OperationResult<LearnerDashboardCourseList>.Fail("There are no courses");
+                return OperationResult<LearnerDashboardCourseList>.BadRequest(
+                    "There are no courses"
+                );
             }
 
             var top3Courses = learnerCourses.Take(3).ToList();

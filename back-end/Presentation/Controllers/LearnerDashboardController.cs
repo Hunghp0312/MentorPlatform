@@ -20,7 +20,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("upcoming-sessions")]
-        [Authorize(Roles = "Learner")]
+        [Authorize(Roles = "Learner", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(LearnerDashboardUpcomingSession), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -32,7 +32,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("learning-progress")]
-        [Authorize(Roles = "Learner")]
+        [Authorize(Roles = "Learner", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(LearnerDashboardCompletion), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -44,7 +44,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("mentors")]
-        [Authorize(Roles = "Learner")]
+        [Authorize(Roles = "Learner", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(LearnerDashboardMentor), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
@@ -56,7 +56,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("enrolled-courses")]
-        [Authorize(Roles = "Learner")]
+        [Authorize(Roles = "Learner", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(LearnerDashboardCourseList), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
