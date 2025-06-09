@@ -293,9 +293,18 @@ namespace ApplicationCore.Services
                                                          .Where(c => c.MentorId == mentorId)
                                                          .ToListAsync());
 
+
+            int totalCompletedEnrollments = 0;
             foreach (var course in coursesByMentor)
             {
                 courseDashboardKpiDto.ActiveStudents += course.LearnerCourses.Count;
+                totalCompletedEnrollments += course.LearnerCourses.Count(x => x.IsCompleted);
+            }
+            int totalEnrollments = courseDashboardKpiDto.ActiveStudents;
+
+            if (totalEnrollments > 0)
+            {
+                courseDashboardKpiDto.AverageCompletion = (int)Math.Round(((double)totalCompletedEnrollments / totalEnrollments) * 100);
             }
 
             courseDashboardKpiDto.PublishedCourses = await _courseRepo
