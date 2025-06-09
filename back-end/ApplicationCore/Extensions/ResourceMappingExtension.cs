@@ -36,5 +36,12 @@ namespace ApplicationCore.Extensions
                 link = resource.Url
             };
         }
+        public static ResourceLinkResponse ToResourceLinkResponse(this Resource resource)
+        {
+            return new ResourceLinkResponse
+            {
+                Url = resource?.Url ?? string.Empty
+            };
+        }
     }
 }

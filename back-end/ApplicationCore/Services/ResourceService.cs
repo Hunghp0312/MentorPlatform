@@ -332,20 +332,20 @@ namespace ApplicationCore.Services
 
             return OperationResult<ResourceResponeGetAllService>.Ok(resource.ToResourceResponeGetAllService());
         }
-        public async Task<OperationResult<object>> OpenResourceLinkAsync(Guid resourceId)
+        public async Task<OperationResult<ResourceLinkResponse>> OpenResourceLinkAsync(Guid resourceId)
         {
             var resource = await _resourceRepository.GetByIdAsync(resourceId);
             if (resource == null)
             {
-                return OperationResult<object>.NotFound("Resource not found.");
+                return OperationResult<ResourceLinkResponse>.NotFound("Resource not found.");
             }
 
             if (string.IsNullOrEmpty(resource.Url))
             {
-                return OperationResult<object>.BadRequest("Resource does not have a valid link.");
+                return OperationResult<ResourceLinkResponse>.BadRequest("Resource does not have a valid link.");
             }
-            OpenUrlExtension.OpenUrl(resource.Url);
-            return OperationResult<object>.NoContent();
+
+            return OperationResult<ResourceLinkResponse>.Ok(resource.ToResourceLinkResponse());
         }
     }
 }
