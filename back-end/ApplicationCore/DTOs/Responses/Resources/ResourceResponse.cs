@@ -11,5 +11,6 @@ namespace ApplicationCore.DTOs.Responses.Resources
         public required ResourceCategory ResourceCategory { get; set; }
         public required Guid CourseId { get; set; }
         public required string CourseName { get; set; }
+        public string? link { get; set; }
     }
 }

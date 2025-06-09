@@ -124,5 +124,26 @@ namespace Presentation.Controllers
             var result = await _resourceService.GetFileResourceDetails(fileId, userId);
             return ToActionResult(result);
         }
+        [HttpDelete("del-link-file/{resourceId:guid}/Url")]
+        [Authorize(Roles = "Mentor")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteLinkFile(Guid resourceId)
+        {
+            var userIdString = User.FindFirstValue("id")!;
+            Guid userId = Guid.Parse(userIdString);
+            var result = await _resourceService.DeleteLinkFileAsync(userId, resourceId);
+            return ToActionResult(result);
+        }
+        [HttpGet("link/{resourceId:guid}/Url")]
+        [Authorize]
+        [ProducesResponseType(typeof(PagedResult<DocumentDetailResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> OpenResourceLinkAsync(Guid resourceId)
+        {
+            var result = await _resourceService.OpenResourceLinkAsync(resourceId);
+            return ToActionResult(result);
+        }
     }
 }

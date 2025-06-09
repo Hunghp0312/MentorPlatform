@@ -89,10 +89,7 @@ namespace ApplicationCore.Services
             return OperationResult<ResourceResponse>.NoContent();
         }
 
-        public Task DownloadFile(Guid FileId)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public async Task<OperationResult<ResourceResponse>> EditResource(Guid resourceId, Guid mentorId, EditResourceRequest request)
         {
@@ -312,6 +309,41 @@ namespace ApplicationCore.Services
 
             await _documentContentRepository.DeleteById(fileId);
             await _unitOfWork.SaveChangesAsync();
+
+            return OperationResult<object>.NoContent();
+        }
+
+        public async Task<OperationResult<ResourceResponeGetAllService>> DeleteLinkFileAsync(Guid mentorId, Guid resourceId)
+        {
+            var resource = await _resourceRepository.GetByIdAsync(resourceId);
+            if (resource == null)
+            {
+                return OperationResult<ResourceResponeGetAllService>.NotFound("Resource not found.");
+            }
+
+            if (resource.Course?.MentorId != mentorId)
+            {
+                return OperationResult<ResourceResponeGetAllService>.Unauthorized("You are not authorized to delete the link for this resource, as you are not the mentor of this course.");
+            }
+
+            resource.Url = "";
+            _resourceRepository.Update(resource);
+            await _unitOfWork.SaveChangesAsync();
+
+            return OperationResult<ResourceResponeGetAllService>.Ok(resource.ToResourceResponeGetAllService());
+        }
+        public async Task<OperationResult<object>> OpenResourceLinkAsync(Guid resourceId)
+        {
+            var resource = await _resourceRepository.GetByIdAsync(resourceId);
+            if (resource == null)
+            {
+                return OperationResult<object>.NotFound("Resource not found.");
+            }
+
+            if (string.IsNullOrEmpty(resource.Url))
+            {
+                return OperationResult<object>.BadRequest("Resource does not have a valid link.");
+            }
 
             return OperationResult<object>.NoContent();
         }

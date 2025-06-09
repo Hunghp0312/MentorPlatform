@@ -76,4 +76,17 @@ export const resourceService = {
     );
     return response.data;
   },
+
+  async deleteLinkFile(resourceId: string) {
+    const response = await axiosInstance.delete(
+      `/Resource/del-link-file/${resourceId}/Url`
+    );
+    return response.data;
+  },
+  async openLinkFile(resourceId: string) {
+    const response = await axiosInstance.get(
+      `/Resource/link/${resourceId}/Url`
+    );
+    return response.data;
+  },
 };

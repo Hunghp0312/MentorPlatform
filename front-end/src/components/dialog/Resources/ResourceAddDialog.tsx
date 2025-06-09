@@ -23,7 +23,7 @@ interface ResourceFormPopupProps {
   categoryOptions: { value: string; label: string }[];
 }
 
-const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
+const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
   isOpen,
   onClose,
   onSubmit,
@@ -32,13 +32,13 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
   categoryOptions,
 }) => {
   const [formData, setFormData] = useState({
-    title: initialData?.title || "",
-    description: initialData?.description || "",
-    resourceCategoryId: initialData?.resourceCategory.id || 0,
-    typeOfResourceId: initialData?.typeOfResource.id || 0,
-    courseId: initialData?.courseId || "",
+    title: "",
+    description: "",
+    resourceCategoryId: 0,
+    typeOfResourceId: 0,
+    courseId: "",
     file: null as File | null,
-    link: initialData?.link || "",
+    link: "",
   });
 
   const [formErrors, setFormErrors] = useState({
@@ -53,6 +53,39 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
 
   const [courses, setCourses] = useState<Course[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update formData when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        title: initialData.title || "",
+        description: initialData.description || "",
+        resourceCategoryId: initialData.resourceCategory.id || 0,
+        typeOfResourceId: initialData.typeOfResource.id || 0,
+        courseId: initialData.courseId || "",
+        file: null,
+        link: initialData.link || "",
+      });
+      // Reset file input to avoid showing stale file selection
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    } else {
+      // Reset form when creating a new resource
+      setFormData({
+        title: "",
+        description: "",
+        resourceCategoryId: 0,
+        typeOfResourceId: 0,
+        courseId: "",
+        file: null,
+        link: "",
+      });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }, [initialData]);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -81,7 +114,7 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
       ...prev,
       [name]:
         name === "resourceCategoryId" || name === "typeOfResourceId"
-          ? parseInt(value) || 0 // Convert string from select to number
+          ? parseInt(value) || 0
           : value,
     }));
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
@@ -137,7 +170,7 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
     }
 
     if (formData.typeOfResourceId === 1 || formData.typeOfResourceId === 2) {
-      if (!formData.file && !initialData) {
+      if (!formData.file && !initialData?.fileId) {
         errors.file = "File is required for Pdf or Video";
         isValid = false;
       } else if (formData.file) {
@@ -169,7 +202,7 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
     e.preventDefault();
     if (!validateForm()) return;
 
-    const data: CreateResourceRequest = {
+    const data: CreateResourceRequest | EditResourceRequest = {
       title: formData.title,
       description: formData.description,
       resourceCategoryId: formData.resourceCategoryId,
@@ -257,12 +290,13 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
             errorMessage={formErrors.courseId}
             isRequired
             optionList={courseOptionsList}
+            disabled={!!initialData} // Disable course selection when editing
           />
           <InputCustom
             label="Resource Category"
             name="resourceCategoryId"
             type="select"
-            value={formData.resourceCategoryId.toString()} // Convert to string for select
+            value={formData.resourceCategoryId.toString()}
             onChange={handleInputChange}
             errorMessage={formErrors.resourceCategoryId}
             isRequired
@@ -272,7 +306,7 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
             label="Type of Resource"
             name="typeOfResourceId"
             type="select"
-            value={formData.typeOfResourceId.toString()} // Convert to string for select
+            value={formData.typeOfResourceId.toString()}
             onChange={handleInputChange}
             errorMessage={formErrors.typeOfResourceId}
             isRequired
@@ -298,6 +332,11 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
               {formData.file && (
                 <p className="text-sm text-gray-300 mt-1">
                   {formData.file.name}
+                </p>
+              )}
+              {initialData?.fileName && !formData.file && (
+                <p className="text-sm text-gray-300 mt-1">
+                  Current file: {initialData.fileName}
                 </p>
               )}
             </div>
@@ -327,4 +366,4 @@ const ResourceFormPopup: React.FC<ResourceFormPopupProps> = ({
   );
 };
 
-export default ResourceFormPopup;
+export default ResourceAddDialog;

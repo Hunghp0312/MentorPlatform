@@ -134,6 +134,10 @@ const ResourcePage = () => {
 
       // Handle file or link upload for new or edited resources
       if ("file" in resource && resource.file) {
+        // If editing and a new file is provided, delete the old file first
+        if (initialData && initialData.fileId) {
+          await resourceService.deleteResourceFile(initialData.fileId);
+        }
         await resourceService.uploadResourceFile(resource.file, resourceId);
       } else if (
         "link" in resource &&

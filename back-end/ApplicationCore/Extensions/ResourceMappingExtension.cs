@@ -33,6 +33,7 @@ namespace ApplicationCore.Extensions
                 FileId = resource.DocumentContentId,
                 FileName = resource.DocumentContent?.FileName ?? string.Empty,
                 FileType = resource.DocumentContent?.FileType ?? string.Empty,
+                link = resource.Url
             };
         }
     }
