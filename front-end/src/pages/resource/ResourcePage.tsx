@@ -208,7 +208,12 @@ const ResourcePage = () => {
   };
   const handleOpenWeb = async (resource: Resource) => {
     try {
-      await resourceService.openLinkFile(resource.resourceId);
+      const url = await resourceService.openLinkFile(resource.resourceId);
+      if (url) {
+        window.open(url, "_blank");
+      } else {
+        toast.error("No valid link found");
+      }
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);

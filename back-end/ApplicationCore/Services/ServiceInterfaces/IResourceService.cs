@@ -20,7 +20,7 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<object>> DeleteResourceFileAsync(Guid mentorId, Guid fileId);
         Task<OperationResult<ResourceResponeGetAllService>> DeleteLinkFileAsync(Guid mentorId, Guid resourceId);
         Task<OperationResult<DocumentDetailResponse>> GetFileResourceDetails(Guid fileId, Guid userId);
-        Task<OperationResult<object>> OpenResourceLinkAsync(Guid resourceId);
+        Task<OperationResult<ResourceLinkResponse>> OpenResourceLinkAsync(Guid resourceId);
 
     }
 }
