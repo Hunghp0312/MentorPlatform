@@ -349,6 +349,7 @@ const ResourcePage = () => {
           <>
             {getActionButton()}
             {buttons.delete}
+            {buttons.edit}
             {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );
@@ -356,6 +357,7 @@ const ResourcePage = () => {
         return (
           <>
             {getActionButton()}
+            {buttons.edit}
             {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );
@@ -447,7 +449,7 @@ const ResourcePage = () => {
                     {resource.typeOfResource.name}
                   </span>
                 </div>
-                <p className="text-gray-300 text-[13.5px] mb-4 line-clamp-3">
+                <p className="text-gray-300 text-[13.5px] mb-4 line-clamp-1">
                   {resource.description}
                 </p>
                 <div className="text-gray-400 text-[13.5px] mb-2">
@@ -491,6 +493,7 @@ const ResourcePage = () => {
         initialData={initialData}
         loading={loading}
         categoryOptions={categoryOptions}
+        userRole={userRole}
       />
       <CustomModal
         isOpen={openDocumentViewer}
