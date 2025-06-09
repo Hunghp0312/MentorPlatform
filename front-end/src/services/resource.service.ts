@@ -2,17 +2,17 @@ import axiosInstance from "../configs/axiosInstance";
 import { CreateResourceRequest, EditResourceRequest } from "../types/resource";
 export const resourceService = {
   async getPagedResources(
+    resourceCategoryId: number | undefined,
     query: string,
-    typeOfResourceId: number | undefined,
     pageIndex: number,
     pageSize: number
   ) {
     const response = await axiosInstance.get("/Resource/resources", {
       params: {
+        ResourceCategoryId: resourceCategoryId,
         Query: query,
         PageIndex: pageIndex,
         PageSize: pageSize,
-        TypeOfResourceId: typeOfResourceId,
       },
     });
     return response.data;

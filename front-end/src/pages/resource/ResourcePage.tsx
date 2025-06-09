@@ -85,8 +85,8 @@ const ResourcePage = () => {
         ? parseInt(resourceCategoryFilter)
         : undefined;
       const response = await resourceService.getPagedResources(
-        searchDebounced,
         categoryId,
+        searchDebounced,
         pageIndex,
         pageSize
       );
@@ -107,7 +107,7 @@ const ResourcePage = () => {
 
   useEffect(() => {
     fetchResources();
-  }, [searchDebounced, resourceCategoryFilter, pageIndex, pageSize]);
+  }, [resourceCategoryFilter, searchDebounced, pageIndex, pageSize]);
 
   const handleSubmit = async (
     resource: CreateResourceRequest | EditResourceRequest
@@ -332,7 +332,7 @@ const ResourcePage = () => {
             {getActionButton()}
             {buttons.edit}
             {buttons.delete}
-            {buttons.view}
+            {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );
       case "Admin":
@@ -340,14 +340,14 @@ const ResourcePage = () => {
           <>
             {getActionButton()}
             {buttons.delete}
-            {buttons.view}
+            {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );
       case "Learner":
         return (
           <>
             {getActionButton()}
-            {buttons.view}
+            {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );
       default:
