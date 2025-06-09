@@ -295,7 +295,6 @@ namespace ApplicationCore.Services
 
             int totalEnrollments = coursesByMentor.Sum(c => c.LearnerCourses.Count);
             int totalCompletedEnrollments = coursesByMentor.Sum(c => c.LearnerCourses.Count(lc => lc.IsCompleted));
-            courseDashboardKpiDto.ActiveStudents = totalEnrollments;
 
             if (totalEnrollments > 0)
             {
