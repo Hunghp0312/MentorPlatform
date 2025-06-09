@@ -1,6 +1,7 @@
 ﻿using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Resources;
 using ApplicationCore.DTOs.Requests.SupportingDocuments;
+using ApplicationCore.DTOs.Responses.FileSize;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -67,6 +68,16 @@ namespace Presentation.Controllers
             var fileDownloadDto = result.Data;
 
             return File(fileDownloadDto!.Content, fileDownloadDto.ContentType, fileDownloadDto.FileName);
+        }
+
+        [HttpGet("sum-downloaded")]
+
+        [ProducesResponseType(typeof(SumOfFilesResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSumDownloaded()
+        {
+
+            var result = await _documentContentService.CalculateTotalDownloadSizeFormattedAsync();
+            return ToActionResult(result);
         }
     }
 }

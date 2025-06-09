@@ -10,7 +10,18 @@ namespace ApplicationCore.Repositories
     {
         public ResourceRepository(AppDbContext context) : base(context)
         {
+
         }
+
+        public async Task<Resource?> GetByDocumentContentIdAsync(Guid documentContentId)
+        {
+            return await _dbSet
+                .Include(r => r.Course)
+                .Include(r => r.ResourceCategory)
+                .Include(r => r.TypeOfResource)
+                .FirstOrDefaultAsync(r => r.DocumentContentId == documentContentId);
+        }
+
         public override async Task<Resource?> GetByIdAsync(Guid id)
         {
             return await _dbSet
@@ -63,6 +74,12 @@ namespace ApplicationCore.Repositories
                 .ToListAsync();
 
             return (items, totalRecords);
+        }
+
+        public async Task UpdateAsync(Resource resource)
+        {
+            _dbSet.Update(resource);
+            await _context.SaveChangesAsync();
         }
     }
 }
