@@ -3,6 +3,6 @@
     public class SessionDashboardKpiDto
     {
         public int SessionsThisMonth { get; set; }
-        public int ActiveLearners { get; set; } = 0;
+        public int SharedResources { get; set; }
     }
 }

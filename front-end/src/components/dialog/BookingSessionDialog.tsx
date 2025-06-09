@@ -99,22 +99,23 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/50">
-            <div className="bg-[#1a2030] text-white p-6 rounded-lg w-full max-w-md relative">
+        <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm bg-black/50" data-testid="booking-dialog-overlay">
+            <div className="bg-[#1a2030] text-white p-6 rounded-lg w-full max-w-md relative" data-testid="booking-dialog">
                 <button
                     onClick={onClose}
                     className="absolute right-4 top-4 text-gray-400 hover:text-white"
+                    data-testid="close-button"
                 >
                     <X size={18} />
                 </button>
 
-                <h2 className="text-xl font-semibold mb-1">Book a Session with {mentorName}</h2>
-                <p className="text-sm text-gray-400 mb-5">Session rate: ${hourlyRate} / hour</p>
+                <h2 className="text-xl font-semibold mb-1" data-testid="dialog-title">Book a Session with {mentorName}</h2>
+                <p className="text-sm text-gray-400 mb-5" data-testid="hourly-rate">Session rate: ${hourlyRate} / hour</p>
 
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} data-testid="booking-form">
                     {/* Date Input */}
                     <div className="mb-4">
-                        <label className="block text-sm mb-2">Date</label>
+                        <label className="block text-sm mb-2" data-testid="date-label">Date</label>
                         <div className="relative">
                             <input
                                 type="date"
@@ -123,19 +124,21 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                                 onChange={handleDateChange}
                                 min={new Date().toISOString().split('T')[0]} // Set minimum date to today
                                 className="w-full bg-[#202938] border border-[#363f4e] rounded p-2 text-white"
+                                data-testid="date-input"
                             />
                         </div>
                     </div>
 
                     {/* Time Slot */}
                     <div className="mb-2">
-                        <label className="block text-sm mb-2">Time Slot</label>
+                        <label className="block text-sm mb-2" data-testid="time-slot-label">Time Slot</label>
                         <select
                             name="mentorTimeAvailableId"
                             value={bookingData.mentorTimeAvailableId || ''}
                             onChange={handleInputChange}
                             className="w-full bg-[#202938] border border-[#363f4e] rounded p-2 text-white appearance-none"
                             style={{ backgroundImage: "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E\")", backgroundPosition: "right 0.5rem center", backgroundRepeat: "no-repeat", backgroundSize: "1.5em 1.5em", paddingRight: "2.5rem" }}
+                            data-testid="time-slot-select"
                         >
                             <option value="">Select a time slot</option>
                             {slots?.map((timeSlot) => (
@@ -147,13 +150,14 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                                         (selectedDate === new Date().toISOString().split('T')[0] &&
                                             new Date(`${selectedDate}T${timeSlot.startTime}`).getTime() < new Date().getTime())
                                     }
+                                    data-testid={`time-slot-option-${timeSlot.id}`}
                                 >
                                     {formatTime(timeSlot.startTime)} - {formatTime(timeSlot.endTime)}
                                 </option>
                             ))}
                         </select>
                         {slots.length === 0 && (
-                            <p className="text-orange-500 text-xs mt-1">
+                            <p className="text-orange-500 text-xs mt-1" data-testid="no-slots-message">
                                 Mentor is not available on this day. Please select another date.
                             </p>
                         )}
@@ -161,8 +165,8 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
                     {/* Session Type */}
                     <div className="mb-4 mt-4">
-                        <label className="block text-sm mb-2">Session Type</label>
-                        <div className="flex space-x-4">
+                        <label className="block text-sm mb-2" data-testid="session-type-label">Session Type</label>
+                        <div className="flex space-x-4" data-testid="session-type-options">
                             <div className="flex items-center">
                                 <input
                                     type="radio"
@@ -170,8 +174,9 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                                     checked={bookingData.sessionTypeId === '1'}
                                     onChange={() => handleRadioChange('1')}
                                     className="mr-2 h-4 w-4 accent-blue-500"
+                                    data-testid="virtual-radio"
                                 />
-                                <label htmlFor="virtual" className="text-sm">Virtual</label>
+                                <label htmlFor="virtual" className="text-sm" data-testid="virtual-label">Virtual</label>
                             </div>
                             <div className="flex items-center">
                                 <input
@@ -180,8 +185,9 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                                     checked={bookingData.sessionTypeId === '2'}
                                     onChange={() => handleRadioChange('2')}
                                     className="mr-2 h-4 w-4 accent-blue-500"
+                                    data-testid="in-person-radio"
                                 />
-                                <label htmlFor="in-person" className="text-sm">In-Person</label>
+                                <label htmlFor="in-person" className="text-sm" data-testid="in-person-label">In-Person</label>
                             </div>
                             <div className="flex items-center">
                                 <input
@@ -190,32 +196,35 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                                     checked={bookingData.sessionTypeId === '3'}
                                     onChange={() => handleRadioChange('3')}
                                     className="mr-2 h-4 w-4 accent-blue-500"
+                                    data-testid="onsite-session-radio"
                                 />
-                                <label htmlFor="onsite-session" className="text-sm">Onsite-Session</label>
+                                <label htmlFor="onsite-session" className="text-sm" data-testid="onsite-session-label">Onsite-Session</label>
                             </div>
                         </div>
                     </div>
 
                     {/* Discussion Notes */}
                     <div className="mb-6">
-                        <label className="block text-sm mb-2">What would you like to discuss?</label>
+                        <label className="block text-sm mb-2" data-testid="discussion-label">What would you like to discuss?</label>
                         <textarea
                             name="learnerMessage"
                             value={bookingData.learnerMessage || ''}
                             onChange={handleInputChange}
                             placeholder="Briefly describe what you'd like to cover in this session..."
                             className="w-full bg-[#202938] border border-[#363f4e] rounded p-2 text-white h-24 resize-none"
+                            data-testid="discussion-textarea"
                         />
-                        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+                        {error && <p className="text-red-500 text-xs mt-1" data-testid="error-message">{error}</p>}
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-400">You won't be charged yet</p>
+                    <div className="flex items-center justify-between" data-testid="dialog-footer">
+                        <p className="text-sm text-gray-400" data-testid="charge-notice">You won't be charged yet</p>
                         <button
                             type="submit"
                             disabled={isSubmitting || !bookingData.mentorTimeAvailableId || !bookingData.sessionTypeId || !bookingData.learnerMessage}
                             className="px-5 py-2 bg-orange-500 hover:bg-orange-600 rounded text-white font-medium transition-colors disabled:opacity-70 disabled:hover:bg-orange-500"
+                            data-testid="confirm-booking-button"
                         >
                             {isSubmitting ? 'Submitting...' : 'Confirm Booking'}
                         </button>
