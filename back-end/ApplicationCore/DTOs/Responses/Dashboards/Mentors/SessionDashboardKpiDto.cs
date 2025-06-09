@@ -4,5 +4,6 @@
     {
         public int SessionsThisMonth { get; set; }
         public int SharedResources { get; set; }
+        public int ActiveLearners { get; set; }
     }
 }
