@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from "react";
-import {
-  Clock,
-  BarChart3,
-  Users,
-  BookOpen, // New icon for courses
-  CheckCircle2, // Icon for completed status
-} from "lucide-react";
+import { Clock, BarChart3, Users, BookOpen, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   learnerDashboardService,
   UpcomingSessionResponse,
   LearningProcessResponse,
   OnlineMentorsResponse,
-  Course, // Import the Course type
-} from "../../services/learnerDashboard.service"; // Adjust the import path to your service file
+  Course,
+} from "../../services/learnerDashboard.service";
+import { pathName } from "../../constants/pathName";
 
 const LearnerDashboard: React.FC = () => {
   const [sessionsData, setSessionsData] =
@@ -23,24 +18,23 @@ const LearnerDashboard: React.FC = () => {
   const [mentorsData, setMentorsData] = useState<OnlineMentorsResponse | null>(
     null
   );
-  const [coursesData, setCoursesData] = useState<Course[]>([]); // State for courses
+  const [coursesData, setCoursesData] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // Fetch all data concurrently, including the course list
         const [sessions, progress, mentors, courses] = await Promise.all([
           learnerDashboardService.getUpcomingSession(),
           learnerDashboardService.getLearningProcess(),
           learnerDashboardService.getOnlineMentors(),
-          learnerDashboardService.listCourses(), // Fetch courses
+          learnerDashboardService.listCourses(),
         ]);
         setSessionsData(sessions);
         setProgressData(progress);
         setMentorsData(mentors);
-        setCoursesData(courses.courseList); // Set courses state
+        setCoursesData(courses.courseList);
       } catch (error) {
         console.error("Failed to fetch learner dashboard data:", error);
       } finally {
@@ -90,7 +84,7 @@ const LearnerDashboard: React.FC = () => {
               </p>
             </div>
             <Link
-              to="#"
+              to={pathName.leanerSessionManagement}
               className="text-orange-500 text-sm mt-4 font-semibold hover:underline">
               View schedule ›
             </Link>
@@ -115,7 +109,7 @@ const LearnerDashboard: React.FC = () => {
               </div>
             </div>
             <Link
-              to="#"
+              to={pathName.learnerCourse}
               className="text-orange-500 text-sm mt-4 font-semibold hover:underline">
               View details ›
             </Link>
@@ -136,7 +130,7 @@ const LearnerDashboard: React.FC = () => {
               </p>
             </div>
             <Link
-              to="#"
+              to={pathName.findmentor}
               className="text-orange-500 text-sm mt-4 font-semibold hover:underline">
               Find more mentors ›
             </Link>
@@ -212,7 +206,7 @@ const LearnerDashboard: React.FC = () => {
           </div>
           <div className="mt-4 text-right">
             <Link
-              to="/courses"
+              to={pathName.learnerCourse}
               className="text-orange-500 text-sm font-semibold hover:underline">
               View full courses &rsaquo;
             </Link>

@@ -24,7 +24,7 @@ namespace ApplicationCore.Services
             Guid learnerId
         )
         {
-            var todayDate = DateTime.UtcNow;
+            var todayDate = DateTime.Now;
 
             var upcomingsessions = await _sessionRepo.GetUpcomingBookingWithLearnerId(
                 learnerId,
