@@ -17,6 +17,7 @@ namespace ApplicationCore.Repositories
                 .Include(c => c.Category)
                 .Include(c => c.Status)
                 .Include(c => c.Level)
+                .Include(c => c.Resources)
                 .FirstOrDefaultAsync(c => c.Id == courseId);
         }
 

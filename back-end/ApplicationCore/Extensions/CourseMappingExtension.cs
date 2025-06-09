@@ -21,6 +21,7 @@ namespace ApplicationCore.Extensions
                 Created = course.Created,
                 LastUpdated = course.LastUpdated,
                 Tags = TagHelper.ConvertStringToList(course.Tags),
+                Resources = course.Resources.Select(r => r.ToResourceResponse()).ToList()
             };
         }
 

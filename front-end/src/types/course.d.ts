@@ -46,7 +46,6 @@ export interface CourseDetailType {
   completion: number;
 }
 
-
 export interface CourseKPIsType {
   totalCourses: number;
   activeStudents: number;
@@ -66,4 +65,18 @@ export interface CourseListItemType {
 export interface CourseDashboardResponseType {
   courseKPIs: CourseKPIsType;
   courses: CourseListItemType[];
+}
+
+export interface LearnerCourseResponse {
+  id: string;
+  title: string;
+  category: string;
+  status: "Draft" | "Published" | "Archived";
+  level: "Beginner" | "Intermediate" | "Advanced";
+  duration: string;
+  tags: string[];
+  description: string;
+  instructor: string;
+  students: number;
+  createdAt: string;
 }

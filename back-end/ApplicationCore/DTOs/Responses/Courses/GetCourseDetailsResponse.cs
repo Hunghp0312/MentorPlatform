@@ -1,5 +1,6 @@
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.Requests.Categories;
+using ApplicationCore.DTOs.Responses.Resources;
 using Infrastructure.Entities.Enum;
 
 namespace ApplicationCore.DTOs.Responses.Courses
@@ -13,5 +14,6 @@ namespace ApplicationCore.DTOs.Responses.Courses
         public DateTime Created { get; set; }
         public required List<string> Tags { get; set; }
         public DateTime LastUpdated { get; set; }
+        public List<ResourceResponse> Resources { get; set; } = [];
     }
 }
