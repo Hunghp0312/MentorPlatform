@@ -1,10 +1,11 @@
-﻿using System.Security.Claims;
-using ApplicationCore.DTOs.Common;
+﻿using ApplicationCore.DTOs.Common;
+using ApplicationCore.DTOs.Requests.Resources;
 using ApplicationCore.DTOs.Requests.SupportingDocuments;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -13,10 +14,12 @@ namespace Presentation.Controllers
     public class SupportingDocumentsController : BaseController
     {
         private readonly ISupportingDocumentService _supportingDocumentService;
+        private readonly IDocumentContentService _documentContentService;
 
-        public SupportingDocumentsController(ISupportingDocumentService supportingDocumentService)
+        public SupportingDocumentsController(ISupportingDocumentService supportingDocumentService, IDocumentContentService documentContentService)
         {
             _supportingDocumentService = supportingDocumentService;
+            _documentContentService = documentContentService;
         }
 
         [HttpPost]
@@ -51,41 +54,19 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpDelete("resource/{id:guid}")]
-        [Authorize(Roles = "Mentor")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteResourceFile(Guid id)
+        [HttpGet("{fileId:guid}/download")]
+        [Authorize]
+        [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DownloadFileForResource(Guid fileId)
         {
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
-            var result = await _supportingDocumentService.DeleteResourceFileAsync(userId, id);
 
-            return ToActionResult(result);
-        }
+            var result = await _documentContentService.DownloadResourceFileAsync(fileId, userId);
+            var fileDownloadDto = result.Data;
 
-        [HttpPost("resource/{id:guid}")]
-        [Authorize(Roles = "Mentor")]
-        [ProducesResponseType(typeof(SupportingDocumentResponse), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UploadResourceFile([FromForm] SupportingDocumentRequest supportingDocumentRequest, Guid resourceId)
-        {
-            var userIdString = User.FindFirstValue("id")!;
-            Guid mentorId = Guid.Parse(userIdString);
-            var result = await _supportingDocumentService.UploadResourceFileAsync(supportingDocumentRequest.file, resourceId, mentorId);
-
-            return ToActionResult(result);
-        }
-
-        [HttpGet]
-        [Authorize]
-        [ProducesResponseType(typeof(PagedResult<SupportingDocumentResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetFileDetails([FromQuery] Guid supportingDocumentId)
-        {
-            var result = await _supportingDocumentService.GetFileDetails(supportingDocumentId);
-            return ToActionResult(result);
+            return File(fileDownloadDto!.Content, fileDownloadDto.ContentType, fileDownloadDto.FileName);
         }
     }
 }

@@ -21,6 +21,7 @@ interface InputProps {
   setShowPassword?: React.Dispatch<React.SetStateAction<boolean>>;
   isRequired?: boolean;
   optionList?: Array<{ id: string | number; name: string }>;
+  disabled?: boolean;
 }
 const InputCustom: React.FC<InputProps> = ({
   className,
@@ -37,6 +38,7 @@ const InputCustom: React.FC<InputProps> = ({
   isRequired = false,
   optionList = [],
   onBlur,
+  disabled = false,
 }) => {
   const inputComponent = () => {
     if (type === "textarea") {
@@ -47,6 +49,7 @@ const InputCustom: React.FC<InputProps> = ({
           value={value}
           onChange={onChange}
           rows={4}
+          disabled={disabled}
           className={`w-full px-3 py-2 bg-gray-700 border ${
             errorMessage ? "border-red-500" : "border-gray-700"
           } rounded-md text-white focus:outline-none sm:text-sm focus:ring-1 focus:ring-orange-500 ${className}`}
@@ -62,7 +65,9 @@ const InputCustom: React.FC<InputProps> = ({
           name={name}
           value={value}
           onChange={onChange}
-          className={`w-full max-h-48 overflow-y-auto px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-orange-500 ${className}`}>
+          disabled={disabled}
+          className={`w-full max-h-48 overflow-y-auto px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-orange-500 ${className}`}
+        >
           {optionList.map((item) => (
             <option key={item.id} value={item.id}>
               {item.name}
@@ -88,6 +93,7 @@ const InputCustom: React.FC<InputProps> = ({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
+          disabled={disabled}
           className={`bg-gray-700 focus:outline-none text-gray-100 sm:text-sm rounded-lg block w-full ${
             errorMessage
               ? "border-red-500 focus:ring-red-500 focus:border-red-500"
@@ -100,7 +106,8 @@ const InputCustom: React.FC<InputProps> = ({
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className={`text-gray-500 hover:text-gray-300 focus:outline-none ${className}`}>
+              className={`text-gray-500 hover:text-gray-300 focus:outline-none ${className}`}
+            >
               {showPassword ? (
                 <EyeOff className="h-5 w-5" />
               ) : (
@@ -118,7 +125,8 @@ const InputCustom: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={name}
-          className="text-base font-medium text-gray-300 block mb-2">
+          className="text-base font-medium text-gray-300 block mb-2"
+        >
           {label} {isRequired && <span className="text-red-500">*</span>}
         </label>
       )}

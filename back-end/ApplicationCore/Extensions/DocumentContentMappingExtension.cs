@@ -9,7 +9,7 @@ namespace ApplicationCore.Extensions
         {
             return new DocumentDetailResponse
             {
-                Id = documentContent.Id,
+                FileId = documentContent.Id,
                 FileName = documentContent.FileName,
                 FileType = documentContent.FileType,
                 FileContent = documentContent.FileContent

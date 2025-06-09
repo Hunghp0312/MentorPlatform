@@ -1,10 +1,9 @@
-﻿namespace ApplicationCore.DTOs.Responses.SupportingDocuments
+﻿using ApplicationCore.DTOs.Responses.DocumentContents;
+
+namespace ApplicationCore.DTOs.Responses.SupportingDocuments
 {
-    public class DocumentDetailResponse
+    public class DocumentDetailResponse : ResourceFileResponse
     {
-        public required Guid Id { get; set; }
-        public required string FileName { get; set; }
-        public required string FileType { get; set; } = string.Empty;
         public required byte[] FileContent { get; set; } = Array.Empty<byte>();
     }
 }

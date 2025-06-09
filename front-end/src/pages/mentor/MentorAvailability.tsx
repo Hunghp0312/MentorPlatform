@@ -48,7 +48,7 @@ const AvailabilityManager = () => {
     const day = lastSunday.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
     lastSunday.setDate(lastSunday.getDate() - day);
     // Reset to midnight for consistency
-    lastSunday.setHours(0, 0, 0, 0);
+    lastSunday.setHours(7, 0, 0, 0);
     return lastSunday;
   }
 
@@ -323,7 +323,6 @@ const AvailabilityManager = () => {
           mentorId,
           weekStartDate
         );
-
         setWeekAvailability(data);
 
         // Process the data into the slotAvailability state
@@ -477,14 +476,31 @@ const AvailabilityManager = () => {
             <h3 className="text-lg font-medium mb-4">Work hours</h3>
             <div className="grid grid-cols-2 gap-4 mb-3">
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="workStartTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Start time
                 </label>
                 <select
+                  id="workStartTime"
                   value={workHours.start}
-                  onChange={(e) =>
-                    setWorkHours({ ...workHours, start: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const newStartTime = e.target.value;
+                    setWorkHours({ ...workHours, start: newStartTime });
+
+                    // Update weekAvailability with the new start time
+                    if (weekAvailability && selectedDayDate) {
+                      setWeekAvailability({
+                        ...weekAvailability,
+                        days: weekAvailability.days.map((day) =>
+                          day.date === selectedDayDate
+                            ? { ...day, workStartTime: newStartTime }
+                            : day
+                        ),
+                      });
+                    }
+                  }}
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
                   disabled={hasBookedSlots}
                 >
@@ -496,14 +512,31 @@ const AvailabilityManager = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="workEndTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   End time
                 </label>
                 <select
+                  id="workEndTime"
                   value={workHours.end}
-                  onChange={(e) =>
-                    setWorkHours({ ...workHours, end: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const newEndTime = e.target.value;
+                    setWorkHours({ ...workHours, end: newEndTime });
+
+                    // Update weekAvailability with the new end time
+                    if (weekAvailability && selectedDayDate) {
+                      setWeekAvailability({
+                        ...weekAvailability,
+                        days: weekAvailability.days.map((day) =>
+                          day.date === selectedDayDate
+                            ? { ...day, workEndTime: newEndTime }
+                            : day
+                        ),
+                      });
+                    }
+                  }}
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
                   disabled={hasBookedSlots}
                 >
@@ -527,12 +560,31 @@ const AvailabilityManager = () => {
             <h3 className="text-lg font-medium mb-4">Session settings</h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="sessionDuration"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Session duration
                 </label>
                 <select
+                  id="sessionDuration"
                   value={sessionDuration}
-                  onChange={(e) => setSessionDuration(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    const newDuration = parseInt(e.target.value);
+                    setSessionDuration(newDuration);
+
+                    // Update weekAvailability with the new session duration
+                    if (weekAvailability && selectedDayDate) {
+                      setWeekAvailability({
+                        ...weekAvailability,
+                        days: weekAvailability.days.map((day) =>
+                          day.date === selectedDayDate
+                            ? { ...day, sessionDurationMinutes: newDuration }
+                            : day
+                        ),
+                      });
+                    }
+                  }}
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
                   disabled={hasBookedSlots}
                 >
@@ -544,12 +596,31 @@ const AvailabilityManager = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm text-slate-300 mb-2">
+                <label
+                  htmlFor="bufferTime"
+                  className="block text-sm text-slate-300 mb-2"
+                >
                   Buffer time between sessions
                 </label>
                 <select
+                  id="bufferTime"
                   value={bufferTime}
-                  onChange={(e) => setBufferTime(parseInt(e.target.value))}
+                  onChange={(e) => {
+                    const newBufferTime = parseInt(e.target.value);
+                    setBufferTime(newBufferTime);
+
+                    // Update weekAvailability with the new buffer time
+                    if (weekAvailability && selectedDayDate) {
+                      setWeekAvailability({
+                        ...weekAvailability,
+                        days: weekAvailability.days.map((day) =>
+                          day.date === selectedDayDate
+                            ? { ...day, bufferMinutes: newBufferTime }
+                            : day
+                        ),
+                      });
+                    }
+                  }}
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
                   disabled={hasBookedSlots}
                 >
@@ -629,11 +700,9 @@ const AvailabilityManager = () => {
               const dayData = weekAvailability?.days.find(
                 (d) => d.date === day.dateString
               );
-              const hasBooking =
-                selectedDayDate === day.dateString &&
-                weekAvailability?.days
-                  .find((d) => d.date === day.dateString)
-                  ?.timeBlocks.some((block) => block.sessionStatus.id !== 1);
+              const hasBooking = weekAvailability?.days
+                .find((d) => d.date === day.dateString)
+                ?.timeBlocks.some((block) => block.sessionStatus.id !== 1);
 
               return (
                 <button
@@ -655,17 +724,10 @@ const AvailabilityManager = () => {
                       end: dayData?.workEndTime || workHours.end,
                     });
                   }}
-                  disabled={
-                    new Date(day.date) <
-                    new Date(new Date().setHours(0, 0, 0, 0))
-                  }
                   className={`flex-1 py-3 px-4 text-center border-r border-slate-600 last:border-r-0 transition-colors ${
                     selectedDay === day.dayShort
                       ? "bg-orange-500 text-white"
-                      : new Date(day.date) <
-                        new Date(new Date().setHours(0, 0, 0, 0))
-                      ? "bg-slate-800 text-slate-500 cursor-not-allowed"
-                      : "bg-slate-700 hover:bg-slate-600 text-slate-300"
+                      : "bg-slate-700 hover:bg-slate-600 text-slate-300 cursor-pointer"
                   }`}
                 >
                   <div className="font-medium">{day.dayShort}</div>
@@ -738,14 +800,15 @@ const AvailabilityManager = () => {
                                   slotDate.setHours(hours, minutes, 0, 0);
 
                                   const isPastTime = slotDate < new Date();
-
-                                  if (isPastTime) {
-                                    return "bg-slate-800 text-slate-500 cursor-not-allowed opacity-60";
-                                  } else {
-                                    return isAvailable
-                                      ? "bg-orange-500 text-white hover:bg-orange-600 cursor-pointer"
-                                      : "bg-slate-700 hover:bg-slate-600 cursor-pointer";
-                                  }
+                                  return isAvailable
+                                    ? `bg-orange-500 text-white hover:bg-orange-600 ${
+                                        isPastTime
+                                          ? "cursor-not-allowed"
+                                          : "cursor-pointer"
+                                      }`
+                                    : isPastTime
+                                    ? "bg-slate-800 text-slate-500 cursor-not-allowed opacity-60"
+                                    : "bg-slate-700 hover:bg-slate-600 cursor-pointer";
                                 })()
                           }
                         `}

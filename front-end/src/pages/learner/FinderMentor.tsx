@@ -164,7 +164,7 @@ const MentorFinder: React.FC = () => {
                                     <div className="mb-4">
                                         <p className="text-sm font-medium text-gray-300 mb-2">Expertise</p>
                                         <div className="flex items-center flex-wrap gap-1 h-[40px] overflow-y-auto">
-                                            {mentor.expertiseTags.map((skill) => (
+                                            {mentor.expertiseTags.slice(0, 3).map((skill) => (
                                                 <span
                                                     key={skill}
                                                     className="px-2 py-1 bg-slate-600 text-xs rounded text-gray-300"
@@ -172,10 +172,15 @@ const MentorFinder: React.FC = () => {
                                                     {skill}
                                                 </span>
                                             ))}
+                                            {mentor.expertiseTags.length > 3 && (
+                                                <span className="px-2 py-1 bg-slate-600 text-xs rounded text-gray-300">
+                                                    +{mentor.expertiseTags.length - 3} more
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 
-                                    <p className="text-sm text-gray-300 mb-4 h-[72px] overflow-y-auto line-clamp-3">
+                                    <p className="text-sm text-gray-300 mb-4 h-[60px] overflow-hidden line-clamp-3">
                                         {mentor.shortBioOrTagline || "No description available."}
                                     </p>
 
