@@ -24,6 +24,7 @@ const MentorDashBoard: React.FC = () => {
     });
     const [course,setCourse] = useState<CourseDashboardResponseType>({
         courseKPIs : {
+            averageCompletion: 0,
             totalCourses: 0,
             activeStudents: 0,
             publishedCourses: 0
