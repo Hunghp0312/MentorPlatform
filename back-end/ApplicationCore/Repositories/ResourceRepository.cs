@@ -35,6 +35,7 @@ namespace ApplicationCore.Repositories
                     Id = r.Id,
                     Title = r.Title,
                     Description = r.Description,
+                    Url = r.Url,
                     // Map other Resource properties as needed
                     Course = r.Course,
                     ResourceCategory = r.ResourceCategory,
