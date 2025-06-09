@@ -206,21 +206,24 @@ const ResourcePage = () => {
       setLoading(false);
     }
   };
-  const handleOpenWeb = async (resource: Resource) => {
+  const handleOpenWeb = (resource: ResourceType) => {
     try {
-      const url = await resourceService.openLinkFile(resource.resourceId);
-      if (url) {
-        window.open(url, "_blank");
+      // Check if the resource has a valid link and is of type 'External Link' (id: 3)
+      if (resource.typeOfResource.id === 3 && resource.link) {
+        // Validate the URL
+        const url = resource.link;
+        // Basic URL validation
+        if (/^https?:\/\//i.test(url)) {
+          window.open(url, "_blank");
+        } else {
+          toast.error("Invalid URL format");
+        }
       } else {
-        toast.error("No valid link found");
+        toast.error("No valid link found for this resource");
       }
     } catch (error) {
-      if (error instanceof AxiosError) {
-        handleAxiosError(error);
-      } else {
-        console.error("Error opening link file:", error);
-        toast.error("Failed to open link file");
-      }
+      console.error("Error opening link:", error);
+      toast.error("Failed to open link");
     }
   };
 
