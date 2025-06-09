@@ -293,14 +293,9 @@ namespace ApplicationCore.Services
                                                          .Where(c => c.MentorId == mentorId)
                                                          .ToListAsync());
 
-
-            int totalCompletedEnrollments = 0;
-            foreach (var course in coursesByMentor)
-            {
-                courseDashboardKpiDto.ActiveStudents += course.LearnerCourses.Count;
-                totalCompletedEnrollments += course.LearnerCourses.Count(x => x.IsCompleted);
-            }
-            int totalEnrollments = courseDashboardKpiDto.ActiveStudents;
+            int totalEnrollments = coursesByMentor.Sum(c => c.LearnerCourses.Count);
+            int totalCompletedEnrollments = coursesByMentor.Sum(c => c.LearnerCourses.Count(lc => lc.IsCompleted));
+            courseDashboardKpiDto.ActiveStudents = totalEnrollments;
 
             if (totalEnrollments > 0)
             {
