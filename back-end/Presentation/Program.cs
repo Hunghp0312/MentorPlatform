@@ -153,7 +153,7 @@ builder.Services.Configure<FormOptions>(options =>
     options.MultipartBodyLengthLimit = 6 * 1024 * 1024;
 });
 var app = builder.Build();
-app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+app.UseCors(option => option.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().WithExposedHeaders("Content-Disposition"));
 app.UseSwagger();
 app.UseSwaggerUI();
 

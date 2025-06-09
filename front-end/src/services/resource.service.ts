@@ -70,11 +70,99 @@ export const resourceService = {
     return response.data;
   },
 
+  // async downloadResourceFile(fileId: string) {
+  //   const response = await axiosInstance.get(
+  //     `/SupportingDocuments/${fileId}/download`,
+  //     {
+  //       responseType: "blob", // Important: Handle binary data as a blob
+  //     }
+  //   );
+  //   return response.data;
+  // },
+  // async downloadResourceFile(fileId: string) {
+  //   const response = await axiosInstance.get(
+  //     `/SupportingDocuments/${fileId}/download`,
+  //     {
+  //       responseType: "blob", // Important: Handle binary data as a blob
+  //     }
+  //   );
+  //   // Extract filename from Content-Disposition header or use a fallback
+  //   const contentDisposition = response.headers["content-disposition"];
+  //   let fileName = `file-${fileId}`;
+  //   if (contentDisposition) {
+  //     const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+  //     if (fileNameMatch) {
+  //       fileName = fileNameMatch[1];
+  //     }
+  //   }
+  //   // Create a Blob from the response data
+  //   const blob = new Blob([response.data], { type: response.data.type });
+  //   // Create a temporary URL for the Blob
+  //   const url = window.URL.createObjectURL(blob);
+  //   // Create a link element to trigger the download
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.download = fileName;
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   // Clean up
+  //   document.body.removeChild(link);
+  //   window.URL.revokeObjectURL(url);
+  // },
   async downloadResourceFile(fileId: string) {
-    const response = await axiosInstance.get(
-      `/SupportingDocuments/${fileId}/download`
-    );
-    return response.data;
+    try {
+      const response = await axiosInstance.get(
+        `/SupportingDocuments/${fileId}/download`,
+        {
+          responseType: "blob",
+        }
+      );
+
+      // Cải thiện cách lấy tên file từ Content-Disposition header
+      const contentDisposition =
+        response.headers["content-disposition"] ||
+        response.headers["Content-Disposition"];
+
+      let fileName = `file-${fileId}`;
+
+      if (contentDisposition) {
+        // Xử lý các format khác nhau của Content-Disposition
+        const matches = [
+          /filename\*=UTF-8''(.+)/, // RFC 5987 encoded filename
+          /filename="([^"]+)"/, // Quoted filename
+          /filename=([^;]+)/, // Unquoted filename
+        ];
+
+        for (const regex of matches) {
+          const match = contentDisposition.match(regex);
+          if (match) {
+            fileName = decodeURIComponent(match[1]);
+            break;
+          }
+        }
+      }
+
+      // Tạo blob và download
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "application/octet-stream",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+
+      // Thêm vào DOM, click và xóa
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      throw error;
+    }
   },
 
   async deleteLinkFile(resourceId: string) {
@@ -87,6 +175,6 @@ export const resourceService = {
     const response = await axiosInstance.get(
       `/Resource/link/${resourceId}/Url`
     );
-    return response.data;
+    return response.data.url;
   },
 };
