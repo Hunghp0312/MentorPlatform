@@ -182,6 +182,24 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
           } file`;
           isValid = false;
         }
+        if (formData.file.size > 5 * 1024 * 1024) {
+          errors.file = `File size must not exceed 5MB`;
+          isValid = false;
+        }
+        if (
+          formData.typeOfResourceId === 2 &&
+          formData.file.name.toLowerCase().endsWith(".mp4")
+        ) {
+          errors.file = "Please upload a PDF file!";
+          isValid = false;
+        }
+        if (
+          formData.typeOfResourceId === 1 &&
+          formData.file.name.toLowerCase().endsWith(".pdf")
+        ) {
+          errors.file = "Please upload a mp4 file!";
+          isValid = false;
+        }
       }
     } else if (formData.typeOfResourceId === 3) {
       if (!formData.link) {
@@ -331,7 +349,8 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
               )}
               {formData.file && (
                 <p className="text-sm text-gray-300 mt-1">
-                  {formData.file.name}
+                  {formData.file.name} (
+                  {(formData.file.size / (1024 * 1024)).toFixed(2)} MB)
                 </p>
               )}
               {initialData?.fileName && !formData.file && (

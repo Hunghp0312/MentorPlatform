@@ -40,9 +40,10 @@ namespace ApplicationCore.Repositories
                     Course = r.Course,
                     ResourceCategory = r.ResourceCategory,
                     TypeOfResource = r.TypeOfResource,
+                    DocumentContentId = r.DocumentContentId,
                     DocumentContent = r.DocumentContent != null ? new DocumentContent
                     {
-                        Id = r.DocumentContent.Id,
+                        //Id = r.DocumentContent.Id,
                         FileName = r.DocumentContent.FileName,
                         FileType = r.DocumentContent.FileType
                         // Explicitly exclude FileContent
