@@ -41,8 +41,21 @@ namespace ApplicationCore.Services
             };
 
             return OperationResult<FileDownloadDto>.Ok(fileDownloadDto);
+        }
+        public async Task<OperationResult<SumOfFilesResponse>> GetTotalFileDownloadSize(Guid resourceId)
+        {
+            var resource = await _resourceRepository.GetByIdAsync(resourceId);
+            if (resource == null)
+            {
+                return OperationResult<SumOfFilesResponse>.NotFound("Resource not found.");
+            }
 
+            var response = new SumOfFilesResponse
+            {
+                Size = resource.ToTalFileDownloadSize
+            };
 
+            return OperationResult<SumOfFilesResponse>.Ok(response);
         }
 
     }
