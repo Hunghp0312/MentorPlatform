@@ -3,7 +3,6 @@ import { Search, Clock, Tag, BookOpen, Users } from "lucide-react";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import TableFooter from "../../components/table/TableFooter";
 import { CourseFilterType, CourseType } from "../../types/course";
-import { toast } from "react-toastify";
 import { courseService } from "../../services/course.service";
 import { getUserFromToken } from "../../utils/auth";
 import { AxiosError } from "axios";
@@ -16,32 +15,27 @@ import Dropdown from "../../components/input/Dropdown";
 import InputCustom from "../../components/input/InputCustom";
 import useDebounce from "../../hooks/usedebounce";
 import { userService } from "../../services/user.service";
-import CourseViewDialog from "../../components/dialog/CourseViewDialog";
-import CustomModal from "../../components/ui/Modal";
 import { useNavigate } from "react-router-dom";
 enum Level {
   Beginner = "1",
   Intermediate = "2",
   Advanced = "3",
 }
+import { useLocation } from "react-router-dom";
+import { pathName } from "../../constants/pathName";
 const CoursesPage: React.FC = () => {
+  const location = useLocation();
   // State
   const [courses, setCourses] = useState<CourseType[]>([]);
-  const [initialData, setInitialData] = useState<CourseType | undefined>(
-    undefined
-  );
   const [query, setQuery] = useState("");
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [isViewOpen, setIsViewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isPageLoading, setIsPageLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryType[]>();
-  const isSubmitting = false;
   const [mentors, setMentors] = useState<UserComboboxFilter[]>([]);
   // Pagination
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(6);
   const decodedToken = getUserFromToken();
   const role = decodedToken?.role;
   // Filter
@@ -63,12 +57,24 @@ const CoursesPage: React.FC = () => {
   const fetchCourses = async () => {
     try {
       setIsLoading(true);
-      const res = await courseService.getPaginationCourses(
-        searchDebounced,
-        filter,
-        pageIndex,
-        pageSize
-      );
+      let res = [];
+      if (location.pathname === pathName.learnerCourse) {
+        // Fetch courses for the learner's enrolled courses
+        res = await courseService.getMyCourses(
+          searchDebounced,
+          filter,
+          pageIndex,
+          pageSize
+        );
+      } else if (location.pathname === pathName.learnerAllCourses) {
+        // Add a delay to simulate loading for the skeleton UI
+        res = await courseService.getPaginationCourses(
+          searchDebounced,
+          filter,
+          pageIndex,
+          pageSize
+        );
+      }
       setCourses(res.items);
       setTotalItems(res.totalItems);
     } catch (error) {
@@ -132,7 +138,7 @@ const CoursesPage: React.FC = () => {
 
   useEffect(() => {
     fetchCourses();
-  }, [pageIndex, pageSize, searchDebounced, filter]);
+  }, [pageIndex, pageSize, searchDebounced, filter, location.pathname]);
 
   const handleSearch = (
     event: React.ChangeEvent<
@@ -158,21 +164,6 @@ const CoursesPage: React.FC = () => {
     setPageIndex(1);
   };
 
-  if (isLoading) {
-    return <LoadingOverlay />;
-  }
-  const getStatusColor = (statusId: number) => {
-    switch (statusId) {
-      case 1:
-        return "bg-gray-600 text-gray-200"; // Draft
-      case 2:
-        return "bg-green-600 text-green-200"; // Published
-      case 3:
-        return "bg-amber-600 text-amber-200"; // Archived
-      default:
-        return "bg-gray-600 text-gray-200";
-    }
-  };
   const getLevelColor = (levelId: number) => {
     switch (levelId) {
       case 1:
@@ -188,7 +179,9 @@ const CoursesPage: React.FC = () => {
   const handleViewCourse = (courseId: string) => {
     navigate(`/learner/course/${courseId}`);
   };
-
+  if (isPageLoading) {
+    return <LoadingOverlay />;
+  }
   return (
     <div className="min-h-screen bg-slate-900 text-gray-100">
       <div className="container mx-auto px-4 py-8">
@@ -196,10 +189,14 @@ const CoursesPage: React.FC = () => {
         <div className="flex justify-between items-center">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-white mb-2">
-              My Enrolled Courses
+              {location.pathname === pathName.learnerAllCourses
+                ? "All Courses"
+                : "My Courses"}{" "}
             </h1>
             <p className="text-gray-400">
-              View all the courses you're enrolled in
+              {location.pathname === pathName.learnerCourse
+                ? "View all the courses"
+                : "View all my enroll courses"}
             </p>
           </div>
         </div>
@@ -275,90 +272,158 @@ const CoursesPage: React.FC = () => {
 
         {/* Course Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <div
-              key={course.id}
-              className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition-colors duration-200 flex flex-col h-full"
-            >
-              {/* Course Header */}
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-xl font-semibold text-white line-clamp-2 h-14">
-                  {course.name}
-                </h3>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${getStatusColor(
-                    course.status.id
-                  )}`}
-                >
-                  {course.status.name}
-                </span>
-              </div>
-
-              {/* Course Info */}
-              <div className="space-y-3 mb-4">
-                <div className="flex items-center gap-2 text-gray-400">
-                  <BookOpen className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-sm truncate">
-                    {course.category.name}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Clock className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-sm">{course.duration}</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-gray-400">
-                  <Users className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-sm">{course.students} students</span>
-                </div>
-              </div>
-
-              {/* Level Badge */}
-              <div className="mb-4">
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${getLevelColor(
-                    course.level.id
-                  )}`}
-                >
-                  {course.level.name}
-                </span>
-              </div>
-
-              {/* Description */}
-              <p className="text-gray-300 text-sm mb-4 line-clamp-3 h-18">
-                {course.description}
-              </p>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-4">
-                {course.tags.slice(0, 3).map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-slate-700 text-gray-300 px-2 py-1 rounded text-xs flex items-center gap-1"
+          {isLoading
+            ? // Skeleton loading for cards
+              Array(6)
+                .fill(0)
+                .map((_, index) => (
+                  <div
+                    key={`skeleton-${index}`}
+                    className="bg-slate-800 border border-slate-700 rounded-lg p-6 flex flex-col h-full animate-pulse"
                   >
-                    <Tag className="w-3 h-3" />
-                    {tag}
-                  </span>
-                ))}
-                {course.tags.length > 3 && (
-                  <span className="bg-slate-700 text-gray-300 px-2 py-1 rounded text-xs">
-                    +{course.tags.length - 3} more
-                  </span>
-                )}
-              </div>
+                    {/* Course Header Skeleton */}
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="h-14 w-3/4 bg-slate-700 rounded"></div>
+                      <div className="h-6 w-16 bg-slate-700 rounded-full"></div>
+                    </div>
 
-              {/* Action Buttons - using mt-auto to push to bottom */}
-              <div className="flex gap-2 mt-auto">
-                <button
-                  onClick={() => handleViewCourse(course.id)}
-                  className="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200"
+                    {/* Course Info Skeleton */}
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-slate-700"></div>
+                        <div className="h-4 w-24 bg-slate-700 rounded"></div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-slate-700"></div>
+                        <div className="h-4 w-16 bg-slate-700 rounded"></div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full bg-slate-700"></div>
+                        <div className="h-4 w-20 bg-slate-700 rounded"></div>
+                      </div>
+                    </div>
+
+                    {/* Level Badge Skeleton */}
+                    <div className="mb-4">
+                      <div className="h-6 w-20 bg-slate-700 rounded-full"></div>
+                    </div>
+
+                    {/* Description Skeleton */}
+                    <div className="mb-4 space-y-2">
+                      <div className="h-3 bg-slate-700 rounded w-full"></div>
+                      <div className="h-3 bg-slate-700 rounded w-5/6"></div>
+                      <div className="h-3 bg-slate-700 rounded w-4/6"></div>
+                    </div>
+
+                    {/* Tags Skeleton */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="h-6 w-16 bg-slate-700 rounded"></div>
+                      <div className="h-6 w-16 bg-slate-700 rounded"></div>
+                      <div className="h-6 w-16 bg-slate-700 rounded"></div>
+                    </div>
+
+                    {/* Button Skeleton */}
+                    <div className="mt-auto">
+                      <div className="h-10 w-full bg-slate-700 rounded-lg"></div>
+                    </div>
+                  </div>
+                ))
+            : courses.map((course) => (
+                <div
+                  key={course.id}
+                  className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-slate-600 transition-colors duration-200 flex flex-col h-full"
                 >
-                  View Details
-                </button>
-              </div>
-            </div>
-          ))}
+                  {/* Course Header */}
+                  <div className="flex justify-between items-start mb-0">
+                    <h3 className="text-xl font-semibold text-white line-clamp-2 h-14">
+                      {course.name}
+                    </h3>
+                    <div>
+                      {course.isCompleted ? (
+                        <span
+                          className={`px-2 py-1 mb 5 rounded-full text-xs font-medium flex-shrink-0 bg-blue-600 text-gray-200`}
+                        >
+                          Completed
+                        </span>
+                      ) : (
+                        course.isEnroll && (
+                          <span
+                            className={`px-2 py-1 mb 5 rounded-full text-xs font-medium flex-shrink-0 bg-blue-600 text-gray-200`}
+                          >
+                            Enrolled
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Course Info */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <BookOpen className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm truncate">
+                        {course.category.name}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Clock className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm">{course.duration}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Users className="w-4 h-4 flex-shrink-0" />
+                      <span className="text-sm">
+                        {course.studentCount} students
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Level Badge */}
+                  <div className="mb-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getLevelColor(
+                        course.level.id
+                      )}`}
+                    >
+                      {course.level.name}
+                    </span>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-gray-300 text-sm mb-4 line-clamp-3 h-18">
+                    {course.description}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {course.tags.slice(0, 3).map((tag, index) => (
+                      <span
+                        key={index}
+                        className="bg-slate-700 text-gray-300 px-2 py-1 rounded text-xs flex items-center gap-1"
+                      >
+                        <Tag className="w-3 h-3" />
+                        {tag}
+                      </span>
+                    ))}
+                    {course.tags.length > 3 && (
+                      <span className="bg-slate-700 text-gray-300 px-2 py-1 rounded text-xs">
+                        +{course.tags.length - 3} more
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Action Buttons - using mt-auto to push to bottom */}
+                  <div className="flex gap-2 mt-auto">
+                    <button
+                      onClick={() => handleViewCourse(course.id)}
+                      className="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-2 px-4 rounded-lg text-sm font-medium transition-colors duration-200"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              ))}
         </div>
 
         {/* No Results */}
@@ -376,11 +441,13 @@ const CoursesPage: React.FC = () => {
 
         {/* Pagination */}
         <TableFooter
+          className="mt-6"
           pageSize={pageSize}
           pageIndex={pageIndex}
           totalItems={totalItems}
           setPageSize={setPageSize}
           changePage={setPageIndex}
+          pageSizeOptions={[6, 9, 12]}
         />
       </div>
     </div>

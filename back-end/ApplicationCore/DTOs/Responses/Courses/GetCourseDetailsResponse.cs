@@ -14,6 +14,10 @@ namespace ApplicationCore.DTOs.Responses.Courses
         public DateTime Created { get; set; }
         public required List<string> Tags { get; set; }
         public DateTime LastUpdated { get; set; }
+        public int StudentCount { get; set; }
+        public double Completion { get; set; }
         public List<ResourceResponse> Resources { get; set; } = [];
+        public bool IsEnroll { get; set; }
+        public bool IsCompleted { get; set; }
     }
 }

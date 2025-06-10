@@ -326,7 +326,7 @@ const ListCourse = () => {
     {
       header: "STUDENTS",
       accessor: (course: CourseType) => (
-        <div className="font-medium">{course.students ?? 0}</div>
+        <div className="font-medium">{course.studentCount ?? 0}</div>
       ),
       align: "center",
       width: "10%",
@@ -338,16 +338,16 @@ const ListCourse = () => {
           <div className="w-16 bg-gray-200 rounded-full h-2 mr-2">
             <div
               className={`h-2 rounded-full ${
-                course.completion >= 80
+                Math.round(course.completion) >= 80
                   ? "bg-green-500"
-                  : course.completion >= 60
+                  : Math.round(course.completion) >= 60
                   ? "bg-amber-500"
                   : "bg-red-500"
               }`}
-              style={{ width: `${course.completion}%` }}
+              style={{ width: `${Math.round(course.completion)}%` }}
             ></div>
           </div>
-          <span>{course.completion ?? 0}%</span>
+          <span>{Math.round(course.completion) ?? 0}%</span>
         </div>
       ),
       align: "center",

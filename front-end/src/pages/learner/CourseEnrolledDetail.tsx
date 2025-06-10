@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   ArrowLeft,
-  Play,
-  Download,
   FileText,
   Video,
   Clock,
@@ -12,100 +10,22 @@ import {
   File,
   Image,
   Archive,
+  Play,
+  Download,
 } from "lucide-react";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { courseService } from "../../services/course.service";
-import { CourseType } from "../../types/course";
-
-// Extended TypeScript interfaces
-interface CourseResource {
-  id: string;
-  title: string;
-  type: "video" | "pdf" | "document" | "image" | "archive";
-  url: string;
-  size: string;
-  duration?: string; // for videos
-  description?: string;
-  isCompleted?: boolean;
-}
-
-interface DetailedCourse {
-  id: string;
-  title: string;
-  category: string;
-  status: "Draft" | "Published" | "Archived";
-  level: "Beginner" | "Intermediate" | "Advanced";
-  duration: string;
-  tags: string[];
-  description: string;
-  fullDescription: string;
-  students: number;
-  createdAt: string;
-  updatedAt: string;
-  resources: CourseResource[];
-}
+import { CourseDetailType } from "../../types/course";
+import { ResourceType } from "../../types/resource";
+import { toast } from "react-toastify";
 
 // Sample detailed course data
-const sampleCourse: DetailedCourse = {
-  id: "1",
-  title: "Introduction to React Development",
-  category: "Web Development",
-  status: "Published",
-  level: "Beginner",
-  duration: "8 weeks",
-  tags: ["React", "JavaScript", "Frontend", "Web Development"],
-  description:
-    "Learn the fundamentals of React development including components, state management, and modern React patterns.",
-  fullDescription: `This comprehensive React course is designed for beginners who want to master modern web development. You'll start with the basics of React and gradually build up to advanced concepts like state management, hooks, and performance optimization.
-
-Throughout this course, you'll work on real-world projects that will help you build a strong portfolio. By the end of this course, you'll be able to create dynamic, interactive web applications using React and its ecosystem.
-
-The course includes hands-on exercises, quizzes, and projects that will reinforce your learning. You'll also get access to a community of fellow learners and instructors who can help you along your journey.`,
-  students: 245,
-  createdAt: "2024-01-15",
-  updatedAt: "2024-02-20",
-  resources: [
-    {
-      id: "video-1",
-      title: "What is React?",
-      type: "video",
-      url: "/videos/what-is-react.mp4",
-      size: "45 MB",
-      duration: "15:30",
-      description: "Introduction to React and its core concepts",
-    },
-    {
-      id: "video-2",
-      title: "Setting up Development Environment",
-      type: "video",
-      url: "/videos/setup-environment.mp4",
-      size: "62 MB",
-      duration: "22:15",
-      description:
-        "Step-by-step guide to setting up your React development environment",
-    },
-    {
-      id: "pdf-1",
-      title: "React Fundamentals Cheat Sheet",
-      type: "pdf",
-      url: "/documents/react-cheat-sheet.pdf",
-      size: "2.3 MB",
-      description: "Quick reference guide for React fundamentals",
-    },
-    {
-      id: "doc-1",
-      title: "Exercise: Your First Component",
-      type: "document",
-      url: "/documents/first-component-exercise.docx",
-      size: "1.1 MB",
-      description: "Hands-on exercise to create your first React component",
-    },
-  ],
-};
 
 const CourseDetailPage: React.FC = () => {
-  const [course, setCourse] = useState<CourseType>(sampleCourse);
+  const navigate = useNavigate();
+
+  const [course, setCourse] = useState<CourseDetailType>();
   const [activeTab, setActiveTab] = useState<"overview" | "resources">(
     "overview"
   );
@@ -166,8 +86,8 @@ const CourseDetailPage: React.FC = () => {
 
     fetchData();
   }, []);
-  const handleResourceAction = (resource: CourseResource) => {
-    if (resource.type === "video") {
+  const handleResourceAction = (resource: ResourceType) => {
+    if (resource.typeOfResource.name === "video") {
       // Handle video play
       console.log("Playing video:", resource.title);
     } else {
@@ -175,16 +95,63 @@ const CourseDetailPage: React.FC = () => {
       console.log("Downloading:", resource.title);
     }
   };
-
-  if (loading) {
+  const handleEnrollCourse = async () => {
+    // Handle course enrollment logic
+    try {
+      const res = await courseService.enrollCourse(id!);
+      if (res) {
+        console.log("Enrolled in course:", course?.name);
+        // Optionally, redirect or show success message
+      } else {
+        console.error("Failed to enroll in course");
+      }
+      setCourse((prev) => ({
+        ...prev!,
+        isEnroll: true,
+      })); // Update course state to reflect enrollment
+      toast.success("Successfully enrolled in the course!");
+    } catch (error) {
+      console.error("Error enrolling in course:", error);
+      toast.error("Failed to enroll in the course. Please try again.");
+    }
+  };
+  const handleFinishCourse = async () => {
+    // Handle course completion logic
+    try {
+      // Simulate API call to finish course
+      const res = await courseService.finishCourse(id!);
+      setCourse((prev) => ({
+        ...prev!,
+        isCompleted: true,
+      })); // Update course state to reflect completion
+      if (res) {
+        console.log("Course marked as completed:", course?.name);
+        // Optionally, redirect or show success message
+      } else {
+        console.error("Failed to mark course as completed");
+      }
+      toast.success("Course marked as completed!");
+    } catch (error) {
+      console.error("Error finishing course:", error);
+      toast.error("Failed to mark course as completed. Please try again.");
+    }
+  };
+  if (loading || !course) {
     return <LoadingOverlay />;
+  }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  function handleNavigateBack() {
+    navigate(-1);
   }
 
   return (
     <div className="min-h-screen bg-slate-900 text-gray-100">
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
-        <button className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
+        <button
+          onClick={handleNavigateBack}
+          className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+        >
           <ArrowLeft className="w-5 h-5" />
           Back to Courses
         </button>
@@ -194,24 +161,43 @@ const CourseDetailPage: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Course Info */}
             <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                    course.status.name
-                  )}`}
-                >
-                  {course.status.name}
-                </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(
-                    course.level.name
-                  )}`}
-                >
-                  {course.level.name}
-                </span>
-                <span className="text-gray-400 text-sm">
-                  {course.category.name}
-                </span>
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                      course.status.name
+                    )}`}
+                  >
+                    {course.status.name}
+                  </span>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(
+                      course.level.name
+                    )}`}
+                  >
+                    {course.level.name}
+                  </span>
+                  <span className="text-gray-400 text-sm">
+                    {course.category.name}
+                  </span>
+                </div>
+                {!course.isEnroll ? (
+                  <button
+                    onClick={handleEnrollCourse}
+                    className="bg-orange-600 hover:bg-orange-700 text-white py-3 px-6 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Enroll Now
+                  </button>
+                ) : !course.isCompleted ? (
+                  <button
+                    onClick={handleFinishCourse}
+                    className="bg-orange-600 hover:bg-orange-700 text-white py-3 px-6 rounded-lg font-medium transition-colors duration-200"
+                  >
+                    Finish Course
+                  </button>
+                ) : (
+                  "Completed"
+                )}
               </div>
 
               <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
@@ -224,7 +210,7 @@ const CourseDetailPage: React.FC = () => {
               <div className="flex flex-wrap items-center gap-6 mb-6">
                 <div className="flex items-center gap-2 text-gray-400">
                   <Users className="w-5 h-5" />
-                  <span>{course.students} students</span>
+                  <span>{course.studentCount} students</span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-400">
                   <Clock className="w-5 h-5" />
@@ -234,7 +220,7 @@ const CourseDetailPage: React.FC = () => {
                 <div className="flex items-center gap-2 text-gray-400">
                   <Calendar className="w-5 h-5" />
                   <span>
-                    Updated {new Date(course.updatedAt).toLocaleDateString()}
+                    Updated {new Date(course.created).toLocaleDateString()}
                   </span>
                 </div>
               </div>
@@ -284,16 +270,47 @@ const CourseDetailPage: React.FC = () => {
         {/* Tab Content */}
         <div className="space-y-8">
           {activeTab === "overview" && (
-            <div className=" space-y-8">
-              {/* Full Description */}
+            <div className="space-y-8">
+              {/* Mentor Information */}
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
-                <h2 className="text-2xl font-bold text-white mb-4">
-                  About This Course
-                </h2>
-                <div className="text-gray-300 space-y-4">
-                  {course.description.split("\n\n").map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-white">
+                    Mentor Information
+                  </h2>
+                  {course.mentor?.id && (
+                    <Link
+                      to={`/mentor-profile/${course.mentor.id}`}
+                      className="text-orange-400 hover:text-orange-300 flex items-center gap-1 text-sm"
+                    >
+                      View Profile <ArrowLeft className="w-3 h-3 rotate-180" />
+                    </Link>
+                  )}
+                </div>
+                <div className="flex items-center gap-4 mb-4">
+                  {course.mentor?.avatar ? (
+                    <img
+                      src={course.mentor.avatar}
+                      alt="Mentor Avatar"
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
+                      <Users className="w-8 h-8 text-gray-400" />
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="text-xl font-semibold text-white">
+                      {course.mentor?.fullName || "Course Mentor"}
+                    </h3>
+                    <p className="text-gray-300">
+                      {course.mentor?.email || "No email provided"}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-gray-300">
+                  <p>
+                    {course.mentor?.bio || "No mentor biography available."}
+                  </p>
                 </div>
               </div>
             </div>
@@ -304,30 +321,30 @@ const CourseDetailPage: React.FC = () => {
               <h2 className="text-2xl font-bold text-white mb-6">
                 All Course Resources
               </h2>
-              {/* <div className="space-y-4">
-                {course.resources.map((resource) => (
+              <div className="space-y-4">
+                {course.resources.map((resource: ResourceType) => (
                   <div
-                    key={resource.id}
+                    key={resource.resourceId}
                     className="flex items-center justify-between p-4 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors duration-200"
                   >
                     <div className="flex items-center gap-3">
-                      {getResourceIcon(resource.type)}
+                      {getResourceIcon(resource.typeOfResource.name)}
                       <div>
                         <h5 className="text-white font-medium">
                           {resource.title}
                         </h5>
                         <div className="flex items-center gap-3 text-sm text-gray-400">
                           <span className="text-orange-400">
-                            {course.category}
+                            {resource.resourceCategory.name}
                           </span>
                           <span>•</span>
-                          <span>{resource.size}</span>
+                          {/* <span>{resource.size}</span>
                           {resource.duration && (
                             <>
                               <span>•</span>
                               <span>{resource.duration}</span>
                             </>
-                          )}
+                          )} */}
                         </div>
                         {resource.description && (
                           <p className="text-sm text-gray-400 mt-1">
@@ -340,7 +357,7 @@ const CourseDetailPage: React.FC = () => {
                       onClick={() => handleResourceAction(resource)}
                       className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center gap-2"
                     >
-                      {resource.type === "video" ? (
+                      {resource.typeOfResource.name === "video" ? (
                         <>
                           <Play className="w-4 h-4" />
                           Play
@@ -354,7 +371,7 @@ const CourseDetailPage: React.FC = () => {
                     </button>
                   </div>
                 ))}
-              </div> */}
+              </div>
             </div>
           )}
         </div>

@@ -4,7 +4,7 @@ using Infrastructure.Entities;
 
 namespace ApplicationCore.Extensions
 {
-    public class UserMappingExtensions
+    public static class UserMappingExtensions
     {
         public static UserResponseDto MapUserToResponseDto(User user)
         {
@@ -31,6 +31,21 @@ namespace ApplicationCore.Extensions
                     })
                     .ToList(),
                 HasMentorApplication = user.SubmittedMentorApplication != null
+            };
+        }
+        public static UserResponseDto ToUserResponseDto(this User user)
+        {
+            if (user == null) return null!;
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                FullName = user.UserProfile?.FullName ?? string.Empty,
+                Email = user.Email,
+                Avatar = user.UserProfile?.PhotoData != null
+                    ? $"data:image/png;base64,{Convert.ToBase64String(user.UserProfile.PhotoData)}" : string.Empty,
+                UserGoal = user.UserProfile?.UserGoal,
+                Role = user.Role,
+                Status = user.Status,
             };
         }
     }

@@ -28,4 +28,5 @@ export const pathName = {
   learnerResource: "/learner/resource",
   learnerDashboard: "/learner/dashboard",
   learnerCourseDetail: "/learner/course/:id",
+  learnerAllCourses: "/learner/all-courses",
 };

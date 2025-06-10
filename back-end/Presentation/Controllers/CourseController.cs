@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Courses;
@@ -5,7 +6,6 @@ using ApplicationCore.DTOs.Responses.Courses;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Presentation.Controllers;
 
@@ -34,7 +34,9 @@ public class CoursesController : BaseController
         [FromQuery] CourseQueryParameters request
     )
     {
-        var res = await _courseService.GetPagedCourseAsync(request);
+        var userIdString = User.FindFirstValue("id")!;
+        var userId = Guid.Parse(userIdString);
+        var res = await _courseService.GetPagedCourseAsync(request, userId);
         return ToActionResult(res);
     }
 
@@ -65,7 +67,9 @@ public class CoursesController : BaseController
     [Authorize]
     public async Task<IActionResult> GetCourseById(Guid id)
     {
-        var result = await _courseService.GetCourseDetailsByIdAsync(id);
+        var userIdString = User.FindFirstValue("id")!;
+        var userId = Guid.Parse(userIdString);
+        var result = await _courseService.GetCourseDetailsByIdAsync(id, userId);
         return ToActionResult(result);
     }
 
@@ -143,6 +147,15 @@ public class CoursesController : BaseController
         var mentorIdString = User.FindFirstValue("id")!;
         Guid mentorId = Guid.Parse(mentorIdString);
         var result = await _courseService.GetCourseByMentorIdAsync(mentorId);
+        return ToActionResult(result);
+    }
+
+    [HttpGet("learner")]
+    public async Task<IActionResult> GetLearnerCourse([FromQuery] CourseQueryParameters courseQueryParameters)
+    {
+        var userIdString = User.FindFirstValue("id")!;
+        var userId = Guid.Parse(userIdString);
+        var result = await _courseService.GetCourseLearnerEnroll(userId, courseQueryParameters);
         return ToActionResult(result);
     }
 }

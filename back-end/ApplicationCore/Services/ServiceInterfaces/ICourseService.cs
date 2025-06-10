@@ -18,16 +18,17 @@ namespace ApplicationCore.Services.ServiceInterfaces
             CreateUpdateCourseRequest request
         );
         Task<OperationResult<GetCourseDetailsResponse>> DeleteCourseAsync(Guid courseId);
-        Task<OperationResult<GetCourseDetailsResponse>> GetCourseDetailsByIdAsync(Guid courseId);
+        Task<OperationResult<CourseDetailResponse>> GetCourseDetailsByIdAsync(Guid courseId, Guid learnerId);
         Task<OperationResult<ICollection<GetCourseDetailsResponse>>> GetCourseByMentorIdAsync(
             Guid mentorId
         );
         Task<OperationResult<PagedResult<GetCourseDetailsResponse>>> GetPagedCourseAsync(
-            CourseQueryParameters req
+            CourseQueryParameters req, Guid id
         );
         Task<OperationResult<MessageResponse>> EnrollCourse(Guid courseId, Guid userId);
         Task<OperationResult<MessageResponse>> FinishCourse(Guid courseId, Guid userId);
         Task<OperationResult<MessageResponse>> AssignCourse(Guid courseId, Guid mentorId);
         Task<OperationResult<CourseDashboardDto>> GetCourseDashBoardAsync(Guid mentorId, PaginationParameters paginationParameters);
+        Task<OperationResult<PagedResult<GetCourseDetailsResponse>>> GetCourseLearnerEnroll(Guid learnerId, CourseQueryParameters courseQueryParameters);
     }
 }

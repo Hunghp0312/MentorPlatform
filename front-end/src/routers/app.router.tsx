@@ -130,12 +130,12 @@ const AppRouter = () => {
         { path: pathName.mentorProfile, element: <MentorProfile /> },
         { path: pathName.findmentor, element: <MentorFinder /> },
         { path: pathName.learnerCourse, element: <CoursesPage /> },
+        { path: pathName.learnerAllCourses, element: <CoursesPage /> },
         { path: pathName.learnerCourseDetail, element: <CourseDetailPage /> },
         {
           path: pathName.leanerSessionManagement,
           element: <LearnerSessionManagement />,
         },
-        { path: pathName.learnerCourse, element: <ListCourse /> },
         { path: pathName.learnerResource, element: <ResourcePage /> },
       ],
     },
