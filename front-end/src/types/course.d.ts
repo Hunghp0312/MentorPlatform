@@ -1,5 +1,6 @@
 import { CategoryType } from "./category";
 import { EnumType } from "./commonType";
+import { ResourceType } from "./resource";
 
 export interface CourseType {
   id: string;
@@ -12,15 +13,24 @@ export interface CourseType {
   lastUpdated: string;
   description: string;
   tags: string[];
-  students: number;
+  studentCount: number;
   completion: number;
+  isEnroll: boolean;
+  isCompleted: boolean;
 }
 export interface CourseFilterType {
   categoryId: string;
   mentorId: string;
   levelId: string;
 }
-
+export interface MentorType {
+  id: string;
+  fullName: string;
+  email: string;
+  avatar: string;
+  bio: string;
+  industryExperience: string;
+}
 export interface CourseCreateUpdateType {
   name: string;
   categoryId: string;
@@ -42,10 +52,13 @@ export interface CourseDetailType {
   lastUpdated: string;
   description: string;
   tags: string[];
-  students: number;
+  studentCount: number;
   completion: number;
+  isEnroll: boolean;
+  isCompleted: boolean;
+  resources: ResourceType[];
+  mentor: MentorType;
 }
-
 
 export interface CourseKPIsType {
   totalCourses: number;
@@ -67,4 +80,18 @@ export interface CourseListItemType {
 export interface CourseDashboardResponseType {
   courseKPIs: CourseKPIsType;
   courses: CourseListItemType[];
+}
+
+export interface LearnerCourseResponse {
+  id: string;
+  title: string;
+  category: string;
+  status: "Draft" | "Published" | "Archived";
+  level: "Beginner" | "Intermediate" | "Advanced";
+  duration: string;
+  tags: string[];
+  description: string;
+  instructor: string;
+  students: number;
+  createdAt: string;
 }

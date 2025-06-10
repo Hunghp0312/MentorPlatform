@@ -17,6 +17,13 @@ namespace ApplicationCore.Repositories
                 .Include(c => c.Category)
                 .Include(c => c.Status)
                 .Include(c => c.Level)
+                .Include(c => c.Resources)
+                .ThenInclude(c => c.TypeOfResource)
+                .Include(c => c.Resources)
+                .ThenInclude(c => c.ResourceCategory)
+                .Include(c => c.LearnerCourses)
+                .Include(c => c.Mentor)
+                .ThenInclude(m => m.UserProfile)
                 .FirstOrDefaultAsync(c => c.Id == courseId);
         }
 
@@ -33,7 +40,7 @@ namespace ApplicationCore.Repositories
                 query = filter(query);
             }
 
-            query = query.Include(c => c.Category).Include(c => c.Status).Include(c => c.Level);
+            query = query.Include(c => c.Category).Include(c => c.Status).Include(c => c.Level).Include(c => c.LearnerCourses);
 
             var totalRecords = await query.CountAsync();
 
@@ -77,7 +84,27 @@ namespace ApplicationCore.Repositories
 
         }
 
+        public async Task<(ICollection<Course>, int)> GetCourseLearnerEnroll(Guid learnerId, Func<IQueryable<Course>, IQueryable<Course>> filter,
+            int pageIndex,
+            int pageSize)
+        {
+            var query = _dbSet.AsQueryable();
+            if (filter != null)
+            {
+                query = filter(query);
+            }
 
+            var queryable = query
+                .Include(c => c.Category)
+                .Include(c => c.Status)
+                .Include(c => c.Level)
+                .Include(c => c.LearnerCourses)
+                .Where(c => c.LearnerCourses.Any(lc => lc.LearnerId == learnerId));
+            var total = await queryable.CountAsync();
+            var courses = await queryable.Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize).ToListAsync();
+            return (courses, total);
+        }
         public override async Task<(ICollection<Course>, int)> GetPagedAsync(
           Func<IQueryable<Course>, IQueryable<Course>>? filter,
           int pageIndex,
@@ -88,6 +115,7 @@ namespace ApplicationCore.Repositories
                 .Include(a => a.Level)
                 .Include(a => a.Status)
                 .Include(a => a.Category)
+                .Include(a => a.LearnerCourses)
                 .AsQueryable();
 
             if (filter != null)

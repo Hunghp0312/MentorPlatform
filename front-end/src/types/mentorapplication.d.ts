@@ -49,80 +49,78 @@ export interface ApplicationStatus {
   name: string;
 }
 
-
 interface ExpertiseArea {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 }
 
 interface Document {
-    fileId: string;
-    fileName: string;
-    fileContent: string;
-    fileType: string;
+  fileId: string;
+  fileName: string;
+  fileContent: string;
+  fileType: string;
 }
 
 interface Education {
-    institutionName: string;
-    fieldOfStudy: string;
-    graduationYear: number;
+  institutionName: string;
+  fieldOfStudy: string;
+  graduationYear: number;
 }
 
 interface WorkExperience {
-    companyName: string;
-    position: string;
-    startDate: string;
-    endDate: string;
-    description: string;
+  companyName: string;
+  position: string;
+  startDate: string;
+  endDate: string;
+  description: string;
 }
 
 interface Certification {
-    certificationName: string;
-    issuingOrganization: string;
+  certificationName: string;
+  issuingOrganization: string;
 }
 
 interface TeachingApproachResponse {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 }
 
 interface MentorProfileDetails {
-    photoData: string;
-    fullName: string;
-    email: string;
-    applicantUserId: string;
-    lastStatusUpdateDate: string;
-    bio: string;
-    expertiseAreas: ExpertiseArea[];
-    professionExperience: string;
-    documents: Document[];
-    mentorEducations: Education[];
-    mentorWorkExperiences: WorkExperience[];
-    mentorCertifications: Certification[];
-    teachingApproachResponses: TeachingApproachResponse[];
+  photoData: string;
+  fullName: string;
+  email: string;
+  applicantUserId: string;
+  lastStatusUpdateDate: string;
+  bio: string;
+  expertiseAreas: ExpertiseArea[];
+  professionExperience: string;
+  documents: Document[];
+  mentorEducations: Education[];
+  mentorWorkExperiences: WorkExperience[];
+  mentorCertifications: Certification[];
+  teachingApproachResponses: TeachingApproachResponse[];
 }
 
-
 interface TimeBlock {
-    id: string;
-    startTime: string;
-    endTime: string;
-    isBooked: boolean;
+  id: string;
+  startTime: string;
+  endTime: string;
+  isBooked: boolean;
 }
 
 interface AvailabilityDay {
-    date: string;
-    dayName: string;
-    workStartTime: string | null;
-    workEndTime: string | null;
-    sessionDurationMinutes: number | null;
-    bufferMinutes: number | null;
-    timeBlocks: TimeBlock[];
+  date: string;
+  dayName: string;
+  workStartTime: string | null;
+  workEndTime: string | null;
+  sessionDurationMinutes: number | null;
+  bufferMinutes: number | null;
+  timeBlocks: TimeBlock[];
 }
 
 interface MentorAvailabilitySchedule {
-    weekStartDate: string;
-    weekEndDate: string;
-    mentorId: string;
-    days: AvailabilityDay[];
+  weekStartDate: string;
+  weekEndDate: string;
+  mentorId: string;
+  days: AvailabilityDay[];
 }
