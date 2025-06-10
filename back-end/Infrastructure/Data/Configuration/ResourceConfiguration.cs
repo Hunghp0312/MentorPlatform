@@ -9,11 +9,10 @@ namespace Infrastructure.Data.Configuration
         public void Configure(EntityTypeBuilder<Resource> builder)
         {
             builder.HasKey(r => r.Id);
-            builder.Property(r => r.Title).HasMaxLength(200).IsRequired(true);
+            builder.Property(r => r.Title).HasMaxLength(100).IsRequired(true);
             builder.Property(r => r.CourseId).IsRequired(true);
-            builder.Property(r => r.Description).HasMaxLength(1000).IsRequired(false);
-            builder.Property(r => r.DownloadCount)
-                .HasDefaultValue(0);
+            builder.Property(r => r.Description).HasMaxLength(500).IsRequired(true);
+
             builder.HasOne(c => c.ResourceCategory).WithMany().HasForeignKey(c => c.ResourceCategoryId).OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(c => c.TypeOfResource).WithMany().HasForeignKey(c => c.TypeOfResourceId).OnDelete(DeleteBehavior.Restrict);
@@ -21,10 +20,7 @@ namespace Infrastructure.Data.Configuration
             builder.HasOne(c => c.DocumentContent).WithOne(x => x.Resource)
                 .HasForeignKey<Resource>(c => c.DocumentContentId)
                 .OnDelete(DeleteBehavior.SetNull);
-            builder.HasMany(rd => rd.ResourceDownloads)
-                .WithOne(rd => rd.Resource)
-                .HasForeignKey(rd => rd.ResourceId)
-                .OnDelete(DeleteBehavior.SetNull);
+
         }
     }
 }

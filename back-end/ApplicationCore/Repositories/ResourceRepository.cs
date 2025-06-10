@@ -76,10 +76,5 @@ namespace ApplicationCore.Repositories
             return (items, totalRecords);
         }
 
-        public async Task UpdateAsync(Resource resource)
-        {
-            _dbSet.Update(resource);
-            await _context.SaveChangesAsync();
-        }
     }
 }

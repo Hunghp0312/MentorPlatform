@@ -69,15 +69,5 @@ namespace Presentation.Controllers
 
             return File(fileDownloadDto!.Content, fileDownloadDto.ContentType, fileDownloadDto.FileName);
         }
-
-        [HttpGet("sum-downloaded")]
-
-        [ProducesResponseType(typeof(SumOfFilesResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetSumDownloaded()
-        {
-
-            var result = await _documentContentService.CalculateTotalDownloadSizeFormattedAsync();
-            return ToActionResult(result);
-        }
     }
 }

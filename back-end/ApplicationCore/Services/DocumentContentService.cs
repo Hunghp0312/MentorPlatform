@@ -50,65 +50,25 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<FileDownloadDto>> DownloadResourceFileAsync(Guid fileId, Guid userId)
         {
-            // ✅ Sử dụng transaction để đảm bảo atomicity
-            await _unitOfWork.BeginTransactionAsync();
 
-            try
+            var file = await _documentContentRepository.GetByIdAsync(fileId);
+            if (file == null)
             {
-                var file = await _documentContentRepository.GetByIdAsync(fileId);
-                if (file == null)
-                {
-                    return OperationResult<FileDownloadDto>.NotFound("File not found.");
-                }
-
-                var resource = await _resourceRepository.GetByDocumentContentIdAsync(fileId);
-                if (resource != null)
-                {
-                    // ✅ Luôn tạo download record mới (nếu muốn track mọi lần download)
-                    // Hoặc thêm logic kiểm tra duplicate nếu cần
-                    {
-                        // ✅ Tạo ResourceDownload trước
-                        var resourceDownload = new ResourceDownload
-                        {
-                            Id = Guid.NewGuid(),
-                            ResourceId = resource.Id,
-                            DocumentContentId = fileId,
-                            FileSize = file.FileContent.LongLength,
-                        };
-
-                        await _resourceDownloadRepository.AddAsync(resourceDownload);
-
-                        // ✅ Cập nhật DownloadCount
-                        resource.DownloadCount += 1;
-                        await _resourceRepository.UpdateAsync(resource);
-
-                        // ✅ Save changes một lần
-                        await _unitOfWork.SaveChangesAsync();
-                    }
-                }
-
-                // ✅ Commit transaction
-                await _unitOfWork.CommitAsync();
-
-                var fileDownloadDto = new FileDownloadDto
-                {
-                    Content = file.FileContent,
-                    ContentType = file.FileType,
-                    FileName = file.FileName
-                };
-
-                return OperationResult<FileDownloadDto>.Ok(fileDownloadDto);
+                return OperationResult<FileDownloadDto>.NotFound("File not found.");
             }
-            catch (Exception ex)
+
+
+
+            var fileDownloadDto = new FileDownloadDto
             {
-                // ✅ Rollback nếu có lỗi
-                await _unitOfWork.RollbackAsync();
+                Content = file.FileContent,
+                ContentType = file.FileType,
+                FileName = file.FileName
+            };
 
-                // Log exception
-                // _logger.LogError(ex, "Error downloading file {FileId} for user {UserId}", fileId, userId);
+            return OperationResult<FileDownloadDto>.Ok(fileDownloadDto);
 
-                return OperationResult<FileDownloadDto>.Fail("An error occurred while downloading the file.");
-            }
+
         }
 
     }
