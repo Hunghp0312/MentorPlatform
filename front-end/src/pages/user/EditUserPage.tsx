@@ -316,7 +316,7 @@ const EditUserPage = () => {
     if (!userData.fullName.trim()) {
       newErrors.fullName = "Please fill in this field";
     }
-    if (userData.bio.trim().length > 1000) {
+    if (userData.bio && userData.bio.trim().length > 1000) {
       newErrors.bio = "Bio must be less than 1000 characters";
     }
     if (

@@ -17,6 +17,8 @@ namespace Infrastructure.Entities
         public Guid? MentorId { get; set; }
         public User? Mentor { get; set; }
         public virtual ICollection<LearnerCourse> LearnerCourses { get; set; } = new List<LearnerCourse>();
+        public int StudentCount => LearnerCourses?.Count ?? 0;
+        public double Completion => StudentCount != 0 ? ((double)(LearnerCourses?.Count(lc => lc.IsCompleted) ?? 0) / StudentCount * 100) : 0;
         public DateTime Created { get; set; }
         public DateTime LastUpdated { get; set; }
         public required string Tags { get; set; }

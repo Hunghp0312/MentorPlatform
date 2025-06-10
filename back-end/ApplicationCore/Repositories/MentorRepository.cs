@@ -92,6 +92,13 @@ namespace ApplicationCore.Repositories
 
             return (items, totalRecords);
         }
+
+        public override async Task<ICollection<MentorApplication>> GetAllAsync()
+        {
+            return await _dbSet
+                .Include(x => x.ApplicationStatus)
+                .ToListAsync();
+        }
     }
 
 }

@@ -1,4 +1,4 @@
-
+using System.Security.Claims;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
 using ApplicationCore.DTOs.Requests.Resources;
@@ -8,7 +8,6 @@ using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
@@ -47,16 +46,17 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpPut("{resouceId:guid}")]
+        [HttpPut("{resourceId:guid}")]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(typeof(ResourceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> EditResource(Guid resouceId, [FromBody] EditResourceRequest editResourceRequest)
+        public async Task<IActionResult> EditResource(Guid resourceId, [FromBody] EditResourceRequest editResourceRequest)
         {
             var mentorIdString = User.FindFirstValue("id")!;
             Guid mentorId = Guid.Parse(mentorIdString);
-            var result = await _resourceService.EditResource(resouceId, mentorId, editResourceRequest);
+            var result = await _resourceService.EditResource(resourceId, mentorId, editResourceRequest);
+
             return ToActionResult(result);
         }
 
@@ -69,33 +69,6 @@ namespace Presentation.Controllers
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
             var result = await _resourceService.GetAllResources(resourceQueryParameters, userId);
-
-            return ToActionResult(result);
-        }
-
-        [HttpPut("{resourceId:guid}/UrlUpload")]
-        [Authorize]
-        [ProducesResponseType(typeof(UpdateResourceUrlResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UploadUrlResource(Guid resourceId, string Url)
-        {
-            var userIdString = User.FindFirstValue("id")!;
-            Guid userId = Guid.Parse(userIdString);
-            var result = await _resourceService.UpdateResourceUrl(resourceId, userId, Url);
-
-            return ToActionResult(result);
-        }
-
-        [HttpDelete("del-file/{fileId:guid}")]
-        [Authorize(Roles = "Mentor")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteResourceFile(Guid fileId)
-        {
-            var userIdString = User.FindFirstValue("id")!;
-            Guid userId = Guid.Parse(userIdString);
-            var result = await _resourceService.DeleteResourceFileAsync(userId, fileId);
 
             return ToActionResult(result);
         }
@@ -122,27 +95,6 @@ namespace Presentation.Controllers
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
             var result = await _resourceService.GetFileResourceDetails(fileId, userId);
-            return ToActionResult(result);
-        }
-        [HttpDelete("del-link-file/{resourceId:guid}/Url")]
-        [Authorize(Roles = "Mentor")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteLinkFile(Guid resourceId)
-        {
-            var userIdString = User.FindFirstValue("id")!;
-            Guid userId = Guid.Parse(userIdString);
-            var result = await _resourceService.DeleteLinkFileAsync(userId, resourceId);
-            return ToActionResult(result);
-        }
-        [HttpGet("link/{resourceId:guid}/Url")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> OpenResourceLinkAsync(Guid resourceId)
-        {
-            var result = await _resourceService.OpenResourceLinkAsync(resourceId);
             return ToActionResult(result);
         }
     }

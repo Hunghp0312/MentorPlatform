@@ -42,4 +42,30 @@ export const courseService = {
     );
     return response.data;
   },
+  async enrollCourse(courseId: string) {
+    const response = await axiosInstance.post(`/Courses/enroll/${courseId}`);
+    return response.data;
+  },
+  async finishCourse(courseId: string) {
+    const response = await axiosInstance.post(`/Courses/finish/${courseId}`);
+    return response.data;
+  },
+  async getMyCourses(
+    query: string,
+    filter: CourseFilterType,
+    page: number,
+    pageSize: number
+  ) {
+    const response = await axiosInstance.get("/Courses/learner", {
+      params: {
+        Query: query,
+        MentorId: filter.mentorId,
+        CategoryId: filter.categoryId,
+        Level: filter.levelId,
+        PageIndex: page,
+        PageSize: pageSize,
+      },
+    });
+    return response.data;
+  },
 };

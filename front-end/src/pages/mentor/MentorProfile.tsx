@@ -1,25 +1,33 @@
-import type React from "react"
-import { useEffect, useState } from "react"
-import { ArrowLeft, Clock, DollarSign, MessageCircle, Calendar } from "lucide-react"
-import ExperienceCard from "../../components/feature/ExperienceCard"
-import MentorAvailability from "../../components/feature/MentorAvaibility"
-import Button from "../../components/ui/Button"
-import BookingSessionDialog from "../../components/dialog/BookingSessionDialog"
-import { useNavigate, useParams } from "react-router-dom"
-import { sessionService } from "../../services/session.service"
-import { BookingRequest } from "../../types/session"
-import { toast } from "react-toastify"
-import { mentorService } from "../../services/mentorapplication.service"
-import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png"
-import LoadingOverlay from "../../components/loading/LoadingOverlay"
-import { MentorAvailabilitySchedule, MentorProfileDetails, } from "../../types/mentorapplication"
-
-
+import type React from "react";
+import { useEffect, useState } from "react";
+import {
+  ArrowLeft,
+  Clock,
+  DollarSign,
+  MessageCircle,
+  Calendar,
+} from "lucide-react";
+import ExperienceCard from "../../components/feature/ExperienceCard";
+import MentorAvailability from "../../components/feature/MentorAvaibility";
+import Button from "../../components/ui/Button";
+import BookingSessionDialog from "../../components/dialog/BookingSessionDialog";
+import { useNavigate, useParams } from "react-router-dom";
+import { sessionService } from "../../services/session.service";
+import { toast } from "react-toastify";
+import { mentorService } from "../../services/mentorapplication.service";
+import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
+import LoadingOverlay from "../../components/loading/LoadingOverlay";
+import {
+  MentorAvailabilitySchedule,
+  MentorProfileDetails,
+} from "../../types/mentorapplication";
 
 const MentorProfile: React.FC = () => {
   const { id } = useParams();
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<"about" | "experience" | "availability">("about")
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<
+    "about" | "experience" | "availability"
+  >("about");
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mentor, setMentor] = useState<MentorProfileDetails>({
@@ -35,36 +43,21 @@ const MentorProfile: React.FC = () => {
     mentorEducations: [],
     mentorWorkExperiences: [],
     mentorCertifications: [],
-    teachingApproachResponses: []
-  })
+    teachingApproachResponses: [],
+  });
   const [availability, setAvailability] = useState<MentorAvailabilitySchedule>({
     weekStartDate: "",
     weekEndDate: "",
     mentorId: "",
-    days: []
-  })
+    days: [],
+  });
 
   const tabs = [
     { id: "about" as const, label: "About" },
     { id: "experience" as const, label: "Experience" },
     { id: "availability" as const, label: "Availability" },
-  ]
-  const handleConfirmBooking = async (bookingData: BookingRequest) => {
-    if (bookingData.learnerMessage.trim() === "") {
-      toast.error("Please enter a message for the mentor.");
-      return;
-    }
-    try {
-      await sessionService.bookSession(bookingData);
-      toast.success("Session booked successfully!");
-      setOpenDialog(false);
-      navigate(`/booking-session/${id}`);
+  ];
 
-    }
-    catch (error) {
-      console.error("Error booking session:", error);
-    }
-  }
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
@@ -80,21 +73,24 @@ const MentorProfile: React.FC = () => {
 
           // Format as YYYY-MM-DD
           const year = monday.getFullYear();
-          const month = String(monday.getMonth() + 1).padStart(2, '0');
-          const date = String(monday.getDate()).padStart(2, '0');
+          const month = String(monday.getMonth() + 1).padStart(2, "0");
+          const date = String(monday.getDate()).padStart(2, "0");
 
           return `${year}-${month}-${date}`;
         };
 
         const firstDayOfWeek = getFirstDayOfWeek();
         if (id) {
-          const response = await sessionService.getAvaibilityTime(id, firstDayOfWeek);
+          const response = await sessionService.getAvaibilityTime(
+            id,
+            firstDayOfWeek
+          );
           setAvailability(response);
         }
       } catch (error) {
         console.error("Error fetching availability:", error);
       }
-    }
+    };
     const fetchMentorProfile = async () => {
       try {
         if (id) {
@@ -108,10 +104,7 @@ const MentorProfile: React.FC = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        await Promise.all([
-          fetchAvailability(),
-          fetchMentorProfile()
-        ]);
+        await Promise.all([fetchAvailability(), fetchMentorProfile()]);
       } catch (error) {
         console.error("Error fetching mentor data:", error);
       } finally {
@@ -120,57 +113,63 @@ const MentorProfile: React.FC = () => {
     };
 
     fetchData();
-  }, [id])
+  }, [id]);
 
   const getTimeAvailable = (): string[] => {
     const timeAvailable = [] as string[];
     const dayName = {
-      "Wednesday": "Wed",
-      "Thursday": "Thu",
-      "Friday": "Fri",
-      "Saturday": "Sat",
-      "Sunday": "Sun",
-      "Monday": "Mon",
-      "Tuesday": "Tue"
-    }
+      Wednesday: "Wed",
+      Thursday: "Thu",
+      Friday: "Fri",
+      Saturday: "Sat",
+      Sunday: "Sun",
+      Monday: "Mon",
+      Tuesday: "Tue",
+    };
     availability.days.forEach((day) => {
       if (day.timeBlocks.length > 0) {
-        timeAvailable.push(dayName[day.dayName as keyof typeof dayName])
+        timeAvailable.push(dayName[day.dayName as keyof typeof dayName]);
       }
-    })
+    });
     return timeAvailable;
-  }
-  const getTimeAvailableSlots = (): { dayName: string; TimeSlot: { startTime: string; endTime: string }[] }[] => {
+  };
+  const getTimeAvailableSlots = (): {
+    dayName: string;
+    TimeSlot: { startTime: string; endTime: string }[];
+  }[] => {
     const dayNameMap: Record<string, string> = {
-      "Tuesday": "Tue",
-      "Wednesday": "Wed",
-      "Thursday": "Thu",
-      "Friday": "Fri",
-      "Saturday": "Sat",
-      "Sunday": "Sun",
-      "Monday": "Mon",
+      Tuesday: "Tue",
+      Wednesday: "Wed",
+      Thursday: "Thu",
+      Friday: "Fri",
+      Saturday: "Sat",
+      Sunday: "Sun",
+      Monday: "Mon",
     };
 
     // Get all days that have time blocks
-    const availableDays = availability.days.filter(day => day.timeBlocks.length > 0);
+    const availableDays = availability.days.filter(
+      (day) => day.timeBlocks.length > 0
+    );
 
     if (availableDays.length === 0) {
       return [];
     }
 
     // Return all days with time blocks
-    return availableDays.map(day => ({
+    return availableDays.map((day) => ({
       dayName: dayNameMap[day.dayName] || day.dayName,
-      TimeSlot: day.timeBlocks.map(block => ({
+      TimeSlot: day.timeBlocks.map((block) => ({
         startTime: block.startTime,
-        endTime: block.endTime
-      }))
+        endTime: block.endTime,
+      })),
     }));
-  }
+  };
 
   const handleCopyLink = () => {
     const profileUrl = window.location.href;
-    navigator.clipboard.writeText(profileUrl)
+    navigator.clipboard
+      .writeText(profileUrl)
       .then(() => {
         toast.success("Profile link copied to clipboard!");
       })
@@ -178,17 +177,22 @@ const MentorProfile: React.FC = () => {
         console.error("Error copying link:", error);
         toast.error("Failed to copy profile link.");
       });
-  }
+  };
 
   if (loading) {
-    return <LoadingOverlay />
+    return <LoadingOverlay />;
   }
   return (
     <div className="min-h-screen bg-slate-800 text-white">
       {/* Header */}
       <header className="bg-slate-900 px-6 py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold" data-testid="mentor-profile-header">Mentor Profile</h1>
+          <h1
+            className="text-xl font-semibold"
+            data-testid="mentor-profile-header"
+          >
+            Mentor Profile
+          </h1>
         </div>
       </header>
 
@@ -217,7 +221,10 @@ const MentorProfile: React.FC = () => {
 
       <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Profile Header */}
-        <div className="flex justify-between lg:flex-row gap-8 mb-8" data-testid="mentor-profile-header-section">
+        <div
+          className="flex justify-between lg:flex-row gap-8 mb-8"
+          data-testid="mentor-profile-header-section"
+        >
           <div className="flex flex-col sm:flex-row gap-6">
             <img
               src={mentor?.photoData || DefaultImage}
@@ -226,25 +233,48 @@ const MentorProfile: React.FC = () => {
               data-testid="mentor-profile-image"
             />
             <div className="flex-1">
-              <h2 className="text-3xl font-bold mb-2" data-testid="mentor-full-name">{mentor?.fullName}</h2>
+              <h2
+                className="text-3xl font-bold mb-2"
+                data-testid="mentor-full-name"
+              >
+                {mentor?.fullName}
+              </h2>
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-6">
-                <div className="flex items-center gap-1" data-testid="mentor-availability">
+                <div
+                  className="flex items-center gap-1"
+                  data-testid="mentor-availability"
+                >
                   <Calendar className="w-4 h-4" />
                   {getTimeAvailable()}
                 </div>
-                <div className="flex items-center gap-1" data-testid="mentor-experience">
+                <div
+                  className="flex items-center gap-1"
+                  data-testid="mentor-experience"
+                >
                   <Clock className="w-4 h-4" />
                   {mentor?.professionExperience}
                 </div>
-                <div className="flex items-center gap-1" data-testid="mentor-hourly-rate">
-                  <DollarSign className="w-4 h-4" />$75 / hour
+                <div
+                  className="flex items-center gap-1"
+                  data-testid="mentor-hourly-rate"
+                >
+                  <DollarSign className="w-4 h-4" />
+                  $75 / hour
                 </div>
               </div>
 
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-300 mb-3" data-testid="expertise-areas-label">Areas of Expertise</h3>
-                <div className="flex flex-wrap gap-2" data-testid="expertise-areas-list">
+                <h3
+                  className="text-sm font-medium text-gray-300 mb-3"
+                  data-testid="expertise-areas-label"
+                >
+                  Areas of Expertise
+                </h3>
+                <div
+                  className="flex flex-wrap gap-2"
+                  data-testid="expertise-areas-list"
+                >
                   {mentor?.expertiseAreas.map((skill, index) => (
                     <span
                       key={index}
@@ -259,7 +289,10 @@ const MentorProfile: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 lg:min-w-[200px]" data-testid="mentor-actions">
+          <div
+            className="flex flex-col gap-3 lg:min-w-[200px]"
+            data-testid="mentor-actions"
+          >
             <Button
               className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-medium transition-colors"
               onClick={() => setOpenDialog(true)}
@@ -284,10 +317,11 @@ const MentorProfile: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
-                  ? "border-orange-500 text-orange-500"
-                  : "border-transparent text-gray-300 hover:text-white"
-                  }`}
+                className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === tab.id
+                    ? "border-orange-500 text-orange-500"
+                    : "border-transparent text-gray-300 hover:text-white"
+                }`}
                 data-testid={`tab-${tab.id}`}
               >
                 {tab.label}
@@ -300,14 +334,35 @@ const MentorProfile: React.FC = () => {
         {activeTab === "about" && (
           <div className="space-y-8" data-testid="about-tab-content">
             <div>
-              <h3 className="text-xl font-semibold mb-4" data-testid="about-section-title">About {mentor?.fullName}</h3>
-              <p className="text-gray-300 leading-relaxed" data-testid="mentor-bio">{mentor?.bio}</p>
+              <h3
+                className="text-xl font-semibold mb-4"
+                data-testid="about-section-title"
+              >
+                About {mentor?.fullName}
+              </h3>
+              <p
+                className="text-gray-300 leading-relaxed"
+                data-testid="mentor-bio"
+              >
+                {mentor?.bio}
+              </p>
             </div>
 
             <div className="grid md:grid-cols-1">
-              <div className="bg-slate-700 rounded-lg p-6" data-testid="mentorship-style-section">
-                <h4 className="font-semibold mb-4" data-testid="mentorship-style-title">Mentorship Style</h4>
-                <ul className="space-y-2" data-testid="teaching-approaches-list">
+              <div
+                className="bg-slate-700 rounded-lg p-6"
+                data-testid="mentorship-style-section"
+              >
+                <h4
+                  className="font-semibold mb-4"
+                  data-testid="mentorship-style-title"
+                >
+                  Mentorship Style
+                </h4>
+                <ul
+                  className="space-y-2"
+                  data-testid="teaching-approaches-list"
+                >
                   {mentor?.teachingApproachResponses.map((item, index) => (
                     <li
                       key={index}
@@ -325,7 +380,10 @@ const MentorProfile: React.FC = () => {
         )}
         {activeTab === "experience" && (
           <div data-testid="experience-tab-content">
-            <ExperienceCard experiences={mentor?.mentorWorkExperiences} education={mentor?.mentorEducations} />
+            <ExperienceCard
+              experiences={mentor?.mentorWorkExperiences}
+              education={mentor?.mentorEducations}
+            />
           </div>
         )}
         {activeTab === "availability" && (
@@ -340,11 +398,15 @@ const MentorProfile: React.FC = () => {
       </div>
       {openDialog && (
         <div data-testid="booking-session-dialog">
-          <BookingSessionDialog mentorId={id as string} onClose={() => setOpenDialog(false)} onConfirm={handleConfirmBooking} />
+          <BookingSessionDialog
+            mentorId={id as string}
+            mentorName={mentor.fullName}
+            onClose={() => setOpenDialog(false)}
+          />
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default MentorProfile
+export default MentorProfile;

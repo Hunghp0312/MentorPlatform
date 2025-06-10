@@ -83,7 +83,6 @@ const BookingSession: React.FC = () => {
                     mentorFullName: res.mentorFullName,
                     photoData: res.photoData,
                 }
-
                 setMentorInfo(mentor);
             }
 
@@ -123,14 +122,13 @@ const BookingSession: React.FC = () => {
             toast.success('Session booked successfully!');
         } catch (error) {
             console.error("Error booking session:", error);
+            toast.error('Failed to book session. Please try again later.');
             return;
         }
         finally {
             setLoadingBooking(false);
             setSelectedSlot('');
             setSelectedSessionType(null);
-            setSlots(undefined);
-            setSelectedDate(undefined);
         }
     }
 
@@ -296,7 +294,7 @@ const BookingSession: React.FC = () => {
                         {slots?.map((slot) => (
                             <button
                                 disabled={!!(
-                                    (slot.statusId !== SlotStatus.Available && slot.statusId !== SlotStatus.Waiting) ||
+                                    (slot.statusId !== SlotStatus.Available ) ||
                                     loadingBooking ||
                                     (
                                         // Check if selected date is today and slot time is in the past
@@ -310,7 +308,7 @@ const BookingSession: React.FC = () => {
                                 key={slot.id}
                                 className={`py-2 px-4 rounded text-center text-sm 
                                     ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'} 
-                                    ${((slot.statusId !== SlotStatus.Available && slot.statusId !== SlotStatus.Waiting) ||
+                                    ${((slot.statusId !== SlotStatus.Available ) ||
                                         (
                                             // Apply styling for past slots on today
                                             selectedDate === new Date().getDate() &&

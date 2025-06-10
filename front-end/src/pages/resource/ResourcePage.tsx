@@ -15,6 +15,7 @@ import {
   ResourceType,
 } from "../../types/resource";
 import CustomModal from "../../components/ui/Modal";
+import LoadingOverlay from "../../components/loading/LoadingOverlay";
 
 interface Resource {
   resourceId: string;
@@ -44,8 +45,8 @@ const ResourcePage = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-  const pageSizeOptions = [5, 10, 20]; // Define page size options
+  const [pageSize] = useState(9);
+  // const pageSizeOptions = [5, 10, 20]; // Define page size options
   const [totalResources, setTotalResources] = useState<ResourceType[]>([]);
   const searchDebounced = useDebounce(searchByName, 500);
   const [errors, setErrors] = useState<string>();
@@ -79,8 +80,8 @@ const ResourcePage = () => {
     fetchUserRole();
   }, []);
   const fetchResources = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const categoryId = resourceCategoryFilter
         ? parseInt(resourceCategoryFilter)
         : undefined;
@@ -107,7 +108,7 @@ const ResourcePage = () => {
 
   useEffect(() => {
     fetchResources();
-  }, [resourceCategoryFilter, searchDebounced, pageIndex, pageSize]);
+  }, [resourceCategoryFilter, searchDebounced, pageIndex]);
 
   const handleSubmit = async (
     resource: CreateResourceRequest | EditResourceRequest
@@ -116,7 +117,6 @@ const ResourcePage = () => {
     try {
       let resourceId: string;
       if (initialData) {
-        // Edit existing resource
         await resourceService.updateResource(
           initialData.resourceId,
           resource as EditResourceRequest
@@ -124,7 +124,6 @@ const ResourcePage = () => {
         resourceId = initialData.resourceId;
         toast.success("Resource updated successfully");
       } else {
-        // Create new resource
         const response = await resourceService.createResource(
           resource as CreateResourceRequest
         );
@@ -132,19 +131,12 @@ const ResourcePage = () => {
         toast.success("Resource created successfully");
       }
 
-      // Handle file or link upload for new or edited resources
-      if ("file" in resource && resource.file) {
-        // If editing and a new file is provided, delete the old file first
-        if (initialData && initialData.fileId) {
-          await resourceService.deleteResourceFile(initialData.fileId);
-        }
-        await resourceService.uploadResourceFile(resource.file, resourceId);
-      } else if (
-        "link" in resource &&
-        resource.link &&
-        resource.typeOfResourceId === 3
+      if (
+        "file" in resource &&
+        resource.file &&
+        (resource.typeOfResourceId === 1 || resource.typeOfResourceId === 2)
       ) {
-        await resourceService.uploadResourceLinkType(resourceId, resource.link);
+        await resourceService.uploadResourceFile(resource.file, resourceId);
       }
 
       fetchResources();
@@ -160,11 +152,6 @@ const ResourcePage = () => {
       setInitialData(undefined);
       setLoading(false);
     }
-  };
-
-  const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPageSize(Number(e.target.value));
-    setPageIndex(1); // Reset to first page when page size changes
   };
 
   const handleDelete = async (resource: Resource) => {
@@ -238,8 +225,8 @@ const ResourcePage = () => {
     >
   ) => {
     if ("value" in e.target && e.target instanceof HTMLInputElement) {
-      if (e.target.value.length > 100) {
-        setErrors("Name of resource must not exceed 1000 characters.");
+      if (e.target.value.length > 500) {
+        setErrors("Name of resource must not exceed 500 characters.");
         return;
       }
       setSearchByName(e.target.value);
@@ -279,29 +266,29 @@ const ResourcePage = () => {
     setDocumentData(null);
   };
 
-  const renderButtons = (resource: ResourceType) => {
+  const renderButtons = (resource: ResourceType, index: number) => {
     const buttons = {
       download: (
         <button
-          id="download-button"
+          id={`download-button-${index}`}
           onClick={() => handleDownload(resource)}
-          className="w-full rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="w-50 rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Download
         </button>
       ),
       open: (
         <button
-          id="open-button"
+          id={`open-button-${index}`}
           onClick={() => handleOpenWeb(resource)}
-          className="w-full rounded bg-blue-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-blue-600 transition-colors"
+          className="w-50 rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Open Link
         </button>
       ),
       edit: (
         <button
-          id="edit-button"
+          id={`edit-button-${index}`}
           onClick={() => {
             setInitialData(resource);
             setOpenDialog(true);
@@ -311,13 +298,16 @@ const ResourcePage = () => {
         </button>
       ),
       delete: (
-        <button id="delete-button" onClick={() => handleDelete(resource)}>
+        <button
+          id={`delete-button-${index}`}
+          onClick={() => handleDelete(resource)}
+        >
           <Trash2 size={20} className="text-red-500 hover:text-red-600" />
         </button>
       ),
       view: (
         <button
-          id="view-button"
+          id={`view-button-${index}`}
           onClick={() => handleViewDocument(resource.fileId)}
         >
           <Eye size={20} className="text-blue-500 hover:text-blue-600" />
@@ -325,11 +315,9 @@ const ResourcePage = () => {
       ),
     };
     const getActionButton = () => {
-      // Type 3 = External link -> Show Open button
       if (resource.typeOfResource.id === 3) {
         return buttons.open;
       }
-      // Type 1 & 2 = Video/PDF -> Show Download button
       return buttons.download;
     };
 
@@ -348,6 +336,7 @@ const ResourcePage = () => {
           <>
             {getActionButton()}
             {buttons.delete}
+
             {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );
@@ -355,11 +344,12 @@ const ResourcePage = () => {
         return (
           <>
             {getActionButton()}
+
             {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );
       default:
-        return null; // Không hiển thị nút nếu chưa xác định vai trò
+        return null;
     }
   };
 
@@ -372,12 +362,16 @@ const ResourcePage = () => {
 
   const totalPages = Math.ceil(totalItems / pageSize);
 
+  if (loading) {
+    return <LoadingOverlay />;
+  }
+
   return (
     <main>
       <div>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h2 className="text-3xl font-bold">Resource</h2>
-          {userRole === "Mentor" && ( // Chỉ Mentor thấy nút Add Resource
+          {userRole === "Mentor" && (
             <Button
               variant="primary"
               size="md"
@@ -416,27 +410,14 @@ const ResourcePage = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center space-x-2 text-sm text-gray-400">
-          <span>Rows per page:</span>
-          <select
-            value={pageSize}
-            onChange={handlePageSizeChange}
-            className="bg-gray-700 border border-gray-600 rounded-md text-gray-300 text-sm py-1 px-2 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
-            {pageSizeOptions.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-        </div>
+
         {loading ? (
           <div className="text-center text-gray-500">Loading...</div>
         ) : totalResources.length === 0 ? (
           <div className="text-center text-gray-500">No resources found.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {totalResources.map((resource) => (
+            {totalResources.map((resource, index) => (
               <div
                 key={resource.resourceId}
                 className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
@@ -448,18 +429,18 @@ const ResourcePage = () => {
                   <span
                     className={`absolute right-0 top-0 text-xs font-semibold text-white px-1.5 py-1 rounded-full min-w-[60px] text-center ${
                       resource.typeOfResource.id === 1
-                        ? "bg-orange-500"
+                        ? "bg-amber-500"
                         : resource.typeOfResource.id === 2
-                        ? "bg-purple-500"
+                        ? "bg-red-500"
                         : resource.typeOfResource.id === 3
-                        ? "bg-green-500"
+                        ? "bg-blue-500"
                         : "bg-gray-500"
                     }`}
                   >
                     {resource.typeOfResource.name}
                   </span>
                 </div>
-                <p className="text-gray-300 text-[13.5px] mb-4 line-clamp-3">
+                <p className="text-gray-300 text-[13.5px] mb-4 line-clamp-1">
                   {resource.description}
                 </p>
                 <div className="text-gray-400 text-[13.5px] mb-2">
@@ -467,7 +448,9 @@ const ResourcePage = () => {
                     Course: {resource.courseName}
                   </span>
                 </div>
-                <div className="flex gap-2">{renderButtons(resource)}</div>
+                <div className="flex gap-2">
+                  {renderButtons(resource, index)}
+                </div>
               </div>
             ))}
           </div>
@@ -475,6 +458,7 @@ const ResourcePage = () => {
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-4 mt-6">
             <Button
+              id="prev-button"
               variant="primary"
               size="sm"
               disabled={pageIndex === 1}
@@ -486,6 +470,7 @@ const ResourcePage = () => {
               Page {pageIndex} of {totalPages}
             </span>
             <Button
+              id="next-button"
               variant="primary"
               size="sm"
               disabled={pageIndex === totalPages}
@@ -503,6 +488,7 @@ const ResourcePage = () => {
         initialData={initialData}
         loading={loading}
         categoryOptions={categoryOptions}
+        userRole={userRole}
       />
       <CustomModal
         isOpen={openDocumentViewer}

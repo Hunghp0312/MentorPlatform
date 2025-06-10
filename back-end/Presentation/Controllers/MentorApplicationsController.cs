@@ -113,5 +113,14 @@ namespace Presentation.Controllers
             var result = await _mentorService.GetMentorProfileDetailAsync(mentorApplicationId);
             return ToActionResult(result);
         }
+
+        [HttpGet("mentor-application-count")]
+        [ProducesResponseType(typeof(ApplicationStatusCountResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetApplicationStatusCountAsync()
+        {
+            var result = await _mentorService.GetApplicationStatusCountAsync();
+            return ToActionResult(result);
+        }
     }
 }

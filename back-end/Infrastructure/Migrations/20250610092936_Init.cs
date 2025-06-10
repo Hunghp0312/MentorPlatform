@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialDb : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -536,13 +536,14 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TypeOfResourceId = table.Column<int>(type: "int", nullable: false),
                     ResourceCategoryId = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     DocumentContentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Url = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ToTalFileDownloadSize = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -558,7 +559,7 @@ namespace Infrastructure.Migrations
                         column: x => x.DocumentContentId,
                         principalTable: "DocumentContent",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Resource_ResourceCategory_ResourceCategoryId",
                         column: x => x.ResourceCategoryId,
@@ -1099,8 +1100,8 @@ namespace Infrastructure.Migrations
                     { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72844"), new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Master Entity Framework Core for modern data access.", "4 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 2, new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "EF Core Masterclass", 2, "EF Core,Entity Framework,data access,.NET" },
                     { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72845"), new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Understand SQL basics and database querying.", "2 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 1, new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "SQL for Beginners", 3, "SQL,database,queries,beginner" },
                     { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72846"), new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Build and deploy RESTful APIs using ASP.NET Core.", "5 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 3, new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "Advanced .NET APIs", 2, ".NET,ASP.NET Core,API,REST" },
-                    { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72847"), new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Master object-oriented programming concepts in C#.", "4 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 2, new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "OOP in C#", 1, "C#,OOP,classes,inheritance" },
-                    { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72848"), new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Learn the fundamentals of C#.", "3 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 1, new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "Intro to C#", 2, "C#,programming,fundamentals" },
+                    { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72847"), new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Master object-oriented programming concepts in C#.", "4 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 2, new Guid("03ea823d-d625-448d-901d-411c5028b769"), "OOP in C#", 1, "C#,OOP,classes,inheritance" },
+                    { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72848"), new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Learn the fundamentals of C#.", "3 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 1, new Guid("03ea823d-d625-448d-901d-411c5028b769"), "Intro to C#", 2, "C#,programming,fundamentals" },
                     { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72849"), new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), "Containerize and deploy apps with Docker.", "3 weeks", new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc), 3, new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"), "Docker for Developers", 1, "Docker,containers,devops,deployment" }
                 });
 
@@ -1111,7 +1112,7 @@ namespace Infrastructure.Migrations
                 {
                     { new Guid("1c7b9f0e-9c3a-4b8f-8e6a-1b9e7b1a3b0f"), new TimeOnly(0, 15, 0), new DateOnly(2025, 6, 7), new TimeOnly(12, 30, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 45, 0), new TimeOnly(10, 0, 0) },
                     { new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(0, 0, 0), new DateOnly(2025, 6, 3), new TimeOnly(17, 0, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(0, 30, 0), new TimeOnly(14, 0, 0) },
-                    { new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"), new TimeOnly(0, 10, 0), new DateOnly(2025, 6, 8), new TimeOnly(11, 0, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 30, 0), new TimeOnly(8, 30, 0) },
+                    { new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"), new TimeOnly(0, 10, 0), new DateOnly(2025, 6, 8), new TimeOnly(11, 0, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 30, 0), new TimeOnly(1, 0, 0) },
                     { new Guid("da331a4b-3665-4d78-99a6-825da4015e76"), new TimeOnly(0, 0, 0), new DateOnly(2025, 6, 2), new TimeOnly(12, 0, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(0, 30, 0), new TimeOnly(9, 0, 0) },
                     { new Guid("e1a3f4b8-7c69-45a7-b0f5-92bffe86754b"), new TimeOnly(0, 5, 0), new DateOnly(2025, 6, 9), new TimeOnly(15, 30, 0), new Guid("03ea823d-d625-448d-901d-411c5028b769"), new TimeOnly(0, 30, 0), new TimeOnly(13, 0, 0) },
                     { new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(0, 0, 0), new DateOnly(2025, 6, 5), new TimeOnly(21, 0, 0), new Guid("862b702e-2c59-46f7-8c06-5349d769e237"), new TimeOnly(0, 30, 0), new TimeOnly(19, 0, 0) }
@@ -1154,6 +1155,17 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "LearnerCourse",
+                columns: new[] { "CourseId", "LearnerId", "CompletedAt", "EnrolledAt", "IsCompleted" },
+                values: new object[,]
+                {
+                    { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72844"), new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), null, new DateTime(2023, 3, 20, 14, 45, 0, 0, DateTimeKind.Unspecified), false },
+                    { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72846"), new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), null, new DateTime(2025, 3, 20, 14, 45, 0, 0, DateTimeKind.Unspecified), true },
+                    { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72847"), new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), null, new DateTime(2025, 5, 15, 10, 30, 0, 0, DateTimeKind.Unspecified), false },
+                    { new Guid("8d02b327-6370-41c7-95bb-6a8d72b72848"), new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), null, new DateTime(2025, 6, 3, 9, 0, 0, 0, DateTimeKind.Unspecified), false }
+                });
+
+            migrationBuilder.InsertData(
                 table: "MentorTimeAvailable",
                 columns: new[] { "Id", "DayId", "End", "Start", "StatusId" },
                 values: new object[,]
@@ -1163,7 +1175,8 @@ namespace Infrastructure.Migrations
                     { new Guid("10000000-0000-0000-0000-000000000003"), new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(14, 30, 0), new TimeOnly(14, 0, 0), 1 },
                     { new Guid("10000000-0000-0000-0000-000000000004"), new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"), new TimeOnly(15, 0, 0), new TimeOnly(14, 30, 0), 1 },
                     { new Guid("10000000-0000-0000-0000-000000000005"), new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(10, 30, 0), new TimeOnly(10, 0, 0), 1 },
-                    { new Guid("10000000-0000-0000-0000-000000000006"), new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(11, 0, 0), new TimeOnly(10, 30, 0), 1 }
+                    { new Guid("10000000-0000-0000-0000-000000000006"), new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"), new TimeOnly(11, 0, 0), new TimeOnly(10, 30, 0), 1 },
+                    { new Guid("10000000-0000-0000-0000-000000000007"), new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"), new TimeOnly(2, 0, 0), new TimeOnly(1, 0, 0), 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -1172,7 +1185,8 @@ namespace Infrastructure.Migrations
                 values: new object[,]
                 {
                     { new Guid("305d81fd-ad60-4a28-8262-dea62b7aa589"), null, new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc), null, new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "Please help me review my CV for a junior developer position.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), new Guid("10000000-0000-0000-0000-000000000002"), 3, 1 },
-                    { new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"), null, new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc), null, new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "I would like to discuss about C# performance optimization.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), new Guid("10000000-0000-0000-0000-000000000001"), 3, 1 }
+                    { new Guid("4c4b3461-068e-4a42-8ba0-647fe1ad5a9d"), null, new DateTime(2025, 5, 28, 10, 0, 0, 0, DateTimeKind.Utc), null, new Guid("f052ecf6-7646-4fa6-8deb-3e991a1e4e16"), "I would like to discuss about C# performance optimization.", new Guid("03ea823d-d625-448d-901d-411c5028b769"), new Guid("10000000-0000-0000-0000-000000000001"), 3, 1 },
+                    { new Guid("e7b9e6c7-2b2e-4e3d-8e2b-1a5f3c9e7b1a"), null, new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc), null, new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"), "Please", new Guid("03ea823d-d625-448d-901d-411c5028b769"), new Guid("10000000-0000-0000-0000-000000000007"), 3, 6 }
                 });
 
             migrationBuilder.CreateIndex(

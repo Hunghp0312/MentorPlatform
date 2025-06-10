@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250606073029_Initial")]
+    [Migration("20250610082743_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -150,7 +150,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("LevelId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("MentorId")
+                    b.Property<Guid?>("MentorId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
@@ -188,7 +188,7 @@ namespace Infrastructure.Migrations
                             Duration = "3 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
-                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             Name = "Intro to C#",
                             StatusId = 2,
                             Tags = "C#,programming,fundamentals"
@@ -202,7 +202,7 @@ namespace Infrastructure.Migrations
                             Duration = "4 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
-                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             Name = "OOP in C#",
                             StatusId = 1,
                             Tags = "C#,OOP,classes,inheritance"
@@ -680,6 +680,46 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Enum.ResourceCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ResourceCategory", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Productivity"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Communication"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Teamwork"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Leadership"
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Enum.SessionAvailabilityStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -712,6 +752,11 @@ namespace Infrastructure.Migrations
                         {
                             Id = 3,
                             Name = "Rescheduled"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Waiting"
                         });
                 });
 
@@ -991,6 +1036,41 @@ namespace Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.Enum.TypeOfResource", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TypeOfResource", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Video"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Pdf"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "External Link"
+                        });
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Enum.UserStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -1050,6 +1130,36 @@ namespace Infrastructure.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("LearnerCourse");
+
+                    b.HasData(
+                        new
+                        {
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CourseId = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72848"),
+                            EnrolledAt = new DateTime(2025, 6, 3, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = false
+                        },
+                        new
+                        {
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CourseId = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72847"),
+                            EnrolledAt = new DateTime(2025, 5, 15, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = false
+                        },
+                        new
+                        {
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CourseId = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72846"),
+                            EnrolledAt = new DateTime(2025, 3, 20, 14, 45, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = true
+                        },
+                        new
+                        {
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CourseId = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72844"),
+                            EnrolledAt = new DateTime(2023, 3, 20, 14, 45, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = false
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
@@ -1159,31 +1269,31 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
-                            BufferTime = new TimeOnly(0, 15, 0),
+                            BufferTime = new TimeOnly(0, 0, 0),
                             Day = new DateOnly(2025, 6, 2),
                             EndWorkTime = new TimeOnly(12, 0, 0),
                             MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            SessionDuration = new TimeOnly(1, 0, 0),
+                            SessionDuration = new TimeOnly(0, 30, 0),
                             StartWorkTime = new TimeOnly(9, 0, 0)
                         },
                         new
                         {
                             Id = new Guid("4a6e7525-23e4-4d6f-930b-22f2e40783d9"),
-                            BufferTime = new TimeOnly(0, 15, 0),
+                            BufferTime = new TimeOnly(0, 0, 0),
                             Day = new DateOnly(2025, 6, 3),
                             EndWorkTime = new TimeOnly(17, 0, 0),
                             MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
-                            SessionDuration = new TimeOnly(1, 0, 0),
+                            SessionDuration = new TimeOnly(0, 30, 0),
                             StartWorkTime = new TimeOnly(14, 0, 0)
                         },
                         new
                         {
                             Id = new Guid("f4e2b81e-479a-4b6a-8a4d-08d3e4c8a6b0"),
-                            BufferTime = new TimeOnly(0, 15, 0),
+                            BufferTime = new TimeOnly(0, 0, 0),
                             Day = new DateOnly(2025, 6, 5),
                             EndWorkTime = new TimeOnly(21, 0, 0),
                             MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
-                            SessionDuration = new TimeOnly(1, 0, 0),
+                            SessionDuration = new TimeOnly(0, 30, 0),
                             StartWorkTime = new TimeOnly(19, 0, 0)
                         },
                         new
@@ -1204,7 +1314,7 @@ namespace Infrastructure.Migrations
                             EndWorkTime = new TimeOnly(11, 0, 0),
                             MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
                             SessionDuration = new TimeOnly(0, 30, 0),
-                            StartWorkTime = new TimeOnly(8, 30, 0)
+                            StartWorkTime = new TimeOnly(1, 0, 0)
                         },
                         new
                         {
@@ -1295,7 +1405,7 @@ namespace Infrastructure.Migrations
                             DayId = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
                             End = new TimeOnly(9, 30, 0),
                             Start = new TimeOnly(9, 0, 0),
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
@@ -1303,7 +1413,7 @@ namespace Infrastructure.Migrations
                             DayId = new Guid("da331a4b-3665-4d78-99a6-825da4015e76"),
                             End = new TimeOnly(10, 0, 0),
                             Start = new TimeOnly(9, 30, 0),
-                            StatusId = 1
+                            StatusId = 2
                         },
                         new
                         {
@@ -1336,6 +1446,14 @@ namespace Infrastructure.Migrations
                             End = new TimeOnly(11, 0, 0),
                             Start = new TimeOnly(10, 30, 0),
                             StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000007"),
+                            DayId = new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"),
+                            End = new TimeOnly(2, 0, 0),
+                            Start = new TimeOnly(1, 0, 0),
+                            StatusId = 2
                         });
                 });
 
@@ -1380,25 +1498,33 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CourseId")
+                    b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid?>("DocumentContentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ResourceCategoryId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<int>("ResourceCategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("Type")
+                    b.Property<double>("ToTalFileDownloadSize")
+                        .HasColumnType("float");
+
+                    b.Property<int>("TypeOfResourceId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -1407,6 +1533,10 @@ namespace Infrastructure.Migrations
                     b.HasIndex("DocumentContentId")
                         .IsUnique()
                         .HasFilter("[DocumentContentId] IS NOT NULL");
+
+                    b.HasIndex("ResourceCategoryId");
+
+                    b.HasIndex("TypeOfResourceId");
 
                     b.ToTable("Resource");
                 });
@@ -1516,6 +1646,17 @@ namespace Infrastructure.Migrations
                             MentorTimeAvailableId = new Guid("10000000-0000-0000-0000-000000000002"),
                             SessionTypeId = 3,
                             StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("e7b9e6c7-2b2e-4e3d-8e2b-1a5f3c9e7b1a"),
+                            CreatedAt = new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc),
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            LearnerMessage = "Please",
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            MentorTimeAvailableId = new Guid("10000000-0000-0000-0000-000000000007"),
+                            SessionTypeId = 3,
+                            StatusId = 6
                         });
                 });
 
@@ -2072,8 +2213,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Infrastructure.Entities.User", "Mentor")
                         .WithMany("MentoredCourses")
                         .HasForeignKey("MentorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Infrastructure.Entities.Enum.CourseStatus", "Status")
                         .WithMany()
@@ -2220,17 +2360,35 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.Resource", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId");
+                        .WithMany("Resources")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Infrastructure.Entities.DocumentContent", "DocumentContent")
                         .WithOne("Resource")
                         .HasForeignKey("Infrastructure.Entities.Resource", "DocumentContentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Infrastructure.Entities.Enum.ResourceCategory", "ResourceCategory")
+                        .WithMany()
+                        .HasForeignKey("ResourceCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Enum.TypeOfResource", "TypeOfResource")
+                        .WithMany()
+                        .HasForeignKey("TypeOfResourceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Course");
 
                     b.Navigation("DocumentContent");
+
+                    b.Navigation("ResourceCategory");
+
+                    b.Navigation("TypeOfResource");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.SessionBooking", b =>
@@ -2428,6 +2586,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Infrastructure.Entities.Course", b =>
                 {
                     b.Navigation("LearnerCourses");
+
+                    b.Navigation("Resources");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.DocumentContent", b =>

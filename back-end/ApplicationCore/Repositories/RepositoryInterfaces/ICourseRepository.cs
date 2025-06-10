@@ -16,5 +16,8 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
         Task<ICollection<Course>?> GetCoursesByMentorId(Guid mentorId);
         Task<Course?> GetCourseWithLearnerCourseAsync(Guid courseId);
         Task<Course?> CheckIfMentorAssignToCourse(Guid courseId, Guid mentorId);
+        Task<(ICollection<Course>, int)> GetCourseLearnerEnroll(Guid learnerId, Func<IQueryable<Course>, IQueryable<Course>> filter,
+            int pageIndex,
+            int pageSize);
     }
 }
