@@ -132,11 +132,7 @@ namespace ApplicationCore.Services
 
             Func<IQueryable<Resource>, IQueryable<Resource>>? filter = q =>
             {
-                if (user.Role?.Name != "Admin")
-                {
-                    q = q.Where(r => r.Course!.MentorId == UserId);
-                }
-                else if (user.Role?.Name == "Mentor")
+                if (user.Role?.Name == "Mentor")
                 {
                     q = q.Where(r => r.Course!.MentorId == UserId);
                 }
