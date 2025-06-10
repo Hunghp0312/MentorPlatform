@@ -13,40 +13,16 @@ namespace ApplicationCore.Services
         private readonly IDocumentContentRepository _documentContentRepository;
         private const double BytesToMB = 1024 * 1024;
         private readonly IResourceRepository _resourceRepository;
-        private readonly IResourceDownloadRepository _resourceDownloadRepository;
         private readonly IUnitOfWork _unitOfWork;
         public DocumentContentService(
             IUnitOfWork unitOfWork,
-            IDocumentContentRepository documentContentRepository, IResourceRepository resourceRepository, IResourceDownloadRepository resourceDownloadRepository)
+            IDocumentContentRepository documentContentRepository, IResourceRepository resourceRepository)
         {
             _documentContentRepository = documentContentRepository;
             _resourceRepository = resourceRepository;
-            _resourceDownloadRepository = resourceDownloadRepository;
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<OperationResult<SumOfFilesResponse>> CalculateTotalDownloadSizeInMBAsync()
-        {
-            var totalBytes = await _resourceDownloadRepository.GetAllAsync();
-            var totalSizeInMB = totalBytes.Sum(x => x.FileSize) / BytesToMB;
-
-            return OperationResult<SumOfFilesResponse>.Ok(new SumOfFilesResponse
-            {
-                Size = totalSizeInMB
-            });
-        }
-
-        public async Task<OperationResult<SumOfFilesResponse>> CalculateTotalDownloadSizeFormattedAsync()
-        {
-            var result = await CalculateTotalDownloadSizeInMBAsync();
-
-            var formattedSize = Math.Round(result.Data.Size, 2);
-
-            return OperationResult<SumOfFilesResponse>.Ok(new SumOfFilesResponse
-            {
-                Size = formattedSize
-            });
-        }
 
         public async Task<OperationResult<FileDownloadDto>> DownloadResourceFileAsync(Guid fileId, Guid userId)
         {
@@ -56,8 +32,6 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<FileDownloadDto>.NotFound("File not found.");
             }
-
-
 
             var fileDownloadDto = new FileDownloadDto
             {

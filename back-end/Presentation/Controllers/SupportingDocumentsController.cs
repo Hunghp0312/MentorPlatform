@@ -1,7 +1,5 @@
 ﻿using ApplicationCore.DTOs.Common;
-using ApplicationCore.DTOs.Requests.Resources;
 using ApplicationCore.DTOs.Requests.SupportingDocuments;
-using ApplicationCore.DTOs.Responses.FileSize;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
