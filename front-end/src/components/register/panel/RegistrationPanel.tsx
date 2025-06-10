@@ -81,17 +81,19 @@ const RegistrationPanel: React.FC<Props> = ({
         "Please read and agree to our terms of service and privacy policies.";
     }
 
+    await checkEmailExists(errs);
+
     setErrors(errs);
 
-    if (Object.keys(errs).length === 0) {
-      await checkEmailExists(errs);
-    }
     return Object.keys(errs).length === 0;
   };
 
   const checkEmailExists = async (
     errors: Record<string, string>
   ): Promise<boolean> => {
+    if (!email) {
+      return false;
+    }
     const response = await registrionService.checkEmail({ email });
 
     if (response.exists) {
