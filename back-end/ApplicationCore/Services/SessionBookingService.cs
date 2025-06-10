@@ -503,9 +503,8 @@ namespace ApplicationCore.Services
         public async Task<OperationResult<MentorDashboardDto>> GetSessionDashBoardAsync(Guid userId, PaginationParameters paginationParameters)
         {
             paginationParameters.PageSize = 3;
-            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
             DateTime currentDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-
             SessionDashboardKpiDto sessionDashboardKpiDto = new SessionDashboardKpiDto();
             sessionDashboardKpiDto.SessionsThisMonth = await _sessionBookingRepository
                                                         .GetAllQueryable()
