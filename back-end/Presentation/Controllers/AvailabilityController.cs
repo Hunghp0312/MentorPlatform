@@ -20,7 +20,7 @@ public class AvailabilityController : BaseController
     }
 
     [HttpGet("{mentorId}/week")]
-    [Authorize]
+    [Authorize(Policy = "ActiveUserOnly")]
     [ProducesResponseType(typeof(MentorDaysAvailabilityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -39,7 +39,7 @@ public class AvailabilityController : BaseController
     }
 
     [HttpGet("{mentorId}/day")]
-    [Authorize]
+    [Authorize(Policy = "ActiveUserOnly")]
     [ProducesResponseType(typeof(MentorDaysAvailabilityResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -52,7 +52,7 @@ public class AvailabilityController : BaseController
     }
 
     [HttpPut("{mentorId}/days")]
-    [Authorize(Roles = "Mentor")]
+    [Authorize(Roles = "Mentor", Policy = "ActiveUserOnly")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -62,11 +62,6 @@ public class AvailabilityController : BaseController
         [FromBody] SaveDaysAvailabilityRequestDto request
     )
     {
-        var isActiveClaim = User.Claims.FirstOrDefault(c => c.Type == "isActive");
-        if (isActiveClaim == null || isActiveClaim.Value != "1")
-        {
-            return Forbid();
-        }
         var result = await _availabilityService.SaveMentorDaysAvailability(mentorId, request);
         return ToActionResult(result);
     }
