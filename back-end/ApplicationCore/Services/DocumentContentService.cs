@@ -28,9 +28,17 @@ namespace ApplicationCore.Services
         {
 
             var file = await _documentContentRepository.GetByIdAsync(fileId);
+            var existingResource = await _resourceRepository.GetByDocumentContentIdAsync(fileId);
             if (file == null)
             {
                 return OperationResult<FileDownloadDto>.NotFound("File not found.");
+            }
+            if (existingResource != null)
+            {
+
+                double fileSizeInMB = file.FileContent.Length / BytesToMB;
+                existingResource.ToTalFileDownloadSize += fileSizeInMB;
+                await _unitOfWork.SaveChangesAsync();
             }
 
             var fileDownloadDto = new FileDownloadDto
