@@ -99,7 +99,6 @@ builder.Services.AddScoped<IDocumentContentService, DocumentContentService>();
 
 builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
 builder.Services.AddScoped<IResourceService, ResourceService>();
-builder.Services.AddScoped<IResourceDownloadRepository, ResourceDownloadRepository>();
 
 builder.Services.AddHostedService<SessionReminderService>();
 builder.Services.AddFluentValidationAutoValidation();
