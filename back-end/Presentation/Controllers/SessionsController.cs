@@ -77,7 +77,7 @@ namespace Presentation.Controllers
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status401Unauthorized)]
-        [Authorize(Roles = "Learner,Mentor")]
+        [Authorize(Roles = "Learner,Mentor", Policy = "ActiveUserOnly")]
         public async Task<IActionResult> UpdateBookingStatus(Guid sessionId, [FromBody] UpdateBookingStatusRequestDto updateRequest)
         {
             var userIdString = User.FindFirstValue("id")!;
@@ -89,7 +89,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut("{sessionId:guid}/reschedule")]
-        [Authorize(Roles = "Mentor")]
+        [Authorize(Roles = "Mentor", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(UpdateBookingResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]

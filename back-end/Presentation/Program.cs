@@ -66,7 +66,6 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
-
 builder.Services.Configure<EmailSettingOption>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
