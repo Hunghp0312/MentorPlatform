@@ -536,7 +536,6 @@ namespace ApplicationCore.Services
                 query = query.OrderBy(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day)
                 .ThenBy(sb => sb.MentorTimeAvailable.Start);
 
-                var currentDate = DateTime.Now;
                 DateOnly todayUtc = DateOnly.FromDateTime(currentDate);
                 TimeOnly timeNowUtc = TimeOnly.FromDateTime(currentDate);
                 query = query.Where(up => up.MentorTimeAvailable.StatusId == 2 && ((up.MentorTimeAvailable.Start > timeNowUtc
@@ -569,7 +568,7 @@ namespace ApplicationCore.Services
                 SessionTypeName = sb.SessionType.Name,
             }).ToList();
 
-            MentorDashboardDto mentorDashboardDto = new MentorDashboardDto() { SessionKPIs = sessionDashboardKpiDto, UpcomingSessions = bookingDtos, CurrenTime = currentDate, CurrenTimeNow = DateTime.Now };
+            MentorDashboardDto mentorDashboardDto = new MentorDashboardDto() { SessionKPIs = sessionDashboardKpiDto, UpcomingSessions = bookingDtos };
 
             return OperationResult<MentorDashboardDto>.Ok(mentorDashboardDto);
         }
