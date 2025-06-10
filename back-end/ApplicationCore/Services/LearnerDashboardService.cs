@@ -31,13 +31,6 @@ namespace ApplicationCore.Services
                 todayDate
             );
 
-            if (upcomingsessions.Count == 0)
-            {
-                return OperationResult<LearnerDashboardUpcomingSession>.Fail(
-                    "There are no upcomming session"
-                );
-            }
-
             var nextSessionDate = upcomingsessions
                 .First()
                 .MentorTimeAvailable.MentorDayAvailable.Day;
@@ -71,13 +64,6 @@ namespace ApplicationCore.Services
         {
             var learnerCourses = await _learnerCourseRepo.GetLearnerCoursesWithLearnerId(learnerId);
 
-            if (learnerCourses.Count == 0)
-            {
-                return OperationResult<LearnerDashboardCompletion>.BadRequest(
-                    "There are no courses"
-                );
-            }
-
             var totalCourses = learnerCourses.Count;
 
             var doneCourses = learnerCourses.Count(c => c.IsCompleted);
@@ -97,11 +83,6 @@ namespace ApplicationCore.Services
         {
             var learnerCourses = await _learnerCourseRepo.GetLearnerCoursesWithLearnerId(learnerId);
 
-            if (learnerCourses.Count == 0)
-            {
-                return OperationResult<LearnerDashboardMentor>.BadRequest("There are no courses");
-            }
-
             var mentorIds = learnerCourses
                 .Select(lc => lc.Course!.MentorId)
                 .Where(id => id != null)
@@ -118,13 +99,6 @@ namespace ApplicationCore.Services
         )
         {
             var learnerCourses = await _learnerCourseRepo.GetLearnerCoursesWithLearnerId(learnerId);
-
-            if (learnerCourses.Count == 0)
-            {
-                return OperationResult<LearnerDashboardCourseList>.BadRequest(
-                    "There are no courses"
-                );
-            }
 
             var top3Courses = learnerCourses.Take(3).ToList();
 
