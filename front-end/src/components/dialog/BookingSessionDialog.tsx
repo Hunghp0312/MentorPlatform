@@ -4,13 +4,13 @@ import { sessionService } from '../../services/session.service';
 import { BookingRequest, TimeSlot } from '../../types/session';
 import { formatTime } from '../../utils/formatDate';
 import { SlotStatus } from '../../types/commonType';
+import { toast } from 'react-toastify';
 
 interface BookingDialogProps {
     mentorId: string;
     mentorName?: string;
     hourlyRate?: number;
     onClose?: () => void;
-    onConfirm?: (bookingData: BookingRequest) => void;
 }
 
 const BookingSessionDialog: React.FC<BookingDialogProps> = ({
@@ -18,7 +18,6 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
     mentorName = "Sarah Johnson",
     hourlyRate = 75,
     onClose,
-    onConfirm,
 }) => {
     const [slots, setSlots] = useState<TimeSlot[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +37,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
         setSelectedDate(e.target.value);
         setBookingData(prev => ({
             ...prev,
-            mentorTimeAvailableId: '', 
+            mentorTimeAvailableId: '',
         }));
         try {
             const res = await sessionService.getSessionSlots(bookingData.mentorId, e.target.value);
@@ -87,14 +86,26 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
         fetchSlots();
     }, [mentorId]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setTimeout(() => {
+        if (bookingData.learnerMessage.trim() === "") {
+            toast.error("Please enter a message for the mentor.");
+            return;
+        }
+        try {
+            setIsSubmitting(true);
+            await sessionService.bookSession(bookingData);
+            toast.success("Session booked successfully!");
+            if (onClose) onClose();
+            
+        }
+        catch (error) {
+            console.error("Error booking session:", error);
+            toast.error("Failed to book session. Please try again.");
+        }
+        finally {
             setIsSubmitting(false);
-            onConfirm?.(bookingData);
-        }, 200);
-
+        }
     };
 
     return (
@@ -146,7 +157,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                                     key={timeSlot.id}
                                     value={timeSlot.id}
                                     disabled={
-                                        (timeSlot.statusId !== SlotStatus.Available && timeSlot.statusId !== SlotStatus.Waiting) ||
+                                        (timeSlot.statusId !== SlotStatus.Available) ||
                                         (selectedDate === new Date().toISOString().split('T')[0] &&
                                             new Date(`${selectedDate}T${timeSlot.startTime}`).getTime() < new Date().getTime())
                                     }
