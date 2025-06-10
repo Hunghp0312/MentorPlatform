@@ -136,14 +136,7 @@ const ResourcePage = () => {
         resource.file &&
         (resource.typeOfResourceId === 1 || resource.typeOfResourceId === 2)
       ) {
-        // Upload file
         await resourceService.uploadResourceFile(resource.file, resourceId);
-      } else if (
-        "link" in resource &&
-        resource.link &&
-        resource.typeOfResourceId === 3
-      ) {
-        await resourceService.uploadResourceLinkType(resourceId, resource.link);
       }
 
       fetchResources();
@@ -160,6 +153,57 @@ const ResourcePage = () => {
       setLoading(false);
     }
   };
+
+  // const handleSubmit = async (
+  //   resource: CreateResourceRequest | EditResourceRequest
+  // ) => {
+  //   setLoading(true);
+  //   try {
+  //     let resourceId: string;
+  //     if (initialData) {
+  //       await resourceService.updateResource(
+  //         initialData.resourceId,
+  //         resource as EditResourceRequest
+  //       );
+  //       resourceId = initialData.resourceId;
+  //       toast.success("Resource updated successfully");
+  //     } else {
+  //       const response = await resourceService.createResource(
+  //         resource as CreateResourceRequest
+  //       );
+  //       resourceId = response.resourceId;
+  //       toast.success("Resource created successfully");
+  //     }
+
+  //     if (
+  //       "file" in resource &&
+  //       resource.file &&
+  //       (resource.typeOfResourceId === 1 || resource.typeOfResourceId === 2)
+  //     ) {
+  //       // Upload file
+  //       await resourceService.uploadResourceFile(resource.file, resourceId);
+  //     } else if (
+  //       "link" in resource &&
+  //       resource.link &&
+  //       resource.typeOfResourceId === 3
+  //     ) {
+  //       await resourceService.updateResource(resourceId, resource);
+  //     }
+
+  //     fetchResources();
+  //   } catch (error) {
+  //     if (error instanceof AxiosError) {
+  //       handleAxiosError(error);
+  //     } else {
+  //       console.error("Error saving resource:", error);
+  //       toast.error(`Failed to ${initialData ? "update" : "create"} resource`);
+  //     }
+  //   } finally {
+  //     setOpenDialog(false);
+  //     setInitialData(undefined);
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleDelete = async (resource: Resource) => {
     if (

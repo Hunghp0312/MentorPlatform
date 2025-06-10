@@ -57,14 +57,6 @@ export const resourceService = {
     return response.data;
   },
 
-  async uploadResourceLinkType(resourceId: string, link: string) {
-    const response = await axiosInstance.put(
-      `/Resource/${resourceId}/UrlUpload?Url=${encodeURIComponent(link)}`,
-      link
-    );
-    return response.data;
-  },
-
   async downloadResourceFile(fileId: string) {
     try {
       const response = await axiosInstance.get(

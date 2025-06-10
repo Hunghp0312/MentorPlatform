@@ -29,6 +29,8 @@ namespace Infrastructure.BaseRepository
 
         Task<bool> DeleteById(Guid id);
 
+        bool DeleteEntityById(Guid id);
+
         IQueryable<TEntity> GetAllQueryable();
     }
 }

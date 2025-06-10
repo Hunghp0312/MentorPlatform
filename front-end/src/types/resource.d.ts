@@ -5,7 +5,7 @@ export interface CreateResourceRequest {
   typeOfResourceId: number;
   courseId: string;
   file?: File;
-  link?: string;
+  url?: string;
 }
 
 export interface EditResourceRequest {
@@ -13,6 +13,7 @@ export interface EditResourceRequest {
   description: string;
   resourceCategoryId: number;
   typeOfResourceId: number;
+  url?: string;
 }
 interface ResourceType {
   resourceId: string;

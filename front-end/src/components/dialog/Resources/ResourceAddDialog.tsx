@@ -40,7 +40,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
     typeOfResourceId: 0,
     courseId: "",
     file: null as File | null,
-    link: "",
+    url: "",
   });
 
   const [formErrors, setFormErrors] = useState({
@@ -50,7 +50,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
     typeOfResourceId: "",
     courseId: "",
     file: "",
-    link: "",
+    url: "",
   });
 
   const [courses, setCourses] = useState<Course[]>([]);
@@ -67,7 +67,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
         typeOfResourceId: initialData.typeOfResource.id || 0,
         courseId: initialData.courseId || "",
         file: null,
-        link: initialData.link || "",
+        url: initialData.link || "",
       });
       // Reset file input to avoid showing stale file selection
       if (fileInputRef.current) {
@@ -82,7 +82,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
         typeOfResourceId: 0,
         courseId: "",
         file: null,
-        link: "",
+        url: "",
       });
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -138,7 +138,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
       typeOfResourceId: "",
       courseId: "",
       file: "",
-      link: "",
+      url: "",
     };
     let isValid = true;
 
@@ -220,11 +220,11 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
         }
       }
     } else if (formData.typeOfResourceId === 3) {
-      if (!formData.link) {
-        errors.link = "Link is required";
+      if (!formData.url) {
+        errors.url = "Link is required";
         isValid = false;
-      } else if (!/^(https?:\/\/)/i.test(formData.link)) {
-        errors.link =
+      } else if (!/^(https?:\/\/)/i.test(formData.url)) {
+        errors.url =
           "Please enter a valid URL starting with http:// or https://";
         isValid = false;
       }
@@ -245,7 +245,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
       typeOfResourceId: formData.typeOfResourceId,
       courseId: formData.courseId,
       file: formData.file || undefined,
-      link: formData.typeOfResourceId === 3 ? formData.link : undefined,
+      url: formData.typeOfResourceId === 3 ? formData.url : undefined,
     };
 
     await onSubmit(data);
@@ -256,7 +256,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
       typeOfResourceId: 0,
       courseId: "",
       file: null,
-      link: "",
+      url: "",
     });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -272,7 +272,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
       typeOfResourceId: 0,
       courseId: "",
       file: null,
-      link: "",
+      url: "",
     });
     setFormErrors({
       title: "",
@@ -281,7 +281,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
       typeOfResourceId: "",
       courseId: "",
       file: "",
-      link: "",
+      url: "",
     });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -409,12 +409,12 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
           ) : formData.typeOfResourceId === 3 ? (
             <InputCustom
               label="Link"
-              name="link"
+              name="url"
               type="text"
-              value={formData.link}
+              value={formData.url}
               placeholder="Enter resource URL"
               onChange={handleInputChange}
-              errorMessage={formErrors.link}
+              errorMessage={formErrors.url}
               isRequired
               disabled={!isEditable}
             />
