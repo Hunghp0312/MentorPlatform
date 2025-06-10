@@ -1,7 +1,7 @@
 ﻿using ApplicationCore.DTOs.Common;
-using ApplicationCore.DTOs.Requests.Resources;
 using ApplicationCore.DTOs.Requests.SupportingDocuments;
 using ApplicationCore.DTOs.Responses.SupportingDocuments;
+using ApplicationCore.DTOs.Responses.FileSize;
 using ApplicationCore.Services.ServiceInterfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -67,6 +67,16 @@ namespace Presentation.Controllers
             var fileDownloadDto = result.Data;
 
             return File(fileDownloadDto!.Content, fileDownloadDto.ContentType, fileDownloadDto.FileName);
+        }
+
+        [HttpGet("resource/{resourceId:guid}/total-size")]
+        [Authorize]
+        [ProducesResponseType(typeof(SumOfFilesResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTotalFileDownloadSize(Guid resourceId)
+        {
+            var result = await _documentContentService.GetTotalFileDownloadSize(resourceId);
+            return ToActionResult(result);
         }
     }
 }

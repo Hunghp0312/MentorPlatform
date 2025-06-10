@@ -10,7 +10,18 @@ namespace ApplicationCore.Repositories
     {
         public ResourceRepository(AppDbContext context) : base(context)
         {
+
         }
+
+        public async Task<Resource?> GetByDocumentContentIdAsync(Guid documentContentId)
+        {
+            return await _dbSet
+                .Include(r => r.Course)
+                .Include(r => r.ResourceCategory)
+                .Include(r => r.TypeOfResource)
+                .FirstOrDefaultAsync(r => r.DocumentContentId == documentContentId);
+        }
+
         public override async Task<Resource?> GetByIdAsync(Guid id)
         {
             return await _dbSet
@@ -20,15 +31,35 @@ namespace ApplicationCore.Repositories
                 .FirstOrDefaultAsync(r => r.Id == id);
         }
         public override async Task<(ICollection<Resource>, int)> GetPagedAsync(
-             Func<IQueryable<Resource>, IQueryable<Resource>>? filter,
-             int pageIndex,
-             int pageSize)
+     Func<IQueryable<Resource>, IQueryable<Resource>>? filter,
+     int pageIndex,
+     int pageSize)
         {
             var queryable = _dbSet
                 .Include(r => r.Course)
                 .Include(r => r.ResourceCategory)
                 .Include(r => r.TypeOfResource)
                 .Include(r => r.DocumentContent)
+                .Select(r => new Resource
+                {
+                    // Map Resource properties
+                    Id = r.Id,
+                    Title = r.Title,
+                    Description = r.Description,
+                    Url = r.Url,
+                    // Map other Resource properties as needed
+                    Course = r.Course,
+                    ResourceCategory = r.ResourceCategory,
+                    TypeOfResource = r.TypeOfResource,
+                    DocumentContentId = r.DocumentContentId,
+                    DocumentContent = r.DocumentContent != null ? new DocumentContent
+                    {
+                        //Id = r.DocumentContent.Id,
+                        FileName = r.DocumentContent.FileName,
+                        FileType = r.DocumentContent.FileType
+                        // Explicitly exclude FileContent
+                    } : null
+                })
                 .AsQueryable();
 
             if (filter != null)
@@ -44,5 +75,6 @@ namespace ApplicationCore.Repositories
 
             return (items, totalRecords);
         }
+
     }
 }

@@ -170,15 +170,34 @@ namespace ApplicationCore.Services
             {
                 return OperationResult<UpdateResourceUrlResponse>.NotFound("You are not authorized to upload file to this resource, cause you are not the mentor of this course.");
             }
+            await _unitOfWork.BeginTransactionAsync();
+            var oldDocumentContentId = existingResource.DocumentContentId;
 
-            existingResource.Url = url;
+            // Clear existing document content if resource was previously a video or PDF
+            // if (existingResource.DocumentContentId.HasValue && (existingResource.TypeOfResourceId == 1 || existingResource.TypeOfResourceId == 2))
+            // {
+            //     await _documentContentRepository.DeleteById(existingResource.DocumentContentId.Value);
+            //     existingResource.DocumentContentId = null;
+            // }
+
+            // Clear existing URL if present, and set new URL for type 3
+            existingResource.Url = string.IsNullOrEmpty(url) ? null : url;
             existingResource.TypeOfResourceId = 3;
+            _resourceRepository.Update(existingResource);
             await _unitOfWork.SaveChangesAsync();
 
+            if (oldDocumentContentId.HasValue &&
+                        (existingResource.TypeOfResourceId == 1 ||
+                         existingResource.TypeOfResourceId == 2))
+            {
+                await _documentContentRepository.DeleteById(oldDocumentContentId.Value);
+            }
+
+            await _unitOfWork.CommitAsync();
             var response = new UpdateResourceUrlResponse()
             {
                 ResourceId = existingResource.Id,
-                Url = existingResource.Url
+                Url = existingResource.Url ?? string.Empty
             };
             return OperationResult<UpdateResourceUrlResponse>.Ok(response);
         }
@@ -194,11 +213,6 @@ namespace ApplicationCore.Services
             if (mentorId != existingResource?.Course!.MentorId)
             {
                 return OperationResult<ResourceFileResponse>.NotFound("You are not authorized to upload file to this resource, cause you are not the mentor of this course.");
-            }
-
-            if (existingResource.Url != null)
-            {
-                return OperationResult<ResourceFileResponse>.BadRequest("existing external file resource with that Id found for this user");
             }
 
             if (file == null)
@@ -219,6 +233,7 @@ namespace ApplicationCore.Services
                     return OperationResult<ResourceFileResponse>.BadRequest("Could not determine the resource type for the uploaded file.");
             }
 
+            await _unitOfWork.BeginTransactionAsync();
             UploadedFileDetail processedFileDetail = null!;
             if (file.Length > 0)
             {
@@ -252,10 +267,23 @@ namespace ApplicationCore.Services
             };
             await _documentContentRepository.AddAsync(documentContentEntity);
 
+            var oldDocumentContentId = existingResource.DocumentContentId;
+            //var oldUrl = existingResource.Url;
+
+
             existingResource.DocumentContentId = documentContentEntity.Id;
             existingResource.TypeOfResourceId = determinedTypeOfResourceId;
+            existingResource.Url = null;
             _resourceRepository.Update(existingResource);
             await _unitOfWork.SaveChangesAsync();
+
+            if (oldDocumentContentId.HasValue)
+            {
+                await _documentContentRepository.DeleteById(oldDocumentContentId.Value);
+            }
+
+            // Commit giao dịch
+            await _unitOfWork.CommitAsync();
 
             var response = new ResourceFileResponse
             {
@@ -268,84 +296,18 @@ namespace ApplicationCore.Services
         }
 
 
+
         public async Task<OperationResult<DocumentDetailResponse>> GetFileResourceDetails(Guid fileId, Guid userId)
         {
             var document = await _documentContentRepository.GetByIdAsync(fileId);
-            var user = await _userRepository.GetByIdAsync(userId);
             if (document == null)
             {
                 return OperationResult<DocumentDetailResponse>.BadRequest("Document not found or has no content.");
-            }
-            if (user?.Role.Name == "Admin")
-            {
-                return OperationResult<DocumentDetailResponse>.Ok(document.ToDocumentDetailResponse());
-            }
-            if (user?.Role.Name == "Mentor" && document.Resource?.Course?.MentorId != userId)
-            {
-                return OperationResult<DocumentDetailResponse>.Unauthorized("You are not authorized to view this document, as you are not the mentor of this course.");
-            }
-
-            if (user?.Role.Name == "Learner" && document.Resource?.Course?.LearnerCourses.FirstOrDefault(x => x.LearnerId == userId) == null)
-            {
-                return OperationResult<DocumentDetailResponse>.Unauthorized("You are not authorized to view this document, as you are not enrolled in this course.");
             }
 
             return OperationResult<DocumentDetailResponse>.Ok(document.ToDocumentDetailResponse());
 
         }
 
-        public async Task<OperationResult<object>> DeleteResourceFileAsync(Guid mentorId, Guid fileId)
-        {
-            var document = await _documentContentRepository.GetByIdAsync(fileId);
-            if (document == null)
-            {
-                return OperationResult<object>.NotFound("File not found.");
-            }
-
-            if (document.Resource?.Course?.MentorId != mentorId)
-            {
-                return OperationResult<object>.Unauthorized("You are not authorized to delete this file, as you are not the mentor of this course.");
-            }
-
-            await _documentContentRepository.DeleteById(fileId);
-            await _unitOfWork.SaveChangesAsync();
-
-            return OperationResult<object>.NoContent();
-        }
-
-        public async Task<OperationResult<ResourceResponeGetAllService>> DeleteLinkFileAsync(Guid mentorId, Guid resourceId)
-        {
-            var resource = await _resourceRepository.GetByIdAsync(resourceId);
-            if (resource == null)
-            {
-                return OperationResult<ResourceResponeGetAllService>.NotFound("Resource not found.");
-            }
-
-            if (resource.Course?.MentorId != mentorId)
-            {
-                return OperationResult<ResourceResponeGetAllService>.Unauthorized("You are not authorized to delete the link for this resource, as you are not the mentor of this course.");
-            }
-
-            resource.Url = "";
-            _resourceRepository.Update(resource);
-            await _unitOfWork.SaveChangesAsync();
-
-            return OperationResult<ResourceResponeGetAllService>.Ok(resource.ToResourceResponeGetAllService());
-        }
-        public async Task<OperationResult<ResourceLinkResponse>> OpenResourceLinkAsync(Guid resourceId)
-        {
-            var resource = await _resourceRepository.GetByIdAsync(resourceId);
-            if (resource == null)
-            {
-                return OperationResult<ResourceLinkResponse>.NotFound("Resource not found.");
-            }
-
-            if (string.IsNullOrEmpty(resource.Url))
-            {
-                return OperationResult<ResourceLinkResponse>.BadRequest("Resource does not have a valid link.");
-            }
-
-            return OperationResult<ResourceLinkResponse>.Ok(resource.ToResourceLinkResponse());
-        }
     }
 }

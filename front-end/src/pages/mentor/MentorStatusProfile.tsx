@@ -19,6 +19,7 @@ import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkEx
 import CertificationAddDialog from "../../components/dialog/Applications/CertificationDialog";
 import { EnumType } from "../../types/commonType";
 import { toast } from "react-toastify";
+import LoadingOverlay from "../../components/loading/LoadingOverlay";
 
 interface MentorStatusType {
   mentorEducation: MentorEducation[];
@@ -93,10 +94,12 @@ const MentorStatusProfile = () => {
   const [editCertificationIndex, setEditCertificationIndex] = useState<
     number | null
   >(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async (): Promise<UserApplication | null> => {
       try {
+        setLoading(true);
         const response = await userService.getCurrentUser();
         console.log("User Data:", response);
         const mappedUserData: UserApplication = {
@@ -126,6 +129,8 @@ const MentorStatusProfile = () => {
       } catch (error) {
         console.error("Error fetching user data:", error);
         return null;
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -511,12 +516,10 @@ const MentorStatusProfile = () => {
       return;
     }
 
-    const confirmed = window.confirm(
-      "Bạn có chắc chắn muốn gửi đơn đăng ký không?"
-    );
-    if (!confirmed) {
-      return;
-    }
+    setIsConfirmModalOpen(true);
+  };
+  const handleConfirmSubmit = async () => {
+    setIsConfirmModalOpen(false);
 
     const application: MentorCreateApplication = {
       mentorEducations: editedMentor.mentorEducation,
@@ -943,7 +946,9 @@ const MentorStatusProfile = () => {
     </div>
   );
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return <LoadingOverlay />;
+  }
   if (!mentorData) return <div>No data available</div>;
 
   return (
@@ -1201,6 +1206,34 @@ const MentorStatusProfile = () => {
           </div>
         </div>
       </div>
+      <CustomModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title="Confirmation"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-200">
+            Are you sure you want to submit your application?
+          </p>
+          <div className="flex justify-end space-x-2">
+            <button
+              id="cancel-submit-button"
+              onClick={() => setIsConfirmModalOpen(false)}
+              className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+            >
+              Cancel
+            </button>
+            <button
+              id="confirm-submit-button"
+              onClick={handleConfirmSubmit}
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+      </CustomModal>
     </main>
   );
 };

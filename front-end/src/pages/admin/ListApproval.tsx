@@ -94,16 +94,10 @@ const ListApproval = () => {
   ];
 
   const fetchApplications = async () => {
-    if (isFetching) return;
-    console.log("Fetching applications with:", {
-      searchDebounced,
-      statusFilter,
-      pageIndex,
-      pageSize,
-    });
-    setIsFetching(true);
+    if (isFetching) {
+      setIsFetching(true);
+    }
     try {
-      // Không đặt isLoading để tránh hiển thị vòng tròn xoay khi tìm kiếm
       const statusToFilter: { [key: string]: number | undefined } = {
         "": undefined,
         pending: 1,
@@ -112,39 +106,42 @@ const ListApproval = () => {
         "request-info": 4,
       };
       const currentFilter = statusToFilter[statusFilter] || 0;
-      const res = await approvalService.getAllMentorApplications(
-        searchDebounced,
-        currentFilter,
-        pageIndex,
-        pageSize
-      );
-      console.log("API Response:", res);
-      setTotalItems(res.totalItems);
-      setApprovals(res.items);
-      const counts = await Promise.all(
-        ["", "pending", "approved", "rejected", "request-info"].map(
-          async (status) => {
-            const filter = statusToFilter[status] || 0;
-            const response = await approvalService.getAllMentorApplications(
-              "",
-              filter,
-              1,
-              1
-            );
-            return { status, count: response.totalItems };
-          }
-        )
-      );
-      const countsMap = counts.reduce((acc, { status, count }) => {
-        acc[status] = count;
-        return acc;
-      }, {} as { [key: string]: number });
-      setStatusCounts(countsMap);
+
+      const [applicationsResponse, countsResponse] = await Promise.all([
+        approvalService.getAllMentorApplications(
+          searchDebounced,
+          currentFilter,
+          pageIndex,
+          pageSize
+        ),
+        approvalService.getApplicationStatusCount(),
+      ]);
+
+      console.log("API Applications Response:", applicationsResponse);
+      console.log("API Status Counts Response:", countsResponse);
+
+      // Cập nhật danh sách ứng dụng
+      setTotalItems(applicationsResponse.totalItems);
+      setApprovals(applicationsResponse.items);
+
+      // Cập nhật số đếm trạng thái
+      setStatusCounts({
+        "":
+          countsResponse.rejected +
+          countsResponse.approved +
+          countsResponse.pending +
+          countsResponse.requestInfo,
+        pending: countsResponse.pending,
+        approved: countsResponse.approved,
+        rejected: countsResponse.rejected,
+        "request-info": countsResponse.requestInfo,
+      });
     } catch (error) {
       if (error instanceof AxiosError) {
         handleAxiosError(error);
       } else {
         console.error("Error fetching applications:", error);
+        toast.error("Failed to fetch applications");
       }
     } finally {
       setIsFetching(false);
@@ -233,7 +230,12 @@ const ListApproval = () => {
           const dates = dateString
             .split(",")
             .filter((date) => date.trim())
-            .map((date) => new Date(date.trim()));
+            .map((date) => {
+              const adjustedDate = new Date(date.trim());
+              adjustedDate.setHours(adjustedDate.getHours() + 7);
+              return adjustedDate;
+            });
+
           if (dates.length === 0) return "";
           return new Date(Math.max(...dates.map((d) => d.getTime())))
             .toISOString()
@@ -351,123 +353,36 @@ const ListApproval = () => {
     }
 
     setIsConfirmLoading(true);
-    setIsConfirmModalOpen(false); // Close modal immediately after clicking Confirm
+    setIsConfirmModalOpen(false);
     toast.info("Wait a moment for update...");
 
     try {
-      let request: MentorUpdateStatusRequest;
-      if (confirmAction === "approve") {
-        request = {
-          mentorId: selectedApproval.applicantUserId,
-          statusId: 3,
-          adminComments: null,
-        };
-        await approvalService.updateMentorApplicationStatus(request);
-        setApprovals((prev = []) =>
-          prev.map((item) =>
-            item.applicantUserId === selectedApproval.applicantUserId
-              ? {
-                  ...item,
-                  status: "Approved",
-                  approvalDate: new Date().toISOString().split("T")[0],
-                }
-              : item
-          )
-        );
-        setSelectedApproval({
-          ...selectedApproval,
-          status: "Approved",
-          approvalDate: new Date().toISOString(),
-        });
-        toast.success(
-          `Application for ${selectedApproval.fullName} changed to approved`
-        );
-      } else if (confirmAction === "reject") {
-        request = {
-          mentorId: selectedApproval.applicantUserId,
-          statusId: 2,
-          adminComments: adminNotes.trim(),
-        };
-        await approvalService.updateMentorApplicationStatus(request);
-        setApprovals((prev = []) =>
-          prev.map((item) =>
-            item.applicantUserId === selectedApproval.applicantUserId
-              ? {
-                  ...item,
-                  status: "Rejected",
-                  rejectionReason: adminNotes.trim(),
-                  lastStatusUpdateDate: new Date().toISOString(),
-                }
-              : item
-          )
-        );
-        setSelectedApproval({
-          ...selectedApproval,
-          status: "Rejected",
-          rejectionReason: adminNotes.trim(),
-          lastStatusUpdateDate: new Date().toISOString(),
-        });
-        toast.success(
-          `Application for ${selectedApproval.fullName} changed to rejected`
-        );
-      } else if (confirmAction === "underreview") {
-        request = {
-          mentorId: selectedApproval.applicantUserId,
-          statusId: 6,
-          adminComments: null,
-        };
-        await approvalService.updateMentorApplicationStatus(request);
-        setApprovals((prev = []) =>
-          prev.map((item) =>
-            item.applicantUserId === selectedApproval.applicantUserId
-              ? {
-                  ...item,
-                  status: "Under Review",
-                  rejectionReason: null,
-                }
-              : item
-          )
-        );
-        setSelectedApproval({
-          ...selectedApproval,
-          status: "Under Review",
-          rejectionReason: null,
-        });
-        toast.success(
-          `Application for ${selectedApproval.fullName} set to under review`
-        );
-      } else if (confirmAction === "requestInfo") {
-        request = {
-          mentorId: selectedApproval.applicantUserId,
-          statusId: 4,
-          adminComments: adminNotes.trim(),
-        };
-        await approvalService.updateMentorApplicationStatus(request);
-        setApprovals((prev = []) =>
-          prev.map((item) =>
-            item.applicantUserId === selectedApproval.applicantUserId
-              ? {
-                  ...item,
-                  status: "Request Info",
-                  requestInfoDate: new Date().toISOString(),
-                  adminComments: adminNotes.trim(),
-                }
-              : item
-          )
-        );
-        setSelectedApproval({
-          ...selectedApproval,
-          status: "Request Info",
-          requestInfoDate: new Date().toISOString(),
-          adminComments: adminNotes.trim(),
-        });
-        toast.success(
-          `Info requested for ${selectedApproval.fullName} successfully`
-        );
-      }
+      const statusIdMap: { [key in ConfirmActionType]: number } = {
+        approve: 3,
+        reject: 2,
+        requestInfo: 4,
+        underreview: 6,
+      };
+
+      const request: MentorUpdateStatusRequest = {
+        mentorId: selectedApproval.applicantUserId,
+        statusId: statusIdMap[confirmAction],
+        adminComments:
+          confirmAction === "reject" || confirmAction === "requestInfo"
+            ? adminNotes.trim()
+            : null,
+      };
+
+      await approvalService.updateMentorApplicationStatus(request);
+      await fetchApplicationDetail(selectedApproval.applicantUserId);
+      await fetchApplications();
+
+      toast.success(
+        `Application for ${selectedApproval.fullName} changed to ${confirmAction}`
+      );
     } catch (error) {
       if (error instanceof AxiosError) {
-        handleAxiosError(error); // Use the existing error handler
+        handleAxiosError(error);
       } else {
         console.error(`Error during ${confirmAction}:`, error);
         toast.error(`Failed to ${confirmAction} application`);
@@ -782,87 +697,112 @@ const ListApproval = () => {
                                   ? selectedApproval.submissionDate
                                       .split(",")
                                       .filter((date) => date.trim())
-                                      .map((timestamp) => ({
-                                        action: "Submitted",
-                                        timestamp: new Date(
+                                      .map((timestamp) => {
+                                        const adjustedDate = new Date(
                                           timestamp
-                                        ).toLocaleString("en-US", {
-                                          month: "numeric",
-                                          day: "numeric",
-                                          year: "numeric",
-                                          hour: "numeric",
-                                          minute: "2-digit",
-                                          second: "2-digit",
-                                          hour12: true,
-                                        }),
-                                        originalTimestamp: timestamp,
-                                        content: null,
-                                      }))
+                                        );
+                                        adjustedDate.setHours(
+                                          adjustedDate.getHours() + 7
+                                        );
+                                        return {
+                                          action: "Submitted",
+                                          timestamp:
+                                            adjustedDate.toLocaleString(
+                                              "en-US",
+                                              {
+                                                month: "numeric",
+                                                day: "numeric",
+                                                year: "numeric",
+                                                hour: "numeric",
+                                                minute: "2-digit",
+                                                second: "2-digit",
+                                                hour12: true,
+                                              }
+                                            ),
+                                          originalTimestamp: timestamp,
+                                          content: null,
+                                        };
+                                      })
                                   : []),
                                 ...(selectedApproval?.approvalDate
-                                  ? [
-                                      {
-                                        action: "Approved",
-                                        timestamp: new Date(
-                                          selectedApproval.approvalDate
-                                        ).toLocaleString("en-US", {
-                                          month: "numeric",
-                                          day: "numeric",
-                                          year: "numeric",
-                                          hour: "numeric",
-                                          minute: "2-digit",
-                                          second: "2-digit",
-                                          hour12: true,
-                                        }),
-                                        originalTimestamp:
-                                          selectedApproval.approvalDate,
-                                        content: null,
-                                      },
-                                    ]
-                                  : []),
-                                ...(selectedApproval?.rejectionReason &&
-                                selectedApproval?.approvalDate
-                                  ? [
-                                      {
-                                        action: `Rejected: ${selectedApproval.rejectionReason}`,
-                                        timestamp: new Date(
-                                          selectedApproval.approvalDate
-                                        ).toLocaleString("en-US", {
-                                          month: "numeric",
-                                          day: "numeric",
-                                          year: "numeric",
-                                          hour: "numeric",
-                                          minute: "2-digit",
-                                          second: "2-digit",
-                                          hour12: true,
-                                        }),
-                                        originalTimestamp:
-                                          selectedApproval.approvalDate,
-                                        content:
-                                          selectedApproval.rejectionReason,
-                                      },
-                                    ]
+                                  ? selectedApproval?.rejectionReason !== null
+                                    ? [
+                                        {
+                                          action: `Rejected `,
+                                          timestamp: new Date(
+                                            new Date(
+                                              selectedApproval.approvalDate
+                                            ).getTime() +
+                                              7 * 60 * 60 * 1000
+                                          ).toLocaleString("en-US", {
+                                            month: "numeric",
+                                            day: "numeric",
+                                            year: "numeric",
+                                            hour: "numeric",
+                                            minute: "2-digit",
+                                            second: "2-digit",
+                                            hour12: true,
+                                          }),
+                                          originalTimestamp:
+                                            selectedApproval.approvalDate,
+                                          content:
+                                            selectedApproval.rejectionReason,
+                                        },
+                                      ]
+                                    : [
+                                        {
+                                          action: "Approved",
+                                          timestamp: new Date(
+                                            new Date(
+                                              selectedApproval.approvalDate
+                                            ).getTime() +
+                                              7 * 60 * 60 * 1000
+                                          ).toLocaleString("en-US", {
+                                            month: "numeric",
+                                            day: "numeric",
+                                            year: "numeric",
+                                            hour: "numeric",
+                                            minute: "2-digit",
+                                            second: "2-digit",
+                                            hour12: true,
+                                          }),
+                                          originalTimestamp:
+                                            selectedApproval.approvalDate,
+                                          content: null,
+                                        },
+                                      ]
                                   : []),
                                 ...(selectedApproval?.requestInfoDate
                                   ? selectedApproval.requestInfoDate
                                       .split(",")
                                       .filter((date) => date.trim())
-                                      .map((timestamp) => ({
-                                        action: "Request Info",
-                                        timestamp: new Date(
+                                      .map((timestamp) => {
+                                        const adjustedDate = new Date(
                                           timestamp
-                                        ).toLocaleString("en-US", {
-                                          month: "numeric",
-                                          day: "numeric",
-                                          year: "numeric",
-                                          hour: "numeric",
-                                          minute: "2-digit",
-                                          second: "2-digit",
-                                          hour12: true,
-                                        }),
-                                        originalTimestamp: timestamp,
-                                        content: selectedApproval.adminComments,
-                                      }))
+                                        );
+                                        adjustedDate.setHours(
+                                          adjustedDate.getHours() + 7
+                                        );
+                                        return {
+                                          action: "Request Info",
+                                          timestamp:
+                                            adjustedDate.toLocaleString(
+                                              "en-US",
+                                              {
+                                                month: "numeric",
+                                                day: "numeric",
+                                                year: "numeric",
+                                                hour: "numeric",
+                                                minute: "2-digit",
+                                                second: "2-digit",
+                                                hour12: true,
+                                              }
+                                            ),
+                                          originalTimestamp: timestamp,
+                                          content:
+                                            selectedApproval.adminComments,
+                                        };
+                                      })
                                   : []),
                               ].filter(
                                 (
@@ -875,7 +815,6 @@ const ListApproval = () => {
                                 } => entry.originalTimestamp != null
                               );
 
-                              // Find the latest Request Info entry
                               const requestInfoEntries = timelineEntries.filter(
                                 (entry) => entry.action === "Request Info"
                               );
@@ -915,7 +854,10 @@ const ListApproval = () => {
                                     (entry.action === "Request Info" &&
                                       latestRequestInfo &&
                                       entry.originalTimestamp ===
-                                        latestRequestInfo.originalTimestamp) ? (
+                                        latestRequestInfo.originalTimestamp &&
+                                      !["rejected", "approved"].includes(
+                                        selectedApproval?.status?.toLowerCase()
+                                      )) ? (
                                       <button
                                         type="button"
                                         className="text-blue-400 hover:underline bg-transparent border-none p-0 text-sm text-left"
@@ -952,7 +894,7 @@ const ListApproval = () => {
                           />
                         )}
                         <div className="mt-4">
-                          <h4 className="text-sm font-medium text-gray-400">
+                          <h4 className="text-sm font-medium text-gray-400 mb-2">
                             Uploaded Documents
                           </h4>
                           <div className="space-y-2">
@@ -995,7 +937,7 @@ const ListApproval = () => {
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-gray-400">
+                        <h4 className="text-sm font-medium text-gray-400 mb-2">
                           Admin Notes
                         </h4>
                         <textarea

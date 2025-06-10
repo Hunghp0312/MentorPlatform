@@ -57,11 +57,6 @@ export const resourceService = {
     return response.data;
   },
 
-  async deleteResourceFile(fileId: string) {
-    const response = await axiosInstance.delete(`/Resource/del-file/${fileId}`);
-    return response.data;
-  },
-
   async uploadResourceLinkType(resourceId: string, link: string) {
     const response = await axiosInstance.put(
       `/Resource/${resourceId}/UrlUpload?Url=${encodeURIComponent(link)}`,
@@ -70,45 +65,6 @@ export const resourceService = {
     return response.data;
   },
 
-  // async downloadResourceFile(fileId: string) {
-  //   const response = await axiosInstance.get(
-  //     `/SupportingDocuments/${fileId}/download`,
-  //     {
-  //       responseType: "blob", // Important: Handle binary data as a blob
-  //     }
-  //   );
-  //   return response.data;
-  // },
-  // async downloadResourceFile(fileId: string) {
-  //   const response = await axiosInstance.get(
-  //     `/SupportingDocuments/${fileId}/download`,
-  //     {
-  //       responseType: "blob", // Important: Handle binary data as a blob
-  //     }
-  //   );
-  //   // Extract filename from Content-Disposition header or use a fallback
-  //   const contentDisposition = response.headers["content-disposition"];
-  //   let fileName = `file-${fileId}`;
-  //   if (contentDisposition) {
-  //     const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
-  //     if (fileNameMatch) {
-  //       fileName = fileNameMatch[1];
-  //     }
-  //   }
-  //   // Create a Blob from the response data
-  //   const blob = new Blob([response.data], { type: response.data.type });
-  //   // Create a temporary URL for the Blob
-  //   const url = window.URL.createObjectURL(blob);
-  //   // Create a link element to trigger the download
-  //   const link = document.createElement("a");
-  //   link.href = url;
-  //   link.download = fileName;
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   // Clean up
-  //   document.body.removeChild(link);
-  //   window.URL.revokeObjectURL(url);
-  // },
   async downloadResourceFile(fileId: string) {
     try {
       const response = await axiosInstance.get(
@@ -163,18 +119,5 @@ export const resourceService = {
       console.error("Download failed:", error);
       throw error;
     }
-  },
-
-  async deleteLinkFile(resourceId: string) {
-    const response = await axiosInstance.delete(
-      `/Resource/del-link-file/${resourceId}/Url`
-    );
-    return response.data;
-  },
-  async openLinkFile(resourceId: string) {
-    const response = await axiosInstance.get(
-      `/Resource/link/${resourceId}/Url`
-    );
-    return response.data.url;
   },
 };
