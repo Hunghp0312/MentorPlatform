@@ -236,7 +236,12 @@ const ListApproval = () => {
           const dates = dateString
             .split(",")
             .filter((date) => date.trim())
-            .map((date) => new Date(date.trim()));
+            .map((date) => {
+              const adjustedDate = new Date(date.trim());
+              adjustedDate.setHours(adjustedDate.getHours() + 7);
+              return adjustedDate;
+            });
+
           if (dates.length === 0) return "";
           return new Date(Math.max(...dates.map((d) => d.getTime())))
             .toISOString()
@@ -785,29 +790,42 @@ const ListApproval = () => {
                                   ? selectedApproval.submissionDate
                                       .split(",")
                                       .filter((date) => date.trim())
-                                      .map((timestamp) => ({
-                                        action: "Submitted",
-                                        timestamp: new Date(
+                                      .map((timestamp) => {
+                                        const adjustedDate = new Date(
                                           timestamp
-                                        ).toLocaleString("en-US", {
-                                          month: "numeric",
-                                          day: "numeric",
-                                          year: "numeric",
-                                          hour: "numeric",
-                                          minute: "2-digit",
-                                          second: "2-digit",
-                                          hour12: true,
-                                        }),
-                                        originalTimestamp: timestamp,
-                                        content: null,
-                                      }))
+                                        );
+                                        adjustedDate.setHours(
+                                          adjustedDate.getHours() + 7
+                                        );
+                                        return {
+                                          action: "Submitted",
+                                          timestamp:
+                                            adjustedDate.toLocaleString(
+                                              "en-US",
+                                              {
+                                                month: "numeric",
+                                                day: "numeric",
+                                                year: "numeric",
+                                                hour: "numeric",
+                                                minute: "2-digit",
+                                                second: "2-digit",
+                                                hour12: true,
+                                              }
+                                            ),
+                                          originalTimestamp: timestamp,
+                                          content: null,
+                                        };
+                                      })
                                   : []),
                                 ...(selectedApproval?.approvalDate
                                   ? [
                                       {
                                         action: "Approved",
                                         timestamp: new Date(
-                                          selectedApproval.approvalDate
+                                          new Date(
+                                            selectedApproval.approvalDate
+                                          ).getTime() +
+                                            7 * 60 * 60 * 1000
                                         ).toLocaleString("en-US", {
                                           month: "numeric",
                                           day: "numeric",
@@ -829,7 +847,10 @@ const ListApproval = () => {
                                       {
                                         action: `Rejected: ${selectedApproval.rejectionReason}`,
                                         timestamp: new Date(
-                                          selectedApproval.approvalDate
+                                          new Date(
+                                            selectedApproval.approvalDate
+                                          ).getTime() +
+                                            7 * 60 * 60 * 1000
                                         ).toLocaleString("en-US", {
                                           month: "numeric",
                                           day: "numeric",
@@ -850,22 +871,33 @@ const ListApproval = () => {
                                   ? selectedApproval.requestInfoDate
                                       .split(",")
                                       .filter((date) => date.trim())
-                                      .map((timestamp) => ({
-                                        action: "Request Info",
-                                        timestamp: new Date(
+                                      .map((timestamp) => {
+                                        const adjustedDate = new Date(
                                           timestamp
-                                        ).toLocaleString("en-US", {
-                                          month: "numeric",
-                                          day: "numeric",
-                                          year: "numeric",
-                                          hour: "numeric",
-                                          minute: "2-digit",
-                                          second: "2-digit",
-                                          hour12: true,
-                                        }),
-                                        originalTimestamp: timestamp,
-                                        content: selectedApproval.adminComments,
-                                      }))
+                                        );
+                                        adjustedDate.setHours(
+                                          adjustedDate.getHours() + 7
+                                        ); // Adjust for +7 hours
+                                        return {
+                                          action: "Request Info",
+                                          timestamp:
+                                            adjustedDate.toLocaleString(
+                                              "en-US",
+                                              {
+                                                month: "numeric",
+                                                day: "numeric",
+                                                year: "numeric",
+                                                hour: "numeric",
+                                                minute: "2-digit",
+                                                second: "2-digit",
+                                                hour12: true,
+                                              }
+                                            ),
+                                          originalTimestamp: timestamp,
+                                          content:
+                                            selectedApproval.adminComments,
+                                        };
+                                      })
                                   : []),
                               ].filter(
                                 (
@@ -878,7 +910,6 @@ const ListApproval = () => {
                                 } => entry.originalTimestamp != null
                               );
 
-                              // Find the latest Request Info entry
                               const requestInfoEntries = timelineEntries.filter(
                                 (entry) => entry.action === "Request Info"
                               );
