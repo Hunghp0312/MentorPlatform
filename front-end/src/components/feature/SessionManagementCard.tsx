@@ -86,12 +86,12 @@ const SessionManagementCard: React.FC = () => {
     try {
       setLoading(true);
       await sessionService.updateStatusBookingSession(sessionId, 3);
-      toast.success('Session accepted successfully!');
+      toast.success('Session declined successfully!');
       fetchSessionRequests();
     }
     catch (error) {
       console.error('Error accepting session:', error);
-      toast.error('Failed to accept session. Please try again.');
+      toast.error('Failed to declined session. Please try again.');
     }
     finally {
       setLoading(false);
@@ -99,7 +99,7 @@ const SessionManagementCard: React.FC = () => {
 
   }
 
-  
+
 
   const confirmCancel = async () => {
     if (cancelMessage.trim().length == 0) {
@@ -110,12 +110,12 @@ const SessionManagementCard: React.FC = () => {
     try {
       setLoading(true);
       await sessionService.updateStatusBookingSession(showCancelModal as string, 5, cancelMessage);
-      toast.success('Session declined successfully!');
+      toast.success('Session cancel successfully!');
       fetchSessionRequests();
     }
     catch (error) {
       console.error('Error declining session:', error);
-      toast.error('Failed to decline session. Please try again.');
+      toast.error('Failed to cancel session. Please try again.');
     }
     finally {
       setLoading(false);
@@ -128,21 +128,9 @@ const SessionManagementCard: React.FC = () => {
     setShowRescheduleModal(sessionId);
   };
 
-  const confirmReschedule = async (sessionId: string, mentorTimeAvailableId: string) => {
-    console.log('Rescheduling session:', sessionId, mentorTimeAvailableId);
-    try {
-      await sessionService.rescheduleBookingSession(sessionId, mentorTimeAvailableId)
-      fetchSessionRequests();
-    }
-    catch (error) {
-      console.error('Error rescheduling session:', error);
-      toast.error('Failed to reschedule session. Please try again.');
-      return;
-    }
-    finally {
-      setShowRescheduleModal(null);
-    }
-    toast.success('Session rescheduled successfully!');
+  const confirmReschedule = async () => {
+    fetchSessionRequests();
+    setShowRescheduleModal(null);
   };
 
   const handleCancelSession = (sessionId: string) => {
@@ -153,12 +141,12 @@ const SessionManagementCard: React.FC = () => {
     try {
       setLoading(true);
       await sessionService.updateStatusBookingSession(sessionId, 4);
-      toast.success('Session accepted successfully!');
+      toast.success('Session complete successfully!');
       fetchSessionRequests();
     }
     catch (error) {
       console.error('Error accepting session:', error);
-      toast.error('Failed to accept session. Please try again.');
+      toast.error('Failed to complete session. Please try again.');
     }
     finally {
       setLoading(false);
@@ -199,14 +187,14 @@ const SessionManagementCard: React.FC = () => {
     .sort((a, b) => {
       const dateA = new Date(a.date).getTime();
       const dateB = new Date(b.date).getTime();
-      
+
       if (dateA === dateB) {
         // If same day, compare by slot start time
         const timeA = new Date(`1970-01-01T${a.slotStartTime}`).getTime();
         const timeB = new Date(`1970-01-01T${b.slotStartTime}`).getTime();
         return timeA - timeB;
       }
-      
+
       return dateA - dateB;
     });
   const inPastRequests = sessionRequests.filter(req => req.statusName === 'Completed' || req.statusName === 'Cancelled' || req.statusName === 'Declined');

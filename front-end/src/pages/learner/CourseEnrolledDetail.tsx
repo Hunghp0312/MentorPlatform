@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Play, Download, FileText, Video, Clock, Users,  Tag, Calendar, File, Image, Archive } from 'lucide-react';
+import { ArrowLeft, Play, Download, FileText, Video, Clock, Users, Tag, Calendar, File, Image, Archive } from 'lucide-react';
 import LoadingOverlay from '../../components/loading/LoadingOverlay';
 
 // Extended TypeScript interfaces
@@ -146,7 +146,7 @@ const CourseDetailPage: React.FC = () => {
         };
 
         fetchData();
-    }, []); 
+    }, []);
     const handleResourceAction = (resource: CourseResource) => {
         if (resource.type === 'video') {
             // Handle video play
@@ -159,7 +159,7 @@ const CourseDetailPage: React.FC = () => {
 
     if (loading) {
         return (
-           <LoadingOverlay/>
+            <LoadingOverlay />
         );
     }
 
@@ -177,14 +177,19 @@ const CourseDetailPage: React.FC = () => {
                     <div className="flex flex-col lg:flex-row gap-8">
                         {/* Course Info */}
                         <div className="flex-1">
-                            <div className="flex flex-wrap items-center gap-3 mb-4">
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(course.status)}`}>
-                                    {course.status}
-                                </span>
-                                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(course.level)}`}>
-                                    {course.level}
-                                </span>
-                                <span className="text-gray-400 text-sm">{course.category}</span>
+                            <div className='flex justify-between items-center mb-4'>
+                                <div className="flex flex-wrap items-center gap-3 mb-4">
+                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(course.status)}`}>
+                                        {course.status}
+                                    </span>
+                                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getLevelColor(course.level)}`}>
+                                        {course.level}
+                                    </span>
+                                    <span className="text-gray-400 text-sm">{course.category}</span>
+                                </div>
+                                <button className="bg-orange-600 hover:bg-orange-700 text-white py-3 px-6 rounded-lg font-medium transition-colors duration-200">
+                                    Enroll Now
+                                </button>
                             </div>
 
                             <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4">
