@@ -27,9 +27,8 @@ namespace ApplicationCore.Repositories
         }
         public async Task<double> GetTotalResourceSizeInMBAsync()
         {
-            var totalBytes = await _context.Set<SupportingDocument>().SumAsync(d => (long?)d.FileSize) ?? 0;
-            double totalMB = totalBytes / (1024.0 * 1024.0);
-            return Math.Round(totalMB, 2);
+            var totalSize = await _context.Set<Resource>().SumAsync(r => r.ToTalFileDownloadSize);
+            return Math.Round(totalSize, 2);
         }
     }
 }
