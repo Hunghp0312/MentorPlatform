@@ -47,6 +47,21 @@ namespace Infrastructure.BaseRepository
             return true;
         }
 
+        public virtual bool DeleteEntityById(Guid id)
+        {
+            var obj = _dbSet.Find(id);
+
+            if (obj == null)
+            {
+                return false;
+            }
+
+            _dbSet.Remove(obj);
+
+            return true;
+        }
+
+
         public virtual async Task<ICollection<TEntity>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();

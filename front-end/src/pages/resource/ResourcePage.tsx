@@ -136,14 +136,7 @@ const ResourcePage = () => {
         resource.file &&
         (resource.typeOfResourceId === 1 || resource.typeOfResourceId === 2)
       ) {
-        // Upload file
         await resourceService.uploadResourceFile(resource.file, resourceId);
-      } else if (
-        "link" in resource &&
-        resource.link &&
-        resource.typeOfResourceId === 3
-      ) {
-        await resourceService.uploadResourceLinkType(resourceId, resource.link);
       }
 
       fetchResources();
@@ -232,8 +225,8 @@ const ResourcePage = () => {
     >
   ) => {
     if ("value" in e.target && e.target instanceof HTMLInputElement) {
-      if (e.target.value.length > 100) {
-        setErrors("Name of resource must not exceed 1000 characters.");
+      if (e.target.value.length > 500) {
+        setErrors("Name of resource must not exceed 500 characters.");
         return;
       }
       setSearchByName(e.target.value);
@@ -279,7 +272,7 @@ const ResourcePage = () => {
         <button
           id={`download-button-${index}`}
           onClick={() => handleDownload(resource)}
-          className="w-full rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="w-50 rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Download
         </button>
@@ -288,7 +281,7 @@ const ResourcePage = () => {
         <button
           id={`open-button-${index}`}
           onClick={() => handleOpenWeb(resource)}
-          className="w-full rounded bg-blue-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-blue-600 transition-colors"
+          className="w-50 rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Open Link
         </button>
@@ -343,7 +336,7 @@ const ResourcePage = () => {
           <>
             {getActionButton()}
             {buttons.delete}
-            {buttons.edit}
+
             {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );
@@ -351,7 +344,7 @@ const ResourcePage = () => {
         return (
           <>
             {getActionButton()}
-            {buttons.edit}
+
             {resource.typeOfResource.id !== 3 && buttons.view}
           </>
         );

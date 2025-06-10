@@ -1,4 +1,3 @@
-
 using System.Security.Claims;
 using ApplicationCore.DTOs.Common;
 using ApplicationCore.DTOs.QueryParameters;
@@ -47,16 +46,17 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpPut("{resouceId:guid}")]
+        [HttpPut("{resourceId:guid}")]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(typeof(ResourceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> EditResource(Guid resouceId, [FromBody] EditResourceRequest editResourceRequest)
+        public async Task<IActionResult> EditResource(Guid resourceId, [FromBody] EditResourceRequest editResourceRequest)
         {
             var mentorIdString = User.FindFirstValue("id")!;
             Guid mentorId = Guid.Parse(mentorIdString);
-            var result = await _resourceService.EditResource(resouceId, mentorId, editResourceRequest);
+            var result = await _resourceService.EditResource(resourceId, mentorId, editResourceRequest);
+
             return ToActionResult(result);
         }
 
@@ -69,19 +69,6 @@ namespace Presentation.Controllers
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
             var result = await _resourceService.GetAllResources(resourceQueryParameters, userId);
-
-            return ToActionResult(result);
-        }
-
-        [HttpPut("{resourceId:guid}/UrlUpload")]
-        [Authorize]
-        [ProducesResponseType(typeof(UpdateResourceUrlResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UploadUrlResource(Guid resourceId, string Url)
-        {
-            var userIdString = User.FindFirstValue("id")!;
-            Guid userId = Guid.Parse(userIdString);
-            var result = await _resourceService.UpdateResourceUrl(resourceId, userId, Url);
 
             return ToActionResult(result);
         }

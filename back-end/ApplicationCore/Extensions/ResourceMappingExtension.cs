@@ -16,6 +16,7 @@ namespace ApplicationCore.Extensions
                 CourseName = resource.Course!.Name,
                 TypeOfResource = resource.TypeOfResource!,
                 ResourceCategory = resource.ResourceCategory!,
+                link = resource.Url
             };
         }
 
