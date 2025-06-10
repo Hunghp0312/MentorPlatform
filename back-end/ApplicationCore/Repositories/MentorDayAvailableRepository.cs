@@ -1,4 +1,5 @@
-﻿using ApplicationCore.Repositories.RepositoryInterfaces;
+﻿using ApplicationCore.Common;
+using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
 using Infrastructure.Entities;
@@ -57,7 +58,7 @@ public class MentorDayAvailableRepository
 
     public async Task<MentorDayAvailable?> GetTimeSlotOfDayAsync(Guid mentorId, DateOnly date)
     {
-        var currentDate = DateTime.UtcNow;
+        DateTime currentDate = DateTimeHelper.GetCurrentVietnamTime();
         DateOnly todayUtc = DateOnly.FromDateTime(currentDate);
         TimeOnly timeNowUtc = TimeOnly.FromDateTime(currentDate);
         return await _dbSet

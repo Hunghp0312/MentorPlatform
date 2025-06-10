@@ -111,7 +111,8 @@ namespace ApplicationCore.Services
 
             DateTime fullSlotStartTime = slot.MentorDayAvailable.Day.ToDateTime(slot.Start);
             DateTime combinedDateTimeUtc = DateTime.SpecifyKind(fullSlotStartTime, DateTimeKind.Local);
-            if (combinedDateTimeUtc <= DateTime.Now)
+            DateTime currentDate = DateTimeHelper.GetCurrentVietnamTime();
+            if (combinedDateTimeUtc <= currentDate)
             {
                 return OperationResult<CreatedBookingResponseDto>.BadRequest("Cannot book a session for a past or current time slot.");
             }
@@ -386,8 +387,9 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot is not available for reschedule.");
             }
 
-            DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start, DateTimeKind.Local);
-            if (fullNewSlotStartTime <= DateTime.Now)
+            DateTime currentDate = DateTimeHelper.GetCurrentVietnamTime();
+            DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start);
+            if (fullNewSlotStartTime <= currentDate)
             {
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot must be in the future.");
             }
@@ -503,8 +505,7 @@ namespace ApplicationCore.Services
         public async Task<OperationResult<MentorDashboardDto>> GetSessionDashBoardAsync(Guid userId, PaginationParameters paginationParameters)
         {
             paginationParameters.PageSize = 3;
-            TimeZoneInfo vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh");
-            DateTime currentDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            DateTime currentDate = DateTimeHelper.GetCurrentVietnamTime();
             SessionDashboardKpiDto sessionDashboardKpiDto = new SessionDashboardKpiDto();
             sessionDashboardKpiDto.SessionsThisMonth = await _sessionBookingRepository
                                                         .GetAllQueryable()
