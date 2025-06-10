@@ -204,6 +204,20 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
           errors.file = "Please upload a mp4 file!";
           isValid = false;
         }
+      } else if (initialData && initialData.fileId) {
+        const originalType = initialData.typeOfResource.id;
+        const newType = formData.typeOfResourceId;
+        if (
+          originalType !== newType &&
+          (originalType === 1 || originalType === 2) &&
+          (newType === 1 || newType === 2)
+        ) {
+          errors.file =
+            newType === 1
+              ? "Please upload a Mp4 file!"
+              : "Please upload a PDF file!";
+          isValid = false;
+        }
       }
     } else if (formData.typeOfResourceId === 3) {
       if (!formData.link) {
@@ -249,6 +263,30 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
     }
   };
 
+  const handleOnClose = () => {
+    onClose();
+    setFormData({
+      title: "",
+      description: "",
+      resourceCategoryId: 0,
+      typeOfResourceId: 0,
+      courseId: "",
+      file: null,
+      link: "",
+    });
+    setFormErrors({
+      title: "",
+      description: "",
+      resourceCategoryId: "",
+      typeOfResourceId: "",
+      courseId: "",
+      file: "",
+      link: "",
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
   const categoryOptionsList = [
     { id: "", name: "Select a category" },
     ...categoryOptions
@@ -350,7 +388,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
                 ref={fileInputRef}
                 accept={formData.typeOfResourceId === 1 ? ".mp4" : ".pdf"}
                 onChange={handleFileChange}
-                className="w-full text-sm text-gray-700 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full text-sm text-gray-300 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 disabled={!isEditable}
               />
               {formErrors.file && (
@@ -382,7 +420,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
             />
           ) : null}
           <div className="flex justify-end gap-2 mt-4">
-            <Button type="button" variant="secondary" onClick={onClose}>
+            <Button type="button" variant="secondary" onClick={handleOnClose}>
               Cancel
             </Button>
             <Button
