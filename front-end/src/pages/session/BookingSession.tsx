@@ -122,14 +122,13 @@ const BookingSession: React.FC = () => {
             toast.success('Session booked successfully!');
         } catch (error) {
             console.error("Error booking session:", error);
+            toast.error('Failed to book session. Please try again later.');
             return;
         }
         finally {
             setLoadingBooking(false);
             setSelectedSlot('');
             setSelectedSessionType(null);
-            setSlots(undefined);
-            setSelectedDate(undefined);
         }
     }
 
