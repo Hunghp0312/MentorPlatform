@@ -569,7 +569,7 @@ namespace ApplicationCore.Services
                 SessionTypeName = sb.SessionType.Name,
             }).ToList();
 
-            MentorDashboardDto mentorDashboardDto = new MentorDashboardDto() { SessionKPIs = sessionDashboardKpiDto, UpcomingSessions = bookingDtos };
+            MentorDashboardDto mentorDashboardDto = new MentorDashboardDto() { SessionKPIs = sessionDashboardKpiDto, UpcomingSessions = bookingDtos, CurrenTime = currentDate, CurrenTimeNow = DateTime.Now };
 
             return OperationResult<MentorDashboardDto>.Ok(mentorDashboardDto);
         }
