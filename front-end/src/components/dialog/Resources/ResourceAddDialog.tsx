@@ -350,7 +350,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
                 ref={fileInputRef}
                 accept={formData.typeOfResourceId === 1 ? ".mp4" : ".pdf"}
                 onChange={handleFileChange}
-                className="w-full text-sm text-gray-300 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full text-sm text-gray-700 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 disabled={!isEditable}
               />
               {formErrors.file && (
