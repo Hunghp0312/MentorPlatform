@@ -147,7 +147,9 @@ namespace ApplicationCore.Services
                 if (!string.IsNullOrEmpty(resourceQueryParameters.Query))
                 {
                     q = q.Where(r =>
-                        r.Title != null && r.Title.Contains(resourceQueryParameters.Query)
+                        r.Title != null && r.Title.Contains(resourceQueryParameters.Query) ||
+                        r.Course != null &&
+                        r.Course.Name != null && r.Course.Name.Contains(resourceQueryParameters.Query)
                        );
                 }
 
@@ -237,7 +239,6 @@ namespace ApplicationCore.Services
             await _documentContentRepository.AddAsync(documentContentEntity);
 
             var oldDocumentContentId = existingResource.DocumentContentId;
-            //var oldUrl = existingResource.Url;
 
 
             existingResource.DocumentContentId = documentContentEntity.Id;
