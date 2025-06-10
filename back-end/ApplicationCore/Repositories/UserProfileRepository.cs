@@ -1,3 +1,4 @@
+using ApplicationCore.Common;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
@@ -48,8 +49,7 @@ namespace ApplicationCore.Repositories
                     .ThenInclude(d => d.MentorTimeAvailables)
                 .AsQueryable();
 
-
-            var currentDate = DateTime.Now;
+            DateTime currentDate = DateTimeHelper.GetCurrentVietnamTime();
             DateOnly todayUtc = DateOnly.FromDateTime(currentDate);
             TimeOnly timeNowUtc = TimeOnly.FromDateTime(currentDate);
             queryable = queryable.Where(up =>

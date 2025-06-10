@@ -97,7 +97,7 @@ export default function Layout() {
       {
         icon: <AlarmClockCheck size={20} />,
         label: "Session Management",
-        href: `/session-management/${decodedToken?.id}`,
+        href: `/session-management`,
       },
       {
         icon: <FileBox size={20} />,
@@ -128,7 +128,12 @@ export default function Layout() {
       },
       {
         icon: <BookCopy size={20} />,
-        label: "Courses",
+        label: "All Courses",
+        href: pathName.learnerAllCourses,
+      },
+      {
+        icon: <BookCopy size={20} />,
+        label: "My Courses",
         href: pathName.learnerCourse,
       },
       {
@@ -152,7 +157,8 @@ export default function Layout() {
       <main
         className={`flex-1 transition-all duration-300 overflow-y-auto p-6 ${
           collapsed ? "ml-16" : "ml-64"
-        }`}>
+        }`}
+      >
         <div className="bg-gray-900 min-h-screen text-gray-200">
           <Outlet />
         </div>

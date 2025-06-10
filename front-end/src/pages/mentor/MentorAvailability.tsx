@@ -641,6 +641,7 @@ const AvailabilityManager = () => {
               <button
                 className="p-1 hover:bg-slate-600 rounded"
                 onClick={goToPreviousWeek}
+                id="previous-week"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -651,6 +652,7 @@ const AvailabilityManager = () => {
               <button
                 className="p-1 hover:bg-slate-600 rounded"
                 onClick={goToNextWeek}
+                id="next-week"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -694,7 +696,7 @@ const AvailabilityManager = () => {
         {/* Main Content */}
         <div className="flex-1">
           {/* Day Tabs */}
-          <div className="flex mb-6">
+          <div className="flex mb-6" id="calendar">
             {weekDates.map((day) => {
               // Check if this day has any booked slots
               const dayData = weekAvailability?.days.find(
@@ -750,7 +752,10 @@ const AvailabilityManager = () => {
               </h2>
 
               {timeSlots.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
+                  id="time-block-grid"
+                >
                   {timeSlots.map((slot, index) => {
                     // Check if this slot is in API data (has a matching timeBlock)
                     const matchingBlock = selectedDayData?.timeBlocks.find(
@@ -859,7 +864,10 @@ const AvailabilityManager = () => {
               This is how your availability will appear to learners:
             </p>
 
-            <div className="grid grid-cols-7 gap-4 mb-4">
+            <div
+              className="grid grid-cols-7 gap-4 mb-4"
+              id="availabily-preview"
+            >
               {weekDates.map((day) => {
                 // Get booked slots for this day
                 const dayData = weekAvailability?.days.find(

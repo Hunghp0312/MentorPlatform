@@ -16,7 +16,7 @@ export const pathName = {
   profile: "/profile",
   bookingSession: "/booking-session/:id",
   mentorDashboard: "/mentor",
-  sessionManagement: "/session-management/:id",
+  sessionManagement: "/session-management",
   mentorProfile: "/mentor-profile/:id",
   editProfile: "/edit-profile",
   mentorAvailability: "/mentor/availability",
@@ -27,6 +27,6 @@ export const pathName = {
   mentorResource: "/mentor/resource",
   learnerResource: "/learner/resource",
   learnerDashboard: "/learner/dashboard",
-  leanerCourse: "/learner/course",
   learnerCourseDetail: "/learner/course/:id",
+  learnerAllCourses: "/learner/all-courses",
 };

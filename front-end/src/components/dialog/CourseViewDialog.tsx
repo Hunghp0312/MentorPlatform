@@ -16,8 +16,9 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
   courseData,
   onEdit,
 }) => {
-  const [courseDetails, setCourseDetails] =
-    useState<CourseDetailType>(courseData);
+  const [courseDetails, setCourseDetails] = useState<CourseDetailType>(
+    courseData as CourseDetailType
+  );
   const [isLoading, setIsLoading] = useState(true);
   // Map level value to label
   const getLevelLabel = (level: number): string => {
@@ -128,7 +129,7 @@ const CourseViewDialog: React.FC<CourseViewDialogProps> = ({
       {viewBlock("Description", courseDetails.description)}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Status Field */}
-        {viewBlock("Enrolled Students", courseDetails.students ?? 0)}
+        {viewBlock("Enrolled Students", courseDetails.studentCount ?? 0)}
 
         {/* Level Field */}
         {viewBlock("Completion Rate", courseDetails.completion ?? 0 + "%")}

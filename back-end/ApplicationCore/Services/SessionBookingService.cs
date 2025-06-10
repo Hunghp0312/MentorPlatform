@@ -111,7 +111,8 @@ namespace ApplicationCore.Services
 
             DateTime fullSlotStartTime = slot.MentorDayAvailable.Day.ToDateTime(slot.Start);
             DateTime combinedDateTimeUtc = DateTime.SpecifyKind(fullSlotStartTime, DateTimeKind.Local);
-            if (combinedDateTimeUtc <= DateTime.Now)
+            DateTime currentDate = DateTimeHelper.GetCurrentVietnamTime();
+            if (combinedDateTimeUtc <= currentDate)
             {
                 return OperationResult<CreatedBookingResponseDto>.BadRequest("Cannot book a session for a past or current time slot.");
             }
@@ -386,8 +387,9 @@ namespace ApplicationCore.Services
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot is not available for reschedule.");
             }
 
-            DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start, DateTimeKind.Local);
-            if (fullNewSlotStartTime <= DateTime.Now)
+            DateTime currentDate = DateTimeHelper.GetCurrentVietnamTime();
+            DateTime fullNewSlotStartTime = newSlot.MentorDayAvailable.Day.ToDateTime(newSlot.Start);
+            if (fullNewSlotStartTime <= currentDate)
             {
                 return OperationResult<UpdateBookingResponseDto>.BadRequest("The new selected slot must be in the future.");
             }
@@ -503,13 +505,20 @@ namespace ApplicationCore.Services
         public async Task<OperationResult<MentorDashboardDto>> GetSessionDashBoardAsync(Guid userId, PaginationParameters paginationParameters)
         {
             paginationParameters.PageSize = 3;
-            var currentDate = DateTime.Now;
+            DateTime currentDate = DateTimeHelper.GetCurrentVietnamTime();
             SessionDashboardKpiDto sessionDashboardKpiDto = new SessionDashboardKpiDto();
             sessionDashboardKpiDto.SessionsThisMonth = await _sessionBookingRepository
                                                         .GetAllQueryable()
                                                         .Include(x => x.MentorTimeAvailable)
                                                         .ThenInclude(t => t.MentorDayAvailable)
                                                         .Where(s => s.MentorId == userId && s.MentorTimeAvailable.MentorDayAvailable.Day.Month == currentDate.Month).CountAsync();
+
+            sessionDashboardKpiDto.ActiveLearners = await _sessionBookingRepository
+                                                         .GetAllQueryable()
+                                                         .Where(s => s.MentorId == userId)
+                                                         .Select(s => s.LearnerId)
+                                                         .Distinct()
+                                                         .CountAsync();
 
             var courses = await _courseRepository
                                                          .GetAllQueryable()
@@ -528,7 +537,6 @@ namespace ApplicationCore.Services
                 query = query.OrderBy(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day)
                 .ThenBy(sb => sb.MentorTimeAvailable.Start);
 
-                var currentDate = DateTime.Now;
                 DateOnly todayUtc = DateOnly.FromDateTime(currentDate);
                 TimeOnly timeNowUtc = TimeOnly.FromDateTime(currentDate);
                 query = query.Where(up => up.MentorTimeAvailable.StatusId == 2 && ((up.MentorTimeAvailable.Start > timeNowUtc

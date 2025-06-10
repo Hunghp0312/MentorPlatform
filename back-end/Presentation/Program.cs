@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-using System.Text;
-using ApplicationCore.JsonConverters;
+﻿using ApplicationCore.JsonConverters;
 using ApplicationCore.Repositories;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services;
@@ -19,6 +17,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Presentation.Configurations;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +56,16 @@ builder
             RoleClaimType = ClaimTypes.Role,
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ActiveUserOnly", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("isActive", "1");
+    });
+});
+
 builder.Services.Configure<EmailSettingOption>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -101,6 +111,7 @@ builder.Services.AddScoped<IResourceRepository, ResourceRepository>();
 builder.Services.AddScoped<IResourceService, ResourceService>();
 
 builder.Services.AddHostedService<SessionReminderService>();
+builder.Services.AddHostedService<ExpiredBookingCancellationService>();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssembly(typeof(CategoryRequestDtoValidator).Assembly);
 builder

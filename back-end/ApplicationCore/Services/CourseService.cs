@@ -28,7 +28,52 @@ namespace ApplicationCore.Services
             _categoryRepo = categoryRepo;
             _unitOfWork = unitOfWork;
         }
+        public async Task<OperationResult<PagedResult<GetCourseDetailsResponse>>> GetCourseLearnerEnroll(Guid learnerId, CourseQueryParameters courseQueryParameters)
+        {
+            if (courseQueryParameters.PageIndex < 1)
+                courseQueryParameters.PageIndex = 1;
 
+            if (courseQueryParameters.PageSize < 1 || courseQueryParameters.PageSize > 20)
+                courseQueryParameters.PageSize = 10;
+
+            Func<IQueryable<Course>, IQueryable<Course>> filter = query =>
+            {
+                if (!string.IsNullOrWhiteSpace(courseQueryParameters.Query))
+                {
+                    query = query.Where(c =>
+                    c.Name.Contains(courseQueryParameters.Query) || c.Description.Contains(courseQueryParameters.Query)
+                    );
+                }
+
+                if (courseQueryParameters.MentorId.HasValue)
+                {
+                    query = query.Where(c => c.MentorId == courseQueryParameters.MentorId);
+                }
+
+                if (courseQueryParameters.Level.HasValue)
+                {
+                    query = query.Where(c => c.LevelId == courseQueryParameters.Level);
+                }
+
+                if (courseQueryParameters.CategoryId.HasValue && courseQueryParameters.CategoryId.Value != Guid.Empty)
+                {
+                    query = query.Where(c => c.CategoryId == courseQueryParameters.CategoryId.Value);
+                }
+
+                return query;
+            };
+            var (courses, total) = await _courseRepo.GetCourseLearnerEnroll(learnerId, filter, courseQueryParameters.PageIndex, courseQueryParameters.PageSize);
+            var courseResponse = courses.Select(c => c.CourseDetailResponseMap(learnerId))
+                .ToList();
+            var pagedResult = new PagedResult<GetCourseDetailsResponse>
+            {
+                Items = courseResponse,
+                PageIndex = courseQueryParameters.PageIndex,
+                PageSize = courseQueryParameters.PageSize,
+                TotalItems = total,
+            };
+            return OperationResult<PagedResult<GetCourseDetailsResponse>>.Ok(pagedResult);
+        }
         public async Task<OperationResult<GetCourseDetailsResponse>> CreateCourseAsync(
             CreateUpdateCourseRequest request,
             Guid userId,
@@ -61,21 +106,21 @@ namespace ApplicationCore.Services
             );
         }
 
-        public async Task<OperationResult<GetCourseDetailsResponse>> GetCourseDetailsByIdAsync(
-            Guid courseId
+        public async Task<OperationResult<CourseDetailResponse>> GetCourseDetailsByIdAsync(
+            Guid courseId, Guid learnerId
         )
         {
             var course = await _courseRepo.GetCourseWithCategoryAsync(courseId);
             if (course == null)
             {
-                return OperationResult<GetCourseDetailsResponse>.NotFound(
+                return OperationResult<CourseDetailResponse>.NotFound(
                     $"Course with ID {courseId} not found"
                 );
             }
 
-            var response = course.CourseDetailResponseMap();
+            var response = course.ToCourseDetailResponse(learnerId);
 
-            return OperationResult<GetCourseDetailsResponse>.Ok(response);
+            return OperationResult<CourseDetailResponse>.Ok(response);
         }
 
         public async Task<
@@ -91,7 +136,7 @@ namespace ApplicationCore.Services
                 );
             }
 
-            var response = courses.Select(CourseMappingExtension.CourseDetailResponseMap).ToList();
+            var response = courses.Select(c => c.CourseDetailResponseMap()).ToList();
             return OperationResult<ICollection<GetCourseDetailsResponse>>.Ok(response);
         }
 
@@ -154,7 +199,7 @@ namespace ApplicationCore.Services
 
         public async Task<
             OperationResult<PagedResult<GetCourseDetailsResponse>>
-        > GetPagedCourseAsync(CourseQueryParameters req)
+        > GetPagedCourseAsync(CourseQueryParameters req, Guid id)
         {
             if (req.PageIndex < 1)
                 req.PageIndex = 1;
@@ -196,7 +241,7 @@ namespace ApplicationCore.Services
             );
 
             var CourseDetailsResponse = courses
-                .Select(CourseMappingExtension.CourseDetailResponseMap)
+                .Select(c => c.CourseDetailResponseMap(id))
                 .ToList();
 
             var coursesPageResponse = new PagedResult<GetCourseDetailsResponse>
@@ -295,7 +340,6 @@ namespace ApplicationCore.Services
 
             int totalEnrollments = coursesByMentor.Sum(c => c.LearnerCourses.Count);
             int totalCompletedEnrollments = coursesByMentor.Sum(c => c.LearnerCourses.Count(lc => lc.IsCompleted));
-            courseDashboardKpiDto.ActiveStudents = totalEnrollments;
 
             if (totalEnrollments > 0)
             {
