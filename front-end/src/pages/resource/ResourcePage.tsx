@@ -225,8 +225,8 @@ const ResourcePage = () => {
     >
   ) => {
     if ("value" in e.target && e.target instanceof HTMLInputElement) {
-      if (e.target.value.length > 100) {
-        setErrors("Name of resource must not exceed 1000 characters.");
+      if (e.target.value.length > 500) {
+        setErrors("Name of resource must not exceed 500 characters.");
         return;
       }
       setSearchByName(e.target.value);
