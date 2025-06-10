@@ -2,6 +2,7 @@ using ApplicationCore.Repositories.RepositoryInterfaces;
 using ApplicationCore.Services.ServiceInterfaces;
 using ApplicationCore.DTOs.Responses.Dashboard;
 using Infrastructure.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationCore.Services
 {
@@ -32,19 +33,23 @@ namespace ApplicationCore.Services
 
         private async Task<double> GetMentorRetentionAsync()
         {
-            var users = await _userRepository.GetAllAsync();
-            var totalMentors = users.Count(u => u.RoleId == 3);
-            var activeMentors = users.Count(u => u.RoleId == 3 && u.StatusId == 1);
+            var users = _userRepository.GetAllQueryable()
+                .Where(u => u.RoleId == 3)
+                .Include(u => u.Status);
+
+            var totalMentors = await users.CountAsync();
+            var activeMentors = await users.CountAsync(u => u.StatusId == 1);
+
             if (totalMentors == 0) return 0;
             return Math.Round((double)activeMentors / totalMentors * 100, 2);
         }
 
         private async Task<int> GetNewUsersIn30DaysAsync()
         {
-            var users = await _userRepository.GetAllAsync();
-            var now = DateTime.UtcNow;
-            var startDate = now.AddDays(-30);
-            return users.Count(u => u.CreatedAt >= startDate && u.CreatedAt <= now);
+            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+            return await _userRepository.GetAllQueryable()
+                .Where(u => u.CreatedAt >= thirtyDaysAgo)
+                .CountAsync();
         }
     }
 }

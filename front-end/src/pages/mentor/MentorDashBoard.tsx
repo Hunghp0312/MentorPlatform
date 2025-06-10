@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Video, MessageSquare, Users, Zap, User, Upload, MessageCircle } from 'lucide-react';
+import { Calendar, Video, MessageSquare, Users, Zap, User, Upload } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { SessionsResponse, UpcomingSession } from '../../types/session';
 import { mentorDashboardService } from '../../services/mentorDashboard.service';
@@ -24,6 +24,7 @@ const MentorDashBoard: React.FC = () => {
     });
     const [course,setCourse] = useState<CourseDashboardResponseType>({
         courseKPIs : {
+            averageCompletion: 0,
             totalCourses: 0,
             activeStudents: 0,
             publishedCourses: 0
@@ -296,14 +297,9 @@ const MentorDashBoard: React.FC = () => {
                                     Edit Profile Information
                                 </button>
 
-                                <button className="w-full bg-[#22c55e] hover:bg-[#16a34a] text-white py-2 px-4 rounded flex items-center">
+                                <button className="w-full bg-[#22c55e] hover:bg-[#16a34a] text-white py-2 px-4 rounded flex items-center" onClick={() => navigate(pathName.mentorResource)}>
                                     <Upload className="w-5 h-5 mr-2" />
                                     Upload New Resources
-                                </button>
-
-                                <button className="w-full bg-[#a855f7] hover:bg-[#9333ea] text-white py-2 px-4 rounded flex items-center">
-                                    <MessageCircle className="w-5 h-5 mr-2" />
-                                    Message Learners
                                 </button>
                             </div>
                         </div>

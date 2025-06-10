@@ -86,20 +86,6 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpDelete("del-file/{fileId:guid}")]
-        [Authorize(Roles = "Mentor")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteResourceFile(Guid fileId)
-        {
-            var userIdString = User.FindFirstValue("id")!;
-            Guid userId = Guid.Parse(userIdString);
-            var result = await _resourceService.DeleteResourceFileAsync(userId, fileId);
-
-            return ToActionResult(result);
-        }
-
         [HttpPost("up-file/{resourceId:guid}")]
         [Authorize(Roles = "Mentor")]
         [ProducesResponseType(typeof(ResourceFileResponse), StatusCodes.Status201Created)]
@@ -122,27 +108,6 @@ namespace Presentation.Controllers
             var userIdString = User.FindFirstValue("id")!;
             Guid userId = Guid.Parse(userIdString);
             var result = await _resourceService.GetFileResourceDetails(fileId, userId);
-            return ToActionResult(result);
-        }
-        [HttpDelete("del-link-file/{resourceId:guid}/Url")]
-        [Authorize(Roles = "Mentor")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteLinkFile(Guid resourceId)
-        {
-            var userIdString = User.FindFirstValue("id")!;
-            Guid userId = Guid.Parse(userIdString);
-            var result = await _resourceService.DeleteLinkFileAsync(userId, resourceId);
-            return ToActionResult(result);
-        }
-        [HttpGet("link/{resourceId:guid}/Url")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> OpenResourceLinkAsync(Guid resourceId)
-        {
-            var result = await _resourceService.OpenResourceLinkAsync(resourceId);
             return ToActionResult(result);
         }
     }

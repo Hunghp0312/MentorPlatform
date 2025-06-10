@@ -56,6 +56,16 @@ builder
             RoleClaimType = ClaimTypes.Role,
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ActiveUserOnly", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("isActive", "1");
+    });
+});
+
 builder.Services.Configure<EmailSettingOption>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();

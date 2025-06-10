@@ -94,6 +94,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("available-mentors")]
+        [Authorize]
         [ProducesResponseType(typeof(PagedResult<MentorCardDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAvailableMentors(
       [FromQuery] AvailableMentorQueryParameters queryParameters)
@@ -104,11 +105,21 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("mentor-profile-detail/{mentorApplicationId}")]
+        [Authorize]
         [ProducesResponseType(typeof(MentorProfileDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMentorProfileDetail(Guid mentorApplicationId)
         {
             var result = await _mentorService.GetMentorProfileDetailAsync(mentorApplicationId);
+            return ToActionResult(result);
+        }
+
+        [HttpGet("mentor-application-count")]
+        [ProducesResponseType(typeof(ApplicationStatusCountResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetApplicationStatusCountAsync()
+        {
+            var result = await _mentorService.GetApplicationStatusCountAsync();
             return ToActionResult(result);
         }
     }

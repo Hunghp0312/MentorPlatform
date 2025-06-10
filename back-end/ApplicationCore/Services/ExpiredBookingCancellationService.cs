@@ -1,4 +1,5 @@
-﻿using ApplicationCore.Repositories.RepositoryInterfaces;
+﻿using ApplicationCore.Common;
+using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +36,7 @@ namespace ApplicationCore.Services
                 var sessionBookingRepository = scope.ServiceProvider.GetRequiredService<ISessionBookingRepository>();
                 var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
 
-                var utcNow = DateTime.Now;
+                var utcNow = DateTimeHelper.GetCurrentVietnamTime();
                 var todayUtc = DateOnly.FromDateTime(utcNow);
                 var timeNowUtc = TimeOnly.FromDateTime(utcNow);
 

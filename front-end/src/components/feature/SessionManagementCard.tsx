@@ -15,9 +15,8 @@ import { BookingSessionResponse } from '../../types/session';
 const SessionManagementCard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'pending' | 'recent' | 'inpast'>('pending');
   const [showRescheduleModal, setShowRescheduleModal] = useState<string | null>(null);
-  const [showDeclineModal, setShowDeclineModal] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal] = useState<string | null>(null);
-  const [declineMessage, setDeclineMessage] = useState<string>('');
+  const [cancelMessage, setCancelMessage] = useState<string>('');
   const [cancelMessageError, setCancelMessageError] = useState<string>('');
   const [sessionRequests, setSessionRequests] = useState<BookingSessionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -69,6 +68,7 @@ const SessionManagementCard: React.FC = () => {
 
   const handleAcceptSession = async (sessionId: string) => {
     try {
+      setLoading(true);
       await sessionService.updateStatusBookingSession(sessionId, 6);
       toast.success('Session accepted successfully!');
       fetchSessionRequests();
@@ -77,52 +77,50 @@ const SessionManagementCard: React.FC = () => {
       console.error('Error accepting session:', error);
       toast.error('Failed to accept session. Please try again.');
     }
+    finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeclineSession = (sessionId: string) => {
-    setShowDeclineModal(sessionId);
-  }
-
-  const confirmDecline = async () => {
-    if (!showDeclineModal) return;
-    if (declineMessage.trim().length == 0) {
-      toast.error("When decline need to provide reason.")
-      return;
-    }
-
+  const handleDeclineSession = async (sessionId: string) => {
     try {
-      await sessionService.updateStatusBookingSession(showDeclineModal, 3);
+      setLoading(true);
+      await sessionService.updateStatusBookingSession(sessionId, 3);
       toast.success('Session declined successfully!');
       fetchSessionRequests();
     }
     catch (error) {
-      console.error('Error declining session:', error);
-      toast.error('Failed to decline session. Please try again.');
+      console.error('Error accepting session:', error);
+      toast.error('Failed to declined session. Please try again.');
     }
     finally {
-      setShowDeclineModal(null);
-      setDeclineMessage('');
+      setLoading(false);
     }
-  };
+
+  }
+
+
 
   const confirmCancel = async () => {
-    if (declineMessage.trim().length == 0) {
+    if (cancelMessage.trim().length == 0) {
       toast.error("When cancel need to provide reason.")
       return;
     }
 
     try {
-      await sessionService.updateStatusBookingSession(showCancelModal as string, 5, declineMessage);
-      toast.success('Session declined successfully!');
+      setLoading(true);
+      await sessionService.updateStatusBookingSession(showCancelModal as string, 5, cancelMessage);
+      toast.success('Session cancel successfully!');
       fetchSessionRequests();
     }
     catch (error) {
       console.error('Error declining session:', error);
-      toast.error('Failed to decline session. Please try again.');
+      toast.error('Failed to cancel session. Please try again.');
     }
     finally {
+      setLoading(false);
       setShowCancelModal(null);
-      setDeclineMessage('');
+      setCancelMessage('');
     }
   }
 
@@ -130,36 +128,28 @@ const SessionManagementCard: React.FC = () => {
     setShowRescheduleModal(sessionId);
   };
 
-  const confirmReschedule = async (sessionId: string, mentorTimeAvailableId: string) => {
-    console.log('Rescheduling session:', sessionId, mentorTimeAvailableId);
-    try {
-      await sessionService.rescheduleBookingSession(sessionId, mentorTimeAvailableId)
-      fetchSessionRequests();
-    }
-    catch (error) {
-      console.error('Error rescheduling session:', error);
-      toast.error('Failed to reschedule session. Please try again.');
-      return;
-    }
-    finally {
-      setShowRescheduleModal(null);
-    }
-    toast.success('Session rescheduled successfully!');
+  const confirmReschedule = async () => {
+    fetchSessionRequests();
+    setShowRescheduleModal(null);
   };
 
-  const handleCancelSession = async (sessionId: string) => {
+  const handleCancelSession = (sessionId: string) => {
     setShowCancelModal(sessionId);
   }
 
   const handleCompletedSession = async (sessionId: string) => {
     try {
+      setLoading(true);
       await sessionService.updateStatusBookingSession(sessionId, 4);
-      toast.success('Session accepted successfully!');
+      toast.success('Session complete successfully!');
       fetchSessionRequests();
     }
     catch (error) {
       console.error('Error accepting session:', error);
-      toast.error('Failed to accept session. Please try again.');
+      toast.error('Failed to complete session. Please try again.');
+    }
+    finally {
+      setLoading(false);
     }
   }
 
@@ -186,13 +176,27 @@ const SessionManagementCard: React.FC = () => {
     if (e.length > 1000) {
       setCancelMessageError('Message cannot exceed 1000 characters');
     } else {
-      setDeclineMessage(e);
+      setCancelMessage(e);
       setCancelMessageError('');
     }
   }
 
   const pendingRequests = sessionRequests.filter(req => req.statusName === 'Pending');
-  const recentRequests = sessionRequests.filter(req => req.statusName === "Scheduled" || req.statusName === "Rescheduled");
+  const recentRequests = sessionRequests
+    .filter(req => req.statusName === "Scheduled" || req.statusName === "Rescheduled")
+    .sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+
+      if (dateA === dateB) {
+        // If same day, compare by slot start time
+        const timeA = new Date(`1970-01-01T${a.slotStartTime}`).getTime();
+        const timeB = new Date(`1970-01-01T${b.slotStartTime}`).getTime();
+        return timeA - timeB;
+      }
+
+      return dateA - dateB;
+    });
   const inPastRequests = sessionRequests.filter(req => req.statusName === 'Completed' || req.statusName === 'Cancelled' || req.statusName === 'Declined');
 
   if (loading) {
@@ -477,44 +481,6 @@ const SessionManagementCard: React.FC = () => {
           />
         )}
 
-        {/* Decline Modal */}
-        <CustomModal
-          isOpen={!!showDeclineModal}
-          onClose={() => setShowDeclineModal(null)}
-          title="Decline Session"
-          size="md"
-        >
-          <div data-testid="decline-modal-content">
-            <p className="text-gray-300 mb-4">Please provide a reason for declining this session request.</p>
-
-            <textarea
-              className="w-full p-3 bg-[#1e2432] border border-gray-600 rounded-lg text-white mb-4 min-h-[120px]"
-              placeholder="Enter your message here..."
-              value={declineMessage}
-              onChange={(e) => setDeclineMessage(e.target.value)}
-              data-testid="decline-message-textarea"
-            />
-
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowDeclineModal(null)}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg"
-                data-testid="decline-cancel-button"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmDecline}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg flex items-center"
-                data-testid="decline-confirm-button"
-              >
-                <X className="w-4 h-4 mr-1" />
-                Decline
-              </button>
-            </div>
-          </div>
-        </CustomModal>
-
         {/* Cancel Modal */}
         <CustomModal
           isOpen={!!showCancelModal}
@@ -528,7 +494,7 @@ const SessionManagementCard: React.FC = () => {
             <textarea
               className="w-full p-3 bg-[#1e2432] border border-gray-600 rounded-lg text-white mb-4 min-h-[120px]"
               placeholder="Enter your message here..."
-              value={declineMessage}
+              value={cancelMessage}
               onChange={(e) => handleCancelMessageChange(e.target.value)}
               data-testid="cancel-message-textarea"
             />

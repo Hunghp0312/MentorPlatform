@@ -64,6 +64,7 @@ export interface CourseKPIsType {
   totalCourses: number;
   activeStudents: number;
   publishedCourses: number;
+  averageCompletion: number;
 }
 
 export interface CourseListItemType {

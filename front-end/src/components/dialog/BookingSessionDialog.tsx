@@ -4,13 +4,13 @@ import { sessionService } from '../../services/session.service';
 import { BookingRequest, TimeSlot } from '../../types/session';
 import { formatTime } from '../../utils/formatDate';
 import { SlotStatus } from '../../types/commonType';
+import { toast } from 'react-toastify';
 
 interface BookingDialogProps {
     mentorId: string;
     mentorName?: string;
     hourlyRate?: number;
     onClose?: () => void;
-    onConfirm?: (bookingData: BookingRequest) => void;
 }
 
 const BookingSessionDialog: React.FC<BookingDialogProps> = ({
@@ -18,7 +18,6 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
     mentorName = "Sarah Johnson",
     hourlyRate = 75,
     onClose,
-    onConfirm,
 }) => {
     const [slots, setSlots] = useState<TimeSlot[]>([])
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,14 +31,13 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
     const [selectedDate, setSelectedDate] = useState<string>('');
 
-    // In a real app, you would check actual mentor availability
 
     const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
         setSelectedDate(e.target.value);
         setBookingData(prev => ({
             ...prev,
-            mentorTimeAvailableId: '', // Reset time slot when date changes
+            mentorTimeAvailableId: '',
         }));
         try {
             const res = await sessionService.getSessionSlots(bookingData.mentorId, e.target.value);
@@ -88,14 +86,28 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
         fetchSlots();
     }, [mentorId]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
-        setTimeout(() => {
+        if (bookingData.learnerMessage.trim() === "") {
+            toast.error("Please enter a message for the mentor.");
+            return;
+        }
+        try {
+            console.log("Booking data:", bookingData);
+            debugger
+            setIsSubmitting(true);
+            await sessionService.bookSession(bookingData);
+            toast.success("Session booked successfully!");
+            if (onClose) onClose();
+            
+        }
+        catch (error) {
+            console.error("Error booking session:", error);
+            toast.error("Failed to book session. Please try again.");
+        }
+        finally {
             setIsSubmitting(false);
-            onConfirm?.(bookingData);
-        }, 200);
-
+        }
     };
 
     return (
@@ -115,7 +127,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                 <form onSubmit={handleSubmit} data-testid="booking-form">
                     {/* Date Input */}
                     <div className="mb-4">
-                        <label className="block text-sm mb-2" data-testid="date-label">Date</label>
+                        <label htmlFor="date" className="block text-sm mb-2" data-testid="date-label">Date</label>
                         <div className="relative">
                             <input
                                 type="date"
@@ -131,8 +143,9 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
                     {/* Time Slot */}
                     <div className="mb-2">
-                        <label className="block text-sm mb-2" data-testid="time-slot-label">Time Slot</label>
+                        <label htmlFor="mentorTimeAvailableId" className="block text-sm mb-2" data-testid="time-slot-label">Time Slot</label>
                         <select
+                            id="mentorTimeAvailableId"
                             name="mentorTimeAvailableId"
                             value={bookingData.mentorTimeAvailableId || ''}
                             onChange={handleInputChange}
@@ -146,7 +159,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                                     key={timeSlot.id}
                                     value={timeSlot.id}
                                     disabled={
-                                        (timeSlot.statusId !== SlotStatus.Available && timeSlot.statusId !== SlotStatus.Waiting) ||
+                                        (timeSlot.statusId !== SlotStatus.Available) ||
                                         (selectedDate === new Date().toISOString().split('T')[0] &&
                                             new Date(`${selectedDate}T${timeSlot.startTime}`).getTime() < new Date().getTime())
                                     }
@@ -165,7 +178,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
                     {/* Session Type */}
                     <div className="mb-4 mt-4">
-                        <label className="block text-sm mb-2" data-testid="session-type-label">Session Type</label>
+                        <label htmlFor="virtual" className="block text-sm mb-2" data-testid="session-type-label">Session Type</label>
                         <div className="flex space-x-4" data-testid="session-type-options">
                             <div className="flex items-center">
                                 <input
@@ -205,7 +218,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
 
                     {/* Discussion Notes */}
                     <div className="mb-6">
-                        <label className="block text-sm mb-2" data-testid="discussion-label">What would you like to discuss?</label>
+                        <label htmlFor='learnerMessage' className="block text-sm mb-2" data-testid="discussion-label">What would you like to discuss?</label>
                         <textarea
                             name="learnerMessage"
                             value={bookingData.learnerMessage || ''}

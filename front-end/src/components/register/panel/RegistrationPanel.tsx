@@ -82,13 +82,18 @@ const RegistrationPanel: React.FC<Props> = ({
     }
 
     await checkEmailExists(errs);
+
     setErrors(errs);
+
     return Object.keys(errs).length === 0;
   };
 
   const checkEmailExists = async (
     errors: Record<string, string>
   ): Promise<boolean> => {
+    if (!email) {
+      return false;
+    }
     const response = await registrionService.checkEmail({ email });
 
     if (response.exists) {

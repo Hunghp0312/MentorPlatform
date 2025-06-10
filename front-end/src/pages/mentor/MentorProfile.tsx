@@ -13,7 +13,6 @@ import Button from "../../components/ui/Button";
 import BookingSessionDialog from "../../components/dialog/BookingSessionDialog";
 import { useNavigate, useParams } from "react-router-dom";
 import { sessionService } from "../../services/session.service";
-import { BookingRequest } from "../../types/session";
 import { toast } from "react-toastify";
 import { mentorService } from "../../services/mentorapplication.service";
 import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
@@ -58,20 +57,7 @@ const MentorProfile: React.FC = () => {
     { id: "experience" as const, label: "Experience" },
     { id: "availability" as const, label: "Availability" },
   ];
-  const handleConfirmBooking = async (bookingData: BookingRequest) => {
-    if (bookingData.learnerMessage.trim() === "") {
-      toast.error("Please enter a message for the mentor.");
-      return;
-    }
-    try {
-      await sessionService.bookSession(bookingData);
-      toast.success("Session booked successfully!");
-      setOpenDialog(false);
-      navigate(`/booking-session/${id}`);
-    } catch (error) {
-      console.error("Error booking session:", error);
-    }
-  };
+
   useEffect(() => {
     const fetchAvailability = async () => {
       try {
@@ -414,8 +400,8 @@ const MentorProfile: React.FC = () => {
         <div data-testid="booking-session-dialog">
           <BookingSessionDialog
             mentorId={id as string}
+            mentorName={mentor.fullName}
             onClose={() => setOpenDialog(false)}
-            onConfirm={handleConfirmBooking}
           />
         </div>
       )}
