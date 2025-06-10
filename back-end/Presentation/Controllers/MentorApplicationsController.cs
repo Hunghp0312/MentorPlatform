@@ -60,8 +60,8 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
 
-        [HttpGet("applications", Policy = "ActiveUserOnly")]
-        [Authorize]
+        [HttpGet("applications")]
+        [Authorize(Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(PagedResult<MentorApplicantResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllMentorApplications([FromQuery] PaginationParameters paginationParameters, [FromQuery] int applicationStatus = 0)
