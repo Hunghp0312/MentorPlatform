@@ -21,6 +21,7 @@ interface ResourceFormPopupProps {
   initialData?: ResourceType;
   loading: boolean;
   categoryOptions: { value: string; label: string }[];
+  userRole: string | null;
 }
 
 const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
@@ -30,6 +31,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
   initialData,
   loading,
   categoryOptions,
+  userRole,
 }) => {
   const [formData, setFormData] = useState({
     title: "",
@@ -53,6 +55,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
 
   const [courses, setCourses] = useState<Course[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isEditable = userRole === "Mentor";
 
   // Update formData when initialData changes
   useEffect(() => {
@@ -121,6 +124,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isEditable) return;
     const file = e.target.files?.[0] || null;
     setFormData((prev) => ({ ...prev, file }));
     setFormErrors((prev) => ({ ...prev, file: "" }));
@@ -182,6 +186,38 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
           } file`;
           isValid = false;
         }
+        if (formData.file.size > 5 * 1024 * 1024) {
+          errors.file = `File size must not exceed 5MB`;
+          isValid = false;
+        }
+        if (
+          formData.typeOfResourceId === 2 &&
+          formData.file.name.toLowerCase().endsWith(".mp4")
+        ) {
+          errors.file = "Please upload a PDF file!";
+          isValid = false;
+        }
+        if (
+          formData.typeOfResourceId === 1 &&
+          formData.file.name.toLowerCase().endsWith(".pdf")
+        ) {
+          errors.file = "Please upload a mp4 file!";
+          isValid = false;
+        }
+      } else if (initialData && initialData.fileId) {
+        const originalType = initialData.typeOfResource.id;
+        const newType = formData.typeOfResourceId;
+        if (
+          originalType !== newType &&
+          (originalType === 1 || originalType === 2) &&
+          (newType === 1 || newType === 2)
+        ) {
+          errors.file =
+            newType === 1
+              ? "Please upload a Mp4 file!"
+              : "Please upload a PDF file!";
+          isValid = false;
+        }
       }
     } else if (formData.typeOfResourceId === 3) {
       if (!formData.link) {
@@ -227,6 +263,30 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
     }
   };
 
+  const handleOnClose = () => {
+    onClose();
+    setFormData({
+      title: "",
+      description: "",
+      resourceCategoryId: 0,
+      typeOfResourceId: 0,
+      courseId: "",
+      file: null,
+      link: "",
+    });
+    setFormErrors({
+      title: "",
+      description: "",
+      resourceCategoryId: "",
+      typeOfResourceId: "",
+      courseId: "",
+      file: "",
+      link: "",
+    });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
   const categoryOptionsList = [
     { id: "", name: "Select a category" },
     ...categoryOptions
@@ -256,11 +316,11 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 text-white rounded-lg p-6 w-full max-w-lg">
-        <h2 className="text-xl font-bold mb-4">
+      <div className="bg-gray-800 text-white rounded-lg p-3 w-full max-w-md">
+        <h2 className="text-base font-bold mb-1">
           {initialData ? "Edit Resource" : "Add Resource"}
         </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-1">
           <InputCustom
             label="Title"
             name="title"
@@ -270,6 +330,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
             onChange={handleInputChange}
             errorMessage={formErrors.title}
             isRequired
+            disabled={!isEditable}
           />
           <InputCustom
             label="Description"
@@ -280,6 +341,7 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
             onChange={handleInputChange}
             errorMessage={formErrors.description}
             isRequired
+            disabled={!isEditable}
           />
           <InputCustom
             label="Course"
@@ -290,10 +352,10 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
             errorMessage={formErrors.courseId}
             isRequired
             optionList={courseOptionsList}
-            disabled={!!initialData} // Disable course selection when editing
+            disabled={!!initialData || !isEditable}
           />
           <InputCustom
-            label="Resource Category"
+            label="Category"
             name="resourceCategoryId"
             type="select"
             value={formData.resourceCategoryId.toString()}
@@ -301,9 +363,10 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
             errorMessage={formErrors.resourceCategoryId}
             isRequired
             optionList={categoryOptionsList}
+            disabled={!isEditable}
           />
           <InputCustom
-            label="Type of Resource"
+            label="Type"
             name="typeOfResourceId"
             type="select"
             value={formData.typeOfResourceId.toString()}
@@ -311,11 +374,12 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
             errorMessage={formErrors.typeOfResourceId}
             isRequired
             optionList={typeOptions}
+            disabled={!isEditable}
           />
           {formData.typeOfResourceId === 1 ||
           formData.typeOfResourceId === 2 ? (
             <div>
-              <label className="block text-base font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Upload File{" "}
                 {initialData ? "" : <span className="text-red-500">*</span>}
               </label>
@@ -324,19 +388,21 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
                 ref={fileInputRef}
                 accept={formData.typeOfResourceId === 1 ? ".mp4" : ".pdf"}
                 onChange={handleFileChange}
-                className="w-full text-gray-300 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full text-sm text-gray-300 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                disabled={!isEditable}
               />
               {formErrors.file && (
-                <p className="text-sm text-red-500 mt-1">{formErrors.file}</p>
+                <p className="text-xs text-red-500 mt-1">{formErrors.file}</p>
               )}
               {formData.file && (
-                <p className="text-sm text-gray-300 mt-1">
-                  {formData.file.name}
+                <p className="text-xs text-gray-300 mt-1">
+                  {formData.file.name} (
+                  {(formData.file.size / (1024 * 1024)).toFixed(2)} MB)
                 </p>
               )}
               {initialData?.fileName && !formData.file && (
-                <p className="text-sm text-gray-300 mt-1">
-                  Current file: {initialData.fileName}
+                <p className="text-xs text-gray-300 mt-1">
+                  Current: {initialData.fileName}
                 </p>
               )}
             </div>
@@ -350,13 +416,18 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
               onChange={handleInputChange}
               errorMessage={formErrors.link}
               isRequired
+              disabled={!isEditable}
             />
           ) : null}
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="secondary" onClick={onClose}>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button type="button" variant="secondary" onClick={handleOnClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" disabled={loading}>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={loading || !isEditable}
+            >
               {loading ? "Saving..." : initialData ? "Update" : "Create"}
             </Button>
           </div>

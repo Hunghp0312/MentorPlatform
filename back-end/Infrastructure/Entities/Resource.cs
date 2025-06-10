@@ -16,5 +16,6 @@ namespace Infrastructure.Entities
         public virtual DocumentContent? DocumentContent { get; set; }
         public Guid? DocumentContentId { get; set; }
         public string? Url { get; set; }
+        public double ToTalFileDownloadSize { get; set; }
     }
 }

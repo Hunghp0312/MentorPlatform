@@ -17,10 +17,6 @@ namespace ApplicationCore.Services.ServiceInterfaces
         Task<OperationResult<ResourceResponse>> AddResource(Guid mentorId, AddResourceRequest request);
         Task<OperationResult<UpdateResourceUrlResponse>> UpdateResourceUrl(Guid resourceId, Guid userId, string url);
         Task<OperationResult<ResourceFileResponse>> UploadResourceFileAsync(IFormFile? file, Guid resourceId, Guid mentorId);
-        Task<OperationResult<object>> DeleteResourceFileAsync(Guid mentorId, Guid fileId);
-        Task<OperationResult<ResourceResponeGetAllService>> DeleteLinkFileAsync(Guid mentorId, Guid resourceId);
         Task<OperationResult<DocumentDetailResponse>> GetFileResourceDetails(Guid fileId, Guid userId);
-        Task<OperationResult<ResourceLinkResponse>> OpenResourceLinkAsync(Guid resourceId);
-
     }
 }

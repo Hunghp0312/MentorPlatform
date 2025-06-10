@@ -137,7 +137,8 @@ public class CoursesController : BaseController
     }
 
     [HttpGet("mentor/course-asignment")]
-    [Authorize(Roles = "Mentor")]
+    [Authorize]
+    [ProducesResponseType(typeof(ICollection<GetCourseDetailsResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<ICollection<GetCourseDetailsResponse>>> GetMyCourseAssignment()
     {
         var mentorIdString = User.FindFirstValue("id")!;

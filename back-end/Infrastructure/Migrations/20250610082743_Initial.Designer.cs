@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250606130310_changeToSetNull")]
-    partial class changeToSetNull
+    [Migration("20250610082743_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -188,7 +188,7 @@ namespace Infrastructure.Migrations
                             Duration = "3 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 1,
-                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             Name = "Intro to C#",
                             StatusId = 2,
                             Tags = "C#,programming,fundamentals"
@@ -202,7 +202,7 @@ namespace Infrastructure.Migrations
                             Duration = "4 weeks",
                             LastUpdated = new DateTime(2025, 5, 14, 0, 0, 0, 0, DateTimeKind.Utc),
                             LevelId = 2,
-                            MentorId = new Guid("b1c97b14-fc84-4db5-899d-ae4a38996b56"),
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
                             Name = "OOP in C#",
                             StatusId = 1,
                             Tags = "C#,OOP,classes,inheritance"
@@ -1130,6 +1130,36 @@ namespace Infrastructure.Migrations
                     b.HasIndex("CourseId");
 
                     b.ToTable("LearnerCourse");
+
+                    b.HasData(
+                        new
+                        {
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CourseId = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72848"),
+                            EnrolledAt = new DateTime(2025, 6, 3, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = false
+                        },
+                        new
+                        {
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CourseId = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72847"),
+                            EnrolledAt = new DateTime(2025, 5, 15, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = false
+                        },
+                        new
+                        {
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CourseId = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72846"),
+                            EnrolledAt = new DateTime(2025, 3, 20, 14, 45, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = true
+                        },
+                        new
+                        {
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            CourseId = new Guid("8d02b327-6370-41c7-95bb-6a8d72b72844"),
+                            EnrolledAt = new DateTime(2023, 3, 20, 14, 45, 0, 0, DateTimeKind.Unspecified),
+                            IsCompleted = false
+                        });
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.MentorApplication", b =>
@@ -1284,7 +1314,7 @@ namespace Infrastructure.Migrations
                             EndWorkTime = new TimeOnly(11, 0, 0),
                             MentorId = new Guid("862b702e-2c59-46f7-8c06-5349d769e237"),
                             SessionDuration = new TimeOnly(0, 30, 0),
-                            StartWorkTime = new TimeOnly(8, 30, 0)
+                            StartWorkTime = new TimeOnly(1, 0, 0)
                         },
                         new
                         {
@@ -1416,6 +1446,14 @@ namespace Infrastructure.Migrations
                             End = new TimeOnly(11, 0, 0),
                             Start = new TimeOnly(10, 30, 0),
                             StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("10000000-0000-0000-0000-000000000007"),
+                            DayId = new Guid("9e8d7c6b-5a4b-3c2d-1e0f-a9b8c7d6e5f4"),
+                            End = new TimeOnly(2, 0, 0),
+                            Start = new TimeOnly(1, 0, 0),
+                            StatusId = 2
                         });
                 });
 
@@ -1464,8 +1502,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid?>("DocumentContentId")
                         .HasColumnType("uniqueidentifier");
@@ -1475,8 +1514,11 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<double>("ToTalFileDownloadSize")
+                        .HasColumnType("float");
 
                     b.Property<int>("TypeOfResourceId")
                         .HasColumnType("int");
@@ -1604,6 +1646,17 @@ namespace Infrastructure.Migrations
                             MentorTimeAvailableId = new Guid("10000000-0000-0000-0000-000000000002"),
                             SessionTypeId = 3,
                             StatusId = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("e7b9e6c7-2b2e-4e3d-8e2b-1a5f3c9e7b1a"),
+                            CreatedAt = new DateTime(2025, 5, 29, 11, 0, 0, 0, DateTimeKind.Utc),
+                            LearnerId = new Guid("dac43f2d-8e9b-45ee-b539-e6bc25901812"),
+                            LearnerMessage = "Please",
+                            MentorId = new Guid("03ea823d-d625-448d-901d-411c5028b769"),
+                            MentorTimeAvailableId = new Guid("10000000-0000-0000-0000-000000000007"),
+                            SessionTypeId = 3,
+                            StatusId = 6
                         });
                 });
 
