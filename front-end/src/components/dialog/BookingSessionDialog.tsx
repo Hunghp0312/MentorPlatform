@@ -93,6 +93,8 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
             return;
         }
         try {
+            console.log("Booking data:", bookingData);
+            debugger
             setIsSubmitting(true);
             await sessionService.bookSession(bookingData);
             toast.success("Session booked successfully!");
