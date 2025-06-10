@@ -21,7 +21,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("my-application")]
-        [Authorize]
+        [Authorize(Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(MentorApplicationDetailResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMyApplication()
@@ -34,7 +34,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Mentor")]
+        [Authorize(Roles = "Mentor", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(MentorApplicationResponseDto), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> SubmitCompleteApplication([FromBody] SubmitMentorApplicationApiRequest apiRequest)
@@ -47,7 +47,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "Mentor")]
+        [Authorize(Roles = "Mentor", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(MentorApplicationResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -61,7 +61,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("applications")]
-        [Authorize]
+        [Authorize(Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(PagedResult<MentorApplicantResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllMentorApplications([FromQuery] PaginationParameters paginationParameters, [FromQuery] int applicationStatus = 0)
@@ -71,7 +71,7 @@ namespace Presentation.Controllers
             return ToActionResult(result);
         }
         [HttpPut("update-status")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(MentorApplicantResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
@@ -94,6 +94,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("available-mentors")]
+        [Authorize(Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(PagedResult<MentorCardDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAvailableMentors(
       [FromQuery] AvailableMentorQueryParameters queryParameters)
@@ -104,6 +105,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("mentor-profile-detail/{mentorApplicationId}")]
+        [Authorize(Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(MentorProfileDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMentorProfileDetail(Guid mentorApplicationId)
