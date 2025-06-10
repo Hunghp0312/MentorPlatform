@@ -110,33 +110,39 @@ namespace ApplicationCore.Repositories
         {
             var start = dateTime;
             var end = dateTime.AddHours(24);
-            var scheduledStatus = 6;
 
-            var rawData = await _dbSet
+            // Split into DateOnly and TimeOnly for accurate filtering
+            var startDay = DateOnly.FromDateTime(start);
+            var endDay = DateOnly.FromDateTime(end);
+            var startTime = TimeOnly.FromDateTime(start);
+            var endTime = TimeOnly.FromDateTime(end);
+
+            var query = _dbSet
+                .AsNoTracking() // no change tracking → faster for read-only
                 .Include(x => x.MentorTimeAvailable)
                 .ThenInclude(y => y.MentorDayAvailable)
                 .Where(x =>
                     x.LearnerId == learnerId
-                    && x.StatusId == scheduledStatus
-                    && x.MentorTimeAvailable.MentorDayAvailable.Day >= DateOnly.FromDateTime(start)
-                    && x.MentorTimeAvailable.MentorDayAvailable.Day <= DateOnly.FromDateTime(end)
+                    && x.StatusId == 6
+                    && (
+                        x.MentorTimeAvailable.MentorDayAvailable.Day > startDay
+                        || (
+                            x.MentorTimeAvailable.MentorDayAvailable.Day == startDay
+                            && x.MentorTimeAvailable.Start >= startTime
+                        )
+                    )
+                    && (
+                        x.MentorTimeAvailable.MentorDayAvailable.Day < endDay
+                        || (
+                            x.MentorTimeAvailable.MentorDayAvailable.Day == endDay
+                            && x.MentorTimeAvailable.Start <= endTime
+                        )
+                    )
                 )
-                .ToListAsync();
-
-            var result = rawData
-                .Where(x =>
-                {
-                    var combined = x.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(
-                        x.MentorTimeAvailable.Start
-                    );
-
-                    return combined >= start && combined <= end;
-                })
                 .OrderBy(x => x.MentorTimeAvailable.MentorDayAvailable.Day)
-                .ThenBy(x => x.MentorTimeAvailable.Start)
-                .ToList();
+                .ThenBy(x => x.MentorTimeAvailable.Start);
 
-            return result;
+            return await query.ToListAsync();
         }
     }
 }
