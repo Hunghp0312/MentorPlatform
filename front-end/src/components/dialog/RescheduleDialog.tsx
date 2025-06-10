@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import InputCustom from '../input/InputCustom';
 import { TimeSlot } from '../../types/session';
 import { sessionService } from '../../services/session.service';
-import { useParams } from 'react-router-dom';
 import { SlotStatus } from '../../types/commonType';
 import { formatTime } from '../../utils/formatDate';
 import { toast } from 'react-toastify';
+import { getUserFromToken } from '../../utils/auth';
 
 
 interface RescheduleDialogProps {
@@ -19,7 +19,7 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
     onClose,
     onConfirm,
 }) => {
-    const { id } = useParams<string>();
+    const mentorId = getUserFromToken()?.id;
     const [date, setDate] = useState<string>('');
     const [timeSlot, setTimeSlot] = useState<TimeSlot[]>([]);
     const [reason, setReason] = useState<string>('');
@@ -30,7 +30,7 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
         setDate(e.target.value);
 
         try {
-            const res = await sessionService.getSessionSlots(id as string, e.target.value);
+            const res = await sessionService.getSessionSlots(mentorId as string, e.target.value);
             setTimeSlot(res.mentorTimeSlots)
         } catch (error) {
             console.error("Error fetching time slots:", error);
