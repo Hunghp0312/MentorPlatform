@@ -3,12 +3,15 @@ import InputCustom from '../input/InputCustom';
 import { TimeSlot } from '../../types/session';
 import { sessionService } from '../../services/session.service';
 import { useParams } from 'react-router-dom';
+import { SlotStatus } from '../../types/commonType';
+import { formatTime } from '../../utils/formatDate';
+import { toast } from 'react-toastify';
 
 
 interface RescheduleDialogProps {
     sessionId: string | null;
     onClose: () => void;
-    onConfirm: (sessionId: string, mentorTimeAvailableId: string) => void;
+    onConfirm: () => void;
 }
 
 const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
@@ -34,14 +37,17 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
         }
 
     }
-    const handleConfirm = () => {
-        setIsSubmitting(true);
-
-        if (sessionId) {
-            setTimeout(() => {
-                setIsSubmitting(false);
-                onConfirm(sessionId, selectedSlot);
-            }, 2000);
+    const handleConfirm = async () => {
+        try {
+            setIsSubmitting(true);
+            await sessionService.rescheduleBookingSession(sessionId as string, selectedSlot)
+            toast.success('Session rescheduled successfully!');
+            onConfirm();
+        }
+        catch (error) {
+            console.error('Error rescheduling session:', error);
+            toast.error('Failed to reschedule session. Please try again.');
+            return;
         }
         // Reset form
         setDate('');
@@ -49,11 +55,6 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
         setReason('');
     };
 
-    const timeSlotOption = timeSlot.map(slot => ({
-        id: slot.id,
-        name: `${slot.startTime} - ${slot.endTime}`,
-    }));
-    timeSlotOption.unshift({ id: '', name: 'Select Time Slot' });
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -77,14 +78,36 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
                         <label className="block text-sm font-medium text-gray-400 mb-2">
                             Suggested Time slot
                         </label>
-                        <InputCustom
-                            type='select'
-                            name="timeSlot"
-                            value={selectedSlot}
+                        <select
+                            id="mentorTimeAvailableId"
+                            name="mentorTimeAvailableId"
+                            value={selectedSlot || ''}
                             onChange={(e) => setSelectedSlot(e.target.value)}
-                            optionList={timeSlotOption}
-
-                        />
+                            className="w-full bg-[#202938] border border-[#363f4e] rounded p-2 text-white appearance-none"
+                            style={{ backgroundImage: "url(\"data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E\")", backgroundPosition: "right 0.5rem center", backgroundRepeat: "no-repeat", backgroundSize: "1.5em 1.5em", paddingRight: "2.5rem" }}
+                            data-testid="time-slot-select"
+                        >
+                            <option value="">Select a time slot</option>
+                            {timeSlot?.map((timeSlot) => (
+                                <option
+                                    key={timeSlot.id}
+                                    value={timeSlot.id}
+                                    disabled={
+                                        (timeSlot.statusId !== SlotStatus.Available) ||
+                                        (date === new Date().toISOString().split('T')[0] &&
+                                            new Date(`${date}T${timeSlot.startTime}`).getTime() < new Date().getTime())
+                                    }
+                                    data-testid={`time-slot-option-${timeSlot.id}`}
+                                >
+                                    {formatTime(timeSlot.startTime)} - {formatTime(timeSlot.endTime)}
+                                </option>
+                            ))}
+                        </select>
+                        {timeSlot.length === 0 && (
+                            <p className="text-orange-500 text-xs mt-1" data-testid="no-slots-message">
+                                Mentor is not available on this day. Please select another date.
+                            </p>
+                        )}
                     </div>
 
                     <div>
@@ -111,8 +134,13 @@ const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
                     </button>
                     <button
                         onClick={handleConfirm}
-                        disabled={isSubmitting}
-                        className={`flex-1 px-4 py-2 ${isSubmitting ? 'bg-gray-500' : 'bg-[#f47521] hover:bg-[#e06a1e]'} text-white rounded-lg`}
+                        disabled={!selectedSlot || isSubmitting || !date}
+                        className={`flex-1 px-4 py-2 ${isSubmitting
+                            ? 'bg-gray-500'
+                            : (!selectedSlot || !date)
+                                ? 'bg-gray-500 cursor-not-allowed'
+                                : 'bg-[#f47521] hover:bg-[#e06a1e]'
+                            } text-white rounded-lg`}
                     >
                         {isSubmitting ? 'Submitting...' : 'Send Reschedule Request'}
                     </button>

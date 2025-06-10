@@ -14,8 +14,7 @@ const MentorAvailability: React.FC<MentorAvailabilityProps> = ({
 }) => {
     const [selectedDays, setSelectedDays] = useState<string[]>(initialSelectedDays as string[] || []);
     const [timeSlots] = useState<{ dayName: string; TimeSlot: { startTime: string; endTime: string }[] }[]>(initialTimeSlots || []); 
-    console.log("timeSlots", initialTimeSlots);
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const days = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', ];
 
 
     return (

@@ -97,7 +97,7 @@ export default function Layout() {
       {
         icon: <AlarmClockCheck size={20} />,
         label: "Session Management",
-        href: `/session-management/${decodedToken?.id}`,
+        href: `/session-management`,
       },
       {
         icon: <FileBox size={20} />,
