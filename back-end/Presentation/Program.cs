@@ -62,7 +62,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ActiveUserOnly", policy =>
     {
         policy.RequireAuthenticatedUser();
-        policy.RequireClaim("isActive", "1", "2");
+        policy.RequireClaim("isActive", "1");
     });
 });
 
