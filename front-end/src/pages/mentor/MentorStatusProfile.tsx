@@ -19,6 +19,7 @@ import WorkExperienceAddDialog from "../../components/dialog/Applications/WorkEx
 import CertificationAddDialog from "../../components/dialog/Applications/CertificationDialog";
 import { EnumType } from "../../types/commonType";
 import { toast } from "react-toastify";
+import LoadingOverlay from "../../components/loading/LoadingOverlay";
 
 interface MentorStatusType {
   mentorEducation: MentorEducation[];
@@ -97,6 +98,7 @@ const MentorStatusProfile = () => {
   useEffect(() => {
     const fetchUserData = async (): Promise<UserApplication | null> => {
       try {
+        setLoading(true);
         const response = await userService.getCurrentUser();
         console.log("User Data:", response);
         const mappedUserData: UserApplication = {
@@ -126,6 +128,8 @@ const MentorStatusProfile = () => {
       } catch (error) {
         console.error("Error fetching user data:", error);
         return null;
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -943,7 +947,9 @@ const MentorStatusProfile = () => {
     </div>
   );
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return <LoadingOverlay />;
+  }
   if (!mentorData) return <div>No data available</div>;
 
   return (

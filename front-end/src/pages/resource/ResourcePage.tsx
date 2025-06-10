@@ -15,6 +15,7 @@ import {
   ResourceType,
 } from "../../types/resource";
 import CustomModal from "../../components/ui/Modal";
+import LoadingOverlay from "../../components/loading/LoadingOverlay";
 
 interface Resource {
   resourceId: string;
@@ -79,8 +80,8 @@ const ResourcePage = () => {
     fetchUserRole();
   }, []);
   const fetchResources = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const categoryId = resourceCategoryFilter
         ? parseInt(resourceCategoryFilter)
         : undefined;
@@ -367,6 +368,10 @@ const ResourcePage = () => {
   }, [searchDebounced]);
 
   const totalPages = Math.ceil(totalItems / pageSize);
+
+  if (loading) {
+    return <LoadingOverlay />;
+  }
 
   return (
     <main>
