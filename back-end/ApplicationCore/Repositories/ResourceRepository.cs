@@ -37,7 +37,7 @@ namespace ApplicationCore.Repositories
         {
             var queryable = _dbSet
                 .Include(r => r.Course)
-                    .ThenInclude(c => c.LearnerCourses)
+                .ThenInclude(c => c.LearnerCourses)
                 .Include(r => r.ResourceCategory)
                 .Include(r => r.TypeOfResource)
                 .Include(r => r.DocumentContent)

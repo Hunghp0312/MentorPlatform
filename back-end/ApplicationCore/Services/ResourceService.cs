@@ -84,7 +84,6 @@ namespace ApplicationCore.Services
                     "You are not authorized to delete this resource because you are not the mentor of this course or an admin."
                 );
             }
-
             _resourceRepository.Delete(resource);
             await _unitOfWork.SaveChangesAsync();
 

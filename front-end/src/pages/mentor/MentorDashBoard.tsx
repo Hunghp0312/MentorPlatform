@@ -190,7 +190,7 @@ const MentorDashBoard: React.FC = () => {
                     <div className="bg-[#252d3d] rounded-lg shadow p-4 border border-[#2d3748]">
                         <div className="flex justify-between items-center">
                             <div>
-                                <p className="text-sm text-gray-400">Active Learners</p>
+                                <p className="text-sm text-gray-400">Lifetime Learners</p>
                                 <p className="text-2xl font-bold text-white">{sessions.sessionKPIs.lifetimeLearners}</p>
                             </div>
                             <div className="p-3 bg-purple-500/20 rounded-full">

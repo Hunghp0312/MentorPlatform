@@ -3,8 +3,8 @@ import { X } from "lucide-react";
 import { sessionService } from "../../services/session.service";
 import { BookingRequest, TimeSlot } from "../../types/session";
 import { formatTime } from "../../utils/formatDate";
-import { SlotStatus } from "../../types/commonType";
 import { toast } from "react-toastify";
+import { SlotStatus } from "../../types/commonType";
 
 interface BookingDialogProps {
   mentorId: string;
@@ -187,11 +187,11 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
                   key={timeSlot.id}
                   value={timeSlot.id}
                   disabled={
-                    timeSlot.statusId !== SlotStatus.Available ||
-                    (selectedDate === new Date().toISOString().split("T")[0] &&
-                      new Date(
-                        `${selectedDate}T${timeSlot.startTime}`
-                      ).getTime() < new Date().getTime())
+                  (timeSlot.statusId !== SlotStatus.Available && timeSlot.statusId !== SlotStatus.Waiting) || 
+                  (selectedDate === new Date().toISOString().split("T")[0] &&
+                    new Date(
+                    `${selectedDate}T${timeSlot.startTime}`
+                    ).getTime() < new Date().getTime())
                   }
                   data-testid={`time-slot-option-${timeSlot.id}`}
                 >
