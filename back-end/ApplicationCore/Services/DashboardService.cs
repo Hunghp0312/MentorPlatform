@@ -39,7 +39,7 @@ namespace ApplicationCore.Services
             var totalMentors = await users.CountAsync(u => u.RoleId == 3);
             var totalLearners = await users.CountAsync(u => u.RoleId == 2);
             var totalResources = await resources.CountAsync();
-            var pendingApprovals = await mentors.CountAsync(m => m.ApplicationStatus.Id == 5);
+            var pendingApprovals = await mentors.CountAsync(m => m.ApplicationStatus.Id == 5 || m.ApplicationStatus.Id == 6);
 
             var addedUsersThisMonth = await users
                 .Where(u => u.CreatedAt >= startOfThisMonth && u.CreatedAt < startOfThisMonth.AddMonths(1))
