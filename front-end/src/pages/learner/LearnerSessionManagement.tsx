@@ -86,13 +86,13 @@ const LearnerSessionManagement = () => {
     if (!showDeclineModal) return;
 
     try {
-      await sessionService.updateStatusBookingSession(showDeclineModal, 5);
-      toast.success('Session declined successfully!');
+      await sessionService.updateStatusBookingSession(showDeclineModal, 5,declineMessage);
+      toast.success('Session cancel successfully!');
       fetchSessionRequests();
     }
     catch (error) {
-      console.error('Error declining session:', error);
-      toast.error('Failed to decline session. Please try again.');
+      console.error('Error cancel session:', error);
+      toast.error('Failed to cancel session. Please try again.');
     }
     finally {
       setShowDeclineModal(null);
