@@ -95,6 +95,10 @@ const MentorStatusProfile = () => {
     number | null
   >(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [filesToDelete, setFilesToDelete] = useState<SupportingDocument[]>([]);
+  const [savedFilesToDelete, setSavedFilesToDelete] = useState<
+    SupportingDocument[]
+  >([]);
 
   useEffect(() => {
     const fetchUserData = async (): Promise<UserApplication | null> => {
@@ -143,7 +147,7 @@ const MentorStatusProfile = () => {
 
         const mappedDocuments: SupportingDocument[] =
           response.documentsDetails?.map((doc: DocumentContent) => ({
-            id: doc.id,
+            id: doc.fileId,
             fileName: doc.fileName,
             fileType: doc.fileType,
             fileSize: doc.fileSize || 0,
@@ -245,6 +249,20 @@ const MentorStatusProfile = () => {
         return;
       }
 
+      if (!(file instanceof File)) {
+        toast.error("Invalid file selected.");
+        return;
+      }
+      const isDuplicate = editedMentor.mentorDocuments.some(
+        (doc) => doc.fileName === file.name
+      );
+      if (isDuplicate) {
+        toast.error(
+          "Error: A file with this name already exists, please rename or remove the existing file!"
+        );
+        return;
+      }
+
       const newDocument: SupportingDocument = {
         fileName: file.name,
         fileType: file.type,
@@ -255,71 +273,32 @@ const MentorStatusProfile = () => {
           fileType: file.type,
           fileContent: "",
         },
+        tempId: Date.now().toString(),
       };
 
       setSelectedFiles((prev) => [...prev, file]);
       setEditedMentor((prev) => ({
         ...prev,
-        mentorDocuments: [...prev.mentorDocuments, newDocument],
-      }));
-      setMentorData((prev) => ({
-        ...prev,
-        mentorDocuments: [...prev.mentorDocuments, newDocument],
+        mentorDocuments: [...(prev.mentorDocuments || []), newDocument],
       }));
     }
   };
+  const handleRemoveDocument = (index: number) => {
+    const documentToRemove = editedMentor.mentorDocuments[index];
 
-  const handleOpenFileExplorer = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleRemoveDocument = async (index: number) => {
-    const document = mentorData.mentorDocuments[index];
-    const updatedDocuments = mentorData.mentorDocuments.filter(
-      (_, i) => i !== index
-    );
-
-    if (mentorData.status === "Request Info" && document.id) {
-      try {
-        await mentorService.deleteFile(document.id);
-        setEditedMentor((prev) => ({
-          ...prev,
-          mentorDocuments: updatedDocuments,
-        }));
-        setMentorData((prev) => ({
-          ...prev,
-          mentorDocuments: updatedDocuments,
-        }));
-        setSaveState((prev) => ({
-          ...prev,
-          mentorDocuments: updatedDocuments,
-        }));
-        setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-      } catch (error) {
-        console.error("Error deleting file:", error);
-        toast.error("Error: Failed to delete file.");
-      }
-    } else {
-      setEditedMentor((prev) => ({
-        ...prev,
-        mentorDocuments: updatedDocuments,
-      }));
-      setMentorData((prev) => ({
-        ...prev,
-        mentorDocuments: updatedDocuments,
-      }));
-      setSaveState((prev) => ({
-        ...prev,
-        mentorDocuments: updatedDocuments,
-      }));
-      setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    if (documentToRemove.id) {
+      setFilesToDelete((prev) => [...prev, documentToRemove]);
     }
 
-    if (mentorData.mentorDocuments.length <= 1) {
-      setSelectedFiles([]);
-    }
+    setEditedMentor((prev) => ({
+      ...prev,
+      mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+    }));
+    setMentorData((prev) => ({
+      ...prev,
+      mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+    }));
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleAddNewEducation = async (newEducation: MentorEducation) => {
@@ -513,6 +492,7 @@ const MentorStatusProfile = () => {
 
     setIsConfirmModalOpen(true);
   };
+
   const handleConfirmSubmit = async () => {
     setIsConfirmModalOpen(false);
 
@@ -525,30 +505,43 @@ const MentorStatusProfile = () => {
     try {
       if (mentorData.status === "") {
         await mentorService.submitCompleteApplication(application);
-
         for (const file of selectedFiles) {
           await mentorService.uploadFile(file);
         }
-        toast.success("Upload application successfully.");
+        toast.success("Application submitted successfully.");
       } else if (mentorData.status === "Request Info") {
-        await mentorService.updateMyApplication(application);
-
+        for (const file of filesToDelete) {
+          if (file.id) {
+            try {
+              await mentorService.deleteFile(file.id);
+            } catch (error) {
+              console.error(`Error deleting file ${file.id}:`, error);
+              toast.error(`Failed to delete file ${file.fileName}`);
+            }
+          }
+        }
         const newFiles = selectedFiles.filter(
-          (_, index) => !mentorData.mentorDocuments[index]?.id
+          (file) =>
+            !saveState.mentorDocuments.some(
+              (doc) => doc.fileName === file.name && doc.id
+            )
         );
         for (const file of newFiles) {
           await mentorService.uploadFile(file);
         }
-        toast.success("Update application successfully.");
+        await mentorService.updateMyApplication(application);
+
+        toast.success("Application updated successfully.");
       }
 
       setIsEditing(false);
       setSelectedFiles([]);
+      setFilesToDelete([]);
 
       const response = await mentorService.getMyApplication();
       const mappedDocuments: SupportingDocument[] =
         response.documentsDetails?.map((doc: DocumentContent) => ({
-          id: doc.id,
+          id: doc.fileId,
           fileName: doc.fileName,
           fileType: doc.fileType,
           fileSize: doc.fileSize || 0,
@@ -571,6 +564,7 @@ const MentorStatusProfile = () => {
 
       setMentorData(mappedData);
       setEditedMentor({ ...mappedData });
+      setSaveState({ ...mappedData });
     } catch (error) {
       console.error("Error submitting application:", error);
       toast.error("Error submitting application");
@@ -578,6 +572,11 @@ const MentorStatusProfile = () => {
     }
   };
 
+  const handleOpenFileExplorer = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
   const handleSave = () => {
     if (editedMentor) {
       const updatedData = {
@@ -597,6 +596,7 @@ const MentorStatusProfile = () => {
         mentorDocuments: [...(editedMentor.mentorDocuments || [])],
       });
 
+      setSavedFilesToDelete([...filesToDelete]);
       setIsEditing(false);
       setError(null);
     }
@@ -627,6 +627,7 @@ const MentorStatusProfile = () => {
     setNewWorkExperience({});
     setNewCertification({});
     setSelectedFiles([]);
+    setFilesToDelete([...savedFilesToDelete]);
   };
 
   const additionalSettingsContent = (
@@ -754,18 +755,22 @@ const MentorStatusProfile = () => {
                             setEditWorkExperienceIndex(index);
                             setNewWorkExperience({
                               ...experience,
-                              startDate: `${new Date(experience.startDate)
-                                .toISOString()
-                                .slice(5, 7)}/${new Date(
-                                experience.startDate
-                              ).getFullYear()}`,
-                              endDate: experience.endDate
-                                ? `${new Date(experience.endDate)
-                                    .toISOString()
-                                    .slice(5, 7)}/${new Date(
-                                    experience.endDate
-                                  ).getFullYear()}`
+                              startDate: experience.startDate
+                                ? (() => {
+                                    const startDate = experience.startDate;
+
+                                    return `${startDate}`;
+                                  })()
                                 : "",
+                              endDate:
+                                experience.endDate &&
+                                experience.endDate !== null
+                                  ? (() => {
+                                      const endDate = experience.endDate;
+
+                                      return `${endDate}`;
+                                    })()
+                                  : "",
                             });
                             setOpenWorkExperienceDialog(true);
                           }}
@@ -890,8 +895,8 @@ const MentorStatusProfile = () => {
           />
         </h3>
         <div className="bg-gray-700 p-4 rounded-lg">
-          {mentorData.mentorDocuments.length > 0 ? (
-            mentorData.mentorDocuments.map((document, index) => (
+          {editedMentor.mentorDocuments.length > 0 ? (
+            editedMentor.mentorDocuments.map((document, index) => (
               <div
                 key={index}
                 className="flex justify-between py-2 border-b-1 border-gray-500 last:border-b-0"
@@ -903,7 +908,7 @@ const MentorStatusProfile = () => {
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  {mentorData.status !== "" && document.id && (
+                  {document.documentContent?.fileContent && (
                     <button
                       id={`view-document-icon-${index}`}
                       onClick={() =>
