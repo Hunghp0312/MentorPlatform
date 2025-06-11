@@ -85,7 +85,8 @@ namespace ApplicationCore.Services
                 );
             }
 
-            _resourceRepository.Delete(resource);
+            resource.IsDeleted = true;
+            _resourceRepository.Update(resource);
             await _unitOfWork.SaveChangesAsync();
 
             return OperationResult<ResourceResponse>.NoContent();

@@ -17,5 +17,8 @@ namespace Infrastructure.Entities
         public Guid? DocumentContentId { get; set; }
         public string? Url { get; set; }
         public double ToTalFileDownloadSize { get; set; }
+        public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+        public bool IsDeleted { get; set; } = false;
+
     }
 }

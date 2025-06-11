@@ -10,15 +10,15 @@ namespace ApplicationCore.Services
         private readonly ICourseRepository _courseRepository;
         private readonly IMentorRepository _mentorRepository;
         private readonly IDocumentContentRepository _documentContentRepository;
-        private readonly ISupportingDocumentRepository _supportingDocumentRepository;
+        private readonly IResourceRepository _resourceRepository;
 
-        public DashboardService(IUserRepository userRepository, ICourseRepository courseRepository, IMentorRepository mentorRepository, IDocumentContentRepository documentContentRepository, ISupportingDocumentRepository supportingDocumentRepository)
+        public DashboardService(IUserRepository userRepository, ICourseRepository courseRepository, IMentorRepository mentorRepository, IDocumentContentRepository documentContentRepository, IResourceRepository resourceRepository)
         {
             _userRepository = userRepository;
             _courseRepository = courseRepository;
             _mentorRepository = mentorRepository;
             _documentContentRepository = documentContentRepository;
-            _supportingDocumentRepository = supportingDocumentRepository;
+            _resourceRepository = resourceRepository;
         }
 
         public async Task<DashboardStatisticsResponseDto> GetDashboardStatisticsAsync()
@@ -32,13 +32,13 @@ namespace ApplicationCore.Services
             var courses = _courseRepository.GetAllQueryable();
             var mentors = _mentorRepository.GetAllQueryable()
                 .Include(m => m.ApplicationStatus);
-            var resources = _supportingDocumentRepository.GetAllQueryable();
+            var resources = _resourceRepository.GetAllQueryable();
 
             var totalUsers = await users.CountAsync();
             var totalCourses = await courses.CountAsync();
             var totalMentors = await users.CountAsync(u => u.RoleId == 3);
             var totalLearners = await users.CountAsync(u => u.RoleId == 2);
-            var totalResources = await resources.CountAsync();
+            var totalResources = await resources.Where(r => !r.IsDeleted).CountAsync();
             var pendingApprovals = await mentors.CountAsync(m => m.ApplicationStatus.Id == 5);
 
             var addedUsersThisMonth = await users
@@ -96,10 +96,10 @@ namespace ApplicationCore.Services
                 .CountAsync();
 
             var addedResourcesThisMonth = await resources
-                .Where(r => r.UploadedAt >= startOfThisMonth && r.UploadedAt < startOfThisMonth.AddMonths(1))
+                .Where(r => r.UploadedAt >= startOfThisMonth && r.UploadedAt < startOfThisMonth.AddMonths(1) && !r.IsDeleted)
                 .CountAsync();
             var addedResourcesLastMonth = await resources
-                .Where(r => r.UploadedAt >= startOfLastMonth && r.UploadedAt < startOfThisMonth)
+                .Where(r => r.UploadedAt >= startOfLastMonth && r.UploadedAt < startOfThisMonth && !r.IsDeleted)
                 .CountAsync();
 
             double resourceGrowthPercent = 0;
@@ -118,7 +118,7 @@ namespace ApplicationCore.Services
             resourceGrowthPercent = Math.Max(-100, Math.Min(1000, resourceGrowthPercent));
 
             var addedResourcesThisWeek = await resources
-                .Where(r => r.UploadedAt >= startOfThisWeek && r.UploadedAt < startOfThisWeek.AddDays(7))
+                .Where(r => r.UploadedAt >= startOfThisWeek && r.UploadedAt < startOfThisWeek.AddDays(7) && !r.IsDeleted)
                 .CountAsync();
 
             return new DashboardStatisticsResponseDto
