@@ -18,7 +18,7 @@ const MentorDashBoard: React.FC = () => {
         sessionKPIs: {
             sharedResources: 0,
             sessionsThisMonth: 0,
-            activeLearners: 0
+            lifetimeLearners : 0
         },
         upcomingSessions: []
     });
@@ -26,7 +26,7 @@ const MentorDashBoard: React.FC = () => {
         courseKPIs : {
             averageCompletion: 0,
             totalCourses: 0,
-            activeStudents: 0,
+            studentEnrollments: 0,
             publishedCourses: 0
         },
         courses: []
@@ -191,7 +191,7 @@ const MentorDashBoard: React.FC = () => {
                         <div className="flex justify-between items-center">
                             <div>
                                 <p className="text-sm text-gray-400">Active Learners</p>
-                                <p className="text-2xl font-bold text-white">{sessions.sessionKPIs.activeLearners}</p>
+                                <p className="text-2xl font-bold text-white">{sessions.sessionKPIs.lifetimeLearners}</p>
                             </div>
                             <div className="p-3 bg-purple-500/20 rounded-full">
                                 <Users className="w-5 h-5 text-purple-400" />
