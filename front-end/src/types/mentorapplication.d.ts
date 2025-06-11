@@ -26,6 +26,7 @@ export interface SupportingDocument {
   fileName: string;
   fileType: string;
   fileSize: number;
+  fileContent: string;
   uploadedAt: string;
   documentContent: {
     fileName: string;

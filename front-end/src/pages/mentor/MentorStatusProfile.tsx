@@ -267,6 +267,7 @@ const MentorStatusProfile = () => {
         fileName: file.name,
         fileType: file.type,
         fileSize: file.size,
+        fileContent: "",
         uploadedAt: new Date().toISOString(),
         documentContent: {
           fileName: file.name,

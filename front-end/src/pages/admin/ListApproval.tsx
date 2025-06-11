@@ -477,9 +477,14 @@ const ListApproval = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-400">
-                      {new Date(experience.startDate).getFullYear()} –{" "}
+                      {`${
+                        new Date(experience.startDate).getMonth() + 1
+                      }/${new Date(experience.startDate).getFullYear()}`}{" "}
+                      –{" "}
                       {experience.endDate
-                        ? new Date(experience.endDate).getFullYear()
+                        ? `${
+                            new Date(experience.endDate).getMonth() + 1
+                          }/${new Date(experience.endDate).getFullYear()}`
                         : "Present"}
                     </span>
                   </div>
