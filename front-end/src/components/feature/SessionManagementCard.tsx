@@ -45,7 +45,7 @@ const SessionManagementCard: React.FC = () => {
 
   useEffect(() => {
     fetchSessionRequests();
-  }, [pageIndex, pageSize, search, statusIds?.length]);
+  }, [pageIndex, pageSize, search, statusIds]);
 
   const getSessionIcon = (type: string) => {
     switch (type) {
