@@ -93,11 +93,13 @@ namespace ApplicationCore.Repositories
             return (items, totalRecords);
         }
 
-        public override async Task<ICollection<MentorApplication>> GetAllAsync()
+        public async Task<Dictionary<int, int>> GetApplicationStatusCountsAsync()
         {
             return await _dbSet
-                .Include(x => x.ApplicationStatus)
-                .ToListAsync();
+       .Include(x => x.ApplicationStatus)
+       .GroupBy(x => x.ApplicationStatus.Id)
+       .Select(g => new { StatusId = g.Key, Count = g.Count() })
+       .ToDictionaryAsync(x => x.StatusId, x => x.Count);
         }
     }
 

@@ -164,7 +164,7 @@ namespace ApplicationCore.Extensions
             User userEntity
         )
         {
-            // Basic properties remain the same
+
             userProfile.FullName = dto.FullName;
             userProfile.Bio = dto.Bio;
             userProfile.PhoneNumber = dto.PhoneNumber;

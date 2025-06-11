@@ -171,6 +171,11 @@ const BookingSession: React.FC = () => {
         };
         fetchSlots();
     }, [])
+    const sortedSlots = slots?.sort((a, b) => {
+        const timeA = new Date(`1970-01-01T${a.startTime}`);
+        const timeB = new Date(`1970-01-01T${b.startTime}`);
+        return timeA.getTime() - timeB.getTime();
+    })
     if (loading) {
         return <LoadingOverlay />
     }
@@ -289,12 +294,12 @@ const BookingSession: React.FC = () => {
 
                 {/* Time slots */}
                 <h3 className="text-center mb-4">Select a time slot</h3>
-                {slots && slots.length > 0 ? (
+                {sortedSlots && sortedSlots.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-8">
-                        {slots?.map((slot) => (
+                        {sortedSlots?.map((slot) => (
                             <button
                                 disabled={!!(
-                                    (slot.statusId !== SlotStatus.Available ) ||
+                                    (slot.statusId !== SlotStatus.Available && slot.statusId !== 4) ||
                                     loadingBooking ||
                                     (
                                         // Check if selected date is today and slot time is in the past
@@ -308,7 +313,7 @@ const BookingSession: React.FC = () => {
                                 key={slot.id}
                                 className={`py-2 px-4 rounded text-center text-sm 
                                     ${selectedSlot === slot.id ? 'bg-[#f47521]' : 'bg-gray-700 bg-opacity-90 hover:bg-opacity-100'} 
-                                    ${((slot.statusId !== SlotStatus.Available ) ||
+                                    ${((slot.statusId !== SlotStatus.Available && slot.statusId !== 4) ||
                                         (
                                             // Apply styling for past slots on today
                                             selectedDate === new Date().getDate() &&

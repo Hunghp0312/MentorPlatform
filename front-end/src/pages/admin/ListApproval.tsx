@@ -50,9 +50,8 @@ interface ExpertiseArea {
 
 const ListApproval = () => {
   const [searchParams] = useSearchParams();
-  const status = searchParams.get("status"); // get value of 'term' param
+  const status = searchParams.get("status");
 
-  console.log("Status from URL:", status);
   const [approvals, setApprovals] = useState<ApprovalType[]>([]);
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
@@ -122,14 +121,9 @@ const ListApproval = () => {
         approvalService.getApplicationStatusCount(),
       ]);
 
-      console.log("API Applications Response:", applicationsResponse);
-      console.log("API Status Counts Response:", countsResponse);
-
-      // Cập nhật danh sách ứng dụng
       setTotalItems(applicationsResponse.totalItems);
       setApprovals(applicationsResponse.items);
 
-      // Cập nhật số đếm trạng thái
       setStatusCounts({
         "":
           countsResponse.rejected +
@@ -159,7 +153,7 @@ const ListApproval = () => {
       const res = await approvalService.getMentorApplicationDetail(
         mentorApplicationId
       );
-      console.log("API Response Detail:", res);
+
       setSelectedApproval({
         ...res,
         documents: res.documents.map((doc: SupportingDocument) => ({
@@ -229,7 +223,6 @@ const ListApproval = () => {
     {
       header: "",
       accessor: (row) => {
-        console.log("Status:", row.status);
         const getLatestDate = (dateString?: string) => {
           if (!dateString) return "";
           const dates = dateString
@@ -277,16 +270,16 @@ const ListApproval = () => {
               <p className="font-medium truncate text-white mb-1.5">
                 {row.fullName}
               </p>
-              <p className="text-sm text-gray-400 pt-0.5">
+              <div className="flex flex-wrap gap-1 sm:gap-2 mb-2">
                 {row.expertiseAreas.map((area, index) => (
                   <span
                     key={index}
-                    className="bg-gray-600 text-gray-200 px-3 py-1 rounded-full text-sm mr-2"
+                    className="bg-gray-600 text-gray-200 px-3 py-1 rounded-full text-sm mr-0.5"
                   >
                     {area.name}
                   </span>
                 ))}
-              </p>
+              </div>
               <div className="flex items-center mt-1">
                 <span
                   className={`inline-block w-2 h-2 rounded-full mr-2 ${
@@ -617,48 +610,49 @@ const ListApproval = () => {
                       {["Submitted", "RequestInfo", "Under Review"].includes(
                         selectedApproval.status
                       ) && (
-                        <div className="flex justify-end space-x-2 mb-4">
+                        <div className="flex flex-wrap gap-2 mb-4 justify-end">
                           <button
                             id="approve-application-button"
                             onClick={() => handleApprove(selectedApproval)}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md"
+                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm flex-shrink-0"
                           >
                             Approve
                           </button>
                           <button
                             id="reject-application-button"
                             onClick={() => handleReject(selectedApproval)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm flex-shrink-0"
                           >
                             Reject
                           </button>
                           <button
                             id="underreview-application-button"
                             onClick={() => HandleUnderRevie(selectedApproval)}
-                            className="bg-yellow-600 hover:bg-orange-700 text-white px-3 py-1 rounded-md"
+                            className="bg-yellow-600 hover:bg-orange-700 text-white px-3 py-1 rounded-md text-sm flex-shrink-0"
                           >
                             Under Review
                           </button>
                           <button
                             id="requestinfo-application-button"
                             onClick={handleRequestInfo}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm flex-shrink-0"
                           >
                             Request Info
                           </button>
                         </div>
                       )}
-                      <div className="flex items-center space-x-4">
+
+                      <div className="flex items-start space-x-4 mb-4">
                         <img
                           src={selectedApproval.photoData || DefaultImage}
                           alt={selectedApproval.fullName}
-                          className="w-12 h-12 rounded-full object-cover"
+                          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                         />
-                        <div>
-                          <h3 className="font-medium text-white">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-white break-words">
                             {selectedApproval.fullName}
                           </h3>
-                          <p className="text-sm text-gray-400">
+                          <p className="text-sm text-gray-400 break-all">
                             {selectedApproval.email}
                           </p>
                         </div>
@@ -992,73 +986,74 @@ const ListApproval = () => {
           </div>
         )}
       </CustomModal>
-      {isDetailsModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              {detailsContent.title}
-            </h3>
-            <p className="text-gray-300 mb-4">
-              {detailsContent.content || "No details provided."}
-            </p>
-            <div className="flex justify-end">
-              <button
-                id="close-details-modal-button"
-                onClick={() => setIsDetailsModalOpen(false)}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
-              >
-                Close
-              </button>
-            </div>
+      <CustomModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => setIsDetailsModalOpen(false)}
+        title={detailsContent.title}
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            {detailsContent.content || "No details provided."}
+          </p>
+          <div className="flex justify-end">
+            <button
+              id="close-details-modal-button"
+              onClick={() => setIsDetailsModalOpen(false)}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+            >
+              Close
+            </button>
           </div>
         </div>
-      )}
-      {isConfirmModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-gray-800 rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-white mb-4">
-              Confirm{" "}
-              {confirmAction === "approve"
-                ? "Approval"
-                : confirmAction === "reject"
-                ? "Rejection"
-                : confirmAction === "requestInfo"
-                ? "Request Info"
-                : confirmAction === "underreview"
-                ? "Under Review"
-                : "Action"}
-            </h3>
-            <p className="text-gray-300 mb-4">
-              Are you sure you want to{" "}
-              {confirmAction === "approve"
-                ? "approve"
-                : confirmAction === "reject"
-                ? "reject"
-                : confirmAction === "requestInfo"
-                ? "request info for"
-                : confirmAction === "underreview"
-                ? "set to under review"
-                : "perform action on"}{" "}
-              the application for <strong>{selectedApproval?.fullName}</strong>?
-            </p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setIsConfirmModalOpen(false)}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => confirmActions()}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center justify-center"
-                disabled={isConfirmLoading}
-              >
-                {isConfirmLoading ? <SmallLoadingSpinner /> : "Confirm"}
-              </button>
-            </div>
+      </CustomModal>
+      <CustomModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        title={`Confirm ${
+          confirmAction === "approve"
+            ? "Approval"
+            : confirmAction === "reject"
+            ? "Rejection"
+            : confirmAction === "requestInfo"
+            ? "Request Info"
+            : confirmAction === "underreview"
+            ? "Under Review"
+            : "Action"
+        }`}
+        size="md"
+      >
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            Are you sure you want to{" "}
+            {confirmAction === "approve"
+              ? "approve"
+              : confirmAction === "reject"
+              ? "reject"
+              : confirmAction === "requestInfo"
+              ? "request info for"
+              : confirmAction === "underreview"
+              ? "set to under review"
+              : "perform action on"}{" "}
+            the application for <strong>{selectedApproval?.fullName}</strong>?
+          </p>
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={() => setIsConfirmModalOpen(false)}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => confirmActions()}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center justify-center"
+              disabled={isConfirmLoading}
+            >
+              {isConfirmLoading ? <SmallLoadingSpinner /> : "Confirm"}
+            </button>
           </div>
         </div>
-      )}
+      </CustomModal>
     </main>
   );
 };

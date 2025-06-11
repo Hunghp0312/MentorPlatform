@@ -37,10 +37,30 @@ namespace ApplicationCore.Repositories
         {
             var queryable = _dbSet
                 .Include(r => r.Course)
-                    .ThenInclude(c => c.LearnerCourses)
+                .ThenInclude(c => c.LearnerCourses)
                 .Include(r => r.ResourceCategory)
                 .Include(r => r.TypeOfResource)
                 .Include(r => r.DocumentContent)
+                .Select(r => new Resource
+                {
+
+                    Id = r.Id,
+                    Title = r.Title,
+                    Description = r.Description,
+                    Url = r.Url,
+
+                    Course = r.Course,
+                    ResourceCategory = r.ResourceCategory,
+                    TypeOfResource = r.TypeOfResource,
+                    DocumentContentId = r.DocumentContentId,
+                    DocumentContent = r.DocumentContent != null ? new DocumentContent
+                    {
+
+                        FileName = r.DocumentContent.FileName,
+                        FileType = r.DocumentContent.FileType
+
+                    } : null
+                })
                 .AsQueryable();
             if (filter != null)
             {
@@ -49,7 +69,7 @@ namespace ApplicationCore.Repositories
 
             var totalRecords = await queryable.CountAsync();
 
-            // Apply projection AFTER filtering
+
             var items = await queryable
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)

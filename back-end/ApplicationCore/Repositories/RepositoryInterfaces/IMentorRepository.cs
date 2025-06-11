@@ -7,5 +7,6 @@ namespace ApplicationCore.Repositories.RepositoryInterfaces
     {
         Task<MentorApplication?> GetDetailByIdAsync(Guid id);
         Task<MentorApplication?> GetMentorProfileByIdAsync(Guid id);
+        Task<Dictionary<int, int>> GetApplicationStatusCountsAsync();
     }
 }

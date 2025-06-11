@@ -65,6 +65,7 @@ namespace Presentation.Controllers
         [HttpGet("all")]
         [ProducesResponseType(typeof(ICollection<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        [Authorize]
         public async Task<IActionResult> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
@@ -75,6 +76,7 @@ namespace Presentation.Controllers
         [HttpGet("paged")]
         [ProducesResponseType(typeof(PagedResult<CategoryResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
+        [Authorize]
         public async Task<IActionResult> GetPagedCategories(
             [FromQuery] CategoryQueryParameters parameters
         )

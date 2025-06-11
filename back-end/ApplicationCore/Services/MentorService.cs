@@ -409,14 +409,13 @@ namespace ApplicationCore.Services
 
         public async Task<OperationResult<ApplicationStatusCountResponse>> GetApplicationStatusCountAsync()
         {
-            var applicationStatusCount = await _mentorRepository.GetAllAsync();
+            var applicationStatusCount = await _mentorRepository.GetApplicationStatusCountsAsync();
             var response = new ApplicationStatusCountResponse
             {
-                Rejected = applicationStatusCount.Count(a => a.ApplicationStatus.Name == "Rejected"),
-                Approved = applicationStatusCount.Count(a => a.ApplicationStatus.Name == "Approved"),
-                Pending = applicationStatusCount.Count(a => a.ApplicationStatus.Name == "UnderReview" ||
-                                                    a.ApplicationStatus.Name == "Submitted"),
-                RequestInfo = applicationStatusCount.Count(a => a.ApplicationStatus.Name == "Request Info"),
+                Rejected = applicationStatusCount.GetValueOrDefault(2, 0),
+                Approved = applicationStatusCount.GetValueOrDefault(3, 0),
+                Pending = applicationStatusCount.GetValueOrDefault(6, 0) + applicationStatusCount.GetValueOrDefault(5, 0),
+                RequestInfo = applicationStatusCount.GetValueOrDefault(4, 0),
             };
             return OperationResult<ApplicationStatusCountResponse>.Ok(response);
 
