@@ -42,22 +42,22 @@ namespace ApplicationCore.Repositories
                 .Include(r => r.DocumentContent)
                 .Select(r => new Resource
                 {
-                    // Map Resource properties
+
                     Id = r.Id,
                     Title = r.Title,
                     Description = r.Description,
                     Url = r.Url,
-                    // Map other Resource properties as needed
+
                     Course = r.Course,
                     ResourceCategory = r.ResourceCategory,
                     TypeOfResource = r.TypeOfResource,
                     DocumentContentId = r.DocumentContentId,
                     DocumentContent = r.DocumentContent != null ? new DocumentContent
                     {
-                        //Id = r.DocumentContent.Id,
+
                         FileName = r.DocumentContent.FileName,
                         FileType = r.DocumentContent.FileType
-                        // Explicitly exclude FileContent
+
                     } : null
                 })
                 .AsQueryable();

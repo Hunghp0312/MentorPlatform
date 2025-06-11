@@ -46,7 +46,7 @@ public class CoursesController : BaseController
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Admin, Mentor")]
+    [Authorize(Roles = "Admin, Mentor", Policy = "ActiveUserOnly")]
     public async Task<IActionResult> CreateCourse(
         [FromBody] CreateUpdateCourseRequest createDto
     )
@@ -80,7 +80,7 @@ public class CoursesController : BaseController
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status409Conflict)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Admin, Mentor")]
+    [Authorize(Roles = "Admin, Mentor", Policy = "ActiveUserOnly")]
     public async Task<IActionResult> UpdateCourse(
         Guid id,
         [FromBody] CreateUpdateCourseRequest updateDto
@@ -95,7 +95,7 @@ public class CoursesController : BaseController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(FailResponse), StatusCodes.Status500InternalServerError)]
-    [Authorize(Roles = "Admin, Mentor")]
+    [Authorize(Roles = "Admin, Mentor", Policy = "ActiveUserOnly")]
     public async Task<IActionResult> DeleteCourse(Guid id)
     {
         var result = await _courseService.DeleteCourseAsync(id);
