@@ -412,10 +412,10 @@ namespace ApplicationCore.Services
             var applicationStatusCount = await _mentorRepository.GetApplicationStatusCountsAsync();
             var response = new ApplicationStatusCountResponse
             {
-                Rejected = applicationStatusCount.GetValueOrDefault("Rejected", 0),
-                Approved = applicationStatusCount.GetValueOrDefault("Approved", 0),
-                Pending = applicationStatusCount.GetValueOrDefault("UnderReview", 0) + applicationStatusCount.GetValueOrDefault("Submitted", 0),
-                RequestInfo = applicationStatusCount.GetValueOrDefault("RequestInfo", 0),
+                Rejected = applicationStatusCount.GetValueOrDefault(2, 0),
+                Approved = applicationStatusCount.GetValueOrDefault(3, 0),
+                Pending = applicationStatusCount.GetValueOrDefault(6, 0) + applicationStatusCount.GetValueOrDefault(5, 0),
+                RequestInfo = applicationStatusCount.GetValueOrDefault(4, 0),
             };
             return OperationResult<ApplicationStatusCountResponse>.Ok(response);
 

@@ -270,16 +270,16 @@ const ListApproval = () => {
               <p className="font-medium truncate text-white mb-1.5">
                 {row.fullName}
               </p>
-              <p className="text-sm text-gray-400 pt-0.5">
+              <div className="flex flex-wrap gap-1 sm:gap-2 mb-2">
                 {row.expertiseAreas.map((area, index) => (
                   <span
                     key={index}
-                    className="bg-gray-600 text-gray-200 px-3 py-1 rounded-full text-sm mr-2"
+                    className="bg-gray-600 text-gray-200 px-3 py-1 rounded-full text-sm mr-0.5"
                   >
                     {area.name}
                   </span>
                 ))}
-              </p>
+              </div>
               <div className="flex items-center mt-1">
                 <span
                   className={`inline-block w-2 h-2 rounded-full mr-2 ${
