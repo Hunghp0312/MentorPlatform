@@ -1015,12 +1015,12 @@ const MentorStatusProfile = () => {
               <h3 className="text-sm font-medium text-gray-400 mb-1">
                 Areas of expertise
               </h3>
-              <p className="text-sm text-gray-200">
+              <p className="flex flex-wrap gap-2">
                 {mentorData.userApplicationDetails?.userAreaOfExpertises?.map(
                   (expertise, index) => (
                     <span
                       key={index}
-                      className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mr-2"
+                      className="bg-gray-700 text-gray-200 px-3 py-1 rounded-full text-sm mr-1"
                     >
                       {expertise.arenaOfExpertise?.name}
                     </span>

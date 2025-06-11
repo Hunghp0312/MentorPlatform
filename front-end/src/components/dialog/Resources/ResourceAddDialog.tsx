@@ -353,28 +353,34 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
           optionList={courseOptionsList}
           disabled={!!initialData || !isEditable}
         />
-        <InputCustom
-          label="Category"
-          name="resourceCategoryId"
-          type="select"
-          value={formData.resourceCategoryId.toString()}
-          onChange={handleInputChange}
-          errorMessage={formErrors.resourceCategoryId}
-          isRequired
-          optionList={categoryOptionsList}
-          disabled={!isEditable}
-        />
-        <InputCustom
-          label="Type"
-          name="typeOfResourceId"
-          type="select"
-          value={formData.typeOfResourceId.toString()}
-          onChange={handleInputChange}
-          errorMessage={formErrors.typeOfResourceId}
-          isRequired
-          optionList={typeOptions}
-          disabled={!isEditable}
-        />
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <InputCustom
+              label="Category"
+              name="resourceCategoryId"
+              type="select"
+              value={formData.resourceCategoryId.toString()}
+              onChange={handleInputChange}
+              errorMessage={formErrors.resourceCategoryId}
+              isRequired
+              optionList={categoryOptionsList}
+              disabled={!isEditable}
+            />
+          </div>
+          <div className="flex-1">
+            <InputCustom
+              label="Type"
+              name="typeOfResourceId"
+              type="select"
+              value={formData.typeOfResourceId.toString()}
+              onChange={handleInputChange}
+              errorMessage={formErrors.typeOfResourceId}
+              isRequired
+              optionList={typeOptions}
+              disabled={!isEditable}
+            />
+          </div>
+        </div>
         {formData.typeOfResourceId === 1 || formData.typeOfResourceId === 2 ? (
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
