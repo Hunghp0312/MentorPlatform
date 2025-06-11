@@ -517,7 +517,7 @@ namespace ApplicationCore.Services
                                                         .ThenInclude(t => t.MentorDayAvailable)
                                                         .Where(s => s.MentorId == userId && s.MentorTimeAvailable.MentorDayAvailable.Day.Month == currentDate.Month).CountAsync();
 
-            sessionDashboardKpiDto.ActiveLearners = await _sessionBookingRepository
+            sessionDashboardKpiDto.LifetimeLearners = await _sessionBookingRepository
                                                          .GetAllQueryable()
                                                          .Where(s => s.MentorId == userId)
                                                          .Select(s => s.LearnerId)
