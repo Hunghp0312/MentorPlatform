@@ -19,7 +19,7 @@ namespace ApplicationCore.Repositories
                 .Include(r => r.Course)
                 .Include(r => r.ResourceCategory)
                 .Include(r => r.TypeOfResource)
-                .FirstOrDefaultAsync(r => r.DocumentContentId == documentContentId && !r.IsDeleted);
+                .FirstOrDefaultAsync(r => r.DocumentContentId == documentContentId);
         }
 
         public override async Task<Resource?> GetByIdAsync(Guid id)
@@ -28,7 +28,7 @@ namespace ApplicationCore.Repositories
                 .Include(r => r.Course)
                 .Include(r => r.ResourceCategory)
                 .Include(r => r.TypeOfResource)
-                .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+                .FirstOrDefaultAsync(r => r.Id == id);
         }
         public override async Task<(ICollection<Resource>, int)> GetPagedAsync(
      Func<IQueryable<Resource>, IQueryable<Resource>>? filter,
@@ -40,7 +40,7 @@ namespace ApplicationCore.Repositories
                 .Include(r => r.ResourceCategory)
                 .Include(r => r.TypeOfResource)
                 .Include(r => r.DocumentContent)
-                .Where(r => !r.IsDeleted)
+
                 .Select(r => new Resource
                 {
                     // Map Resource properties

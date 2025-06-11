@@ -38,7 +38,7 @@ namespace ApplicationCore.Services
             var totalCourses = await courses.CountAsync();
             var totalMentors = await users.CountAsync(u => u.RoleId == 3);
             var totalLearners = await users.CountAsync(u => u.RoleId == 2);
-            var totalResources = await resources.Where(r => !r.IsDeleted).CountAsync();
+            var totalResources = await resources.CountAsync();
             var pendingApprovals = await mentors.CountAsync(m => m.ApplicationStatus.Id == 5);
 
             var addedUsersThisMonth = await users
@@ -96,10 +96,10 @@ namespace ApplicationCore.Services
                 .CountAsync();
 
             var addedResourcesThisMonth = await resources
-                .Where(r => r.UploadedAt >= startOfThisMonth && r.UploadedAt < startOfThisMonth.AddMonths(1) && !r.IsDeleted)
+                .Where(r => r.UploadedAt >= startOfThisMonth && r.UploadedAt < startOfThisMonth.AddMonths(1))
                 .CountAsync();
             var addedResourcesLastMonth = await resources
-                .Where(r => r.UploadedAt >= startOfLastMonth && r.UploadedAt < startOfThisMonth && !r.IsDeleted)
+                .Where(r => r.UploadedAt >= startOfLastMonth && r.UploadedAt < startOfThisMonth)
                 .CountAsync();
 
             double resourceGrowthPercent = 0;
@@ -118,7 +118,7 @@ namespace ApplicationCore.Services
             resourceGrowthPercent = Math.Max(-100, Math.Min(1000, resourceGrowthPercent));
 
             var addedResourcesThisWeek = await resources
-                .Where(r => r.UploadedAt >= startOfThisWeek && r.UploadedAt < startOfThisWeek.AddDays(7) && !r.IsDeleted)
+                .Where(r => r.UploadedAt >= startOfThisWeek && r.UploadedAt < startOfThisWeek.AddDays(7))
                 .CountAsync();
 
             return new DashboardStatisticsResponseDto
