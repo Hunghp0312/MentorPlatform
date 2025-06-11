@@ -7,6 +7,7 @@ import {
   EditResourceRequest,
 } from "../../../types/resource";
 import { courseService } from "../../../services/course.service";
+import CustomModal from "../../ui/Modal";
 
 interface Course {
   id: string;
@@ -57,7 +58,6 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditable = userRole === "Mentor";
 
-  // Update formData when initialData changes
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -313,132 +313,130 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 text-white rounded-lg p-3 w-full max-w-md">
-        <h2 className="text-base font-bold mb-1">
-          {initialData ? "Edit Resource" : "Add Resource"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-1">
-          <InputCustom
-            label="Title"
-            name="title"
-            type="text"
-            value={formData.title}
-            placeholder="Enter resource title"
-            onChange={handleInputChange}
-            errorMessage={formErrors.title}
-            isRequired
-            disabled={!isEditable}
-          />
-          <InputCustom
-            label="Description"
-            name="description"
-            type="textarea"
-            value={formData.description}
-            placeholder="Enter resource description"
-            onChange={handleInputChange}
-            errorMessage={formErrors.description}
-            isRequired
-            disabled={!isEditable}
-          />
-          <InputCustom
-            label="Course"
-            name="courseId"
-            type="select"
-            value={formData.courseId}
-            onChange={handleInputChange}
-            errorMessage={formErrors.courseId}
-            isRequired
-            optionList={courseOptionsList}
-            disabled={!!initialData || !isEditable}
-          />
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <InputCustom
-                label="Category"
-                name="resourceCategoryId"
-                type="select"
-                value={formData.resourceCategoryId.toString()}
-                onChange={handleInputChange}
-                errorMessage={formErrors.resourceCategoryId}
-                isRequired
-                optionList={categoryOptionsList}
-                disabled={!isEditable}
-              />
-            </div>
-            <div className="flex-1">
-              <InputCustom
-                label="Type"
-                name="typeOfResourceId"
-                type="select"
-                value={formData.typeOfResourceId.toString()}
-                onChange={handleInputChange}
-                errorMessage={formErrors.typeOfResourceId}
-                isRequired
-                optionList={typeOptions}
-                disabled={!isEditable}
-              />
-            </div>
-          </div>
-
-          {formData.typeOfResourceId === 1 ||
-          formData.typeOfResourceId === 2 ? (
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Upload File{" "}
-                {initialData ? "" : <span className="text-red-500">*</span>}
-              </label>
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept={formData.typeOfResourceId === 1 ? ".mp4" : ".pdf"}
-                onChange={handleFileChange}
-                className="w-full text-sm text-gray-300 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
-                disabled={!isEditable}
-              />
-              {formErrors.file && (
-                <p className="text-xs text-red-500 mt-1">{formErrors.file}</p>
-              )}
-              {formData.file && (
-                <p className="text-xs text-gray-300 mt-1">
-                  {formData.file.name} (
-                  {(formData.file.size / (1024 * 1024)).toFixed(2)} MB)
-                </p>
-              )}
-              {initialData?.fileName && !formData.file && (
-                <p className="text-xs text-gray-300 mt-1">
-                  Current: {initialData.fileName}
-                </p>
-              )}
-            </div>
-          ) : formData.typeOfResourceId === 3 ? (
+    <CustomModal
+      isOpen={isOpen}
+      onClose={handleOnClose}
+      title={initialData ? "Edit Resource" : "Add Resource"}
+      size="md"
+    >
+      <form onSubmit={handleSubmit} className="space-y-1">
+        <InputCustom
+          label="Title"
+          name="title"
+          type="text"
+          value={formData.title}
+          placeholder="Enter resource title"
+          onChange={handleInputChange}
+          errorMessage={formErrors.title}
+          isRequired
+          disabled={!isEditable}
+        />
+        <InputCustom
+          label="Description"
+          name="description"
+          type="textarea"
+          value={formData.description}
+          placeholder="Enter resource description"
+          onChange={handleInputChange}
+          errorMessage={formErrors.description}
+          isRequired
+          disabled={!isEditable}
+        />
+        <InputCustom
+          label="Course"
+          name="courseId"
+          type="select"
+          value={formData.courseId}
+          onChange={handleInputChange}
+          errorMessage={formErrors.courseId}
+          isRequired
+          optionList={courseOptionsList}
+          disabled={!!initialData || !isEditable}
+        />
+        <div className="flex gap-2">
+          <div className="flex-1">
             <InputCustom
-              label="Link"
-              name="url"
-              type="text"
-              value={formData.url}
-              placeholder="Enter resource URL"
+              label="Category"
+              name="resourceCategoryId"
+              type="select"
+              value={formData.resourceCategoryId.toString()}
               onChange={handleInputChange}
-              errorMessage={formErrors.url}
+              errorMessage={formErrors.resourceCategoryId}
               isRequired
+              optionList={categoryOptionsList}
               disabled={!isEditable}
             />
-          ) : null}
-          <div className="flex justify-end gap-2 mt-4">
-            <Button type="button" variant="secondary" onClick={handleOnClose}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={loading || !isEditable}
-            >
-              {loading ? "Saving..." : initialData ? "Update" : "Create"}
-            </Button>
           </div>
-        </form>
-      </div>
-    </div>
+          <div className="flex-1">
+            <InputCustom
+              label="Type"
+              name="typeOfResourceId"
+              type="select"
+              value={formData.typeOfResourceId.toString()}
+              onChange={handleInputChange}
+              errorMessage={formErrors.typeOfResourceId}
+              isRequired
+              optionList={typeOptions}
+              disabled={!isEditable}
+            />
+          </div>
+        </div>
+        {formData.typeOfResourceId === 1 || formData.typeOfResourceId === 2 ? (
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">
+              Upload File{" "}
+              {initialData ? "" : <span className="text-red-500">*</span>}
+            </label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept={formData.typeOfResourceId === 1 ? ".mp4" : ".pdf"}
+              onChange={handleFileChange}
+              className="w-full text-sm text-gray-300 bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              disabled={!isEditable}
+            />
+            {formErrors.file && (
+              <p className="text-xs text-red-500 mt-1">{formErrors.file}</p>
+            )}
+            {formData.file && (
+              <p className="text-xs text-gray-300 mt-1">
+                {formData.file.name} (
+                {(formData.file.size / (1024 * 1024)).toFixed(2)} MB)
+              </p>
+            )}
+            {initialData?.fileName && !formData.file && (
+              <p className="text-xs text-gray-300 mt-1">
+                Current: {initialData.fileName}
+              </p>
+            )}
+          </div>
+        ) : formData.typeOfResourceId === 3 ? (
+          <InputCustom
+            label="Link"
+            name="url"
+            type="text"
+            value={formData.url}
+            placeholder="Enter resource URL"
+            onChange={handleInputChange}
+            errorMessage={formErrors.url}
+            isRequired
+            disabled={!isEditable}
+          />
+        ) : null}
+        <div className="flex justify-end gap-2 mt-4">
+          <Button type="button" variant="secondary" onClick={handleOnClose}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={loading || !isEditable}
+          >
+            {loading ? "Saving..." : initialData ? "Update" : "Create"}
+          </Button>
+        </div>
+      </form>
+    </CustomModal>
   );
 };
 

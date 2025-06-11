@@ -104,11 +104,10 @@
         public const string TEACHING_APPROACH_AT_LEAST_ONE_REQUIRED =
             "At least one teaching approach must be selected for mentors.";
 
-        // Schedule Configuration Validation Messages
         public const string WorkDayStartTimeRequired = "Work day start time is required.";
         public const string WorkDayEndTimeRequired = "Work day end time is required.";
         public const string InvalidTimeFormat = "Invalid time format. Please use HH:mm (24-hour format).";
-        public const string EndTimeAfterStartTime = "Work day end time must be after start time."; // For custom validation
+        public const string EndTimeAfterStartTime = "Work day end time must be after start time.";
         public const string SessionDurationRequired = "Session duration is required.";
         public const string SessionDurationMin = "Session duration must be at least 15 minutes.";
         public const string BufferTimeRequired = "Buffer time is required.";

@@ -3,7 +3,7 @@ import { Search, Edit, Trash2, Eye } from "lucide-react";
 import useDebounce from "../../hooks/usedebounce";
 import Button from "../../components/ui/Button";
 import InputCustom from "../../components/input/InputCustom";
-import ResourceAddDialog from "../../components/dialog/Resources/ResourceAddDialog"; // Import the new popup component
+import ResourceAddDialog from "../../components/dialog/Resources/ResourceAddDialog";
 import { toast } from "react-toastify";
 import { resourceService } from "../../services/resource.service";
 import { handleAxiosError } from "../../utils/handlerError";
@@ -46,7 +46,7 @@ const ResourcePage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(9);
-  // const pageSizeOptions = [5, 10, 20]; // Define page size options
+
   const [totalResources, setTotalResources] = useState<ResourceType[]>([]);
   const searchDebounced = useDebounce(searchByName, 500);
   const [errors, setErrors] = useState<string>();
@@ -69,7 +69,6 @@ const ResourcePage = () => {
     const fetchUserRole = async () => {
       try {
         const user = await userService.getCurrentUser();
-        console.log("User Role:", user.role.name);
         setUserRole(user.role.name);
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -91,7 +90,7 @@ const ResourcePage = () => {
         pageIndex,
         pageSize
       );
-      console.log("API Response:", response);
+
       setTotalResources(response.items);
       setTotalItems(response.totalItems);
     } catch (error) {
@@ -195,11 +194,9 @@ const ResourcePage = () => {
   };
   const handleOpenWeb = (resource: ResourceType) => {
     try {
-      // Check if the resource has a valid link and is of type 'External Link' (id: 3)
       if (resource.typeOfResource.id === 3 && resource.link) {
-        // Validate the URL
         const url = resource.link;
-        // Basic URL validation
+
         if (/^https?:\/\//i.test(url)) {
           window.open(url, "_blank");
         } else {
@@ -234,7 +231,6 @@ const ResourcePage = () => {
   };
 
   const handleViewDocument = async (fileId: string) => {
-    console.log("handleViewDocument called for fileId:", fileId);
     try {
       const response = await resourceService.getResourceFileDetail(fileId);
       const { fileContent, fileType } = response;
@@ -272,7 +268,7 @@ const ResourcePage = () => {
         <button
           id={`download-button-${index}`}
           onClick={() => handleDownload(resource)}
-          className="w-[80%] max-w-xs rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="w-[75%] max-w-xs rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Download
         </button>
@@ -281,7 +277,7 @@ const ResourcePage = () => {
         <button
           id={`open-button-${index}`}
           onClick={() => handleOpenWeb(resource)}
-          className="w-[80%] max-w-xs rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="w-[75%] max-w-xs rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Open Link
         </button>
@@ -369,144 +365,146 @@ const ResourcePage = () => {
   return (
     <main>
       <div>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <h2 className="text-3xl font-bold">Resource</h2>
-          {userRole === "Mentor" && (
-            <Button
-              variant="primary"
-              size="md"
-              className="font-bold text-white"
-              onClick={() => setOpenDialog(true)}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <h2 className="text-3xl font-bold">Resources</h2>
+            {userRole === "Mentor" && (
+              <Button
+                variant="primary"
+                size="md"
+                className="font-bold text-white"
+                onClick={() => setOpenDialog(true)}
+              >
+                Add Resource
+              </Button>
+            )}
+          </div>
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="flex-grow relative">
+              <InputCustom
+                name="search"
+                type="text"
+                value={searchByName}
+                icon={<Search size={20} className="text-gray-500" />}
+                onChange={handleChangeSearch}
+                placeholder="Search resource..."
+                errorMessage={errors}
+              />
+            </div>
+            <select
+              className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
+              data-testid="type-status"
+              value={resourceCategoryFilter}
+              onChange={(e) => {
+                setResourceCategoryFilter(e.target.value);
+                setPageIndex(1);
+              }}
             >
-              Add Resource
-            </Button>
+              {categoryOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="text-center text-gray-500">Loading...</div>
+          ) : totalResources.length === 0 ? (
+            <div className="text-center text-gray-500">No resources found.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {totalResources.map((resource, index) => (
+                <div
+                  key={resource.resourceId}
+                  className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
+                >
+                  <div className="relative mb-2">
+                    <h3 className="text-xl text-[17px] font-semibold text-white pr-20">
+                      {resource.title}
+                    </h3>
+                    <span
+                      className={`absolute right-0 top-0 text-xs font-semibold text-white px-1.5 py-1 rounded-full min-w-[60px] text-center ${
+                        resource.typeOfResource.id === 1
+                          ? "bg-amber-500"
+                          : resource.typeOfResource.id === 2
+                          ? "bg-red-500"
+                          : resource.typeOfResource.id === 3
+                          ? "bg-blue-500"
+                          : "bg-gray-500"
+                      }`}
+                    >
+                      {resource.typeOfResource.name}
+                    </span>
+                  </div>
+                  <p className="text-gray-300 text-[13.5px] mb-4 line-clamp-1">
+                    {resource.description}
+                  </p>
+                  <div className="text-gray-400 text-[13.5px] mb-2">
+                    <span className="text-orange-400">
+                      Course: {resource.courseName}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    {renderButtons(resource, index)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 mt-6">
+              <Button
+                id="prev-button"
+                variant="primary"
+                size="sm"
+                disabled={pageIndex === 1}
+                onClick={() => setPageIndex(pageIndex - 1)}
+              >
+                Previous
+              </Button>
+              <span className="text-gray-300">
+                Page {pageIndex} of {totalPages}
+              </span>
+              <Button
+                id="next-button"
+                variant="primary"
+                size="sm"
+                disabled={pageIndex === totalPages}
+                onClick={() => setPageIndex(pageIndex + 1)}
+              >
+                Next
+              </Button>
+            </div>
           )}
         </div>
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-grow relative">
-            <InputCustom
-              name="search"
-              type="text"
-              value={searchByName}
-              icon={<Search size={20} className="text-gray-500" />}
-              onChange={handleChangeSearch}
-              placeholder="Search resource..."
-              errorMessage={errors}
-            />
-          </div>
-          <select
-            className="bg-gray-700 border border-gray-600 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-orange-500 text-white"
-            data-testid="type-status"
-            value={resourceCategoryFilter}
-            onChange={(e) => {
-              setResourceCategoryFilter(e.target.value);
-              setPageIndex(1);
-            }}
-          >
-            {categoryOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {loading ? (
-          <div className="text-center text-gray-500">Loading...</div>
-        ) : totalResources.length === 0 ? (
-          <div className="text-center text-gray-500">No resources found.</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {totalResources.map((resource, index) => (
-              <div
-                key={resource.resourceId}
-                className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-lg hover:shadow-xl transition-shadow"
-              >
-                <div className="relative mb-2">
-                  <h3 className="text-xl text-[17px] font-semibold text-white pr-20">
-                    {resource.title}
-                  </h3>
-                  <span
-                    className={`absolute right-0 top-0 text-xs font-semibold text-white px-1.5 py-1 rounded-full min-w-[60px] text-center ${
-                      resource.typeOfResource.id === 1
-                        ? "bg-amber-500"
-                        : resource.typeOfResource.id === 2
-                        ? "bg-red-500"
-                        : resource.typeOfResource.id === 3
-                        ? "bg-blue-500"
-                        : "bg-gray-500"
-                    }`}
-                  >
-                    {resource.typeOfResource.name}
-                  </span>
-                </div>
-                <p className="text-gray-300 text-[13.5px] mb-4 line-clamp-1">
-                  {resource.description}
-                </p>
-                <div className="text-gray-400 text-[13.5px] mb-2">
-                  <span className="text-orange-400">
-                    Course: {resource.courseName}
-                  </span>
-                </div>
-                <div className="flex gap-2">
-                  {renderButtons(resource, index)}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-6">
-            <Button
-              id="prev-button"
-              variant="primary"
-              size="sm"
-              disabled={pageIndex === 1}
-              onClick={() => setPageIndex(pageIndex - 1)}
-            >
-              Previous
-            </Button>
-            <span className="text-gray-300">
-              Page {pageIndex} of {totalPages}
-            </span>
-            <Button
-              id="next-button"
-              variant="primary"
-              size="sm"
-              disabled={pageIndex === totalPages}
-              onClick={() => setPageIndex(pageIndex + 1)}
-            >
-              Next
-            </Button>
-          </div>
-        )}
+        <ResourceAddDialog
+          isOpen={openDialog}
+          onClose={handleOnClose}
+          onSubmit={handleSubmit}
+          initialData={initialData}
+          loading={loading}
+          categoryOptions={categoryOptions}
+          userRole={userRole}
+        />
+        <CustomModal
+          isOpen={openDocumentViewer}
+          onClose={handleCloseDocumentViewer}
+          title="View Document"
+          size="xl"
+        >
+          {documentData && (
+            <div className="w-full h-[70vh]">
+              <embed
+                src={`data:${documentData.fileType};base64,${documentData.fileContent}`}
+                type={documentData.fileType}
+                width="100%"
+                height="100%"
+              />
+            </div>
+          )}
+        </CustomModal>
       </div>
-      <ResourceAddDialog
-        isOpen={openDialog}
-        onClose={handleOnClose}
-        onSubmit={handleSubmit}
-        initialData={initialData}
-        loading={loading}
-        categoryOptions={categoryOptions}
-        userRole={userRole}
-      />
-      <CustomModal
-        isOpen={openDocumentViewer}
-        onClose={handleCloseDocumentViewer}
-        title="View Document"
-        size="xl"
-      >
-        {documentData && (
-          <div className="w-full h-[70vh]">
-            <embed
-              src={`data:${documentData.fileType};base64,${documentData.fileContent}`}
-              type={documentData.fileType}
-              width="100%"
-              height="100%"
-            />
-          </div>
-        )}
-      </CustomModal>
     </main>
   );
 };
