@@ -76,7 +76,12 @@ export default function AdminDashboard() {
       </div>
     );
   }
-
+  const formatDataDownload = (data: number): string => {
+    if (data >= 1000) {
+      return `${(data / 1000).toFixed(1)} GB`;
+    }
+    return `${data} MB`;
+  };
   return (
     <div className="min-h-screen bg-slate-800 p-6">
       <div className="max-w-7xl mx-auto">
@@ -153,7 +158,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-sm">
-                {stats?.addedResourcesThisWeek} added this week
+                {stats?.addedResourcesThisMonth} added this month
               </span>
               <span
                 className={`${
@@ -254,7 +259,7 @@ export default function AdminDashboard() {
                 </span>
               </div>
               <span className="text-2xl font-bold text-white">
-                {metrics?.resourceDownloads || 0}
+                {formatDataDownload(metrics?.resourceDownloads || 0)}
               </span>
             </div>
 

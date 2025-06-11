@@ -38,7 +38,7 @@ export interface SessionType {
 export interface SessionKPIs {
     sharedResources: number;
     sessionsThisMonth: number;
-    activeLearners: number;
+    lifetimeLearners: number;
 }
 
 export interface UpcomingSession {

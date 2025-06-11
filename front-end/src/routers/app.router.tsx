@@ -107,6 +107,17 @@ const AppRouter = () => {
       ),
       children: [
         { path: pathName.mentorStatus, element: <MentorStatusProfile /> },
+      ],
+    },
+    {
+      element: (
+        <PrivateRoute>
+          <RequireRole role="Mentor" needActive>
+            <Layout />
+          </RequireRole>
+        </PrivateRoute>
+      ),
+      children: [
         { path: pathName.mentorCourse, element: <ListCourse /> },
         { path: pathName.mentorAvailability, element: <AvailabilityManager /> },
         { path: pathName.sessionManagement, element: <SessionManagement /> },
@@ -114,8 +125,6 @@ const AppRouter = () => {
         { path: pathName.mentorResource, element: <ResourcePage /> },
       ],
     },
-
-    // Learner Routes
     {
       element: (
         <PrivateRoute>

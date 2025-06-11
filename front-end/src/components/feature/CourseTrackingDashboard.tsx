@@ -22,10 +22,14 @@ const CourseTrackingPage: React.FC<{ courses: CourseDashboardResponseType }> = (
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-gray-700 rounded-lg shadow p-4 text-center">
               <h3 className="text-gray-500">Total Courses</h3>
               <p className="text-2xl font-bold">{courses.courseKPIs.totalCourses}</p>
+            </div>
+            <div className="bg-gray-700 rounded-lg shadow p-4 text-center">
+              <h3 className="text-gray-500">Enrolled student</h3>
+              <p className="text-2xl font-bold">{courses.courseKPIs.studentEnrollments}</p>
             </div>
             <div className="bg-gray-700 rounded-lg shadow p-4 text-center">
               <h3 className="text-gray-500">Avg. Completion</h3>
