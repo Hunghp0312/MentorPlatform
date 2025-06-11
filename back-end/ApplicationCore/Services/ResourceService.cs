@@ -248,7 +248,7 @@ namespace ApplicationCore.Services
                 await _documentContentRepository.DeleteById(oldDocumentContentId.Value);
             }
 
-            // Commit giao dịch
+
             await _unitOfWork.CommitAsync();
 
             var response = new ResourceFileResponse

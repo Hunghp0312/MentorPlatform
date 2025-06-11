@@ -22,7 +22,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Mentor")]
+        [Authorize(Roles = "Mentor", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(ResourceResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> AddResource([FromBody] AddResourceRequest addResourceRequest)
@@ -34,7 +34,7 @@ namespace Presentation.Controllers
         }
 
         [HttpDelete("{resourceId:guid}")]
-        [Authorize(Roles = "Admin, Mentor")]
+        [Authorize(Roles = "Admin, Mentor", Policy = "ActiveUserOnly")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -47,7 +47,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPut("{resourceId:guid}")]
-        [Authorize(Roles = "Mentor")]
+        [Authorize(Roles = "Mentor", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(ResourceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
@@ -74,7 +74,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost("up-file/{resourceId:guid}")]
-        [Authorize(Roles = "Mentor")]
+        [Authorize(Roles = "Mentor", Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(ResourceFileResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadResourceFile([FromForm] ResourceFileRequest resourceFileRequest, Guid resourceId)
@@ -87,7 +87,7 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("file/{fileId:guid}/details")]
-        [Authorize]
+        [Authorize(Policy = "ActiveUserOnly")]
         [ProducesResponseType(typeof(PagedResult<DocumentDetailResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(FailResponse), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetFileResourceDetails(Guid fileId)
