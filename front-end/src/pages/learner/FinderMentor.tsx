@@ -77,8 +77,8 @@ const MentorFinder: React.FC = () => {
     }, [debouncedSearchTerm, selectedTopic, selectedExpertise.length, pageIndex, pageSize]);
 
     if (loading) {
-        return  (
-            <LoadingOverlay/>
+        return (
+            <LoadingOverlay />
         )
     }
 
@@ -105,6 +105,7 @@ const MentorFinder: React.FC = () => {
                         <div className="flex-1 relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                             <input
+                                autoFocus
                                 type="text"
                                 placeholder="Search mentors by name, role, or expertise..."
                                 value={searchTerm}
@@ -196,14 +197,14 @@ const MentorFinder: React.FC = () => {
                                     </p>
 
                                     <div className="flex gap-2 mt-auto">
-                                        <button 
-                                            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition-colors" 
+                                        <button
+                                            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-lg font-medium transition-colors"
                                             onClick={() => navigate(`/mentor-profile/${mentor.id}`)}
                                             data-testid={`view-profile-button-${mentor.id}`}
                                         >
                                             View Profile
                                         </button>
-                                        <button 
+                                        <button
                                             className="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2 px-4 rounded-lg font-medium transition-colors"
                                             data-testid={`message-button-${mentor.id}`}
                                         >
