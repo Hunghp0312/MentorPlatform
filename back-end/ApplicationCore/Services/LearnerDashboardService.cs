@@ -31,6 +31,15 @@ namespace ApplicationCore.Services
                 todayDate
             );
 
+            if (upcomingsessions == null || !upcomingsessions.Any())
+            {
+                var emptyResponse = new LearnerDashboardUpcomingSession
+                {
+                    NumberOfUpcomingSession = 0,
+                };
+                return OperationResult<LearnerDashboardUpcomingSession>.Ok(emptyResponse);
+            }
+
             var nextSessionDate = upcomingsessions
                 .First()
                 .MentorTimeAvailable.MentorDayAvailable.Day;
