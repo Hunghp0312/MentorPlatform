@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import CustomModal from "../../components/ui/Modal";
 import { sessionService } from "../../services/session.service";
-import { useParams } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Calendar, Check, ChevronLeft, Clock, MessageSquare, Users, Video, X } from "lucide-react";
+import { Calendar, Check, Clock, MessageSquare, Users, Video, X } from "lucide-react";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import { formatTime } from "../../utils/formatDate";
@@ -18,7 +18,6 @@ const LearnerSessionManagement = () => {
   const [declineMessage, setDeclineMessage] = useState<string>('');
   const [sessionRequests, setSessionRequests] = useState<BookingSessionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
   const fetchSessionRequests = async () => {
     try {
       setLoading(true);
@@ -133,9 +132,6 @@ const LearnerSessionManagement = () => {
       <div className="max-w-6xl mx-auto bg-[#1e2432] text-white rounded-lg shadow-xl p-6">
         {/* Header */}
         <div className="flex items-center mb-6" data-testid="header-section">
-          <button className="mr-4 p-2 hover:bg-gray-700 rounded-lg" data-testid="back-button">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
           <div>
             <h1 className="text-2xl font-bold" data-testid="page-title">Session Management</h1>
             <p className="text-gray-400" data-testid="page-description">Review and manage incoming session requests</p>
