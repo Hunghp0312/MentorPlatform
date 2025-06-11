@@ -29,7 +29,7 @@ const LearnerSessionManagement = () => {
   const fetchSessionRequests = async () => {
     try {
       setLoading(true);
-      const response = await sessionService.getAllBookingSessions(null, null, statusId, 1, 100, search);
+      const response = await sessionService.getAllBookingSessions(null, null, statusId, pageIndex, pageSize, search);
       setSessionRequests(response.items);
       setTotalItems(response.totalItems);
       setPageSize(response.pageSize);
@@ -411,7 +411,7 @@ const LearnerSessionManagement = () => {
             changePage={(page: number) => setPageIndex(page)}
             setPageSize={(setSize: number) => {
               setPageSize(setSize);
-              setPageIndex(1); // Reset to first page when changing page size
+              setPageIndex(1); 
             }}
             pageSizeOptions={[5, 10, 20]}
           />
