@@ -44,7 +44,7 @@ namespace ApplicationCore.Extensions
                 Tags = TagHelper.ConvertStringToList(course.Tags),
                 StudentCount = course.StudentCount,
                 Completion = course.Completion,
-                Resources = course.Resources.Select(r => r.ToResourceResponse()).ToList(),
+                Resources = course.Resources.Select(r => r.ToResourceResponeGetAllService()).ToList(),
                 IsEnroll = learnerId != null && course.LearnerCourses.Any(lc => lc.LearnerId == learnerId),
                 IsCompleted = learnerId != null && course.LearnerCourses.Any(lc => lc.LearnerId == learnerId && lc.IsCompleted),
                 Mentor = course.Mentor?.ToUserResponseDto(),

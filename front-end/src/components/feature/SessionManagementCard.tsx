@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Video, MessageSquare, Users, Clock, Check, X, RotateCcw } from 'lucide-react';
+import { Calendar, Video, MessageSquare, Users, Clock, Check, X, RotateCcw, Search } from 'lucide-react';
 import RescheduleDialog from '../dialog/RescheduleDialog';
 import { sessionService } from '../../services/session.service';
 import { toast } from 'react-toastify';
@@ -8,6 +8,8 @@ import CustomModal from '../ui/Modal';
 import { formatTime } from '../../utils/formatDate';
 import LoadingOverlay from '../loading/LoadingOverlay';
 import { BookingSessionResponse } from '../../types/session';
+import useDebounce from '../../hooks/usedebounce';
+import TableFooter from '../table/TableFooter';
 
 
 
@@ -19,12 +21,19 @@ const SessionManagementCard: React.FC = () => {
   const [cancelMessageError, setCancelMessageError] = useState<string>('');
   const [sessionRequests, setSessionRequests] = useState<BookingSessionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageIndex, setPageIndex] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusIds, setStatusIds] = useState<number[] | null>([1]);
+  const search = useDebounce(searchQuery, 500);
   const fetchSessionRequests = async () => {
     try {
       setLoading(true);
-      const response = await sessionService.getAllBookingSessions(null, null, null, 1, 100, null);
+      const response = await sessionService.getAllBookingSessions(null, null, statusIds, pageIndex, pageSize, search);
       setSessionRequests(response.items);
+      setTotalItems(response.totalItems);
+      setPageSize(response.pageSize);
     } catch (error) {
       console.error('Error fetching session requests:', error);
       toast.error('Failed to load session requests. Please try again later.');
@@ -36,7 +45,7 @@ const SessionManagementCard: React.FC = () => {
 
   useEffect(() => {
     fetchSessionRequests();
-  }, [])
+  }, [pageIndex, pageSize, search, statusIds]);
 
   const getSessionIcon = (type: string) => {
     switch (type) {
@@ -170,7 +179,6 @@ const SessionManagementCard: React.FC = () => {
   }
 
   const handleCancelMessageChange = (e: string) => {
-    console.log('handleCancelMessageChange', e.length);
     if (e.length > 1000) {
       setCancelMessageError('Message cannot exceed 1000 characters');
     } else {
@@ -179,7 +187,6 @@ const SessionManagementCard: React.FC = () => {
     }
   }
 
-  const pendingRequests = sessionRequests.filter(req => req.statusName === 'Pending');
   const recentRequests = sessionRequests
     .filter(req => req.statusName === "Scheduled" || req.statusName === "Rescheduled")
     .sort((a, b) => {
@@ -195,7 +202,6 @@ const SessionManagementCard: React.FC = () => {
 
       return dateA - dateB;
     });
-  const inPastRequests = sessionRequests.filter(req => req.statusName === 'Completed' || req.statusName === 'Cancelled' || req.statusName === 'Declined');
 
   if (loading) {
     return <LoadingOverlay />
@@ -211,6 +217,26 @@ const SessionManagementCard: React.FC = () => {
             <p className="text-gray-400" data-testid="page-description">Review and manage incoming session requests</p>
           </div>
         </div>
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <div className="relative">
+            <input
+              autoFocus
+              type="text"
+              placeholder="Search by learner name "
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPageIndex(1);
+              }}
+              className="w-full pl-10 pr-4 py-3 bg-[#252d3d] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+              data-testid="search-input"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="w-5 h-5 text-gray-400" />
+            </div>
+          </div>
+        </div>
 
         {/* Tabs */}
         <div className="flex space-x-1 mb-6 bg-[#252d3d] rounded-lg p-1" data-testid="tabs-container">
@@ -219,7 +245,11 @@ const SessionManagementCard: React.FC = () => {
               ? 'bg-[#f47521] text-white'
               : 'text-gray-400 hover:text-white'
               }`}
-            onClick={() => setActiveTab('pending')}
+            onClick={() => {
+              setActiveTab('pending');
+              setStatusIds([1])
+              setPageIndex(1);
+            }}
             data-testid="pending-tab"
           >
             Pending Requests
@@ -229,7 +259,11 @@ const SessionManagementCard: React.FC = () => {
               ? 'bg-[#f47521] text-white'
               : 'text-gray-400 hover:text-white'
               }`}
-            onClick={() => setActiveTab('recent')}
+            onClick={() => {
+              setActiveTab('recent');
+              setStatusIds([2, 6])
+              setPageIndex(1);
+            }}
             data-testid="upcoming-tab"
           >
             Upcoming Sessions
@@ -239,7 +273,11 @@ const SessionManagementCard: React.FC = () => {
               ? 'bg-[#f47521] text-white'
               : 'text-gray-400 hover:text-white'
               }`}
-            onClick={() => setActiveTab('inpast')}
+            onClick={() => {
+              setActiveTab('inpast');
+              setStatusIds([4, 5, 3])
+              setPageIndex(1);
+            }}
             data-testid="past-tab"
           >
             In Past
@@ -249,8 +287,8 @@ const SessionManagementCard: React.FC = () => {
         {/* Session Requests */}
         <div className="space-y-4" data-testid="sessions-list">
           {activeTab === 'pending' && (
-            pendingRequests.length > 0 ? (
-              pendingRequests.map((request) => (
+            sessionRequests.length > 0 ? (
+              sessionRequests.map((request) => (
                 <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 border border-orange-500/30" data-testid={`pending-session-${request.bookingId}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 flex-1">
@@ -407,8 +445,8 @@ const SessionManagementCard: React.FC = () => {
           )}
 
           {activeTab === 'inpast' && (
-            inPastRequests.length > 0 ? (
-              inPastRequests.map((request) => (
+            sessionRequests.length > 0 ? (
+              sessionRequests.map((request) => (
                 <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 opacity-75" data-testid={`past-session-${request.bookingId}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 flex-1">
@@ -461,6 +499,17 @@ const SessionManagementCard: React.FC = () => {
               </div>
             )
           )}
+          <TableFooter
+            totalItems={totalItems}
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+            changePage={(page) => setPageIndex(page)}
+            setPageSize={(setSize) => {
+              setPageSize(setSize);
+              setPageIndex(1);
+            }}
+            pageSizeOptions={[5, 10, 20]}
+          />
         </div>
 
         {/* Reschedule Modal */}

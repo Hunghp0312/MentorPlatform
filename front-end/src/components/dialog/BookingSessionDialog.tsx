@@ -93,7 +93,6 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
       return;
     }
     try {
-      console.log("Booking data:", bookingData);
       setIsSubmitting(true);
       await sessionService.bookSession(bookingData);
       toast.success("Session booked successfully!");
@@ -105,6 +104,10 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
       setIsSubmitting(false);
     }
   };
+
+  const sortedSlots = slots.sort((a, b) => {
+    return a.startTime.localeCompare(b.startTime);
+  });
 
   return (
     <div
@@ -179,7 +182,7 @@ const BookingSessionDialog: React.FC<BookingDialogProps> = ({
               data-testid="time-slot-select"
             >
               <option value="">Select a time slot</option>
-              {slots?.map((timeSlot) => (
+              {sortedSlots?.map((timeSlot) => (
                 <option
                   key={timeSlot.id}
                   value={timeSlot.id}

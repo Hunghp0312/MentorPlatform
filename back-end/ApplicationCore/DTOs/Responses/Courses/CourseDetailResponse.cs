@@ -17,7 +17,7 @@ public class CourseDetailResponse : BaseResponse
     public DateTime LastUpdated { get; set; }
     public int StudentCount { get; set; }
     public double Completion { get; set; }
-    public List<ResourceResponse> Resources { get; set; } = [];
+    public List<ResourceResponeGetAllService> Resources { get; set; } = [];
     public bool IsEnroll { get; set; }
     public bool IsCompleted { get; set; }
     public UserResponseDto? Mentor { get; set; }

@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import CustomModal from "../../components/ui/Modal";
 import { sessionService } from "../../services/session.service";
-import {  useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Calendar, Check, Clock, MessageSquare, Users, Video, X } from "lucide-react";
+import { Calendar, Check, Clock, MessageSquare, Search, Users, Video, X } from "lucide-react";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import { formatTime } from "../../utils/formatDate";
 import { BookingSessionResponse } from "../../types/session";
-
+import useDebounce from "../../hooks/usedebounce";
+import TableFooter from "../../components/table/TableFooter";
 
 
 const LearnerSessionManagement = () => {
@@ -18,11 +19,20 @@ const LearnerSessionManagement = () => {
   const [declineMessage, setDeclineMessage] = useState<string>('');
   const [sessionRequests, setSessionRequests] = useState<BookingSessionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageIndex, setPageIndex] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusId, setStatusId] = useState<number[]>([1,2]);
+  const search = useDebounce(searchQuery, 500);
+
   const fetchSessionRequests = async () => {
     try {
       setLoading(true);
-      const response = await sessionService.getAllBookingSessions(null, null, null, 1, 100, null);
+      const response = await sessionService.getAllBookingSessions(null, null, statusId, 1, 100, search);
       setSessionRequests(response.items);
+      setTotalItems(response.totalItems);
+      setPageSize(response.pageSize);
     } catch (error) {
       console.error('Error fetching session requests:', error);
       toast.error('Failed to load session requests. Please try again later.');
@@ -32,10 +42,8 @@ const LearnerSessionManagement = () => {
     }
   };
   useEffect(() => {
-
-
     fetchSessionRequests();
-  }, [id])
+  }, [id, search, pageIndex, pageSize,statusId]);
   const getSessionIcon = (type: string) => {
     switch (type) {
       case 'Virtual Session':
@@ -63,8 +71,6 @@ const LearnerSessionManagement = () => {
   };
 
   const handleAcceptSession = async (sessionId: string) => {
-    console.log('Accepting session:', sessionId);
-    //call api to accept session
     try {
       await sessionService.updateStatusBookingSession(sessionId, 6);
       toast.success('Session accepted successfully!');
@@ -85,7 +91,7 @@ const LearnerSessionManagement = () => {
     if (!showDeclineModal) return;
 
     try {
-      await sessionService.updateStatusBookingSession(showDeclineModal, 5,declineMessage);
+      await sessionService.updateStatusBookingSession(showDeclineModal, 3, declineMessage);
       toast.success('Session cancel successfully!');
       fetchSessionRequests();
     }
@@ -121,9 +127,7 @@ const LearnerSessionManagement = () => {
   }
 
 
-  const pendingRequests = sessionRequests.filter(req => req.statusName === 'Pending' || req.statusName === "Rescheduled");
-  const recentRequests = sessionRequests.filter(req => req.statusName === "Scheduled");
-  const inPastRequests = sessionRequests.filter(req => req.statusName === 'Completed' || req.statusName === 'Cancelled' || req.statusName === 'Declined');
+  
   if (loading) {
     return <LoadingOverlay />
   }
@@ -137,6 +141,27 @@ const LearnerSessionManagement = () => {
             <p className="text-gray-400" data-testid="page-description">Review and manage incoming session requests</p>
           </div>
         </div>
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <div className="relative">
+            <input
+              autoFocus
+              type="text"
+              placeholder="Search by learner name or message..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPageIndex(1);
+              }}
+              className="w-full pl-10 pr-4 py-3 bg-[#252d3d] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
+              data-testid="search-input"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="w-5 h-5 text-gray-400" />
+            </div>
+          </div>
+        </div>
+
         {/* Tabs */}
         <div className="flex space-x-1 mb-6 bg-[#252d3d] rounded-lg p-1" data-testid="tabs-container">
           <button
@@ -144,7 +169,11 @@ const LearnerSessionManagement = () => {
               ? 'bg-[#f47521] text-white'
               : 'text-gray-400 hover:text-white'
               }`}
-            onClick={() => setActiveTab('pending')}
+            onClick={() => {
+              setActiveTab('pending')
+              setStatusId([1, 2]);
+              setPageIndex(1); 
+            }}
             data-testid="pending-tab"
           >
             Pending Requests
@@ -154,7 +183,11 @@ const LearnerSessionManagement = () => {
               ? 'bg-[#f47521] text-white'
               : 'text-gray-400 hover:text-white'
               }`}
-            onClick={() => setActiveTab('recent')}
+            onClick={() => {
+              setActiveTab('recent')
+              setStatusId([6]);
+              setPageIndex(1);
+            }}
             data-testid="upcoming-tab"
           >
             Upcoming Sessions
@@ -164,7 +197,11 @@ const LearnerSessionManagement = () => {
               ? 'bg-[#f47521] text-white'
               : 'text-gray-400 hover:text-white'
               }`}
-            onClick={() => setActiveTab('inpast')}
+            onClick={() => {
+              setActiveTab('inpast')
+              setStatusId([3, 4, 5]);
+              setPageIndex(1);
+            }}
             data-testid="past-tab"
           >
             In Past
@@ -174,7 +211,7 @@ const LearnerSessionManagement = () => {
         {/* Session Requests */}
         <div className="space-y-4" data-testid="session-requests-container">
           {activeTab === 'pending' && (
-            pendingRequests.length === 0 ? (
+            sessionRequests.length === 0 ? (
               <div className="bg-[#252d3d] rounded-lg p-8 text-center" data-testid="empty-pending-state">
                 <div className="text-gray-400 mb-2">
                   <Clock className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -183,7 +220,7 @@ const LearnerSessionManagement = () => {
                 <p className="text-gray-500">You don't have any pending session requests at the moment.</p>
               </div>
             ) : (
-              pendingRequests.map((request) => (
+              sessionRequests.map((request) => (
                 <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 border border-orange-500/30" data-testid={`pending-request-${request.bookingId}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 flex-1">
@@ -234,7 +271,7 @@ const LearnerSessionManagement = () => {
                                 data-testid={`cancel-button-${request.bookingId}`}
                               >
                                 <X className="w-4 h-4 mr-1" />
-                                Cancel
+                                Decline
                               </button>
                             </div>
                           )}
@@ -248,7 +285,7 @@ const LearnerSessionManagement = () => {
           )}
 
           {activeTab === 'recent' && (
-            recentRequests.length === 0 ? (
+            sessionRequests.length === 0 ? (
               <div className="bg-[#252d3d] rounded-lg p-8 text-center" data-testid="empty-upcoming-state">
                 <div className="text-gray-400 mb-2">
                   <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -257,7 +294,7 @@ const LearnerSessionManagement = () => {
                 <p className="text-gray-500">You don't have any upcoming sessions scheduled.</p>
               </div>
             ) : (
-              recentRequests.map((request) => (
+              sessionRequests.map((request) => (
                 <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 opacity-75" data-testid={`upcoming-session-${request.bookingId}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 flex-1">
@@ -312,7 +349,7 @@ const LearnerSessionManagement = () => {
           )}
 
           {activeTab === 'inpast' && (
-            inPastRequests.length === 0 ? (
+            sessionRequests.length === 0 ? (
               <div className="bg-[#252d3d] rounded-lg p-8 text-center" data-testid="empty-past-state">
                 <div className="text-gray-400 mb-2">
                   <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -321,7 +358,7 @@ const LearnerSessionManagement = () => {
                 <p className="text-gray-500">You don't have any completed or cancelled sessions yet.</p>
               </div>
             ) : (
-              inPastRequests.map((request) => (
+              sessionRequests.map((request) => (
                 <div key={request.bookingId} className="bg-[#252d3d] rounded-lg p-6 opacity-75" data-testid={`past-session-${request.bookingId}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 flex-1">
@@ -367,6 +404,17 @@ const LearnerSessionManagement = () => {
               ))
             )
           )}
+          <TableFooter
+            totalItems={totalItems}
+            pageSize={pageSize}
+            pageIndex={pageIndex}
+            changePage={(page: number) => setPageIndex(page)}
+            setPageSize={(setSize: number) => {
+              setPageSize(setSize);
+              setPageIndex(1); // Reset to first page when changing page size
+            }}
+            pageSizeOptions={[5, 10, 20]}
+          />
         </div>
 
 

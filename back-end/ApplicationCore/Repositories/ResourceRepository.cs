@@ -37,41 +37,42 @@ namespace ApplicationCore.Repositories
         {
             var queryable = _dbSet
                 .Include(r => r.Course)
+                    .ThenInclude(c => c.LearnerCourses)
                 .Include(r => r.ResourceCategory)
                 .Include(r => r.TypeOfResource)
                 .Include(r => r.DocumentContent)
-
-                .Select(r => new Resource
-                {
-                    // Map Resource properties
-                    Id = r.Id,
-                    Title = r.Title,
-                    Description = r.Description,
-                    Url = r.Url,
-                    // Map other Resource properties as needed
-                    Course = r.Course,
-                    ResourceCategory = r.ResourceCategory,
-                    TypeOfResource = r.TypeOfResource,
-                    DocumentContentId = r.DocumentContentId,
-                    DocumentContent = r.DocumentContent != null ? new DocumentContent
-                    {
-                        //Id = r.DocumentContent.Id,
-                        FileName = r.DocumentContent.FileName,
-                        FileType = r.DocumentContent.FileType
-                        // Explicitly exclude FileContent
-                    } : null
-                })
                 .AsQueryable();
-
             if (filter != null)
             {
                 queryable = filter(queryable);
             }
 
             var totalRecords = await queryable.CountAsync();
+
+            // Apply projection AFTER filtering
             var items = await queryable
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
+                .Select(r => new Resource
+                {
+                    Id = r.Id,
+                    Title = r.Title,
+                    Description = r.Description,
+                    Url = r.Url,
+                    CourseId = r.CourseId,
+                    ResourceCategoryId = r.ResourceCategoryId,
+                    TypeOfResourceId = r.TypeOfResourceId,
+                    DocumentContentId = r.DocumentContentId,
+                    Course = r.Course,
+                    ResourceCategory = r.ResourceCategory,
+                    TypeOfResource = r.TypeOfResource,
+                    DocumentContent = r.DocumentContent != null ? new DocumentContent
+                    {
+                        Id = r.DocumentContent.Id,
+                        FileName = r.DocumentContent.FileName,
+                        FileType = r.DocumentContent.FileType
+                    } : null
+                })
                 .ToListAsync();
 
             return (items, totalRecords);
