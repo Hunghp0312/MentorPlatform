@@ -350,6 +350,8 @@ namespace ApplicationCore.Services
                                                         .GetAllQueryable()
                                                         .Where(c => c.MentorId == mentorId && c.StatusId == 2)
                                                         .CountAsync();
+            courseDashboardKpiDto.StudentEnrollments = coursesByMentor
+                                .Sum(c => c.LearnerCourses.Select(lc => lc.LearnerId).Distinct().Count());
 
             Func<IQueryable<Course>, IQueryable<Course>> filter = query =>
             {
