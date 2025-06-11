@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250610092936_Init")]
-    partial class Init
+    [Migration("20250611065925_UpdateResourceStatistics")]
+    partial class UpdateResourceStatistics
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1509,6 +1509,9 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("DocumentContentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<int>("ResourceCategoryId")
                         .HasColumnType("int");
 
@@ -1522,6 +1525,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<int>("TypeOfResourceId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)");
