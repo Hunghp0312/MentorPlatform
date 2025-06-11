@@ -272,7 +272,7 @@ const ResourcePage = () => {
         <button
           id={`download-button-${index}`}
           onClick={() => handleDownload(resource)}
-          className="w-50 rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="w-[80%] max-w-xs rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Download
         </button>
@@ -281,7 +281,7 @@ const ResourcePage = () => {
         <button
           id={`open-button-${index}`}
           onClick={() => handleOpenWeb(resource)}
-          className="w-50 rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="w-[80%] max-w-xs rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Open Link
         </button>

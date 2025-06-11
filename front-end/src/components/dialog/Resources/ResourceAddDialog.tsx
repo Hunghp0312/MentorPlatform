@@ -65,16 +65,14 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
         description: initialData.description || "",
         resourceCategoryId: initialData.resourceCategory.id || 0,
         typeOfResourceId: initialData.typeOfResource.id || 0,
-        courseId: initialData.courseId || "",
+        courseId: initialData.courseId || "", // Ensure courseId is set
         file: null,
         url: initialData.link || "",
       });
-      // Reset file input to avoid showing stale file selection
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } else {
-      // Reset form when creating a new resource
       setFormData({
         title: "",
         description: "",
@@ -354,28 +352,35 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
             optionList={courseOptionsList}
             disabled={!!initialData || !isEditable}
           />
-          <InputCustom
-            label="Category"
-            name="resourceCategoryId"
-            type="select"
-            value={formData.resourceCategoryId.toString()}
-            onChange={handleInputChange}
-            errorMessage={formErrors.resourceCategoryId}
-            isRequired
-            optionList={categoryOptionsList}
-            disabled={!isEditable}
-          />
-          <InputCustom
-            label="Type"
-            name="typeOfResourceId"
-            type="select"
-            value={formData.typeOfResourceId.toString()}
-            onChange={handleInputChange}
-            errorMessage={formErrors.typeOfResourceId}
-            isRequired
-            optionList={typeOptions}
-            disabled={!isEditable}
-          />
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <InputCustom
+                label="Category"
+                name="resourceCategoryId"
+                type="select"
+                value={formData.resourceCategoryId.toString()}
+                onChange={handleInputChange}
+                errorMessage={formErrors.resourceCategoryId}
+                isRequired
+                optionList={categoryOptionsList}
+                disabled={!isEditable}
+              />
+            </div>
+            <div className="flex-1">
+              <InputCustom
+                label="Type"
+                name="typeOfResourceId"
+                type="select"
+                value={formData.typeOfResourceId.toString()}
+                onChange={handleInputChange}
+                errorMessage={formErrors.typeOfResourceId}
+                isRequired
+                optionList={typeOptions}
+                disabled={!isEditable}
+              />
+            </div>
+          </div>
+
           {formData.typeOfResourceId === 1 ||
           formData.typeOfResourceId === 2 ? (
             <div>
