@@ -19,20 +19,31 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
   actionButtonText = initialData ? "Update" : "Save",
   isSubmitting = false,
 }) => {
-  const [formState, setFormState] = useState<MentorWorkExperience>({
-    companyName: initialData?.companyName || "",
-    position: initialData?.position || "",
-    startDate: initialData?.startDate
-      ? new Date(initialData.startDate).toISOString().slice(5, 7) +
-        "/" +
-        new Date(initialData.startDate).getFullYear()
-      : "",
-    endDate:
-      initialData?.endDate && initialData.endDate !== "Present"
-        ? new Date(initialData.endDate).toISOString().slice(5, 7) +
-          "/" +
-          new Date(initialData.endDate).getFullYear()
-        : "",
+  const [formState, setFormState] = useState<MentorWorkExperience>(() => {
+    const isValidDate = (dateStr: string | null | undefined) => {
+      if (!dateStr || typeof dateStr !== "string") return false;
+      const date = new Date(dateStr);
+      return !isNaN(date.getTime());
+    };
+
+    return {
+      companyName: initialData?.companyName || "",
+      position: initialData?.position || "",
+      startDate:
+        initialData?.startDate && isValidDate(initialData.startDate)
+          ? `${new Date(initialData.startDate)
+              .toISOString()
+              .slice(5, 7)}/${new Date(initialData.startDate).getFullYear()}`
+          : "",
+      endDate:
+        initialData?.endDate &&
+        isValidDate(initialData.endDate) &&
+        initialData.endDate !== "Present"
+          ? `${new Date(initialData.endDate)
+              .toISOString()
+              .slice(5, 7)}/${new Date(initialData.endDate).getFullYear()}`
+          : "",
+    };
   });
   const [errors, setErrors] = useState({
     companyName: "",
@@ -62,9 +73,7 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       endDate: "",
     };
     const currentYear = new Date().getFullYear();
-    const currentMonth = new Date().getMonth() + 1; // Months are 0-based in JS
-
-    // Company Name and Position validation remain unchanged
+    const currentMonth = new Date().getMonth() + 1;
     if (!formState.companyName.trim()) {
       newErrors.companyName = "Company name is required.";
       isValid = false;
@@ -81,7 +90,6 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       isValid = false;
     }
 
-    // Start Date Validation
     if (!formState.startDate.trim()) {
       newErrors.startDate = "Start date is required.";
       isValid = false;

@@ -26,24 +26,24 @@ export interface SupportingDocument {
   fileName: string;
   fileType: string;
   fileSize: number;
+  fileContent: string;
   uploadedAt: string;
-  fileContent?: string;
   documentContent: {
     fileName: string;
     fileType: string;
     fileContent: string;
   };
+  tempId?: string;
 }
 
 export interface DocumentContent {
-  id: string;
+  fileId: string;
   fileName: string;
   fileType: string;
   fileSize?: number;
   uploadedAt?: string;
   fileContent: string;
 }
-
 export interface ApplicationStatus {
   id: number;
   name: string;
