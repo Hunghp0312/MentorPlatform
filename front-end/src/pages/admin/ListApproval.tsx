@@ -52,7 +52,6 @@ const ListApproval = () => {
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status"); // get value of 'term' param
 
-  console.log("Status from URL:", status);
   const [approvals, setApprovals] = useState<ApprovalType[]>([]);
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
@@ -122,14 +121,9 @@ const ListApproval = () => {
         approvalService.getApplicationStatusCount(),
       ]);
 
-      console.log("API Applications Response:", applicationsResponse);
-      console.log("API Status Counts Response:", countsResponse);
-
-      // Cập nhật danh sách ứng dụng
       setTotalItems(applicationsResponse.totalItems);
       setApprovals(applicationsResponse.items);
 
-      // Cập nhật số đếm trạng thái
       setStatusCounts({
         "":
           countsResponse.rejected +
@@ -159,7 +153,7 @@ const ListApproval = () => {
       const res = await approvalService.getMentorApplicationDetail(
         mentorApplicationId
       );
-      console.log("API Response Detail:", res);
+
       setSelectedApproval({
         ...res,
         documents: res.documents.map((doc: SupportingDocument) => ({
@@ -229,7 +223,6 @@ const ListApproval = () => {
     {
       header: "",
       accessor: (row) => {
-        console.log("Status:", row.status);
         const getLatestDate = (dateString?: string) => {
           if (!dateString) return "";
           const dates = dateString

@@ -101,7 +101,7 @@ const MentorStatusProfile = () => {
       try {
         setLoading(true);
         const response = await userService.getCurrentUser();
-        console.log("User Data:", response);
+
         const mappedUserData: UserApplication = {
           id: response.id,
           email: response.email,
@@ -124,7 +124,7 @@ const MentorStatusProfile = () => {
             ) || [],
         };
         setRole(mappedUserData.role);
-        console.log("Mapped User Data:", mappedUserData.role);
+
         return mappedUserData;
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -140,7 +140,6 @@ const MentorStatusProfile = () => {
 
       try {
         const response = await mentorService.getMyApplication();
-        console.log("My Application Data:", response);
 
         const mappedDocuments: SupportingDocument[] =
           response.documentsDetails?.map((doc: DocumentContent) => ({
@@ -207,7 +206,7 @@ const MentorStatusProfile = () => {
           ...prev,
           userApplicationDetails: userData,
         }));
-        console.log("User Data:", userData.hasMentorApplication);
+
         if (userData.hasMentorApplication) {
           await loadMyApplication();
         } else {
@@ -433,10 +432,6 @@ const MentorStatusProfile = () => {
   };
 
   const handleViewDocument = (fileContent: string, fileType: string) => {
-    console.log("handleViewDocument called", {
-      fileType,
-      fileContentLength: fileContent?.length,
-    });
     if (!fileContent) {
       console.error("File content is missing or empty");
       toast.error("Error: File content is missing or empty.");

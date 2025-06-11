@@ -69,7 +69,6 @@ const ResourcePage = () => {
     const fetchUserRole = async () => {
       try {
         const user = await userService.getCurrentUser();
-        console.log("User Role:", user.role.name);
         setUserRole(user.role.name);
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -91,7 +90,7 @@ const ResourcePage = () => {
         pageIndex,
         pageSize
       );
-      console.log("API Response:", response);
+
       setTotalResources(response.items);
       setTotalItems(response.totalItems);
     } catch (error) {
@@ -234,7 +233,6 @@ const ResourcePage = () => {
   };
 
   const handleViewDocument = async (fileId: string) => {
-    console.log("handleViewDocument called for fileId:", fileId);
     try {
       const response = await resourceService.getResourceFileDetail(fileId);
       const { fileContent, fileType } = response;
