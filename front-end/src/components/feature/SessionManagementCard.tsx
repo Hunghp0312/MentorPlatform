@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Calendar, Video, MessageSquare, Users, Clock, Check, X, RotateCcw, ChevronLeft } from 'lucide-react';
+import { Calendar, Video, MessageSquare, Users, Clock, Check, X, RotateCcw } from 'lucide-react';
 import RescheduleDialog from '../dialog/RescheduleDialog';
 import { sessionService } from '../../services/session.service';
 import { toast } from 'react-toastify';
@@ -7,7 +7,6 @@ import DefaultImage from '../../assets/Profile_avatar_placeholder_large.png'
 import CustomModal from '../ui/Modal';
 import { formatTime } from '../../utils/formatDate';
 import LoadingOverlay from '../loading/LoadingOverlay';
-import { useNavigate } from 'react-router-dom';
 import { BookingSessionResponse } from '../../types/session';
 
 
@@ -20,7 +19,6 @@ const SessionManagementCard: React.FC = () => {
   const [cancelMessageError, setCancelMessageError] = useState<string>('');
   const [sessionRequests, setSessionRequests] = useState<BookingSessionResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate()
 
   const fetchSessionRequests = async () => {
     try {
@@ -208,13 +206,6 @@ const SessionManagementCard: React.FC = () => {
       <div className="max-w-6xl mx-auto bg-[#1e2432] text-white rounded-lg shadow-xl p-6" data-testid="session-management-card">
         {/* Header */}
         <div className="flex items-center mb-6" data-testid="header-section">
-          <button
-            className="mr-4 p-2 hover:bg-gray-700 rounded-lg"
-            onClick={() => navigate('/')}
-            data-testid="back-button"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
           <div>
             <h1 className="text-2xl font-bold" data-testid="page-title">Session Management</h1>
             <p className="text-gray-400" data-testid="page-description">Review and manage incoming session requests</p>
