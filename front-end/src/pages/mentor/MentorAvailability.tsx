@@ -13,6 +13,15 @@ import {
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import { endTimeOptions, startTimeOptions } from "../../constants/timeOptions";
 
+// Define a type for the day object to make it reusable
+type DayInfo = {
+  date: Date;
+  dateString: string;
+  displayDate: string;
+  dayName: string;
+  dayShort: string;
+};
+
 const AvailabilityManager = () => {
   const [selectedDay, setSelectedDay] = useState<string>("");
   const [currentWeekStart, setCurrentWeekStart] = useState<Date>(
@@ -31,6 +40,8 @@ const AvailabilityManager = () => {
   const [workHours, setWorkHours] = useState({ start: "09:00", end: "17:00" });
   const [sessionDuration, setSessionDuration] = useState<number>(60);
   const [bufferTime, setBufferTime] = useState<number>(15);
+  const [isCurrentDayBooked, setIsCurrentDayBooked] = useState<boolean>(false);
+  const [isCurrentDayInPast, setIsCurrentDayInPast] = useState<boolean>(false);
 
   // Utility functions
   function formatDateYYYYMMDD(date: Date): string {
@@ -98,7 +109,7 @@ const AvailabilityManager = () => {
   }
 
   // Generate week dates
-  const weekDates = Array.from({ length: 7 }, (_, i) => {
+  const weekDates: DayInfo[] = Array.from({ length: 7 }, (_, i) => {
     const date = addDays(currentWeekStart, i);
     return {
       date,
@@ -110,6 +121,57 @@ const AvailabilityManager = () => {
         .slice(0, 3),
     };
   });
+
+  // Centralized function to handle selecting a day and syncing its settings to the UI
+  const handleDaySelection = (
+    day: DayInfo,
+    weekData: WeeklySchedule | null
+  ) => {
+    setSelectedDay(day.dayShort);
+
+    const dayData = weekData?.days.find((d) => d.date === day.dateString);
+
+    // --- START NEW LOGIC ---
+
+    // Check if this specific day has any booked slots
+    const dayIsBooked =
+      dayData?.timeBlocks.some((block) => block.sessionStatus.id !== 1) ||
+      false;
+    setIsCurrentDayBooked(dayIsBooked);
+
+    // Check if the day is in the past
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+    const dayIsPast = day.date < today;
+    setIsCurrentDayInPast(dayIsPast);
+
+    // --- END NEW LOGIC ---
+
+    // Get the base settings from the first day of the week if available
+    const baseSettings = {
+      workStart: weekData?.days[0]?.workStartTime || "09:00",
+      workEnd: weekData?.days[0]?.workEndTime || "17:00",
+      duration: weekData?.days[0]?.sessionDurationMinutes || 60,
+      buffer: weekData?.days[0]?.bufferMinutes || 15,
+    };
+
+    // Set the work hours, duration, and buffer based on the specific day's data, or fall back to base settings
+    setWorkHours({
+      start: dayData?.workStartTime || baseSettings.workStart,
+      end: dayData?.workEndTime || baseSettings.workEnd,
+    });
+    setSessionDuration(
+      dayData?.sessionDurationMinutes || baseSettings.duration
+    );
+    if (
+      dayData?.bufferMinutes !== undefined &&
+      dayData?.bufferMinutes !== null
+    ) {
+      setBufferTime(dayData.bufferMinutes);
+    } else {
+      setBufferTime(baseSettings.buffer);
+    }
+  };
 
   // Navigate between weeks
   const goToPreviousWeek = () => {
@@ -146,14 +208,12 @@ const AvailabilityManager = () => {
     const day = weekDates.find((d) => d.dayShort === selectedDay)?.dateString;
     if (!day || !weekAvailability) return;
 
-    const daySchedule = weekAvailability.days.find((d) => d.date === day);
-    if (!daySchedule) return;
-
+    // Use current settings from state, not potentially stale ones from weekAvailability
     const slots = getTimeSlots(
-      daySchedule.workStartTime || workHours.start,
-      daySchedule.workEndTime || workHours.end,
-      daySchedule.sessionDurationMinutes || sessionDuration,
-      daySchedule.bufferMinutes || bufferTime
+      workHours.start,
+      workHours.end,
+      sessionDuration,
+      bufferTime
     );
 
     const newSlots: Record<string, boolean> = {};
@@ -170,49 +230,99 @@ const AvailabilityManager = () => {
   const clearAllSlots = () => {
     if (!selectedDay) return;
 
-    const day = weekDates.find((d) => d.dayShort === selectedDay)?.dateString;
-    if (!day || !weekAvailability) return;
+    const selectedDayDate = weekDates.find(
+      (d) => d.dayShort === selectedDay
+    )?.dateString;
 
-    const daySchedule = weekAvailability.days.find((d) => d.date === day);
-    if (!daySchedule) return;
+    if (!selectedDayDate || !weekAvailability) return;
 
-    const slots = getTimeSlots(
-      daySchedule.workStartTime || workHours.start,
-      daySchedule.workEndTime || workHours.end,
-      daySchedule.sessionDurationMinutes || sessionDuration,
-      daySchedule.bufferMinutes || bufferTime
+    const daySchedule = weekAvailability.days.find(
+      (d) => d.date === selectedDayDate
     );
 
-    const newSlots: Record<string, boolean> = {};
-    slots.forEach((slot) => {
-      newSlots[slot] = false;
-    });
+    const newSlotsForDay: Record<string, boolean> = {};
+
+    if (daySchedule) {
+      daySchedule.timeBlocks.forEach((block) => {
+        if (block.sessionStatus.id !== 1) {
+          const timeSlot = `${block.startTime} - ${block.endTime}`;
+          newSlotsForDay[timeSlot] = true;
+        }
+      });
+    }
 
     setSlotAvailability((prev) => ({
       ...prev,
-      [day]: newSlots,
+      [selectedDayDate]: newSlotsForDay,
     }));
   };
 
+  //-- MODIFICATION START --
   const copyScheduleToAllDays = () => {
-    if (!selectedDay) return;
+    if (!selectedDay) {
+      return;
+    }
 
-    const sourceDay = weekDates.find(
-      (d) => d.dayShort === selectedDay
-    )?.dateString;
-    if (!sourceDay || !slotAvailability[sourceDay]) return;
+    const sourceDay = weekDates.find((d) => d.dayShort === selectedDay);
+    if (!sourceDay || !weekAvailability) return;
 
-    const sourceSlots = slotAvailability[sourceDay];
+    const sourceDayDate = sourceDay.dateString;
+    const sourceSlots = slotAvailability[sourceDayDate] || {};
+    const sourceSettings = {
+      workStartTime: workHours.start,
+      workEndTime: workHours.end,
+      sessionDurationMinutes: sessionDuration,
+      bufferMinutes: bufferTime,
+    };
 
-    const newAvailability = { ...slotAvailability };
-    weekDates.forEach((day) => {
-      if (day.dateString !== sourceDay) {
-        newAvailability[day.dateString] = { ...sourceSlots };
+    const bookedDays = new Set<string>();
+    weekAvailability.days.forEach((day) => {
+      if (day.timeBlocks.some((block) => block.sessionStatus.id !== 1)) {
+        bookedDays.add(day.date);
       }
     });
 
-    setSlotAvailability(newAvailability);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const newSlotAvailability = { ...slotAvailability };
+
+    weekDates.forEach((targetDay) => {
+      if (targetDay.dateString === sourceDayDate) return;
+
+      if (targetDay.date < today) {
+        return;
+      }
+
+      if (bookedDays.has(targetDay.dateString)) {
+        return;
+      }
+
+      newSlotAvailability[targetDay.dateString] = { ...sourceSlots };
+    });
+
+    setSlotAvailability(newSlotAvailability);
+
+    setWeekAvailability((prev) => {
+      if (!prev) return null;
+
+      const updatedDays = prev.days.map((day) => {
+        const dayInfo = weekDates.find((d) => d.dateString === day.date);
+
+        if (
+          day.date === sourceDayDate ||
+          bookedDays.has(day.date) ||
+          (dayInfo && dayInfo.date < today)
+        ) {
+          return day;
+        }
+
+        return { ...day, ...sourceSettings };
+      });
+      return { ...prev, days: updatedDays };
+    });
   };
+  //-- MODIFICATION END --
 
   // Save availability changes
   const saveChanges = async () => {
@@ -236,16 +346,26 @@ const AvailabilityManager = () => {
             (d) => d.date === day.dateString
           );
 
+          // Correctly determine settings for the day, falling back to defaults
+          const currentDaySettings = {
+            workStartTime: daySchedule?.workStartTime || workHours.start,
+            workEndTime: daySchedule?.workEndTime || workHours.end,
+            sessionDurationMinutes:
+              daySchedule?.sessionDurationMinutes || sessionDuration,
+            bufferMinutes:
+              daySchedule?.bufferMinutes !== undefined &&
+              daySchedule?.bufferMinutes !== null
+                ? daySchedule.bufferMinutes
+                : bufferTime,
+          };
+
           const timeBlocks: UpdateTimeBlock[] = [];
 
           const allTimeSlots = getTimeSlots(
-            daySchedule?.workStartTime || workHours.start,
-            daySchedule?.workEndTime || workHours.end,
-            daySchedule?.sessionDurationMinutes || sessionDuration,
-            daySchedule?.bufferMinutes !== undefined &&
-              daySchedule?.bufferMinutes !== null
-              ? daySchedule.bufferMinutes
-              : bufferTime
+            currentDaySettings.workStartTime,
+            currentDaySettings.workEndTime,
+            currentDaySettings.sessionDurationMinutes,
+            currentDaySettings.bufferMinutes
           );
 
           allTimeSlots.forEach((slot) => {
@@ -276,11 +396,7 @@ const AvailabilityManager = () => {
 
           return {
             date: day.dateString,
-            workStartTime: daySchedule?.workStartTime || workHours.start,
-            workEndTime: daySchedule?.workEndTime || workHours.end,
-            sessionDurationMinutes:
-              daySchedule?.sessionDurationMinutes || sessionDuration,
-            bufferMinutes: daySchedule?.bufferMinutes || bufferTime,
+            ...currentDaySettings,
             timeBlocks,
           };
         }),
@@ -398,9 +514,20 @@ const AvailabilityManager = () => {
         setSlotAvailability(availability);
         setHasBookedSlots(hasAnyBookedSlots);
 
-        // Set default selected day to the first day of the week
-        if (weekDates.length > 0 && !selectedDay) {
-          setSelectedDay(weekDates[0].dayShort);
+        // Logic to auto-select today's date if it's in the current week on load
+        if (weekDates.length > 0) {
+          const todayDateString = formatDateYYYYMMDD(new Date());
+          const todayInWeek = weekDates.find(
+            (d) => d.dateString === todayDateString
+          );
+
+          if (todayInWeek) {
+            // If today is in the current week, select it and sync settings
+            handleDaySelection(todayInWeek, data);
+          } else {
+            // Otherwise, default to the first day of the week and sync settings
+            handleDaySelection(weekDates[0], data);
+          }
         }
       } catch (error) {
         console.error("Error fetching week availability:", error);
@@ -423,7 +550,7 @@ const AvailabilityManager = () => {
       ? weekAvailability.days.find((day) => day.date === selectedDayDate)
       : null;
 
-  const timeSlots = selectedDayData
+  const timeSlots = selectedDayDate // Use selectedDayDate to ensure it only runs when a day is selected
     ? getTimeSlots(workHours.start, workHours.end, sessionDuration, bufferTime)
     : [];
 
@@ -483,7 +610,6 @@ const AvailabilityManager = () => {
                 <select
                   id="workStartTime"
                   value={workHours.start}
-                  // MODIFICATION START
                   onChange={(e) => {
                     const newStartTime = e.target.value;
                     setWorkHours({ ...workHours, start: newStartTime });
@@ -507,9 +633,8 @@ const AvailabilityManager = () => {
                       }));
                     }
                   }}
-                  // MODIFICATION END
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
-                  disabled={hasBookedSlots}>
+                  disabled={isCurrentDayBooked || isCurrentDayInPast}>
                   {startTimeOptions.map((time) => (
                     <option key={time} value={time}>
                       {time}
@@ -526,7 +651,6 @@ const AvailabilityManager = () => {
                 <select
                   id="workEndTime"
                   value={workHours.end}
-                  // MODIFICATION START
                   onChange={(e) => {
                     const newEndTime = e.target.value;
                     setWorkHours({ ...workHours, end: newEndTime });
@@ -550,9 +674,8 @@ const AvailabilityManager = () => {
                       }));
                     }
                   }}
-                  // MODIFICATION END
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
-                  disabled={hasBookedSlots}>
+                  disabled={isCurrentDayBooked || isCurrentDayInPast}>
                   {endTimeOptions.map((time) => (
                     <option key={time} value={time}>
                       {time}
@@ -561,11 +684,13 @@ const AvailabilityManager = () => {
                 </select>
               </div>
             </div>
-            {hasBookedSlots && (
-              <p className="text-sm text-slate-400">
-                Cannot change work hours while you have booked sessions.
-              </p>
-            )}
+            {isCurrentDayBooked ||
+              (isCurrentDayInPast && (
+                <p className="text-sm text-slate-400">
+                  Cannot change work hours while you have booked sessions or day
+                  have passed.
+                </p>
+              ))}
           </div>
 
           {/* Session Settings */}
@@ -581,7 +706,6 @@ const AvailabilityManager = () => {
                 <select
                   id="sessionDuration"
                   value={sessionDuration}
-                  // MODIFICATION START
                   onChange={(e) => {
                     const newDuration = parseInt(e.target.value);
                     setSessionDuration(newDuration);
@@ -605,9 +729,8 @@ const AvailabilityManager = () => {
                       }));
                     }
                   }}
-                  // MODIFICATION END
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
-                  disabled={hasBookedSlots}>
+                  disabled={isCurrentDayBooked || isCurrentDayInPast}>
                   <option value="30">30 minutes</option>
                   <option value="45">45 minutes</option>
                   <option value="60">60 minutes</option>
@@ -624,7 +747,6 @@ const AvailabilityManager = () => {
                 <select
                   id="bufferTime"
                   value={bufferTime}
-                  // MODIFICATION START
                   onChange={(e) => {
                     const newBufferTime = parseInt(e.target.value);
                     setBufferTime(newBufferTime);
@@ -648,9 +770,8 @@ const AvailabilityManager = () => {
                       }));
                     }
                   }}
-                  // MODIFICATION END
                   className="w-full bg-slate-600 border border-slate-500 rounded px-3 py-2 text-white"
-                  disabled={hasBookedSlots}>
+                  disabled={isCurrentDayBooked || isCurrentDayInPast}>
                   <option value="0">No buffer</option>
                   <option value="5">5 minutes</option>
                   <option value="10">10 minutes</option>
@@ -667,8 +788,7 @@ const AvailabilityManager = () => {
             <div className="flex items-center justify-between mb-4">
               <button
                 className="p-1 hover:bg-slate-600 rounded"
-                onClick={goToPreviousWeek}
-                id="previous-week">
+                onClick={goToPreviousWeek}>
                 <ChevronLeft className="w-5 h-5" />
               </button>
               <span className="font-medium">
@@ -677,8 +797,7 @@ const AvailabilityManager = () => {
               </span>
               <button
                 className="p-1 hover:bg-slate-600 rounded"
-                onClick={goToNextWeek}
-                id="next-week">
+                onClick={goToNextWeek}>
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
@@ -695,13 +814,15 @@ const AvailabilityManager = () => {
             <div className="space-y-2">
               <button
                 onClick={selectAllSlots}
-                className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded transition-colors">
+                className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded transition-colors"
+                disabled={isCurrentDayInPast}>
                 Select all slots for {selectedDay}{" "}
                 {weekDates.find((d) => d.dayShort === selectedDay)?.displayDate}
               </button>
               <button
                 onClick={clearAllSlots}
-                className="w-full bg-slate-600 hover:bg-slate-500 py-2 rounded transition-colors">
+                className="w-full bg-slate-600 hover:bg-slate-500 py-2 rounded transition-colors"
+                disabled={isCurrentDayInPast}>
                 Clear all slots for {selectedDay}{" "}
                 {weekDates.find((d) => d.dayShort === selectedDay)?.displayDate}
               </button>
@@ -717,12 +838,8 @@ const AvailabilityManager = () => {
         {/* Main Content */}
         <div className="flex-1">
           {/* Day Tabs */}
-          <div className="flex mb-6" id="calendar">
+          <div className="flex mb-6">
             {weekDates.map((day) => {
-              // Check if this day has any booked slots
-              const dayData = weekAvailability?.days.find(
-                (d) => d.date === day.dateString
-              );
               const hasBooking = weekAvailability?.days
                 .find((d) => d.date === day.dateString)
                 ?.timeBlocks.some((block) => block.sessionStatus.id !== 1);
@@ -730,23 +847,8 @@ const AvailabilityManager = () => {
               return (
                 <button
                   key={day.dayShort}
-                  onClick={() => {
-                    setSelectedDay(day.dayShort);
-                    setSessionDuration(
-                      dayData?.sessionDurationMinutes || sessionDuration
-                    );
-                    if (
-                      dayData?.bufferMinutes !== undefined &&
-                      dayData?.bufferMinutes !== null
-                    ) {
-                      setBufferTime(dayData?.bufferMinutes);
-                    }
-
-                    setWorkHours({
-                      start: dayData?.workStartTime || workHours.start,
-                      end: dayData?.workEndTime || workHours.end,
-                    });
-                  }}
+                  // Use the centralized handler function for selection
+                  onClick={() => handleDaySelection(day, weekAvailability)}
                   className={`flex-1 py-3 px-4 text-center border-r border-slate-600 last:border-r-0 transition-colors ${
                     selectedDay === day.dayShort
                       ? "bg-orange-500 text-white"
@@ -772,9 +874,7 @@ const AvailabilityManager = () => {
               </h2>
 
               {timeSlots.length > 0 ? (
-                <div
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-                  id="time-block-grid">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {timeSlots.map((slot, index) => {
                     // Check if this slot is in API data (has a matching timeBlock)
                     const matchingBlock = selectedDayData?.timeBlocks.find(
@@ -882,29 +982,40 @@ const AvailabilityManager = () => {
               This is how your availability will appear to learners:
             </p>
 
-            <div
-              className="grid grid-cols-7 gap-4 mb-4"
-              id="availabily-preview">
+            <div className="grid grid-cols-7 gap-4 mb-4">
               {weekDates.map((day) => {
-                // Get booked slots for this day
+                // Combine and sort booked and available slots together.
                 const dayData = weekAvailability?.days.find(
                   (d) => d.date === day.dateString
                 );
+
+                // 1. Get booked slots and map to a standard format
                 const bookedSlots =
-                  dayData?.timeBlocks.filter(
-                    (block) => block.sessionStatus.id !== 1
-                  ) || [];
-                // Get available slots for this day
-                const daySlots = slotAvailability[day.dateString] || {};
-                const bookedSlotTimes = bookedSlots.map(
-                  (slot) => `${slot.startTime} - ${slot.endTime}`
-                );
-                const availableSlots = Object.entries(daySlots)
+                  dayData?.timeBlocks
+                    .filter((block) => block.sessionStatus.id !== 1)
+                    .map((block) => ({
+                      time: `${block.startTime} - ${block.endTime}`,
+                      status: "booked",
+                    })) || [];
+
+                const bookedSlotTimes = bookedSlots.map((slot) => slot.time);
+
+                // 2. Get available slots from state and map to a standard format
+                const dayStateSlots = slotAvailability[day.dateString] || {};
+                const availableSlots = Object.entries(dayStateSlots)
                   .filter(
                     ([slot, isAvailable]) =>
                       isAvailable && !bookedSlotTimes.includes(slot)
                   )
-                  .map(([slot]) => slot);
+                  .map(([slot]) => ({
+                    time: slot,
+                    status: "available",
+                  }));
+
+                // 3. Combine, sort, and render the single list
+                const combinedSlots = [...bookedSlots, ...availableSlots].sort(
+                  (a, b) => a.time.localeCompare(b.time)
+                );
 
                 return (
                   <div key={day.dayShort} className="text-center">
@@ -914,22 +1025,20 @@ const AvailabilityManager = () => {
                     </div>
 
                     <div className="mt-2 space-y-1">
-                      {bookedSlots.map((slot, index) => (
+                      {combinedSlots.map((slot) => (
                         <div
-                          key={`booked-${index}`}
-                          className="bg-blue-600 text-white text-xs py-1 px-2 rounded">
-                          {slot.startTime} - {slot.endTime}
+                          key={`${day.dayShort}-${slot.time}`}
+                          className={`
+                            ${
+                              slot.status === "booked"
+                                ? "bg-blue-600"
+                                : "bg-orange-500"
+                            }
+                            text-white text-xs py-1 px-2 rounded
+                          `}>
+                          {slot.time}
                         </div>
                       ))}
-
-                      {availableSlots.length > 0 &&
-                        availableSlots.map((slot, index) => (
-                          <div
-                            key={`avail-${index}`}
-                            className="bg-orange-500 text-white text-xs py-1 px-2 rounded">
-                            {slot}
-                          </div>
-                        ))}
                     </div>
                   </div>
                 );

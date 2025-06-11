@@ -1,10 +1,4 @@
-import {
-  CheckCircle,
-  MessageSquare,
-  Search,
-  UserCog,
-  XCircle,
-} from "lucide-react";
+import { CheckCircle, Search, UserCog, XCircle } from "lucide-react";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -216,16 +210,6 @@ const ListUser = () => {
               title="View profile"
               className="text-gray-500 hover:text-gray-700">
               <UserCog className="w-4 h-4" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/admin/message/${row.id}`);
-              }}
-              id="send-message-button"
-              title="Send Message"
-              className="text-purple-500 hover:text-purple-700">
-              <MessageSquare className="w-4 h-4" />
             </button>
             {row.status.id === StatusEnum.Active ? (
               <button
