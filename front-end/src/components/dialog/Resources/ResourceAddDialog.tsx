@@ -65,16 +65,14 @@ const ResourceAddDialog: React.FC<ResourceFormPopupProps> = ({
         description: initialData.description || "",
         resourceCategoryId: initialData.resourceCategory.id || 0,
         typeOfResourceId: initialData.typeOfResource.id || 0,
-        courseId: initialData.courseId || "",
+        courseId: initialData.courseId || "", // Ensure courseId is set
         file: null,
         url: initialData.link || "",
       });
-      // Reset file input to avoid showing stale file selection
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
     } else {
-      // Reset form when creating a new resource
       setFormData({
         title: "",
         description: "",
