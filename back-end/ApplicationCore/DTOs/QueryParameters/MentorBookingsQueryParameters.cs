@@ -4,7 +4,7 @@ namespace ApplicationCore.DTOs.QueryParameters
 {
     public class MentorBookingsQueryParameters : PaginationParameters
     {
-        public int? StatusId { get; set; }
+        public List<int> StatusIds { get; set; } = new List<int>();
         public DateOnly? FromSessionDate { get; set; }
         public DateOnly? ToSessionDate { get; set; }
     }

@@ -156,9 +156,9 @@ namespace ApplicationCore.Services
 
             Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = query =>
         {
-            if (queryParameters.StatusId.HasValue && queryParameters.StatusId > 0 && queryParameters.StatusId < 7)
+            if (queryParameters.StatusIds.Any())
             {
-                query = query.Where(sb => sb.StatusId == queryParameters.StatusId.Value);
+                query = query.Where(sb => queryParameters.StatusIds.Contains(sb.StatusId));
             }
 
             if (queryParameters.FromSessionDate.HasValue)
@@ -180,6 +180,11 @@ namespace ApplicationCore.Services
                 query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day <= queryParameters.ToSessionDate.Value);
             }
 
+            if (queryParameters.StatusIds.Contains(1))
+            {
+                query = query.OrderBy(s => s.CreatedAt);
+            }
+
             if (!string.IsNullOrWhiteSpace(queryParameters.Query))
             {
                 string searchTerm = queryParameters.Query.ToLower().Trim();
@@ -195,7 +200,6 @@ namespace ApplicationCore.Services
                 up.Mentor.UserProfile.FullName.ToLower().Contains(searchTerm)
                   );
                 }
-
             }
 
             return query;
