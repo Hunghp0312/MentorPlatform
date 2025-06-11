@@ -3,7 +3,6 @@ import {
   Users,
   BookOpen,
   Clock,
-  Star,
   TrendingUp,
   Download,
   UserPlus,
@@ -78,10 +77,6 @@ export default function AdminDashboard() {
     );
   }
 
-  // Calculate some derived values for display
-  const avgSessionRating = 4.8; // This appears to be missing from your API responses
-  const resourcesAddedThisWeek = 14; // This is hardcoded - add to your API if needed
-
   return (
     <div className="min-h-screen bg-slate-800 p-6">
       <div className="max-w-7xl mx-auto">
@@ -124,8 +119,17 @@ export default function AdminDashboard() {
                   {stats?.totalLearners || 0} Learners
                 </span>
               </div>
-              <span className="text-green-400 text-sm font-medium">
-                +{stats?.userGrowthPercent || 0}% this month
+              <span
+                className={`${
+                  stats?.userGrowthPercent && stats.userGrowthPercent > 0
+                    ? "text-green-400"
+                    : "text-red-600"
+                } text-sm font-medium`}
+              >
+                {stats?.userGrowthPercent != undefined &&
+                  stats?.userGrowthPercent > 0 &&
+                  "+"}
+                {stats?.userGrowthPercent || 0}% this month
               </span>
             </div>
           </div>
@@ -136,7 +140,7 @@ export default function AdminDashboard() {
               <BookOpen className="w-5 h-5 text-orange-500 mr-2" />
               <h3
                 className="text-orange-500 font-medium"
-                onClick={() => navigate(pathName.adminCourse)}
+                onClick={() => navigate(pathName.adminResource)}
                 style={{ cursor: "pointer" }}
               >
                 Resources
@@ -149,10 +153,20 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-sm">
-                {resourcesAddedThisWeek} added this week
+                {stats?.addedResourcesThisWeek} added this week
               </span>
-              <span className="text-green-400 text-sm font-medium">
-                +8% this month
+              <span
+                className={`${
+                  stats?.resourceGrowthPercent &&
+                  stats?.resourceGrowthPercent > 0
+                    ? "text-green-400"
+                    : "text-red-600"
+                } text-sm font-medium`}
+              >
+                {stats?.resourceGrowthPercent != undefined &&
+                  stats?.resourceGrowthPercent > 0 &&
+                  "+"}
+                {stats?.resourceGrowthPercent || 0}% this month
               </span>
             </div>
           </div>
@@ -178,6 +192,18 @@ export default function AdminDashboard() {
               <span className="text-slate-400 text-sm">
                 {stats?.addedCoursesThisMonth || 0} added this month
               </span>
+              <span
+                className={`${
+                  stats?.courseGrowthPercent && stats?.courseGrowthPercent > 0
+                    ? "text-green-400"
+                    : "text-red-600"
+                } text-sm font-medium`}
+              >
+                {stats?.courseGrowthPercent != undefined &&
+                  stats?.courseGrowthPercent > 0 &&
+                  "+"}
+                {stats?.courseGrowthPercent || 0}% this month
+              </span>
             </div>
           </div>
 
@@ -187,7 +213,7 @@ export default function AdminDashboard() {
               <Clock className="w-5 h-5 text-orange-500 mr-2" />
               <h3
                 className="text-orange-500 font-medium"
-                onClick={() => navigate(pathName.approval)}
+                onClick={() => navigate(`${pathName.approval}?status=pending`)}
                 style={{ cursor: "pointer" }}
               >
                 Pending Approvals
@@ -207,20 +233,7 @@ export default function AdminDashboard() {
             Platform Performance
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Avg Session Rating */}
-            <div>
-              <div className="flex items-center mb-2">
-                <Star className="w-4 h-4 text-slate-400 mr-1" />
-                <span className="text-slate-400 text-sm">
-                  Avg. Session Rating
-                </span>
-              </div>
-              <span className="text-2xl font-bold text-white">
-                {avgSessionRating}/5
-              </span>
-            </div>
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Mentor Retention */}
             <div>
               <div className="flex items-center mb-2">

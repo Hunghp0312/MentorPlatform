@@ -18,6 +18,7 @@ import CustomModal from "../../components/ui/Modal";
 import ExpandProfileSettings from "../../components/feature/ExpandProfileSettings";
 import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
 import SmallLoadingSpinner from "../../components/loading/SmallLoadingSpinner";
+import { useSearchParams } from "react-router-dom";
 
 interface ApprovalType {
   applicantUserId: string;
@@ -48,6 +49,10 @@ interface ExpertiseArea {
 }
 
 const ListApproval = () => {
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get("status"); // get value of 'term' param
+
+  console.log("Status from URL:", status);
   const [approvals, setApprovals] = useState<ApprovalType[]>([]);
   const [selectedApproval, setSelectedApproval] = useState<ApprovalType | null>(
     null
@@ -57,7 +62,7 @@ const ListApproval = () => {
   const [isConfirmLoading, setIsConfirmLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState(status || "");
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);

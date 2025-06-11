@@ -7,7 +7,12 @@ export interface DashboardStats {
   totalResources: number;
   addedUsersThisMonth: number;
   userGrowthPercent: number;
+  addedCoursesThisWeek: number;
+  addedResourcesThisWeek: number;
+  addedResourcesThisMonth: number;
   addedCoursesThisMonth: number;
+  resourceGrowthPercent: number;
+  courseGrowthPercent: number;
 }
 
 export interface PerformanceMetrics {
