@@ -221,11 +221,14 @@ const SessionManagementCard: React.FC = () => {
         <div className="relative mb-6">
           <div className="relative">
             <input
-            autoFocus
+              autoFocus
               type="text"
               placeholder="Search by learner name "
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPageIndex(1);
+              }}
               className="w-full pl-10 pr-4 py-3 bg-[#252d3d] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
               data-testid="search-input"
             />
@@ -245,6 +248,7 @@ const SessionManagementCard: React.FC = () => {
             onClick={() => {
               setActiveTab('pending');
               setStatusIds([1])
+              setPageIndex(1);
             }}
             data-testid="pending-tab"
           >
@@ -257,7 +261,8 @@ const SessionManagementCard: React.FC = () => {
               }`}
             onClick={() => {
               setActiveTab('recent');
-              setStatusIds([2, 6]) 
+              setStatusIds([2, 6])
+              setPageIndex(1);
             }}
             data-testid="upcoming-tab"
           >
@@ -271,6 +276,7 @@ const SessionManagementCard: React.FC = () => {
             onClick={() => {
               setActiveTab('inpast');
               setStatusIds([4, 5, 3])
+              setPageIndex(1);
             }}
             data-testid="past-tab"
           >

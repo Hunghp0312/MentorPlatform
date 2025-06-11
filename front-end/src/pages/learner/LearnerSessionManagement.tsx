@@ -149,7 +149,10 @@ const LearnerSessionManagement = () => {
               type="text"
               placeholder="Search by learner name or message..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPageIndex(1);
+              }}
               className="w-full pl-10 pr-4 py-3 bg-[#252d3d] border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all"
               data-testid="search-input"
             />
