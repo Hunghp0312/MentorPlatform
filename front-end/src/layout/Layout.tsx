@@ -26,7 +26,29 @@ export default function Layout() {
 
   const decodedToken = getUserFromToken();
   const role = decodedToken?.role;
-
+  const isActive = decodedToken?.isActive;
+  const isActiveMentorField = [
+    {
+      icon: <BookCopy size={20} />,
+      label: "Courses",
+      href: pathName.mentorCourse,
+    },
+    {
+      icon: <CalendarDays size={20} />,
+      label: "Mentor Availability",
+      href: "/mentor/availability",
+    },
+    {
+      icon: <AlarmClockCheck size={20} />,
+      label: "Session Management",
+      href: `/session-management`,
+    },
+    {
+      icon: <FileBox size={20} />,
+      label: "Resources",
+      href: pathName.mentorResource,
+    },
+  ];
   const navItemsByRole: Record<
     string,
     { icon: JSX.Element; label: string; href: string }[]
@@ -69,11 +91,15 @@ export default function Layout() {
       },
     ],
     Mentor: [
-      {
-        icon: <Book size={20} />,
-        label: "Dashboard",
-        href: pathName.mentorDashboard,
-      },
+      ...(isActive === "1"
+        ? [
+            {
+              icon: <Book size={20} />,
+              label: "Dashboard",
+              href: pathName.mentorDashboard,
+            },
+          ]
+        : []),
       {
         icon: <User size={20} />,
         label: "Profile",
@@ -84,26 +110,7 @@ export default function Layout() {
         label: "My Application",
         href: pathName.mentorStatus,
       },
-      {
-        icon: <BookCopy size={20} />,
-        label: "Courses",
-        href: pathName.mentorCourse,
-      },
-      {
-        icon: <CalendarDays size={20} />,
-        label: "Mentor Availability",
-        href: "/mentor/availability",
-      },
-      {
-        icon: <AlarmClockCheck size={20} />,
-        label: "Session Management",
-        href: `/session-management`,
-      },
-      {
-        icon: <FileBox size={20} />,
-        label: "Resources",
-        href: pathName.mentorResource,
-      },
+      ...(isActive === "1" ? isActiveMentorField : []),
     ],
     Learner: [
       {

@@ -19,8 +19,7 @@ import { courseService } from "../../services/course.service";
 import { CourseDetailType } from "../../types/course";
 import { ResourceType } from "../../types/resource";
 import { toast } from "react-toastify";
-
-// Sample detailed course data
+import { resourceService } from "../../services/resource.service";
 
 const CourseDetailPage: React.FC = () => {
   const navigate = useNavigate();
@@ -86,14 +85,9 @@ const CourseDetailPage: React.FC = () => {
 
     fetchData();
   }, []);
-  const handleResourceAction = (resource: ResourceType) => {
-    if (resource.typeOfResource.name === "video") {
-      // Handle video play
-      console.log("Playing video:", resource.title);
-    } else {
-      // Handle download
-      console.log("Downloading:", resource.title);
-    }
+  const handleResourceAction = async (resource: ResourceType) => {
+    await resourceService.downloadResourceFile(resource.fileId);
+    // Handle resource action based on type
   };
   const handleEnrollCourse = async () => {
     // Handle course enrollment logic
@@ -338,13 +332,6 @@ const CourseDetailPage: React.FC = () => {
                             {resource.resourceCategory.name}
                           </span>
                           <span>•</span>
-                          {/* <span>{resource.size}</span>
-                          {resource.duration && (
-                            <>
-                              <span>•</span>
-                              <span>{resource.duration}</span>
-                            </>
-                          )} */}
                         </div>
                         {resource.description && (
                           <p className="text-sm text-gray-400 mt-1">

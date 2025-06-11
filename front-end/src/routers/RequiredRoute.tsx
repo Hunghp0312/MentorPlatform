@@ -6,16 +6,24 @@ interface RequireRoleProps {
   role?: string;
   roles?: string[];
   children: JSX.Element;
+  needActive?: boolean;
 }
 
-export const RequireRole = ({ role, children, roles }: RequireRoleProps) => {
+export const RequireRole = ({
+  role,
+  children,
+  roles,
+  needActive = false,
+}: RequireRoleProps) => {
   const decodedToken = getUserFromToken();
-
   if (!decodedToken) {
     return <Navigate to="/login" />;
   }
 
-  if (role && decodedToken.role !== role) {
+  if (
+    (role && decodedToken.role !== role) ||
+    (needActive ? decodedToken.isActive !== "1" : false)
+  ) {
     return <Navigate to="/unauthorized" />;
   }
 

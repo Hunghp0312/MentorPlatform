@@ -380,15 +380,17 @@ const ListCourse = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h2 className="text-3xl font-bold">Course Management</h2>
-          <Button
-            variant="primary"
-            size="md"
-            className="font-bold text-white"
-            onClick={() => setIsFormOpen(true)}
-            dataTestId="add-course-button"
-          >
-            Add New Course
-          </Button>
+          {decodedToken?.role === "Mentor" && (
+            <Button
+              variant="primary"
+              size="md"
+              className="font-bold text-white"
+              onClick={() => setIsFormOpen(true)}
+              dataTestId="add-course-button"
+            >
+              Add New Course
+            </Button>
+          )}
         </div>
 
         {/* Filters */}

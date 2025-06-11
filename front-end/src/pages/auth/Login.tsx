@@ -9,6 +9,7 @@ import { AxiosError } from "axios";
 import { useAuthContext } from "../../contexts/AuthContext";
 import { toast } from "react-toastify";
 import { getDashboardPath } from "../../utils/navigateRole";
+import { getUserFromToken } from "../../utils/auth";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -19,13 +20,21 @@ const Login: React.FC = () => {
   const [error, setError] = useState<Record<string, string>>({});
   const [loading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
+  const decodedToken = getUserFromToken();
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(getDashboardPath(), { replace: true });
+      navigateToDefaultPage();
     }
   }, [isAuthenticated, navigate]);
-
+  const navigateToDefaultPage = () => {
+    if (decodedToken?.isActive === "1") {
+      navigate(getDashboardPath(), { replace: true });
+    } else {
+      navigate(`${pathName.mentorStatus}`, {
+        replace: true,
+      });
+    }
+  };
   const validate = () => {
     const errs: Record<string, string> = {};
     const trimmedEmail = email.trim();
@@ -86,8 +95,8 @@ const Login: React.FC = () => {
       }
 
       toast.dismiss();
-
-      navigate(getDashboardPath(), { replace: true });
+      console.log(response);
+      navigateToDefaultPage();
     } catch (apiError: unknown) {
       if (apiError instanceof AxiosError) {
         const message =
@@ -157,7 +166,8 @@ const Login: React.FC = () => {
             <div className="text-right mt-1">
               <Link
                 to={pathName.forgotPassword}
-                className="text-sm text-orange-400 hover:underline">
+                className="text-sm text-orange-400 hover:underline"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -171,7 +181,8 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500 disabled:opacity-60">
+            className="w-full py-2.5 bg-orange-500 text-white font-semibold rounded-lg hover:bg-orange-600 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-orange-500 disabled:opacity-60"
+          >
             {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
@@ -179,7 +190,8 @@ const Login: React.FC = () => {
           <div className="relative">
             <div
               className="absolute inset-0 flex items-center"
-              aria-hidden="true">
+              aria-hidden="true"
+            >
               <div className="w-full border-t border-slate-700" />
             </div>
             <div className="relative flex justify-center text-sm">
@@ -193,20 +205,23 @@ const Login: React.FC = () => {
           <button
             type="button"
             className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500"
-            onClick={handleGoogleLogin}>
+            onClick={handleGoogleLogin}
+          >
             <FaGoogle size={18} />
             <span className="hidden sm:inline">Google</span>
           </button>
           <button
             type="button"
             className="w-full flex items-center justify-center gap-2 bg-slate-600 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500"
-            onClick={handleGitHubLogin}>
+            onClick={handleGitHubLogin}
+          >
             <FaGithub size={18} />
             <span className="hidden sm:inline">GitHub</span>
           </button>
           <button
             type="button"
-            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500">
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500"
+          >
             <FaLinkedin size={18} />
             <span className="hidden sm:inline">LinkedIn</span>
           </button>
@@ -215,7 +230,8 @@ const Login: React.FC = () => {
           Don’t have an account?{" "}
           <Link
             to={pathName.register}
-            className="font-medium text-orange-400 hover:underline">
+            className="font-medium text-orange-400 hover:underline"
+          >
             Sign up
           </Link>
         </div>
@@ -226,13 +242,15 @@ const Login: React.FC = () => {
           By continuing, you agree to our{" "}
           <Link
             to="/terms"
-            className="font-medium text-orange-400 hover:underline">
+            className="font-medium text-orange-400 hover:underline"
+          >
             Terms of Service
           </Link>{" "}
           and{" "}
           <Link
             to="/privacy"
-            className="font-medium text-orange-400 hover:underline">
+            className="font-medium text-orange-400 hover:underline"
+          >
             Privacy Policy
           </Link>
           .
