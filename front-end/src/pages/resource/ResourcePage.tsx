@@ -3,7 +3,7 @@ import { Search, Edit, Trash2, Eye } from "lucide-react";
 import useDebounce from "../../hooks/usedebounce";
 import Button from "../../components/ui/Button";
 import InputCustom from "../../components/input/InputCustom";
-import ResourceAddDialog from "../../components/dialog/Resources/ResourceAddDialog"; // Import the new popup component
+import ResourceAddDialog from "../../components/dialog/Resources/ResourceAddDialog";
 import { toast } from "react-toastify";
 import { resourceService } from "../../services/resource.service";
 import { handleAxiosError } from "../../utils/handlerError";
@@ -46,7 +46,7 @@ const ResourcePage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(9);
-  // const pageSizeOptions = [5, 10, 20]; // Define page size options
+
   const [totalResources, setTotalResources] = useState<ResourceType[]>([]);
   const searchDebounced = useDebounce(searchByName, 500);
   const [errors, setErrors] = useState<string>();
@@ -194,11 +194,9 @@ const ResourcePage = () => {
   };
   const handleOpenWeb = (resource: ResourceType) => {
     try {
-      // Check if the resource has a valid link and is of type 'External Link' (id: 3)
       if (resource.typeOfResource.id === 3 && resource.link) {
-        // Validate the URL
         const url = resource.link;
-        // Basic URL validation
+
         if (/^https?:\/\//i.test(url)) {
           window.open(url, "_blank");
         } else {
@@ -270,7 +268,7 @@ const ResourcePage = () => {
         <button
           id={`download-button-${index}`}
           onClick={() => handleDownload(resource)}
-          className="w-50 rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="w-[75%] max-w-xs rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Download
         </button>
@@ -279,7 +277,7 @@ const ResourcePage = () => {
         <button
           id={`open-button-${index}`}
           onClick={() => handleOpenWeb(resource)}
-          className="w-50 rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
+          className="w-[75%] max-w-xs rounded bg-orange-500 text-white px-3 py-1.5 text-sm font-semibold hover:bg-orange-600 transition-colors"
         >
           Open Link
         </button>
