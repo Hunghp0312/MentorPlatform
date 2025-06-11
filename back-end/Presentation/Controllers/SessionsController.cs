@@ -103,22 +103,5 @@ namespace Presentation.Controllers
 
             return ToActionResult(result);
         }
-
-        [HttpGet("session-count")]
-        [Authorize(Roles = "Admin,Mentor")]
-        public async Task<ActionResult<SessionStatusCountResponse>> GetSessionStatusCounts()
-        {
-            var result = await _sessionBookingService.GetSessionStatusCounts();
-            return ToActionResult(result);
-        }
-
-        [HttpGet("all")]
-        [Authorize(Roles = "Mentor")]
-        public async Task<ActionResult<PagedResult<SessionStatusResponse>>> GetAllSessions([FromQuery] SessionQueryParameters queryParameters)
-        {
-            var mentorId = Guid.Parse(User.FindFirstValue("id")!);
-            var result = await _sessionBookingService.GetAllSessions(queryParameters, mentorId);
-            return ToActionResult(result);
-        }
     }
 }

@@ -414,8 +414,8 @@ namespace ApplicationCore.Services
             {
                 Rejected = applicationStatusCount.GetValueOrDefault("Rejected", 0),
                 Approved = applicationStatusCount.GetValueOrDefault("Approved", 0),
-                Pending = applicationStatusCount.GetValueOrDefault("UnderReview", 0) + applicationStatusCount.GetValueOrDefault("Submitted", 0),
-                RequestInfo = applicationStatusCount.GetValueOrDefault("RequestInfo", 0),
+                Pending = applicationStatusCount.GetValueOrDefault("Under Review", 0) + applicationStatusCount.GetValueOrDefault("Submitted", 0),
+                RequestInfo = applicationStatusCount.GetValueOrDefault("Request Info", 0),
             };
             return OperationResult<ApplicationStatusCountResponse>.Ok(response);
 

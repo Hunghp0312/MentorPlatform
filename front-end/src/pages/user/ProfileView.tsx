@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Mail, Edit, Calendar, Clock, User } from "lucide-react";
+import { ArrowLeft, Mail, Edit, Calendar, Clock } from "lucide-react";
 
 // Services
 import { userService } from "../../services/user.service";
@@ -12,7 +12,7 @@ import { EnumType } from "../../types/commonType";
 import { UserViewResponse } from "../../types/user";
 import LoadingOverlay from "../../components/loading/LoadingOverlay";
 import { getDashboardPath } from "../../utils/navigateRole";
-
+import DefaultImage from "../../assets/Profile_avatar_placeholder_large.png";
 const ProfileView = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -117,7 +117,7 @@ const ProfileView = () => {
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-700 flex items-center justify-center">
-                          <User className="h-16 w-16 text-gray-500" />
+                          <img src={DefaultImage} className=" text-gray-500" />
                         </div>
                       )}
                     </div>

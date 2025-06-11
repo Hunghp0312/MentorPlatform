@@ -36,54 +36,6 @@ namespace ApplicationCore.Services
             _courseRepository = courseRepository;
         }
 
-        public async Task<OperationResult<SessionStatusCountResponse>> GetSessionStatusCounts()
-        {
-            var session = await _sessionBookingRepository.GetAllAsync();
-            var upcomingSessions = session.Count(s => s.StatusId == 6);
-            var pastSessions = session.Count(s => s.StatusId == 5 || s.StatusId == 4);
-            var response = new SessionStatusCountResponse
-            {
-                UpcomingSessionCount = upcomingSessions,
-                PastSessionCount = pastSessions,
-            };
-
-            return OperationResult<SessionStatusCountResponse>.Ok(response);
-        }
-
-        public async Task<OperationResult<PagedResult<SessionStatusResponse>>> GetAllSessions(SessionQueryParameters paginationParameters, Guid mentorId)
-        {
-            if (paginationParameters.StatusId.HasValue &&
-       paginationParameters.StatusId != 4 &&
-       paginationParameters.StatusId != 5 &&
-       paginationParameters.StatusId != 6)
-            {
-                return OperationResult<PagedResult<SessionStatusResponse>>.BadRequest("Invalid session status. Only statuses 4 (Cancelled), 5 (Completed), or 6 (Scheduled) are allowed.");
-            }
-
-            Func<IQueryable<SessionBooking>, IQueryable<SessionBooking>> filter = q =>
-                q.Where(s =>
-                    s.MentorId == mentorId &&
-                    (!paginationParameters.StatusId.HasValue
-                        ? s.StatusId == 4 || s.StatusId == 5 || s.StatusId == 6
-                        : s.StatusId == paginationParameters.StatusId.Value));
-
-            var (sessions, totalCount) = await _sessionBookingRepository.GetPagedAsync(
-                filter,
-                paginationParameters.PageIndex,
-                paginationParameters.PageSize
-            );
-
-            var pagedResult = new PagedResult<SessionStatusResponse>
-            {
-                Items = sessions.ToSessionStatusResponseList(),
-                PageIndex = paginationParameters.PageIndex,
-                PageSize = paginationParameters.PageSize,
-                TotalItems = totalCount
-            };
-
-            return OperationResult<PagedResult<SessionStatusResponse>>.Ok(pagedResult);
-        }
-
         public async Task<OperationResult<CreatedBookingResponseDto>> CreateNewBookingAsync(Guid learnerId, CreateBookingRequestDto bookingRequest)
         {
             var learner = await _userRepository.GetByIdWithUserProfileAsync(learnerId);
