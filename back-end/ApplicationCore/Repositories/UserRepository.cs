@@ -1,9 +1,9 @@
-﻿using ApplicationCore.Repositories.RepositoryInterfaces;
+﻿using System.Linq.Expressions;
+using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.BaseRepository;
 using Infrastructure.Data.Context;
 using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace ApplicationCore.Repositories;
 
@@ -50,7 +50,7 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         {
             query = query.Where(predicate);
         }
-        var users = await query.Take(10).ToListAsync();
+        var users = await query.ToListAsync();
         return (users);
     }
     public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersWithDetailsAsync(
