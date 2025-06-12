@@ -591,17 +591,29 @@ const ListApproval = () => {
                       cellClassName="p-0"
                       headerClassName="hidden"
                       emptyMessage="No applications available"
-                      pagination
-                      pageSize={pageSize}
-                      setPageSize={setPageSize}
-                      pageIndex={pageIndex}
-                      setPageIndex={setPageIndex}
-                      totalItems={totalItems}
-                      paginationClassName="pr-3 pl-3"
+                      pagination={false}
                       onRowClick={handleSelectApplicants}
                     />
                   )}
                 </div>
+                {isFetching ? null : (
+                  <div className="px-3 py-3 bg-gray-700 border-t border-gray-600">
+                    <div>
+                      <DataTable
+                        data={approvals}
+                        columns={[]}
+                        keyField="applicantUserId"
+                        pagination
+                        pageSize={pageSize}
+                        setPageSize={setPageSize}
+                        pageIndex={pageIndex}
+                        setPageIndex={setPageIndex}
+                        totalItems={totalItems}
+                        paginationClassName="pr-1 pl-1 flex items-center gap-4"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className="w-full sm:w-1/2">
