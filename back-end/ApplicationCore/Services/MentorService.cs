@@ -245,6 +245,10 @@ namespace ApplicationCore.Services
                         break;
                     case "request info":
                         bodyBuilder.AppendLine("<p>We need more information to process your application. Please check your email for further instructions.</p>");
+                        if (!string.IsNullOrWhiteSpace(request.AdminComments))
+                        {
+                            bodyBuilder.AppendLine($"<p>Info: <em>{request.AdminComments}</em></p>");
+                        }
                         break;
                 }
 
