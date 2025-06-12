@@ -1,3 +1,4 @@
+using ApplicationCore.Common;
 using ApplicationCore.Repositories.RepositoryInterfaces;
 using Infrastructure.Data;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +10,7 @@ namespace Infrastructure.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ISendEmailService _sendEmailService;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1);
 
         public SessionReminderService(IServiceProvider serviceProvider, ISendEmailService sendEmailService)
         {
@@ -31,7 +32,7 @@ namespace Infrastructure.Services
             using var scope = _serviceProvider.CreateScope();
             var sessionBookingRepository = scope.ServiceProvider.GetRequiredService<ISessionBookingRepository>();
 
-            var now = DateTime.UtcNow;
+            var now = DateTimeHelper.GetCurrentVietnamTime();
             var oneHourFromNow = now.AddHours(24);
             var sessions = await sessionBookingRepository.GetAllAsync();
             if (sessions == null || !sessions.Any())
@@ -64,7 +65,7 @@ namespace Infrastructure.Services
                 var body = $@"<h3>Session Reminder</h3>
                             <p>Dear {session.Mentor.UserProfile.FullName},</p>
                             <p>This is a kind reminder that you have an upcoming session scheduled with {session.Learner.UserProfile.FullName} - {session.Learner.Email} </p>
-                            <p>The session is scheduled at {session.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(session.MentorTimeAvailable.Start):dd/MM/yyyy HH:mm} (UTC).</p>
+                            <p>The session is scheduled at {session.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(session.MentorTimeAvailable.Start):dd/MM/yyyy HH:mm}.</p>
                             <p>Please ensure you are prepared for the session and join on time.</p>
                             <p>If you have any questions or need to reschedule, please contact your learner in advance.</p>
                             <p>Best regards,<br>
