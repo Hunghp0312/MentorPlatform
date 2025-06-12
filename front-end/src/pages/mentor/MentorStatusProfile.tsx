@@ -903,8 +903,8 @@ const MentorStatusProfile = () => {
       </div>
       <div>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center">
-          Documents
-          {isEditing && mentorData.mentorDocuments.length < 5 && (
+          Document(s)
+          {isEditing && editedMentor.mentorDocuments.length < 5 && (
             <button
               id="open-file-explorer-icon"
               onClick={() => handleOpenFileExplorer()}
