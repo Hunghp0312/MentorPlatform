@@ -207,7 +207,7 @@ const MentorDashBoard: React.FC = () => {
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-semibold text-white">Upcoming Sessions</h2>
                                 <Link
-                                    to={`/session-management/${mentorId}`}
+                                    to={`${pathName.sessionManagement}`}
                                     className="text-blue-400 text-sm hover:underline flex items-center"
                                 >
                                     Manage Schedule <span className="ml-1">→</span>

@@ -84,10 +84,8 @@ const MentorFinder: React.FC = () => {
 
     const handleToggleExpertise = (id: number): void => {
         if (selectedExpertise.includes(id)) {
-            // Remove expertise if already selected
             setSelectedExpertise(selectedExpertise.filter(expertiseId => expertiseId !== id));
         } else {
-            // Add expertise if not selected
             setSelectedExpertise([...selectedExpertise, id]);
         }
     };
@@ -107,7 +105,7 @@ const MentorFinder: React.FC = () => {
                             <input
                                 autoFocus
                                 type="text"
-                                placeholder="Search mentors by name, role, or expertise..."
+                                placeholder="Search mentors by name ... "
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
