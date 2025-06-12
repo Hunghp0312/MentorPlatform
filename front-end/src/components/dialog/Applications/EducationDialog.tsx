@@ -73,9 +73,11 @@ const EducationAddDialog: React.FC<EducationAddDialogProps> = ({
       isValid = false;
     } else if (
       parseInt(formState.graduationYear.toString()) < 1900 ||
-      parseInt(formState.graduationYear.toString()) > currentYear
+      parseInt(formState.graduationYear.toString()) > currentYear + 5
     ) {
-      newErrors.graduationYear = `Year must be between 1900 and ${currentYear}.`;
+      newErrors.graduationYear = `Year must be between 1900 and ${
+        currentYear + 5
+      }.`;
       isValid = false;
     }
 

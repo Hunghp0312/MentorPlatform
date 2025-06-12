@@ -120,10 +120,8 @@ const WorkExperienceAddDialog: React.FC<WorkExperienceAddDialogProps> = ({
       const [startMonth, startYear] = formState.startDate
         .split("/")
         .map(Number);
-      if (endYear < 1900 || endYear > currentYear + 5) {
-        newErrors.endDate = `End year must be between 1900 and ${
-          currentYear + 5
-        }.`;
+      if (endYear < 1900 || endYear > currentYear) {
+        newErrors.endDate = `End year must be between 1900 and ${currentYear}.`;
         isValid = false;
       } else if (endMonth < 1 || endMonth > 12) {
         newErrors.endDate = "End month must be between 01 and 12.";
