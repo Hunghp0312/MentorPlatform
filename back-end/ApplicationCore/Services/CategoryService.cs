@@ -147,6 +147,8 @@ namespace ApplicationCore.Services
                     {
                         q = q.Where(c => c.StatusId == parameters.Status);
                     }
+                    q = q.OrderBy(c => c.Name);
+
                     return q;
                 };
             }
