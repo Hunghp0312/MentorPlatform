@@ -46,7 +46,7 @@ namespace Infrastructure.Services
                       s.MentorTimeAvailable.MentorDayAvailable.Day.ToDateTime(s.MentorTimeAvailable.Start) is var sessionTime &&
                       sessionTime >= now &&
                       sessionTime <= oneHourFromNow &&
-                      (s.LastReminderSent == null || s.LastReminderSent < sessionTime.AddHours(-24)))
+                      (s.LastReminderSent == null))
           .ToList();
             if (!upcomingSessions.Any())
             {
