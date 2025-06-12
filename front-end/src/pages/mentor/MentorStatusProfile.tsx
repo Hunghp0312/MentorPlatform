@@ -592,28 +592,6 @@ const MentorStatusProfile = () => {
     }
   };
 
-  const handleTestFileLogs = async () => {
-    console.log(
-      "Files to be deleted:",
-      savedFilesToDelete.map((doc) => ({
-        id: doc.id,
-        fileName: doc.fileName,
-        fileType: doc.fileType,
-      }))
-    );
-
-    const filesToUpload = selectedFiles.filter((file) =>
-      saveState.mentorDocuments.some((doc) => doc.fileName === file.name)
-    );
-    console.log(
-      "Files to be uploaded:",
-      filesToUpload.map((file) => ({
-        fileName: file.name,
-        fileType: file.type,
-        fileSize: file.size,
-      }))
-    );
-  };
   const handleOpenFileExplorer = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -1085,14 +1063,6 @@ const MentorStatusProfile = () => {
                   )
                 )}
               </p>
-            </div>
-            <div>
-              <button
-                onClick={() => handleTestFileLogs()}
-                className="px-4 py-2 bg-amber-400"
-              >
-                check
-              </button>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
