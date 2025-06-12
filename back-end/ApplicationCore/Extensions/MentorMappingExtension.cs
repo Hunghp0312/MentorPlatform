@@ -158,9 +158,7 @@ namespace ApplicationCore.Extensions
             {
                 Id = mentor.User.Id,
                 FullName = mentor.FullName,
-                PhotoData = mentor.PhotoData != null
-                    ? $"data:image/png;base64,{Convert.ToBase64String(mentor.PhotoData)}"
-                    : string.Empty,
+                PhotoData = string.Empty,
                 ExpertiseTags = mentor.User.UserAreaOfExpertises.Select(x => x.AreaOfExpertise.Name).ToList(),
                 ShortBioOrTagline = mentor.Bio
             };
