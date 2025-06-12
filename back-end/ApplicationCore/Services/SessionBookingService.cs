@@ -132,10 +132,7 @@ namespace ApplicationCore.Services
                 query = query.Where(sb => sb.MentorTimeAvailable.MentorDayAvailable.Day <= queryParameters.ToSessionDate.Value);
             }
 
-            if (queryParameters.StatusIds.Contains(1))
-            {
-                query = query.OrderBy(s => s.CreatedAt);
-            }
+            query = query.OrderBy(s => s.MentorTimeAvailable.MentorDayAvailable.Day).ThenBy(x => x.MentorTimeAvailable.Start);
 
             if (!string.IsNullOrWhiteSpace(queryParameters.Query))
             {
