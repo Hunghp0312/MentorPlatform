@@ -241,18 +241,22 @@ const MentorStatusProfile = () => {
 
       if (!allowedFileTypes.includes(file.type)) {
         toast.error("Only support PDF, JPEG, or PNG.");
+        event.target.value = "";
         return;
       }
 
       if (file.size > maxFileSize) {
         toast.error("Error: File size must not exceed 5MB.");
+        event.target.value = "";
         return;
       }
 
       if (!(file instanceof File)) {
         toast.error("Invalid file selected.");
+        event.target.value = "";
         return;
       }
+
       const isDuplicate = editedMentor.mentorDocuments.some(
         (doc) => doc.fileName === file.name
       );
@@ -282,6 +286,7 @@ const MentorStatusProfile = () => {
         ...prev,
         mentorDocuments: [...(prev.mentorDocuments || []), newDocument],
       }));
+      event.target.value = "";
     }
   };
   const handleRemoveDocument = (index: number) => {
@@ -291,17 +296,24 @@ const MentorStatusProfile = () => {
       setFilesToDelete((prev) => [...prev, documentToRemove]);
     }
 
+    const updatedDocuments = editedMentor.mentorDocuments.filter(
+      (_, i) => i !== index
+    );
     setEditedMentor((prev) => ({
       ...prev,
-      mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+      mentorDocuments: updatedDocuments,
     }));
     setMentorData((prev) => ({
       ...prev,
-      mentorDocuments: prev.mentorDocuments.filter((_, i) => i !== index),
+      mentorDocuments: updatedDocuments,
     }));
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
 
+    setSelectedFiles((prev) =>
+      prev.filter((file) =>
+        updatedDocuments.some((doc) => doc.fileName === file.name)
+      )
+    );
+  };
   const handleAddNewEducation = async (newEducation: MentorEducation) => {
     if (
       newEducation.institutionName &&
@@ -506,12 +518,15 @@ const MentorStatusProfile = () => {
     try {
       if (mentorData.status === "") {
         await mentorService.submitCompleteApplication(application);
-        for (const file of selectedFiles) {
+        const filesToUpload = selectedFiles.filter((file) =>
+          saveState.mentorDocuments.some((doc) => doc.fileName === file.name)
+        );
+        for (const file of filesToUpload) {
           await mentorService.uploadFile(file);
         }
         toast.success("Application submitted successfully.");
       } else if (mentorData.status === "Request Info") {
-        for (const file of filesToDelete) {
+        for (const file of savedFilesToDelete) {
           if (file.id) {
             try {
               await mentorService.deleteFile(file.id);
@@ -521,8 +536,12 @@ const MentorStatusProfile = () => {
             }
           }
         }
+
         const newFiles = selectedFiles.filter(
           (file) =>
+            saveState.mentorDocuments.some(
+              (doc) => doc.fileName === file.name
+            ) &&
             !saveState.mentorDocuments.some(
               (doc) => doc.fileName === file.name && doc.id
             )
@@ -573,6 +592,28 @@ const MentorStatusProfile = () => {
     }
   };
 
+  const handleTestFileLogs = async () => {
+    console.log(
+      "Files to be deleted:",
+      savedFilesToDelete.map((doc) => ({
+        id: doc.id,
+        fileName: doc.fileName,
+        fileType: doc.fileType,
+      }))
+    );
+
+    const filesToUpload = selectedFiles.filter((file) =>
+      saveState.mentorDocuments.some((doc) => doc.fileName === file.name)
+    );
+    console.log(
+      "Files to be uploaded:",
+      filesToUpload.map((file) => ({
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size,
+      }))
+    );
+  };
   const handleOpenFileExplorer = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -589,7 +630,6 @@ const MentorStatusProfile = () => {
       };
 
       setMentorData(updatedData);
-
       setSaveState({
         mentorEducation: [...(editedMentor.mentorEducation || [])],
         mentorWorkExperience: [...(editedMentor.mentorWorkExperience || [])],
@@ -597,7 +637,13 @@ const MentorStatusProfile = () => {
         mentorDocuments: [...(editedMentor.mentorDocuments || [])],
       });
 
-      setSavedFilesToDelete([...filesToDelete]);
+      setSavedFilesToDelete([...filesToDelete.filter((doc) => doc.id)]);
+
+      setSelectedFiles((prev) =>
+        prev.filter((file) =>
+          editedMentor.mentorDocuments.some((doc) => doc.fileName === file.name)
+        )
+      );
       setIsEditing(false);
       setError(null);
     }
@@ -622,13 +668,19 @@ const MentorStatusProfile = () => {
       mentorDocuments: [...(saveState.mentorDocuments || [])],
     });
 
+    const restoredFiles = saveState.mentorDocuments
+      .filter((doc) => !doc.id)
+      .map((doc) => {
+        const file = selectedFiles.find((f) => f.name === doc.fileName);
+        return file || new File([], doc.fileName, { type: doc.fileType });
+      });
+    setSelectedFiles(restoredFiles);
+    setFilesToDelete([...savedFilesToDelete]);
     setIsEditing(false);
     setError(null);
     setNewEducation({});
     setNewWorkExperience({});
     setNewCertification({});
-    setSelectedFiles([]);
-    setFilesToDelete([...savedFilesToDelete]);
   };
 
   const additionalSettingsContent = (
@@ -1033,6 +1085,14 @@ const MentorStatusProfile = () => {
                   )
                 )}
               </p>
+            </div>
+            <div>
+              <button
+                onClick={() => handleTestFileLogs()}
+                className="px-4 py-2 bg-amber-400"
+              >
+                check
+              </button>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-1">
