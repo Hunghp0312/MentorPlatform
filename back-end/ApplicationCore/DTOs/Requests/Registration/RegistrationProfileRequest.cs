@@ -9,6 +9,8 @@ namespace ApplicationCore.DTOs.Requests.Registration
         public required string ConfirmPassword { get; set; }
         public string? PhoneNumber { get; set; }
         public string? FullName { get; set; }
+        public string? FullName1 { get; set; }
+        public string? FullName2 { get; set; }
         public string? Bio { get; set; }
         public required int SelectedRole { get; set; }
         public IFormFile? PhotoData { get; set; }
